@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/wp-content/uploads/newsletter-gallery/' : '/',
+  base: mode === 'production' ? '/wp-content/plugins/newsletter-gallery-manager/dist/' : '/',
   server: {
     host: "::",
     port: 8080,

@@ -66,10 +66,14 @@ const Index = () => {
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
 
-  // Check URL parameter for admin access
+  // Check WordPress admin context or URL parameter for admin access
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('admin') === 'true') {
+    
+    // Check if running in WordPress admin context
+    if (typeof window !== 'undefined' && (window as any).wpNewsletterGallery) {
+      setIsAdmin((window as any).wpNewsletterGallery.isAdmin);
+    } else if (urlParams.get('admin') === 'true') {
       setIsAdmin(true);
     }
   }, []);
