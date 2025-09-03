@@ -44,6 +44,37 @@ class NewsletterGalleryPlugin {
     }
     
     /**
+     * Get asset URL with dynamic filename detection
+     */
+    private function get_asset_url($type) {
+        $plugin_dir = plugin_dir_path(__FILE__);
+        $plugin_url = plugin_dir_url(__FILE__);
+        $dist_dir = $plugin_dir . 'dist/assets/';
+        
+        if (!is_dir($dist_dir)) {
+            return false;
+        }
+        
+        $files = scandir($dist_dir);
+        foreach ($files as $file) {
+            if ($type === 'js' && preg_match('/index-[a-zA-Z0-9]+\.js$/', $file)) {
+                return $plugin_url . 'dist/assets/' . $file;
+            }
+            if ($type === 'css' && preg_match('/index-[a-zA-Z0-9]+\.css$/', $file)) {
+                return $plugin_url . 'dist/assets/' . $file;
+            }
+        }
+        
+        // Fallback to non-hashed filenames
+        $fallback_file = $plugin_url . 'dist/assets/index.' . $type;
+        if (file_exists($plugin_dir . 'dist/assets/index.' . $type)) {
+            return $fallback_file;
+        }
+        
+        return false;
+    }
+    
+    /**
      * Enqueue scripts and styles for admin page
      */
     public function enqueue_admin_scripts($hook_suffix) {
@@ -52,12 +83,17 @@ class NewsletterGalleryPlugin {
             return;
         }
         
-        $plugin_url = plugin_dir_url(__FILE__);
-        $dist_path = $plugin_url . 'dist/';
+        // Get asset files dynamically
+        $js_file = $this->get_asset_url('js');
+        $css_file = $this->get_asset_url('css');
         
-        // Check if built files exist
-        $js_file = $dist_path . 'assets/index.js';
-        $css_file = $dist_path . 'assets/index.css';
+        if (!$js_file || !$css_file) {
+            // Show error message in admin if assets not found
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error"><p>Newsletter Gallery: Plugin assets not found. Please rebuild the plugin.</p></div>';
+            });
+            return;
+        }
         
         // Enqueue the React app's JS and CSS
         wp_enqueue_script(
@@ -67,6 +103,7 @@ class NewsletterGalleryPlugin {
             '1.0.0', 
             true
         );
+        wp_script_add_data('newsletter-gallery-admin', 'type', 'module');
         
         wp_enqueue_style(
             'newsletter-gallery-admin', 
