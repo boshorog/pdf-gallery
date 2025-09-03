@@ -44,37 +44,6 @@ class NewsletterGalleryPlugin {
     }
     
     /**
-     * Get asset URL with dynamic filename detection
-     */
-    private function get_asset_url($type) {
-        $plugin_dir = plugin_dir_path(__FILE__);
-        $plugin_url = plugin_dir_url(__FILE__);
-        $dist_dir = $plugin_dir . 'dist/assets/';
-        
-        if (!is_dir($dist_dir)) {
-            return false;
-        }
-        
-        $files = scandir($dist_dir);
-        foreach ($files as $file) {
-            if ($type === 'js' && preg_match('/index-[a-zA-Z0-9]+\.js$/', $file)) {
-                return $plugin_url . 'dist/assets/' . $file;
-            }
-            if ($type === 'css' && preg_match('/index-[a-zA-Z0-9]+\.css$/', $file)) {
-                return $plugin_url . 'dist/assets/' . $file;
-            }
-        }
-        
-        // Fallback to non-hashed filenames
-        $fallback_file = $plugin_url . 'dist/assets/index.' . $type;
-        if (file_exists($plugin_dir . 'dist/assets/index.' . $type)) {
-            return $fallback_file;
-        }
-        
-        return false;
-    }
-    
-    /**
      * Enqueue scripts and styles for admin page
      */
     public function enqueue_admin_scripts($hook_suffix) {
