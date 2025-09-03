@@ -242,11 +242,11 @@ const NewsletterGallery = ({
                         </div>
 
                         {/* Newsletter Info */}
-                        <div className="mt-3 space-y-1 sm:space-y-0.5">
-                          <p className="text-sm text-muted-foreground">
+                        <div className="mt-2 space-y-0">
+                          <p className="text-sm leading-tight text-muted-foreground">
                             {newsletter.date}
                           </p>
-                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
+                          <h3 className="font-semibold leading-tight text-foreground group-hover:text-primary transition-colors duration-300">
                             {newsletter.title}
                           </h3>
                         </div>
@@ -325,11 +325,11 @@ const NewsletterGallery = ({
                     </div>
 
                     {/* Newsletter Info */}
-                    <div className="mt-3 space-y-1 sm:space-y-0.5">
-                      <p className="text-sm text-muted-foreground">
+                    <div className="mt-2 space-y-0">
+                      <p className="text-sm leading-tight text-muted-foreground">
                         {newsletter.date}
                       </p>
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
+                      <h3 className="font-semibold leading-tight text-foreground group-hover:text-primary transition-colors duration-300">
                         {newsletter.title}
                       </h3>
                     </div>

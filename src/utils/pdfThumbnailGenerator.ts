@@ -17,10 +17,13 @@ export class PDFThumbnailGenerator {
       console.log('PDFThumbnailGenerator: Loading PDF:', pdfUrl);
       
       // Load the PDF document
-      const loadingTask = getDocument({
-        url: pdfUrl,
-      });
-      const pdf = await loadingTask.promise;
+      // Fetch the PDF ourselves to avoid any worker/cors fetching issues
+      const response = await fetch(pdfUrl, { mode: 'cors' });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      const pdf = await getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
       
       console.log('PDFThumbnailGenerator: PDF loaded, pages:', pdf.numPages);
       
