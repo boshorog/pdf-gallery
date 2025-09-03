@@ -14,10 +14,37 @@ interface Newsletter {
   thumbnail: string;
 }
 
+interface YearDivider {
+  type: 'divider';
+  year: string;
+}
+
+type GalleryItem = Newsletter | YearDivider;
+
 // Default fallback thumbnails
 const fallbackThumbnails = [thumbnail1, thumbnail2, thumbnail3, thumbnail4];
 
-// Sample newsletter data - replace with your actual newsletter data
+// Sample newsletter data with year dividers
+const createNewslettersWithDividers = (newsletters: Newsletter[]): GalleryItem[] => {
+  const items: GalleryItem[] = [];
+  let currentYear: string | null = null;
+  
+  newsletters.forEach(newsletter => {
+    // Extract year from date (assuming format like "Aprilie 2025")
+    const year = newsletter.date.split(' ').pop() || '';
+    
+    if (year !== currentYear) {
+      // Add year divider
+      items.push({ type: 'divider', year });
+      currentYear = year;
+    }
+    
+    items.push(newsletter);
+  });
+  
+  return items;
+};
+
 const sampleNewsletters: Newsletter[] = [
   {
     id: '1',
@@ -77,6 +104,9 @@ const NewsletterGallery = ({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [newslettersWithThumbnails, setNewslettersWithThumbnails] = useState<Newsletter[]>(newsletters);
   const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
+  
+  // Create gallery items with dividers
+  const galleryItems = createNewslettersWithDividers(newslettersWithThumbnails);
 
   // Generate thumbnails from PDFs on component mount
   useEffect(() => {
@@ -133,9 +163,9 @@ const NewsletterGallery = ({
     <div className="w-full max-w-7xl mx-auto p-6">
 
       {/* Newsletter Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="space-y-8">
         {isGeneratingThumbnails && (
-          <div className="col-span-full flex items-center justify-center py-12">
+          <div className="flex items-center justify-center py-12">
             <div className="flex items-center gap-3 text-muted-foreground">
               <Loader2 className="w-6 h-6 animate-spin" />
               <span>Generez thumbnails...</span>
@@ -143,59 +173,155 @@ const NewsletterGallery = ({
           </div>
         )}
         
-        {newslettersWithThumbnails.map((newsletter) => (
-          <article
-            key={newsletter.id}
-            className="group cursor-pointer"
-            onClick={() => handleNewsletterClick(newsletter.pdfUrl)}
-            onMouseEnter={() => setHoveredId(newsletter.id)}
-            onMouseLeave={() => setHoveredId(null)}
-          >
-            {/* Thumbnail Container */}
-            <div className="relative overflow-hidden rounded-lg bg-card shadow-newsletter group-hover:shadow-newsletter-hover transition-all duration-300 ease-smooth">
-              {/* Thumbnail Image */}
-              <div className="aspect-[4/3] relative overflow-hidden">
-                <img
-                  src={newsletter.thumbnail}
-                  alt={`Preview pentru ${newsletter.title}`}
-                  className="w-full h-full object-cover transition-transform duration-300 ease-smooth group-hover:scale-105"
-                  loading="lazy"
-                />
-                
-                {/* Overlay on hover */}
-                <div 
-                  className={`absolute inset-0 bg-primary/20 backdrop-blur-sm transition-opacity duration-300 ${
-                    hoveredId === newsletter.id ? 'opacity-100' : 'opacity-0'
-                  }`}
-                >
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-card rounded-full p-4 shadow-lg">
-                      <ExternalLink className="w-6 h-6 text-primary" />
-                    </div>
+        {(() => {
+          const groups: JSX.Element[] = [];
+          let currentGrid: Newsletter[] = [];
+          
+          galleryItems.forEach((item, index) => {
+            if ('type' in item && item.type === 'divider') {
+              // Add previous grid if it exists
+              if (currentGrid.length > 0) {
+                groups.push(
+                  <div key={`grid-${groups.length}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    {currentGrid.map((newsletter) => (
+                      <article
+                        key={newsletter.id}
+                        className="group cursor-pointer"
+                        onClick={() => handleNewsletterClick(newsletter.pdfUrl)}
+                        onMouseEnter={() => setHoveredId(newsletter.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                      >
+                        {/* Thumbnail Container */}
+                        <div className="relative overflow-hidden rounded-lg bg-card shadow-newsletter group-hover:shadow-newsletter-hover transition-all duration-300 ease-smooth">
+                          {/* Thumbnail Image */}
+                          <div className="aspect-[4/3] relative overflow-hidden">
+                            <img
+                              src={newsletter.thumbnail}
+                              alt={`Preview pentru ${newsletter.title}`}
+                              className="w-full h-full object-cover transition-transform duration-300 ease-smooth group-hover:scale-105"
+                              loading="lazy"
+                            />
+                            
+                            {/* Overlay on hover */}
+                            <div 
+                              className={`absolute inset-0 bg-primary/20 backdrop-blur-sm transition-opacity duration-300 ${
+                                hoveredId === newsletter.id ? 'opacity-100' : 'opacity-0'
+                              }`}
+                            >
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="bg-card rounded-full p-4 shadow-lg">
+                                  <ExternalLink className="w-6 h-6 text-primary" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* PDF Indicator */}
+                          <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
+                            <div className="flex items-center gap-1">
+                              <FileText className="w-3 h-3 text-muted-foreground" />
+                              <span className="text-xs font-medium text-muted-foreground">PDF</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Newsletter Info */}
+                        <div className="mt-4 space-y-1">
+                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
+                            {newsletter.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {newsletter.date}
+                          </p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                );
+                currentGrid = [];
+              }
+              
+              // Add year divider
+              groups.push(
+                <div key={`divider-${item.year}`} className="text-center py-8">
+                  <div className="flex items-center justify-center gap-4">
+                    <div className="h-px bg-border flex-1 max-w-xs"></div>
+                    <h2 className="text-2xl font-bold text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                      {item.year}
+                    </h2>
+                    <div className="h-px bg-border flex-1 max-w-xs"></div>
                   </div>
                 </div>
-              </div>
+              );
+            } else {
+              // Add newsletter to current grid
+              currentGrid.push(item as Newsletter);
+            }
+          });
+          
+          // Add final grid if it exists
+          if (currentGrid.length > 0) {
+            groups.push(
+              <div key={`grid-${groups.length}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {currentGrid.map((newsletter) => (
+                  <article
+                    key={newsletter.id}
+                    className="group cursor-pointer"
+                    onClick={() => handleNewsletterClick(newsletter.pdfUrl)}
+                    onMouseEnter={() => setHoveredId(newsletter.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                  >
+                    {/* Thumbnail Container */}
+                    <div className="relative overflow-hidden rounded-lg bg-card shadow-newsletter group-hover:shadow-newsletter-hover transition-all duration-300 ease-smooth">
+                      {/* Thumbnail Image */}
+                      <div className="aspect-[4/3] relative overflow-hidden">
+                        <img
+                          src={newsletter.thumbnail}
+                          alt={`Preview pentru ${newsletter.title}`}
+                          className="w-full h-full object-cover transition-transform duration-300 ease-smooth group-hover:scale-105"
+                          loading="lazy"
+                        />
+                        
+                        {/* Overlay on hover */}
+                        <div 
+                          className={`absolute inset-0 bg-primary/20 backdrop-blur-sm transition-opacity duration-300 ${
+                            hoveredId === newsletter.id ? 'opacity-100' : 'opacity-0'
+                          }`}
+                        >
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="bg-card rounded-full p-4 shadow-lg">
+                              <ExternalLink className="w-6 h-6 text-primary" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-              {/* PDF Indicator */}
-              <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
-                <div className="flex items-center gap-1">
-                  <FileText className="w-3 h-3 text-muted-foreground" />
-                  <span className="text-xs font-medium text-muted-foreground">PDF</span>
-                </div>
-              </div>
-            </div>
+                      {/* PDF Indicator */}
+                      <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
+                        <div className="flex items-center gap-1">
+                          <FileText className="w-3 h-3 text-muted-foreground" />
+                          <span className="text-xs font-medium text-muted-foreground">PDF</span>
+                        </div>
+                      </div>
+                    </div>
 
-            {/* Newsletter Info */}
-            <div className="mt-4 space-y-1">
-              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
-                {newsletter.title}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {newsletter.date}
-              </p>
-            </div>
-          </article>
-        ))}
+                    {/* Newsletter Info */}
+                    <div className="mt-4 space-y-1">
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
+                        {newsletter.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {newsletter.date}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            );
+          }
+          
+          return groups;
+        })()}
       </div>
 
       {/* Empty State */}
