@@ -111,12 +111,14 @@ const NewsletterGallery = ({
 
   // Generate thumbnails from PDFs on component mount
   useEffect(() => {
+    if (newsletters.length === 0) return;
+    
     console.log('NewsletterGallery: useEffect triggered, newsletters count:', newsletters.length);
     
     // Set initial placeholders
     const newslettersWithPlaceholders = newsletters.map(newsletter => ({
       ...newsletter,
-      thumbnail: pdfPlaceholder
+      thumbnail: newsletter.thumbnail || pdfPlaceholder
     }));
     setNewslettersWithThumbnails(newslettersWithPlaceholders);
     
@@ -140,11 +142,11 @@ const NewsletterGallery = ({
             console.log(`Successfully generated thumbnail for newsletter ${index}`);
             return { ...newsletter, thumbnail: result.dataUrl };
           }
-          // Fallback to default thumbnail if generation fails
+          // Fallback to existing thumbnail or placeholder if generation fails
           console.log(`Using fallback thumbnail for newsletter ${index}`);
           return { 
             ...newsletter, 
-            thumbnail: pdfPlaceholder
+            thumbnail: newsletter.thumbnail || pdfPlaceholder
           };
         });
         
@@ -152,15 +154,18 @@ const NewsletterGallery = ({
         setNewslettersWithThumbnails(updatedNewsletters);
       } catch (error) {
         console.error('Failed to generate thumbnails:', error);
-        // Use fallback thumbnails on error
-        setNewslettersWithThumbnails(newsletters);
+        // Use existing newsletters with their current thumbnails on error
+        setNewslettersWithThumbnails(newslettersWithPlaceholders);
       } finally {
         console.log('Thumbnail generation complete');
         setIsGeneratingThumbnails(false);
       }
     };
     
-    generateThumbnails();
+    // Only generate thumbnails if we have newsletters that need them
+    if (newsletters.some(n => !n.thumbnail || n.thumbnail.includes('placeholder'))) {
+      generateThumbnails();
+    }
   }, [newsletters]);
 
   const handleNewsletterClick = (pdfUrl: string) => {

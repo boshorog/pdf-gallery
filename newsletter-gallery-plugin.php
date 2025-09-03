@@ -234,14 +234,22 @@ function handle_newsletter_gallery_ajax() {
             if (!current_user_can('manage_options')) {
                 wp_send_json_error('Insufficient permissions');
             }
-            // Save logic here
-            wp_send_json_success('Newsletters saved');
+            
+            $newsletters_json = stripslashes($_POST['newsletters']);
+            $newsletters = json_decode($newsletters_json, true);
+            
+            if (json_last_error() === JSON_ERROR_NONE && is_array($newsletters)) {
+                update_option('newsletter_gallery_data', $newsletters);
+                wp_send_json_success('Newsletters saved successfully');
+            } else {
+                wp_send_json_error('Invalid newsletters data');
+            }
             break;
             
         case 'get_newsletters':
             // Handle getting newsletters data
-            // Get logic here
-            wp_send_json_success(array('newsletters' => array()));
+            $newsletters = get_option('newsletter_gallery_data', array());
+            wp_send_json_success(array('newsletters' => $newsletters));
             break;
             
         default:

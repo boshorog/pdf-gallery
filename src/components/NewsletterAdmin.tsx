@@ -30,7 +30,33 @@ const NewsletterAdmin = ({ newsletters, onNewslettersChange }: NewsletterAdminPr
   });
   const { toast } = useToast();
 
-  const handleSubmit = () => {
+  const saveNewslettersToWP = async (updatedNewsletters: Newsletter[]) => {
+    const wp = (window as any).wpNewsletterGallery;
+    if (wp?.ajaxUrl && wp?.nonce) {
+      try {
+        const form = new FormData();
+        form.append('action', 'newsletter_gallery_action');
+        form.append('action_type', 'save_newsletters');
+        form.append('nonce', wp.nonce);
+        form.append('newsletters', JSON.stringify(updatedNewsletters));
+
+        const res = await fetch(wp.ajaxUrl, {
+          method: 'POST',
+          credentials: 'same-origin',
+          body: form,
+        });
+        
+        const data = await res.json();
+        return data?.success;
+      } catch (error) {
+        console.error('Failed to save to WordPress:', error);
+        return false;
+      }
+    }
+    return true; // Return true for non-WP environments
+  };
+
+  const handleSubmit = async () => {
     if (!formData.title || !formData.date || !formData.pdfUrl) {
       toast({
         title: "Eroare",
@@ -40,18 +66,15 @@ const NewsletterAdmin = ({ newsletters, onNewslettersChange }: NewsletterAdminPr
       return;
     }
 
+    let updated: Newsletter[];
+    
     if (editingId) {
       // Update existing newsletter
-      const updated = newsletters.map(newsletter =>
+      updated = newsletters.map(newsletter =>
         newsletter.id === editingId
           ? { ...newsletter, ...formData }
           : newsletter
       );
-      onNewslettersChange(updated);
-      toast({
-        title: "Actualizat",
-        description: "Newsletter-ul a fost actualizat cu succes",
-      });
     } else {
       // Add new newsletter
       const newNewsletter: Newsletter = {
@@ -59,23 +82,48 @@ const NewsletterAdmin = ({ newsletters, onNewslettersChange }: NewsletterAdminPr
         ...formData,
         thumbnail: formData.thumbnail || '/placeholder-newsletter.jpg'
       };
-      onNewslettersChange([...newsletters, newNewsletter]);
-      toast({
-        title: "Adăugat",
-        description: "Newsletter-ul a fost adăugat cu succes",
-      });
+      updated = [...newsletters, newNewsletter];
     }
 
-    resetForm();
+    // Save to WordPress first
+    const saved = await saveNewslettersToWP(updated);
+    
+    if (saved) {
+      onNewslettersChange(updated);
+      toast({
+        title: editingId ? "Actualizat" : "Adăugat",
+        description: `Newsletter-ul a fost ${editingId ? 'actualizat' : 'adăugat'} cu succes`,
+      });
+      resetForm();
+    } else {
+      toast({
+        title: "Eroare",
+        description: "Nu s-a putut salva newsletter-ul",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Sunteți sigur că doriți să ștergeți acest newsletter?')) {
-      onNewslettersChange(newsletters.filter(n => n.id !== id));
-      toast({
-        title: "Șters",
-        description: "Newsletter-ul a fost șters cu succes",
-      });
+      const updated = newsletters.filter(n => n.id !== id);
+      
+      // Save to WordPress first
+      const saved = await saveNewslettersToWP(updated);
+      
+      if (saved) {
+        onNewslettersChange(updated);
+        toast({
+          title: "Șters",
+          description: "Newsletter-ul a fost șters cu succes",
+        });
+      } else {
+        toast({
+          title: "Eroare",
+          description: "Nu s-a putut șterge newsletter-ul",
+          variant: "destructive",
+        });
+      }
     }
   };
 

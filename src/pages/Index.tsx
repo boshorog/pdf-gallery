@@ -66,15 +66,46 @@ const Index = () => {
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
 
-  // Check WordPress admin context or URL parameter for admin access
+  // Load newsletters from WordPress and check admin access
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     
     // Check if running in WordPress admin context
     if (typeof window !== 'undefined' && (window as any).wpNewsletterGallery) {
       setIsAdmin((window as any).wpNewsletterGallery.isAdmin);
+      
+      // Load newsletters from WordPress
+      const wp = (window as any).wpNewsletterGallery;
+      if (wp.ajaxUrl && wp.nonce) {
+        const form = new FormData();
+        form.append('action', 'newsletter_gallery_action');
+        form.append('action_type', 'get_newsletters');
+        form.append('nonce', wp.nonce);
+
+        fetch(wp.ajaxUrl, {
+          method: 'POST',
+          credentials: 'same-origin',
+          body: form,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data?.success && Array.isArray(data?.data?.newsletters)) {
+              setNewsletters(data.data.newsletters as Newsletter[]);
+            } else {
+              setNewsletters([]);
+            }
+          })
+          .catch(() => {
+            setNewsletters([]);
+          });
+      }
     } else if (urlParams.get('admin') === 'true') {
       setIsAdmin(true);
+      // For development, use initial newsletters
+      setNewsletters(initialNewsletters);
+    } else {
+      // For development, use initial newsletters
+      setNewsletters(initialNewsletters);
     }
   }, []);
 
