@@ -206,6 +206,14 @@ class NewsletterGalleryPlugin {
 // Initialize the plugin
 new NewsletterGalleryPlugin();
 
+// Ensure our scripts load as ES modules even on older WP versions
+add_filter('script_loader_tag', function($tag, $handle, $src) {
+    if (in_array($handle, array('newsletter-gallery-admin', 'newsletter-gallery-frontend'), true)) {
+        $tag = '<script type="module" src="' . esc_url($src) . '" id="' . esc_attr($handle) . '-js"></script>';
+    }
+    return $tag;
+}, 10, 3);
+
 // AJAX handlers for frontend/backend communication
 add_action('wp_ajax_newsletter_gallery_action', 'handle_newsletter_gallery_ajax');
 add_action('wp_ajax_nopriv_newsletter_gallery_action', 'handle_newsletter_gallery_ajax');
