@@ -80,32 +80,44 @@ const NewsletterGallery = ({
 
   // Generate thumbnails from PDFs on component mount
   useEffect(() => {
+    console.log('NewsletterGallery: useEffect triggered, newsletters count:', newsletters.length);
+    
     const generateThumbnails = async () => {
+      console.log('Starting thumbnail generation...');
       setIsGeneratingThumbnails(true);
       
       try {
+        console.log('Calling PDFThumbnailGenerator.generateMultipleThumbnails');
         const results = await PDFThumbnailGenerator.generateMultipleThumbnails(
           newsletters.map(n => n.pdfUrl)
         );
         
+        console.log('Thumbnail generation results:', results);
+        
         const updatedNewsletters = newsletters.map((newsletter, index) => {
           const result = results[index];
+          console.log(`Processing newsletter ${index}:`, result);
+          
           if (result.success && result.dataUrl) {
+            console.log(`Successfully generated thumbnail for newsletter ${index}`);
             return { ...newsletter, thumbnail: result.dataUrl };
           }
           // Fallback to default thumbnail if generation fails
+          console.log(`Using fallback thumbnail for newsletter ${index}`);
           return { 
             ...newsletter, 
             thumbnail: fallbackThumbnails[index % fallbackThumbnails.length] 
           };
         });
         
+        console.log('Setting updated newsletters:', updatedNewsletters.length);
         setNewslettersWithThumbnails(updatedNewsletters);
       } catch (error) {
         console.error('Failed to generate thumbnails:', error);
         // Use fallback thumbnails on error
         setNewslettersWithThumbnails(newsletters);
       } finally {
+        console.log('Thumbnail generation complete');
         setIsGeneratingThumbnails(false);
       }
     };

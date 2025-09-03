@@ -13,19 +13,25 @@ export class PDFThumbnailGenerator {
   
   static async generateThumbnail(pdfUrl: string, scale: number = 1.5): Promise<ThumbnailResult> {
     try {
-      console.log('Loading PDF:', pdfUrl);
+      console.log('PDFThumbnailGenerator: Loading PDF:', pdfUrl);
       
       // Load the PDF document
-      const loadingTask = pdfjsLib.getDocument(pdfUrl);
+      const loadingTask = pdfjsLib.getDocument({
+        url: pdfUrl,
+        cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/cmaps/',
+        cMapPacked: true,
+      });
       const pdf = await loadingTask.promise;
       
-      console.log('PDF loaded, pages:', pdf.numPages);
+      console.log('PDFThumbnailGenerator: PDF loaded, pages:', pdf.numPages);
       
       // Get the first page
       const page = await pdf.getPage(1);
+      console.log('PDFThumbnailGenerator: Got first page');
       
       // Get viewport (page dimensions)
       const viewport = page.getViewport({ scale });
+      console.log('PDFThumbnailGenerator: Viewport dimensions:', viewport.width, 'x', viewport.height);
       
       // Create canvas
       const canvas = document.createElement('canvas');
@@ -45,12 +51,14 @@ export class PDFThumbnailGenerator {
         canvas: canvas,
       };
       
+      console.log('PDFThumbnailGenerator: Starting page render');
       await page.render(renderContext).promise;
       
-      console.log('Page rendered to canvas');
+      console.log('PDFThumbnailGenerator: Page rendered to canvas');
       
       // Convert canvas to data URL
       const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      console.log('PDFThumbnailGenerator: Generated data URL, length:', dataUrl.length);
       
       return {
         success: true,
@@ -58,7 +66,7 @@ export class PDFThumbnailGenerator {
       };
       
     } catch (error) {
-      console.error('Error generating PDF thumbnail:', error);
+      console.error('PDFThumbnailGenerator: Error generating PDF thumbnail:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
