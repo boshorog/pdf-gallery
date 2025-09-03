@@ -5,6 +5,7 @@ import thumbnail1 from '@/assets/newsletter-thumbnail-1.jpg';
 import thumbnail2 from '@/assets/newsletter-thumbnail-2.jpg';
 import thumbnail3 from '@/assets/newsletter-thumbnail-3.jpg';
 import thumbnail4 from '@/assets/newsletter-thumbnail-4.jpg';
+import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 
 interface Newsletter {
   id: string;
@@ -111,6 +112,13 @@ const NewsletterGallery = ({
   // Generate thumbnails from PDFs on component mount
   useEffect(() => {
     console.log('NewsletterGallery: useEffect triggered, newsletters count:', newsletters.length);
+    
+    // Set initial placeholders
+    const newslettersWithPlaceholders = newsletters.map(newsletter => ({
+      ...newsletter,
+      thumbnail: pdfPlaceholder
+    }));
+    setNewslettersWithThumbnails(newslettersWithPlaceholders);
     
     const generateThumbnails = async () => {
       console.log('Starting thumbnail generation...');
