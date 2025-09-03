@@ -12,18 +12,20 @@ export interface ThumbnailResult {
 
 export class PDFThumbnailGenerator {
   
-  static async generateThumbnail(pdfUrl: string, scale: number = 1.5): Promise<ThumbnailResult> {
+  static async generateThumbnail(pdfUrl: string, scale: number = 1.2): Promise<ThumbnailResult> {
     try {
       console.log('PDFThumbnailGenerator: Loading PDF:', pdfUrl);
       
-      // Load the PDF document
-      // Fetch the PDF ourselves to avoid any worker/cors fetching issues
-      const response = await fetch(pdfUrl, { mode: 'cors' });
-      if (!response.ok) {
-        throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
-      }
-      const arrayBuffer = await response.arrayBuffer();
-      const pdf = await getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+      // Load the PDF document with proper configuration
+      const loadingTask = getDocument({
+        url: pdfUrl,
+        cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/cmaps/',
+        cMapPacked: true,
+        disableAutoFetch: false,
+        disableStream: false
+      });
+      
+      const pdf = await loadingTask.promise;
       
       console.log('PDFThumbnailGenerator: PDF loaded, pages:', pdf.numPages);
       

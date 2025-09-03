@@ -242,11 +242,11 @@ const NewsletterGallery = ({
                         </div>
 
                         {/* Newsletter Info */}
-                        <div className="mt-2 space-y-0">
-                          <p className="m-0 text-sm leading-tight text-muted-foreground">
+                        <div className="mt-2" style={{ margin: '8px 0 0 0', padding: 0 }}>
+                          <p className="text-sm text-muted-foreground" style={{ margin: 0, padding: 0, lineHeight: '1.2' }}>
                             {newsletter.date}
                           </p>
-                          <h3 className="m-0 font-semibold leading-tight text-foreground group-hover:text-primary transition-colors duration-300">
+                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300" style={{ margin: 0, padding: 0, lineHeight: '1.2' }}>
                             {newsletter.title}
                           </h3>
                         </div>
@@ -325,11 +325,11 @@ const NewsletterGallery = ({
                     </div>
 
                     {/* Newsletter Info */}
-                    <div className="mt-2 space-y-0">
-                      <p className="m-0 text-sm leading-tight text-muted-foreground">
+                    <div className="mt-2" style={{ margin: '8px 0 0 0', padding: 0 }}>
+                      <p className="text-sm text-muted-foreground" style={{ margin: 0, padding: 0, lineHeight: '1.2' }}>
                         {newsletter.date}
                       </p>
-                      <h3 className="m-0 font-semibold leading-tight text-foreground group-hover:text-primary transition-colors duration-300">
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300" style={{ margin: 0, padding: 0, lineHeight: '1.2' }}>
                         {newsletter.title}
                       </h3>
                     </div>
