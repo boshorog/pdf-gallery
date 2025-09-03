@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import NewsletterGallery from '@/components/NewsletterGallery';
 import NewsletterAdmin from '@/components/NewsletterAdmin';
 import thumbnail1 from '@/assets/newsletter-thumbnail-1.jpg';
@@ -62,27 +65,91 @@ const initialNewsletters: Newsletter[] = [
 
 const Index = () => {
   const [newsletters, setNewsletters] = useState<Newsletter[]>(initialNewsletters);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAdminDialog, setShowAdminDialog] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+
+  // Check URL parameter for admin access
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === 'true') {
+      setIsAdmin(true);
+    }
+  }, []);
+
+  const handleAdminLogin = () => {
+    // Simple password check - you can change this password
+    if (adminPassword === 'admin2025') {
+      setIsAdmin(true);
+      setShowAdminDialog(false);
+      setAdminPassword('');
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleAdminLogin();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8">
-        <Tabs defaultValue="gallery" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="gallery">Newsletter Gallery</TabsTrigger>
-            <TabsTrigger value="admin">Administrare</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="gallery" className="mt-0">
+        {isAdmin ? (
+          <Tabs defaultValue="gallery" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsTrigger value="gallery">Newsletter Gallery</TabsTrigger>
+              <TabsTrigger value="admin">Administrare</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="gallery" className="mt-0">
+              <NewsletterGallery newsletters={newsletters} />
+            </TabsContent>
+            
+            <TabsContent value="admin" className="mt-0">
+              <NewsletterAdmin 
+                newsletters={newsletters}
+                onNewslettersChange={setNewsletters}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <div className="w-full">
             <NewsletterGallery newsletters={newsletters} />
-          </TabsContent>
-          
-          <TabsContent value="admin" className="mt-0">
-            <NewsletterAdmin 
-              newsletters={newsletters}
-              onNewslettersChange={setNewsletters}
-            />
-          </TabsContent>
-        </Tabs>
+            
+            {/* Hidden admin access button */}
+            <div className="fixed bottom-4 right-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="opacity-10 hover:opacity-100 transition-opacity"
+                onClick={() => setShowAdminDialog(true)}
+              >
+                Admin
+              </Button>
+            </div>
+          </div>
+        )}
+
+        <Dialog open={showAdminDialog} onOpenChange={setShowAdminDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Admin Access</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                type="password"
+                placeholder="Enter admin password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                onKeyPress={handleKeyPress}
+              />
+              <Button onClick={handleAdminLogin} className="w-full">
+                Login
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
