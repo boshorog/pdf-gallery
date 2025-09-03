@@ -98,7 +98,7 @@ interface NewsletterGalleryProps {
 }
 
 const NewsletterGallery = ({ 
-  newsletters = sampleNewsletters, 
+  newsletters = [], 
   title = "Newsletter Arhivă",
   description = "Accesați edițiile anterioare ale newsletter-ului nostru"
 }: NewsletterGalleryProps) => {
@@ -144,7 +144,7 @@ const NewsletterGallery = ({
           console.log(`Using fallback thumbnail for newsletter ${index}`);
           return { 
             ...newsletter, 
-            thumbnail: fallbackThumbnails[index % fallbackThumbnails.length] 
+            thumbnail: pdfPlaceholder
           };
         });
         
@@ -235,12 +235,12 @@ const NewsletterGallery = ({
 
                         {/* Newsletter Info */}
                         <div className="mt-4 space-y-1">
-                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
-                            {newsletter.title}
-                          </h3>
                           <p className="text-sm text-muted-foreground">
                             {newsletter.date}
                           </p>
+                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
+                            {newsletter.title}
+                          </h3>
                         </div>
                       </article>
                     ))}
@@ -253,11 +253,11 @@ const NewsletterGallery = ({
               groups.push(
                 <div key={`divider-${item.year}`} className="text-center py-8">
                   <div className="flex items-center justify-center gap-4">
-                    <div className="h-px bg-border flex-1 max-w-xs"></div>
-                    <h2 className="text-2xl font-bold text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                    <div className="newsletter-divider-line"></div>
+                    <h2 className="newsletter-year-divider text-2xl font-bold">
                       {item.year}
                     </h2>
-                    <div className="h-px bg-border flex-1 max-w-xs"></div>
+                    <div className="newsletter-divider-line"></div>
                   </div>
                 </div>
               );
@@ -315,12 +315,12 @@ const NewsletterGallery = ({
 
                     {/* Newsletter Info */}
                     <div className="mt-4 space-y-1">
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
-                        {newsletter.title}
-                      </h3>
                       <p className="text-sm text-muted-foreground">
                         {newsletter.date}
                       </p>
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
+                        {newsletter.title}
+                      </h3>
                     </div>
                   </article>
                 ))}

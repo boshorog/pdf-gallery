@@ -3,8 +3,8 @@
  * Plugin Name: Newsletter Gallery Manager
  * Plugin URI: https://antiohia.ro
  * Description: Manage newsletter PDFs with thumbnail generation. Integrates with WordPress admin authentication.
- * Version: 1.0.0
- * Author: Antiohia
+ * Version: 1.0.1
+ * Author: uphill
  * Requires at least: 5.0
  * Tested up to: 6.4
  * Network: false
@@ -33,13 +33,14 @@ class NewsletterGalleryPlugin {
      * Add admin menu page
      */
     public function add_admin_menu() {
-        add_management_page(
+        add_menu_page(
             'Newsletter Gallery Manager',     // Page title
             'Newsletter Gallery',            // Menu title
             'manage_options',               // Capability required
             'newsletter-gallery-manager',   // Menu slug
             array($this, 'render_admin_page'), // Callback function
-            99                             // Position
+            'dashicons-media-document',     // Icon
+            25                             // Position
         );
     }
     
@@ -78,7 +79,7 @@ class NewsletterGalleryPlugin {
      */
     public function enqueue_admin_scripts($hook_suffix) {
         // Only load on our admin page
-        if ($hook_suffix !== 'tools_page_newsletter-gallery-manager') {
+        if ($hook_suffix !== 'toplevel_page_newsletter-gallery-manager') {
             return;
         }
         
@@ -191,7 +192,7 @@ class NewsletterGalleryPlugin {
         }
         
         // Set default options
-        add_option('newsletter_gallery_version', '1.0.0');
+        add_option('newsletter_gallery_version', '1.0.1');
     }
     
     /**
