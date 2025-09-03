@@ -162,8 +162,9 @@ const NewsletterGallery = ({
       }
     };
     
-    // Only generate thumbnails if we have newsletters that need them
-    if (newsletters.some(n => !n.thumbnail || n.thumbnail.includes('placeholder'))) {
+    // Generate on frontend always; in admin only when missing/placeholder
+    const isWPFrontend = typeof window !== 'undefined' && (window as any).wpNewsletterGallery && !(window as any).wpNewsletterGallery.isAdmin;
+    if (isWPFrontend || newsletters.some(n => !n.thumbnail || n.thumbnail.includes('placeholder'))) {
       generateThumbnails();
     }
   }, [newsletters]);

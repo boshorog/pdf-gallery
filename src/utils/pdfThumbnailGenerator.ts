@@ -1,8 +1,10 @@
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist';
-import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-
-// Set the worker source (ES module worker for Vite)
-GlobalWorkerOptions.workerSrc = workerSrc;
+// Initialize PDF.js worker using a module worker with URL relative to this file (works in WordPress front-end too)
+const pdfWorker = new Worker(
+  new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url),
+  { type: 'module' }
+);
+GlobalWorkerOptions.workerPort = pdfWorker;
 
 export interface ThumbnailResult {
   success: boolean;
