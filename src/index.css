@@ -17,7 +17,7 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 84% 11%;
 
-    --primary: 221 83% 53%;
+    --primary: 25 75% 47%; /* Warm brown */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96%;
@@ -73,7 +73,7 @@ All colors MUST be HSL.
     --popover: 222 84% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91% 60%;
+    --primary: 25 60% 55%; /* Lighter brown for dark mode */
     --primary-foreground: 222 84% 5%;
 
     --secondary: 217 33% 17%;
