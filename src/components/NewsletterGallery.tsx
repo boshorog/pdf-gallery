@@ -190,7 +190,7 @@ const NewsletterGallery = ({
               // Add previous grid if it exists
               if (currentGrid.length > 0) {
                 groups.push(
-                  <div key={`grid-${groups.length}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  <div key={`grid-${groups.length}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 sm:gap-8">
                     {currentGrid.map((newsletter) => (
                       <article
                         key={newsletter.id}
@@ -234,7 +234,7 @@ const NewsletterGallery = ({
                         </div>
 
                         {/* Newsletter Info */}
-                        <div className="mt-4 space-y-1">
+                        <div className="mt-3 space-y-0.5">
                           <p className="text-sm text-muted-foreground">
                             {newsletter.date}
                           </p>
@@ -270,7 +270,7 @@ const NewsletterGallery = ({
           // Add final grid if it exists
           if (currentGrid.length > 0) {
             groups.push(
-              <div key={`grid-${groups.length}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <div key={`grid-${groups.length}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 sm:gap-8">
                 {currentGrid.map((newsletter) => (
                   <article
                     key={newsletter.id}
@@ -314,7 +314,7 @@ const NewsletterGallery = ({
                     </div>
 
                     {/* Newsletter Info */}
-                    <div className="mt-4 space-y-1">
+                    <div className="mt-3 space-y-0.5">
                       <p className="text-sm text-muted-foreground">
                         {newsletter.date}
                       </p>

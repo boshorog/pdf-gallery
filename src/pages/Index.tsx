@@ -61,7 +61,7 @@ const initialNewsletters: Newsletter[] = [
 ];
 
 const Index = () => {
-  const [newsletters, setNewsletters] = useState<Newsletter[]>(initialNewsletters);
+  const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
