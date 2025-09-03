@@ -44,6 +44,36 @@ class NewsletterGalleryPlugin {
     }
     
     /**
+     * Get asset URL (predictable filenames first, fallback to hashed)
+     */
+    private function get_asset_url($type) {
+        $plugin_dir = plugin_dir_path(__FILE__);
+        $plugin_url = plugin_dir_url(__FILE__);
+        
+        // Preferred predictable filenames produced by Vite config
+        $predictable = $plugin_dir . 'dist/assets/index.' . $type;
+        if (file_exists($predictable)) {
+            return $plugin_url . 'dist/assets/index.' . $type;
+        }
+        
+        // Fallback: detect hashed filenames (index-*.js/css)
+        $dist_dir = $plugin_dir . 'dist/assets/';
+        if (is_dir($dist_dir)) {
+            $files = scandir($dist_dir);
+            foreach ($files as $file) {
+                if ($type === 'js' && preg_match('/index-[a-zA-Z0-9]+\\.js$/', $file)) {
+                    return $plugin_url . 'dist/assets/' . $file;
+                }
+                if ($type === 'css' && preg_match('/index-[a-zA-Z0-9]+\\.css$/', $file)) {
+                    return $plugin_url . 'dist/assets/' . $file;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
      * Enqueue scripts and styles for admin page
      */
     public function enqueue_admin_scripts($hook_suffix) {
