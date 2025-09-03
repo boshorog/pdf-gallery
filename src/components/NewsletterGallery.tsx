@@ -195,7 +195,7 @@ const NewsletterGallery = ({
               // Add previous grid if it exists
               if (currentGrid.length > 0) {
                 groups.push(
-                  <div key={`grid-${groups.length}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 sm:gap-8">
+                <div key={`grid-${groups.length}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-6">
                     {currentGrid.map((newsletter) => (
                       <article
                         key={newsletter.id}
@@ -209,10 +209,13 @@ const NewsletterGallery = ({
                           {/* Thumbnail Image */}
                           <div className="aspect-[4/3] relative overflow-hidden">
                             <img
-                              src={newsletter.thumbnail}
+                              src={newsletter.thumbnail || pdfPlaceholder}
                               alt={`Preview pentru ${newsletter.title}`}
                               className="w-full h-full object-cover transition-transform duration-300 ease-smooth group-hover:scale-105"
                               loading="lazy"
+                              onError={(e) => {
+                                e.currentTarget.src = pdfPlaceholder;
+                              }}
                             />
                             
                             {/* Overlay on hover */}
@@ -239,7 +242,7 @@ const NewsletterGallery = ({
                         </div>
 
                         {/* Newsletter Info */}
-                        <div className="mt-3 space-y-0.5">
+                        <div className="mt-3 space-y-1 sm:space-y-0.5">
                           <p className="text-sm text-muted-foreground">
                             {newsletter.date}
                           </p>
@@ -275,7 +278,7 @@ const NewsletterGallery = ({
           // Add final grid if it exists
           if (currentGrid.length > 0) {
             groups.push(
-              <div key={`grid-${groups.length}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 sm:gap-8">
+              <div key={`grid-${groups.length}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-6">
                 {currentGrid.map((newsletter) => (
                   <article
                     key={newsletter.id}
@@ -289,10 +292,13 @@ const NewsletterGallery = ({
                       {/* Thumbnail Image */}
                       <div className="aspect-[4/3] relative overflow-hidden">
                         <img
-                          src={newsletter.thumbnail}
+                          src={newsletter.thumbnail || pdfPlaceholder}
                           alt={`Preview pentru ${newsletter.title}`}
                           className="w-full h-full object-cover transition-transform duration-300 ease-smooth group-hover:scale-105"
                           loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.src = pdfPlaceholder;
+                          }}
                         />
                         
                         {/* Overlay on hover */}
@@ -319,7 +325,7 @@ const NewsletterGallery = ({
                     </div>
 
                     {/* Newsletter Info */}
-                    <div className="mt-3 space-y-0.5">
+                    <div className="mt-3 space-y-1 sm:space-y-0.5">
                       <p className="text-sm text-muted-foreground">
                         {newsletter.date}
                       </p>
