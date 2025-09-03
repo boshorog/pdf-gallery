@@ -13,17 +13,28 @@ export interface ThumbnailResult {
 }
 
 export class PDFThumbnailGenerator {
+  static toHttps(url: string): string {
+    try {
+      const u = new URL(url);
+      if (u.protocol === 'http:') u.protocol = 'https:';
+      return u.toString();
+    } catch {
+      // Fallback for non-standard URLs
+      return url.replace(/^http:/, 'https:').replace(/^\/\//, 'https://');
+    }
+  }
   
   static async generateThumbnail(pdfUrl: string, scale: number = 1.2): Promise<ThumbnailResult> {
     try {
-      console.log('PDFThumbnailGenerator: Loading PDF:', pdfUrl);
+      const secureUrl = this.toHttps(pdfUrl);
+      console.log('PDFThumbnailGenerator: Loading PDF:', secureUrl);
       
       // Try to fetch the PDF with proper CORS handling
       let pdf;
       try {
         // First attempt: Direct PDF loading
         const loadingTask = getDocument({
-          url: pdfUrl,
+          url: secureUrl,
           cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/cmaps/',
           cMapPacked: true,
           disableAutoFetch: false,
@@ -36,7 +47,7 @@ export class PDFThumbnailGenerator {
         console.log('Direct load failed, trying proxy approach:', directLoadError);
         
         // Second attempt: Fetch first, then load from buffer
-        const response = await fetch(pdfUrl, { 
+        const response = await fetch(secureUrl, { 
           mode: 'cors',
           headers: {
             'Accept': 'application/pdf',
