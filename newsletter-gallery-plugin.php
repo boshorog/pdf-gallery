@@ -108,22 +108,23 @@ class NewsletterGalleryPlugin {
         ), $atts, 'newsletter_gallery');
         
         // Enqueue frontend scripts
-        $plugin_url = plugin_dir_url(__FILE__);
-        $dist_path = $plugin_url . 'dist/';
+        $js_file = $this->get_asset_url('js');
+        $css_file = $this->get_asset_url('css');
         
         wp_enqueue_script(
             'newsletter-gallery-frontend', 
-            $dist_path . 'assets/index.js', 
+            $js_file, 
             array(), 
-            '1.0.0', 
+            null, 
             true
         );
+        wp_script_add_data('newsletter-gallery-frontend', 'type', 'module');
         
         wp_enqueue_style(
             'newsletter-gallery-frontend', 
-            $dist_path . 'assets/index.css', 
+            $css_file, 
             array(), 
-            '1.0.0'
+            null
         );
         
         // Pass frontend data
