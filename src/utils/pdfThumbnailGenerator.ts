@@ -16,16 +16,45 @@ export class PDFThumbnailGenerator {
     try {
       console.log('PDFThumbnailGenerator: Loading PDF:', pdfUrl);
       
-      // Load the PDF document with proper configuration
-      const loadingTask = getDocument({
-        url: pdfUrl,
-        cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/cmaps/',
-        cMapPacked: true,
-        disableAutoFetch: false,
-        disableStream: false
-      });
-      
-      const pdf = await loadingTask.promise;
+      // Try to fetch the PDF with proper CORS handling
+      let pdf;
+      try {
+        // First attempt: Direct PDF loading
+        const loadingTask = getDocument({
+          url: pdfUrl,
+          cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/cmaps/',
+          cMapPacked: true,
+          disableAutoFetch: false,
+          disableStream: false,
+          verbosity: 0 // Reduce console noise
+        });
+        
+        pdf = await loadingTask.promise;
+      } catch (directLoadError) {
+        console.log('Direct load failed, trying proxy approach:', directLoadError);
+        
+        // Second attempt: Fetch first, then load from buffer
+        const response = await fetch(pdfUrl, { 
+          mode: 'cors',
+          headers: {
+            'Accept': 'application/pdf',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const arrayBuffer = await response.arrayBuffer();
+        const loadingTask = getDocument({
+          data: new Uint8Array(arrayBuffer),
+          cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/cmaps/',
+          cMapPacked: true,
+          verbosity: 0
+        });
+        
+        pdf = await loadingTask.promise;
+      }
       
       console.log('PDFThumbnailGenerator: PDF loaded, pages:', pdf.numPages);
       
