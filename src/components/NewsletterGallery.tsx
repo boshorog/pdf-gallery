@@ -243,10 +243,10 @@ const NewsletterGallery = ({
 
                         {/* Newsletter Info */}
                         <div className="mt-2" style={{ margin: '8px 0 0 0', padding: 0 }}>
-                          <p className="text-sm text-muted-foreground" style={{ margin: 0, padding: 0, lineHeight: '1.2' }}>
+                          <p className="text-sm text-muted-foreground" style={{ margin: 0, padding: 0, lineHeight: '1.4' }}>
                             {newsletter.date}
                           </p>
-                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300" style={{ margin: 0, padding: 0, lineHeight: '1.2' }}>
+                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300" style={{ margin: 0, padding: 0, lineHeight: '1.4' }}>
                             {newsletter.title}
                           </h3>
                         </div>
@@ -326,10 +326,10 @@ const NewsletterGallery = ({
 
                     {/* Newsletter Info */}
                     <div className="mt-2" style={{ margin: '8px 0 0 0', padding: 0 }}>
-                      <p className="text-sm text-muted-foreground" style={{ margin: 0, padding: 0, lineHeight: '1.2' }}>
+                      <p className="text-sm text-muted-foreground" style={{ margin: 0, padding: 0, lineHeight: '1.4' }}>
                         {newsletter.date}
                       </p>
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300" style={{ margin: 0, padding: 0, lineHeight: '1.2' }}>
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300" style={{ margin: 0, padding: 0, lineHeight: '1.4' }}>
                         {newsletter.title}
                       </h3>
                     </div>
