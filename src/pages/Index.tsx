@@ -5,10 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import NewsletterGallery from '@/components/NewsletterGallery';
 import NewsletterAdmin from '@/components/NewsletterAdmin';
-import thumbnail1 from '@/assets/newsletter-thumbnail-1.jpg';
-import thumbnail2 from '@/assets/newsletter-thumbnail-2.jpg';
-import thumbnail3 from '@/assets/newsletter-thumbnail-3.jpg';
-import thumbnail4 from '@/assets/newsletter-thumbnail-4.jpg';
+import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 
 interface Newsletter {
   id: string;
@@ -24,42 +21,42 @@ const initialNewsletters: Newsletter[] = [
     title: 'Când Isus Ne Cheamă Pe Nume',
     date: 'Aprilie 2025',
     pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2504_Cand-Isus-Ne-Cheama-Pe-Nume.pdf',
-    thumbnail: thumbnail1,
+    thumbnail: pdfPlaceholder,
   },
   {
     id: '2',
     title: 'De la Moarte la Viață',
     date: 'Martie 2025',
     pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2503_De-la-Moarte-la-Viata.pdf',
-    thumbnail: thumbnail2,
+    thumbnail: pdfPlaceholder,
   },
   {
     id: '3',
     title: 'De La Februs La Hristos',
     date: 'Februarie 2025',
     pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2502_De-La-Februs-La-Hristos.pdf',
-    thumbnail: thumbnail3,
+    thumbnail: pdfPlaceholder,
   },
   {
     id: '4',
     title: 'Ce Ne Rezervă Viitorul',
     date: 'Ianuarie 2025',
     pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf',
-    thumbnail: thumbnail4,
+    thumbnail: pdfPlaceholder,
   },
   {
     id: '5',
     title: 'Reflecții asupra darului mântuirii',
     date: 'Decembrie 2024',
     pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2412_Reflectii-asupra-darului-mantuirii.pdf',
-    thumbnail: thumbnail1,
+    thumbnail: pdfPlaceholder,
   },
   {
     id: '6',
     title: 'Ceasul Al Unsprezecelea',
     date: 'Noiembrie 2024',
-    pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2411_Ceasul-Al-Unsprezecelea.pdf',
-    thumbnail: thumbnail2,
+    pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2511_Ceasul-Al-Unsprezecelea.pdf',
+    thumbnail: pdfPlaceholder,
   },
 ];
 
