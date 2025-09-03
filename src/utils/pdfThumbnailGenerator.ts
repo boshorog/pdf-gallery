@@ -1,7 +1,8 @@
-import * as pdfjsLib from 'pdfjs-dist';
+import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist';
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-// Set the worker source
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Set the worker source (ES module worker for Vite)
+GlobalWorkerOptions.workerSrc = workerSrc;
 
 export interface ThumbnailResult {
   success: boolean;
@@ -16,10 +17,8 @@ export class PDFThumbnailGenerator {
       console.log('PDFThumbnailGenerator: Loading PDF:', pdfUrl);
       
       // Load the PDF document
-      const loadingTask = pdfjsLib.getDocument({
+      const loadingTask = getDocument({
         url: pdfUrl,
-        cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/cmaps/',
-        cMapPacked: true,
       });
       const pdf = await loadingTask.promise;
       
