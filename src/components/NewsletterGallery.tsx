@@ -87,7 +87,7 @@ const NewsletterGallery = ({
             {/* Thumbnail Container */}
             <div className="relative overflow-hidden rounded-lg bg-card shadow-newsletter group-hover:shadow-newsletter-hover transition-all duration-300 ease-smooth">
               {/* Thumbnail Image */}
-              <div className="aspect-[4/5] relative overflow-hidden">
+              <div className="aspect-[4/3] relative overflow-hidden">
                 <img
                   src={newsletter.thumbnail}
                   alt={`Preview pentru ${newsletter.title}`}
