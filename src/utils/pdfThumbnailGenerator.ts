@@ -1,5 +1,5 @@
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist';
-import workerSrc from 'pdfjs-dist/build/pdf.worker.min.js?url';
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 // Set the worker source (ES module worker for Vite)
 GlobalWorkerOptions.workerSrc = workerSrc;
