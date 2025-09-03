@@ -107,10 +107,15 @@ class NewsletterGalleryPlugin {
             'show_admin' => 'false'
         ), $atts, 'newsletter_gallery');
         
-        // Enqueue frontend scripts
+        // Get asset files
         $js_file = $this->get_asset_url('js');
         $css_file = $this->get_asset_url('css');
         
+        if (!$js_file || !$css_file) {
+            return '<div id="newsletter-gallery-root"><p>Newsletter gallery assets not found. Please contact the administrator.</p></div>';
+        }
+        
+        // Enqueue frontend scripts
         wp_enqueue_script(
             'newsletter-gallery-frontend', 
             $js_file, 
