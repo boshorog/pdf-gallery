@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { FileText, ExternalLink } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileText, ExternalLink, Loader2 } from 'lucide-react';
+import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 import thumbnail1 from '@/assets/newsletter-thumbnail-1.jpg';
 import thumbnail2 from '@/assets/newsletter-thumbnail-2.jpg';
 import thumbnail3 from '@/assets/newsletter-thumbnail-3.jpg';
@@ -12,6 +13,9 @@ interface Newsletter {
   pdfUrl: string;
   thumbnail: string;
 }
+
+// Default fallback thumbnails
+const fallbackThumbnails = [thumbnail1, thumbnail2, thumbnail3, thumbnail4];
 
 // Sample newsletter data - replace with your actual newsletter data
 const sampleNewsletters: Newsletter[] = [
@@ -71,6 +75,43 @@ const NewsletterGallery = ({
   description = "Accesați edițiile anterioare ale newsletter-ului nostru"
 }: NewsletterGalleryProps) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [newslettersWithThumbnails, setNewslettersWithThumbnails] = useState<Newsletter[]>(newsletters);
+  const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
+
+  // Generate thumbnails from PDFs on component mount
+  useEffect(() => {
+    const generateThumbnails = async () => {
+      setIsGeneratingThumbnails(true);
+      
+      try {
+        const results = await PDFThumbnailGenerator.generateMultipleThumbnails(
+          newsletters.map(n => n.pdfUrl)
+        );
+        
+        const updatedNewsletters = newsletters.map((newsletter, index) => {
+          const result = results[index];
+          if (result.success && result.dataUrl) {
+            return { ...newsletter, thumbnail: result.dataUrl };
+          }
+          // Fallback to default thumbnail if generation fails
+          return { 
+            ...newsletter, 
+            thumbnail: fallbackThumbnails[index % fallbackThumbnails.length] 
+          };
+        });
+        
+        setNewslettersWithThumbnails(updatedNewsletters);
+      } catch (error) {
+        console.error('Failed to generate thumbnails:', error);
+        // Use fallback thumbnails on error
+        setNewslettersWithThumbnails(newsletters);
+      } finally {
+        setIsGeneratingThumbnails(false);
+      }
+    };
+    
+    generateThumbnails();
+  }, [newsletters]);
 
   const handleNewsletterClick = (pdfUrl: string) => {
     window.open(pdfUrl, '_blank', 'noopener,noreferrer');
@@ -90,7 +131,16 @@ const NewsletterGallery = ({
 
       {/* Newsletter Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        {newsletters.map((newsletter) => (
+        {isGeneratingThumbnails && (
+          <div className="col-span-full flex items-center justify-center py-12">
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Loader2 className="w-6 h-6 animate-spin" />
+              <span>Generez miniaturile PDF...</span>
+            </div>
+          </div>
+        )}
+        
+        {newslettersWithThumbnails.map((newsletter) => (
           <article
             key={newsletter.id}
             className="group cursor-pointer"
