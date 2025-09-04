@@ -138,46 +138,31 @@ class PDFGalleryPlugin {
     /**
      * Shortcode to display gallery on frontend
      */
-    public function display_gallery_shortcode($atts) {
-        // Parse attributes
-        $atts = shortcode_atts(array(
-            'show_admin' => 'false'
-        ), $atts, 'pdf_gallery');
-        
-        // Get asset files
-        $js_file = $this->get_asset_url('js');
-        $css_file = $this->get_asset_url('css');
-        
-        if (!$js_file || !$css_file) {
-            return '<div id="pdf-gallery-root"><p>PDF gallery assets not found. Please contact the administrator.</p></div>';
-        }
-        
-        // Enqueue frontend scripts
-        wp_enqueue_script(
-            'pdf-gallery-frontend', 
-            $js_file, 
-            array(), 
-            null, 
-            true
-        );
-        wp_script_add_data('pdf-gallery-frontend', 'type', 'module');
-        
-        wp_enqueue_style(
-            'pdf-gallery-frontend', 
-            $css_file, 
-            array(), 
-            null
-        );
-        
-        // Pass frontend data
-        wp_localize_script('pdf-gallery-frontend', 'wpPDFGallery', array(
-            'isAdmin' => ($atts['show_admin'] === 'true' && current_user_can('manage_options')),
-            'nonce' => wp_create_nonce('pdf_gallery_nonce'),
-            'ajaxUrl' => admin_url('admin-ajax.php')
-        ));
-        
-        return '<div id="pdf-gallery-root"></div>';
-    }
+public function display_gallery_shortcode($atts) {
+    // Parse attributes
+    $atts = shortcode_atts(array(
+        'show_admin' => 'false'
+    ), $atts, 'pdf_gallery');
+
+    // Build iframe URL to isolate styles from the host theme
+    $index_url = plugins_url('dist/index.html', __FILE__);
+    $nonce = wp_create_nonce('pdf_gallery_nonce');
+    $admin = ($atts['show_admin'] === 'true' && current_user_can('manage_options')) ? 'true' : 'false';
+    $ajax = admin_url('admin-ajax.php');
+
+    $src = add_query_arg(array(
+        'nonce' => $nonce,
+        'ajax'  => $ajax,
+        'admin' => $admin,
+    ), $index_url);
+
+    // Responsive iframe container
+    $html  = '<div class="pdf-gallery-iframe-container" style="position:relative;width:100%;">';
+    $html .= '<iframe src="' . esc_url($src) . '" style="width:100%;min-height:80vh;border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>';
+    $html .= '</div>';
+
+    return $html;
+}
     
     /**
      * Plugin activation

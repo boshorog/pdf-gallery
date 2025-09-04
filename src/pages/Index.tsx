@@ -74,48 +74,45 @@ const Index = () => {
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
 
-  // Load gallery items from WordPress and check admin access
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    // Check if running in WordPress admin context
-    if (typeof window !== 'undefined' && (window as any).wpPDFGallery) {
-      setIsAdmin((window as any).wpPDFGallery.isAdmin);
-      
-      // Load gallery items from WordPress
-      const wp = (window as any).wpPDFGallery;
-      if (wp.ajaxUrl && wp.nonce) {
-        const form = new FormData();
-        form.append('action', 'pdf_gallery_action');
-        form.append('action_type', 'get_items');
-        form.append('nonce', wp.nonce);
+// Load gallery items from WordPress and check admin access
+useEffect(() => {
+  const urlParams = new URLSearchParams(window.location.search);
 
-        fetch(wp.ajaxUrl, {
-          method: 'POST',
-          credentials: 'same-origin',
-          body: form,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data?.success && Array.isArray(data?.data?.items)) {
-              setGalleryItems(data.data.items as GalleryItem[]);
-            } else {
-              setGalleryItems(initialPDFs);
-            }
-          })
-          .catch(() => {
-            setGalleryItems(initialPDFs);
-          });
-      }
-    } else if (urlParams.get('admin') === 'true') {
-      setIsAdmin(true);
-      // For development, use initial PDFs
-      setGalleryItems(initialPDFs);
-    } else {
-      // For development, use initial PDFs
-      setGalleryItems(initialPDFs);
-    }
-  }, []);
+  const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
+
+  const isAdminFlag = wp ? !!wp.isAdmin : urlParams.get('admin') === 'true';
+  setIsAdmin(!!isAdminFlag);
+
+  const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax') || `${window.location.origin}/wp-admin/admin-ajax.php`;
+  const nonce = wp?.nonce || urlParams.get('nonce') || '';
+
+  if (ajaxUrl && nonce) {
+    const form = new FormData();
+    form.append('action', 'pdf_gallery_action');
+    form.append('action_type', 'get_items');
+    form.append('nonce', nonce);
+
+    fetch(ajaxUrl, {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: form,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && Array.isArray(data?.data?.items)) {
+          setGalleryItems(data.data.items as GalleryItem[]);
+        } else {
+          setGalleryItems(initialPDFs);
+        }
+      })
+      .catch(() => {
+        setGalleryItems(initialPDFs);
+      });
+  } else {
+    // Fallback for development or when no config is provided
+    setGalleryItems(initialPDFs);
+  }
+}, []);
 
   const handleAdminLogin = () => {
     // Simple password check - you can change this password

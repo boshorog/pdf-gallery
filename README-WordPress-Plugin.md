@@ -1,6 +1,6 @@
-# Newsletter Gallery WordPress Plugin
+# PDF Gallery WordPress Plugin
 
-This plugin converts your React newsletter gallery into a native WordPress plugin with proper admin authentication.
+This plugin converts your React PDF gallery into a native WordPress plugin with proper admin authentication.
 
 ## Installation Steps
 
@@ -17,13 +17,13 @@ wp-content/plugins/newsletter-gallery-manager/
 
 ### 3. Copy Files
 Copy these files to the plugin directory:
-- `newsletter-gallery-plugin.php` (the main plugin file)
+- `pdf-gallery-plugin.php` (the main plugin file)
 - `dist/` folder (from your build)
 
 Your plugin structure should look like:
 ```
 wp-content/plugins/newsletter-gallery-manager/
-├── newsletter-gallery-plugin.php
+├── pdf-gallery-plugin.php
 └── dist/
     ├── index.html
     ├── assets/
@@ -34,25 +34,25 @@ wp-content/plugins/newsletter-gallery-manager/
 
 ### 4. Activate Plugin
 1. Go to WordPress Admin → Plugins
-2. Find "Newsletter Gallery Manager"
+2. Find "PDF Gallery"
 3. Click "Activate"
 
 ## Usage
 
 ### Admin Management
-- Go to WordPress Admin → Tools → Newsletter Gallery
+- Go to WordPress Admin → PDF Gallery
 - Only WordPress administrators can access this page
-- Full newsletter management capabilities
+- Full PDF management capabilities
 
 ### Frontend Display
 Add this shortcode to any page/post:
 ```
-[newsletter_gallery]
+[pdf_gallery]
 ```
 
 For admin-enabled frontend display:
 ```
-[newsletter_gallery show_admin="true"]
+[pdf_gallery show_admin="true"]
 ```
 
 ## Features
