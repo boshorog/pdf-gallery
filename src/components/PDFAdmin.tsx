@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -50,9 +51,11 @@ interface SortableItemProps {
   item: GalleryItem;
   onEdit: (item: GalleryItem) => void;
   onDelete: (id: string) => void;
+  isSelected: boolean;
+  onSelect: (id: string, selected: boolean) => void;
 }
 
-const SortableItem = ({ item, onEdit, onDelete }: SortableItemProps) => {
+const SortableItem = ({ item, onEdit, onDelete, isSelected, onSelect }: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -70,6 +73,10 @@ const SortableItem = ({ item, onEdit, onDelete }: SortableItemProps) => {
     <Card ref={setNodeRef} style={style} className="bg-background">
       <CardContent className="flex items-center justify-between p-4">
         <div className="flex items-center space-x-4">
+          <Checkbox 
+            checked={isSelected}
+            onCheckedChange={(checked) => onSelect(item.id, !!checked)}
+          />
           <div 
             {...attributes} 
             {...listeners}
@@ -80,7 +87,9 @@ const SortableItem = ({ item, onEdit, onDelete }: SortableItemProps) => {
           
           {('type' in item && item.type === 'divider') ? (
             <div className="flex items-center space-x-3">
-              <Separator className="w-5 h-0.5" />
+              <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                <Minus className="w-6 h-6 text-muted-foreground" />
+              </div>
               <div>
                 <h3 className="font-semibold">Divider: {item.text}</h3>
                 <p className="text-sm text-muted-foreground">Section divider</p>
@@ -88,7 +97,7 @@ const SortableItem = ({ item, onEdit, onDelete }: SortableItemProps) => {
             </div>
           ) : (
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-15 bg-muted rounded flex items-center justify-center">
+              <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
                 <FileText className="w-6 h-6 text-muted-foreground" />
               </div>
               <div>
@@ -136,6 +145,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
   const [isAddingPDF, setIsAddingPDF] = useState(false);
   const [isAddingDivider, setIsAddingDivider] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [pdfFormData, setPdfFormData] = useState({
     title: '',
     date: '',
@@ -362,11 +372,77 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     setEditingId(null);
   };
 
+  const handleSelect = (id: string, selected: boolean) => {
+    const newSelected = new Set(selectedItems);
+    if (selected) {
+      newSelected.add(id);
+    } else {
+      newSelected.delete(id);
+    }
+    setSelectedItems(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.size === items.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(items.map(item => item.id)));
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedItems.size === 0) return;
+    
+    if (window.confirm(`Are you sure you want to delete ${selectedItems.size} item(s)?`)) {
+      const updated = items.filter(item => !selectedItems.has(item.id));
+      
+      // Save to WordPress first
+      const saved = await saveItemsToWP(updated);
+      
+      if (saved) {
+        onItemsChange(updated);
+        setSelectedItems(new Set());
+        toast({
+          title: "Deleted",
+          description: `${selectedItems.size} item(s) have been deleted successfully`,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Could not delete selected items",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">PDF Management</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl font-bold">PDF Management</h2>
+          {items.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Checkbox 
+                checked={selectedItems.size === items.length && items.length > 0}
+                onCheckedChange={handleSelectAll}
+              />
+              <span className="text-sm text-muted-foreground">
+                {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select all'}
+              </span>
+            </div>
+          )}
+        </div>
         <div className="flex gap-2">
+          {selectedItems.size > 0 && (
+            <Button 
+              onClick={handleDeleteSelected}
+              variant="destructive"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete {selectedItems.size} item{selectedItems.size > 1 ? 's' : ''}
+            </Button>
+          )}
           <Button 
             onClick={() => setIsAddingPDF(true)}
             className="bg-primary hover:bg-primary/90"
@@ -490,6 +566,8 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                 item={item}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                isSelected={selectedItems.has(item.id)}
+                onSelect={handleSelect}
               />
             ))}
           </SortableContext>

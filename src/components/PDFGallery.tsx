@@ -117,13 +117,11 @@ const PDFGallery = ({
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4">{title}</h1>
-        <p className="text-muted-foreground text-lg">{description}</p>
-        {isGeneratingThumbnails && (
-          <p className="text-sm text-muted-foreground mt-2">Generating PDF thumbnails...</p>
-        )}
-      </div>
+      {isGeneratingThumbnails && (
+        <div className="text-center mb-6">
+          <p className="text-sm text-muted-foreground">Generating PDF thumbnails...</p>
+        </div>
+      )}
 
       {displayItems.length === 0 ? (
         <div className="text-center py-12">
