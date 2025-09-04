@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import {
   DndContext,
@@ -79,7 +80,7 @@ const SortableItem = ({ item, onEdit, onDelete }: SortableItemProps) => {
           
           {('type' in item && item.type === 'divider') ? (
             <div className="flex items-center space-x-3">
-              <Minus className="w-5 h-5 text-muted-foreground" />
+              <Separator className="w-5 h-0.5" />
               <div>
                 <h3 className="font-semibold">Divider: {item.text}</h3>
                 <p className="text-sm text-muted-foreground">Section divider</p>
@@ -377,7 +378,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
             onClick={() => setIsAddingDivider(true)}
             variant="outline"
           >
-            <Minus className="w-4 h-4 mr-2" />
+            <Separator className="w-4 h-0.5" />
             Add Divider
           </Button>
         </div>
@@ -509,7 +510,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                 Add first PDF
               </Button>
               <Button variant="outline" onClick={() => setIsAddingDivider(true)}>
-                <Minus className="w-4 h-4 mr-2" />
+                <Separator className="w-4 h-0.5" />
                 Add divider
               </Button>
             </div>
