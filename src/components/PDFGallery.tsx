@@ -115,6 +115,16 @@ const PDFGallery = ({
 
   const displayItems = itemsWithThumbnails.length > 0 ? itemsWithThumbnails : items;
 
+  const openPdf = (url: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
       {isGeneratingThumbnails && (
@@ -145,20 +155,7 @@ const PDFGallery = ({
                         <div key={pdf.id} className="group">
                           <div
                             className="cursor-pointer"
-                            onClick={() => {
-                              // Mobile-friendly PDF opening
-                              if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                                window.open(pdf.pdfUrl, '_blank', 'noopener,noreferrer');
-                              } else {
-                                const link = document.createElement('a');
-                                link.href = pdf.pdfUrl;
-                                link.target = '_blank';
-                                link.rel = 'noopener noreferrer';
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
-                              }
-                            }}
+                            onClick={() => openPdf(pdf.pdfUrl)}
                             onMouseEnter={() => setHoveredId(pdf.id)}
                             onMouseLeave={() => setHoveredId(null)}
                           >
@@ -190,14 +187,16 @@ const PDFGallery = ({
                             </div>
                             
                             {/* Clickable text outside the thumbnail frame */}
-                            <div className="mt-3 transition-colors duration-200">
-                              <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[#7FB3DC]">
-                                {pdf.date}
-                              </p>
-                              <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground group-hover:text-[#7FB3DC] transition-colors duration-200">
-                                {pdf.title}
-                              </h3>
-                            </div>
+                              <div className="mt-3 transition-colors duration-200">
+                                <a href={pdf.pdfUrl} target="_blank" rel="noopener" className="block">
+                                  <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[#7FB3DC] hover:text-[#7FB3DC]">
+                                    {pdf.date}
+                                  </p>
+                                  <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground group-hover:text-[#7FB3DC] hover:text-[#7FB3DC] transition-colors duration-200">
+                                    {pdf.title}
+                                  </h3>
+                                </a>
+                              </div>
                           </div>
                         </div>
                       ))}
@@ -208,14 +207,13 @@ const PDFGallery = ({
 
                 // Render divider with spacing above
                 renderedItems.push(
-                  <div key={item.id} className="relative mt-12">
-                    <div className="absolute top-4 left-0 right-0 flex items-center" aria-hidden="true">
-                      <div className="w-full border-t border-border"></div>
-                    </div>
-                    <div className="relative flex justify-center pt-4">
+                  <div key={item.id} className="mt-12">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1 border-t border-border"></div>
                       <span className="bg-background px-6 text-lg font-medium text-muted-foreground">
                         {item.text}
                       </span>
+                      <div className="flex-1 border-t border-border"></div>
                     </div>
                   </div>
                 );
@@ -233,20 +231,7 @@ const PDFGallery = ({
                     <div key={pdf.id} className="group">
                       <div
                         className="cursor-pointer"
-                        onClick={() => {
-                          // Mobile-friendly PDF opening
-                          if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                            window.open(pdf.pdfUrl, '_blank', 'noopener,noreferrer');
-                          } else {
-                            const link = document.createElement('a');
-                            link.href = pdf.pdfUrl;
-                            link.target = '_blank';
-                            link.rel = 'noopener noreferrer';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                          }
-                        }}
+                        onClick={() => openPdf(pdf.pdfUrl)}
                         onMouseEnter={() => setHoveredId(pdf.id)}
                         onMouseLeave={() => setHoveredId(null)}
                       >
@@ -279,12 +264,14 @@ const PDFGallery = ({
                         
                         {/* Clickable text outside the thumbnail frame */}
                         <div className="mt-3 transition-colors duration-200">
-                          <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[#7FB3DC]">
-                            {pdf.date}
-                          </p>
-                          <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground group-hover:text-[#7FB3DC] transition-colors duration-200">
-                            {pdf.title}
-                          </h3>
+                          <a href={pdf.pdfUrl} target="_blank" rel="noopener" className="block">
+                            <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[#7FB3DC] hover:text-[#7FB3DC]">
+                              {pdf.date}
+                            </p>
+                            <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground group-hover:text-[#7FB3DC] hover:text-[#7FB3DC] transition-colors duration-200">
+                              {pdf.title}
+                            </h3>
+                          </a>
                         </div>
                       </div>
                     </div>

@@ -156,37 +156,20 @@ public function display_gallery_shortcode($atts) {
         'admin' => $admin,
     ), $index_url);
 
-    // Responsive iframe container with flexible height and no scrollbars
-    $html  = '<div class="pdf-gallery-iframe-container" style="position:relative;width:100%;overflow:hidden;">';
-    $html .= '<style>.pdf-gallery-iframe-container iframe { -ms-overflow-style: none; scrollbar-width: none; } .pdf-gallery-iframe-container iframe::-webkit-scrollbar { display: none; }</style>';
-    $html .= '<iframe src="' . esc_url($src) . '" style="width:100%;height:auto;min-height:600px;border:0;overflow:hidden;" scrolling="no" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" onload="this.style.height=this.contentWindow.document.body.scrollHeight+\'px\'"></iframe>';
+    // Responsive iframe container with flexible height and no internal scrollbars (auto-resize via postMessage)
+    $iframe_id = 'pdf-gallery-iframe-' . uniqid();
+    $html  = '<div class="pdf-gallery-iframe-container" id="' . esc_attr($iframe_id) . '-container" style="position:relative;width:100%;overflow:hidden;">';
+    $html .= '<style>.pdf-gallery-iframe-container{overflow:hidden;width:100%;} .pdf-gallery-iframe-container iframe{display:block;width:100%;border:0;overflow:hidden;}</style>';
+    $html .= '<iframe id="' . esc_attr($iframe_id) . '" src="' . esc_url($src) . '" scrolling="no" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" style="height:1px;min-height:600px;"></iframe>';
     $html .= '</div>';
     
-    // Add JavaScript to auto-resize iframe
-    $html .= '<script>
-    (function() {
-        function resizeIframe() {
-            const iframe = document.querySelector(".pdf-gallery-iframe-container iframe");
-            if (iframe && iframe.contentWindow) {
-                try {
-                    const height = iframe.contentWindow.document.body.scrollHeight;
-                    if (height > 0) {
-                        iframe.style.height = height + "px";
-                    }
-                } catch (e) {
-                    // Cross-origin restrictions, fallback to min-height
-                }
-            }
-        }
-        
-        const iframe = document.querySelector(".pdf-gallery-iframe-container iframe");
-        if (iframe) {
-            iframe.addEventListener("load", resizeIframe);
-            // Also try to resize periodically in case content changes
-            setInterval(resizeIframe, 2000);
-        }
-    })();
-    </script>';
+    // Auto-resize listener: receives height from the iframe app and adjusts dynamically (great for mobile)
+    $html .= '<script>(function(){
+      var iframe = document.getElementById("' . $iframe_id . '");
+      if(!iframe) return;
+      function onMsg(e){ try{ if(!e || !e.data) return; var d = e.data; if(d.type === "pdf-gallery:height" && typeof d.height === "number"){ var minH = 600; iframe.style.height = Math.max(d.height, minH) + "px"; } }catch(err){} }
+      window.addEventListener("message", onMsg, false);
+    })();</script>';
 
     return $html;
 }
