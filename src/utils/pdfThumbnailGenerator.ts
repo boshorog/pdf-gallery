@@ -11,7 +11,7 @@ try {
 } catch (moduleError) {
   console.warn('Module worker failed, falling back to legacy worker:', moduleError);
   // Fallback to legacy worker
-  GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/build/pdf.worker.min.js';
 }
 
 export interface ThumbnailResult {

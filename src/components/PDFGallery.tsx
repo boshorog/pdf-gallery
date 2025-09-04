@@ -52,6 +52,11 @@ const PDFGallery = ({
     if (pdfsNeedingThumbnails.length > 0) {
       console.log('Starting thumbnail generation...');
       console.log('Calling PDFThumbnailGenerator.generateMultipleThumbnails');
+      // Prefill with placeholders so UI isn't blocked
+      const prefilledItems = items.map(item => 
+        'pdfUrl' in item ? { ...item, thumbnail: item.thumbnail || pdfPlaceholder } : item
+      );
+      setItemsWithThumbnails(prefilledItems);
       
       const generateThumbnails = async () => {
         try {
@@ -107,16 +112,6 @@ const PDFGallery = ({
     }
   }, [items]);
 
-  if (isGeneratingThumbnails) {
-    return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Generating PDF thumbnails...</p>
-        </div>
-      </div>
-    );
-  }
 
   const displayItems = itemsWithThumbnails.length > 0 ? itemsWithThumbnails : items;
 
@@ -125,6 +120,9 @@ const PDFGallery = ({
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-4">{title}</h1>
         <p className="text-muted-foreground text-lg">{description}</p>
+        {isGeneratingThumbnails && (
+          <p className="text-sm text-muted-foreground mt-2">Generating PDF thumbnails...</p>
+        )}
       </div>
 
       {displayItems.length === 0 ? (
