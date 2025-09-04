@@ -135,46 +135,49 @@ const PDFGallery = ({
                 // Render previous grid if exists
                 if (currentGrid.length > 0) {
                   renderedItems.push(
-                    <div key={`grid-${currentGrid[0].id}`} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <div key={`grid-${currentGrid[0].id}`} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                       {currentGrid.map((pdf) => (
-                        <div
-                          key={pdf.id}
-                          className="group relative cursor-pointer bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border"
-                          onClick={() => window.open(pdf.pdfUrl, '_blank')}
-                          onMouseEnter={() => setHoveredId(pdf.id)}
-                          onMouseLeave={() => setHoveredId(null)}
-                        >
-                          <div className="aspect-video overflow-hidden bg-muted">
-                            <img
-                              src={pdf.thumbnail}
-                              alt={pdf.title}
-                              className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                              loading="lazy"
-                              onError={(e) => {
-                                e.currentTarget.src = pdfPlaceholder;
-                              }}
-                            />
-                            {hoveredId === pdf.id && (
-                              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                <ExternalLink className="w-8 h-8 text-white" />
+                        <div key={pdf.id} className="group">
+                          <div
+                            className="relative cursor-pointer bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border"
+                            onClick={() => window.open(pdf.pdfUrl, '_blank')}
+                            onMouseEnter={() => setHoveredId(pdf.id)}
+                            onMouseLeave={() => setHoveredId(null)}
+                          >
+                            <div className="aspect-video overflow-hidden bg-muted">
+                              <img
+                                src={pdf.thumbnail}
+                                alt={pdf.title}
+                                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                                loading="lazy"
+                                onError={(e) => {
+                                  e.currentTarget.src = pdfPlaceholder;
+                                }}
+                              />
+                              {hoveredId === pdf.id && (
+                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                  <ExternalLink className="w-8 h-8 text-white" />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* PDF Indicator */}
+                            <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
+                              <div className="flex items-center gap-1">
+                                <FileText className="w-3 h-3 text-muted-foreground" />
+                                <span className="text-xs font-medium text-muted-foreground">PDF</span>
                               </div>
-                            )}
+                            </div>
                           </div>
-                          <div className="p-4">
+                          
+                          {/* Text outside the thumbnail frame */}
+                          <div className="mt-3">
                             <p className="text-xs text-muted-foreground leading-tight mb-1">
                               {pdf.date}
                             </p>
                             <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground">
                               {pdf.title}
                             </h3>
-                          </div>
-
-                          {/* PDF Indicator */}
-                          <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
-                            <div className="flex items-center gap-1">
-                              <FileText className="w-3 h-3 text-muted-foreground" />
-                              <span className="text-xs font-medium text-muted-foreground">PDF</span>
-                            </div>
                           </div>
                         </div>
                       ))}
@@ -205,46 +208,49 @@ const PDFGallery = ({
             // Render remaining grid if any PDFs are left
             if (currentGrid.length > 0) {
               renderedItems.push(
-                <div key={`grid-final`} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                <div key={`grid-final`} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {currentGrid.map((pdf) => (
-                    <div
-                      key={pdf.id}
-                      className="group relative cursor-pointer bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border"
-                      onClick={() => window.open(pdf.pdfUrl, '_blank')}
-                      onMouseEnter={() => setHoveredId(pdf.id)}
-                      onMouseLeave={() => setHoveredId(null)}
-                    >
-                      <div className="aspect-video overflow-hidden bg-muted">
-                        <img
-                          src={pdf.thumbnail}
-                          alt={pdf.title}
-                          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.src = pdfPlaceholder;
-                          }}
-                        />
-                        {hoveredId === pdf.id && (
-                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                            <ExternalLink className="w-8 h-8 text-white" />
+                    <div key={pdf.id} className="group">
+                      <div
+                        className="relative cursor-pointer bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border"
+                        onClick={() => window.open(pdf.pdfUrl, '_blank')}
+                        onMouseEnter={() => setHoveredId(pdf.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                      >
+                        <div className="aspect-video overflow-hidden bg-muted">
+                          <img
+                            src={pdf.thumbnail}
+                            alt={pdf.title}
+                            className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                            loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.src = pdfPlaceholder;
+                            }}
+                          />
+                          {hoveredId === pdf.id && (
+                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                              <ExternalLink className="w-8 h-8 text-white" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* PDF Indicator */}
+                        <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
+                          <div className="flex items-center gap-1">
+                            <FileText className="w-3 h-3 text-muted-foreground" />
+                            <span className="text-xs font-medium text-muted-foreground">PDF</span>
                           </div>
-                        )}
+                        </div>
                       </div>
-                      <div className="p-4">
+                      
+                      {/* Text outside the thumbnail frame */}
+                      <div className="mt-3">
                         <p className="text-xs text-muted-foreground leading-tight mb-1">
                           {pdf.date}
                         </p>
                         <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground">
                           {pdf.title}
                         </h3>
-                      </div>
-
-                      {/* PDF Indicator */}
-                      <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
-                        <div className="flex items-center gap-1">
-                          <FileText className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-xs font-medium text-muted-foreground">PDF</span>
-                        </div>
                       </div>
                     </div>
                   ))}
