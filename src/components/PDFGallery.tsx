@@ -161,12 +161,12 @@ const PDFGallery = ({
                             )}
                           </div>
                           <div className="p-4">
-                            <h3 className="font-semibold text-sm mb-1 line-clamp-2 leading-tight text-foreground">
-                              {pdf.title}
-                            </h3>
-                            <p className="text-xs text-muted-foreground leading-tight">
+                            <p className="text-xs text-muted-foreground leading-tight mb-1">
                               {pdf.date}
                             </p>
+                            <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground">
+                              {pdf.title}
+                            </h3>
                           </div>
 
                           {/* PDF Indicator */}
@@ -231,12 +231,12 @@ const PDFGallery = ({
                         )}
                       </div>
                       <div className="p-4">
-                        <h3 className="font-semibold text-sm mb-1 line-clamp-2 leading-tight text-foreground">
-                          {pdf.title}
-                        </h3>
-                        <p className="text-xs text-muted-foreground leading-tight">
+                        <p className="text-xs text-muted-foreground leading-tight mb-1">
                           {pdf.date}
                         </p>
+                        <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground">
+                          {pdf.title}
+                        </h3>
                       </div>
 
                       {/* PDF Indicator */}
