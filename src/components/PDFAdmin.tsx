@@ -152,6 +152,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     pdfUrl: '',
     thumbnail: ''
   });
+  const [isUploading, setIsUploading] = useState(false);
   const [dividerFormData, setDividerFormData] = useState({
     text: ''
   });
@@ -416,6 +417,71 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     }
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast({
+        title: "Error",
+        description: "Please select a PDF file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      const wp = (window as any).wpPDFGallery;
+      if (!wp?.ajaxUrl || !wp?.nonce) {
+        throw new Error('WordPress environment not available');
+      }
+
+      const formData = new FormData();
+      formData.append('action', 'pdf_gallery_action');
+      formData.append('action_type', 'upload_pdf');
+      formData.append('nonce', wp.nonce);
+      formData.append('pdf_file', file);
+
+      const response = await fetch(wp.ajaxUrl, {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: formData,
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Auto-fill the form with uploaded file data
+        setPdfFormData(prev => ({
+          ...prev,
+          title: file.name.replace('.pdf', ''),
+          pdfUrl: data.data.url,
+          date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+        }));
+        
+        toast({
+          title: "Uploaded",
+          description: "PDF file uploaded successfully",
+        });
+      } else {
+        throw new Error(data.data || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload Error",
+        description: error instanceof Error ? error.message : "Failed to upload PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      event.target.value = '';
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -469,6 +535,27 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* File Upload Section */}
+            <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+              <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+              <Label htmlFor="pdfFile" className="cursor-pointer">
+                <span className="text-sm font-medium text-primary hover:underline">
+                  {isUploading ? 'Uploading...' : 'Upload PDF file'}
+                </span>
+                <Input
+                  id="pdfFile"
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  onChange={handleFileUpload}
+                  disabled={isUploading}
+                  className="hidden"
+                />
+              </Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                Or fill in the details manually below
+              </p>
+            </div>
+
             <div>
               <Label htmlFor="title">Title</Label>
               <Input

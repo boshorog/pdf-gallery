@@ -156,10 +156,36 @@ public function display_gallery_shortcode($atts) {
         'admin' => $admin,
     ), $index_url);
 
-    // Responsive iframe container
+    // Responsive iframe container with flexible height
     $html  = '<div class="pdf-gallery-iframe-container" style="position:relative;width:100%;">';
-    $html .= '<iframe src="' . esc_url($src) . '" style="width:100%;min-height:80vh;border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>';
+    $html .= '<iframe src="' . esc_url($src) . '" style="width:100%;height:auto;min-height:600px;border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" onload="this.style.height=this.contentWindow.document.body.scrollHeight+\'px\'"></iframe>';
     $html .= '</div>';
+    
+    // Add JavaScript to auto-resize iframe
+    $html .= '<script>
+    (function() {
+        function resizeIframe() {
+            const iframe = document.querySelector(".pdf-gallery-iframe-container iframe");
+            if (iframe && iframe.contentWindow) {
+                try {
+                    const height = iframe.contentWindow.document.body.scrollHeight;
+                    if (height > 0) {
+                        iframe.style.height = height + "px";
+                    }
+                } catch (e) {
+                    // Cross-origin restrictions, fallback to min-height
+                }
+            }
+        }
+        
+        const iframe = document.querySelector(".pdf-gallery-iframe-container iframe");
+        if (iframe) {
+            iframe.addEventListener("load", resizeIframe);
+            // Also try to resize periodically in case content changes
+            setInterval(resizeIframe, 2000);
+        }
+    })();
+    </script>';
 
     return $html;
 }
@@ -235,6 +261,65 @@ function handle_pdf_gallery_ajax() {
             // Handle getting PDF gallery items
             $items = get_option('pdf_gallery_data', array());
             wp_send_json_success(array('items' => $items));
+            break;
+            
+        case 'upload_pdf':
+            // Handle PDF file upload
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error('Insufficient permissions');
+            }
+            
+            if (!isset($_FILES['pdf_file'])) {
+                wp_send_json_error('No file uploaded');
+            }
+            
+            $file = $_FILES['pdf_file'];
+            
+            // Check if it's a PDF file
+            if ($file['type'] !== 'application/pdf') {
+                wp_send_json_error('Only PDF files are allowed');
+            }
+            
+            // Check file size (limit to 10MB)
+            if ($file['size'] > 10 * 1024 * 1024) {
+                wp_send_json_error('File size too large. Maximum 10MB allowed.');
+            }
+            
+            // Handle the upload using WordPress media functions
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+            require_once(ABSPATH . 'wp-admin/includes/media.php');
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+            
+            $upload_overrides = array('test_form' => false);
+            $uploaded_file = wp_handle_upload($file, $upload_overrides);
+            
+            if (isset($uploaded_file['error'])) {
+                wp_send_json_error($uploaded_file['error']);
+            }
+            
+            // Create attachment
+            $attachment = array(
+                'post_mime_type' => $uploaded_file['type'],
+                'post_title' => preg_replace('/\.[^.]+$/', '', basename($uploaded_file['file'])),
+                'post_content' => '',
+                'post_status' => 'inherit'
+            );
+            
+            $attachment_id = wp_insert_attachment($attachment, $uploaded_file['file']);
+            
+            if (is_wp_error($attachment_id)) {
+                wp_send_json_error('Failed to create attachment');
+            }
+            
+            // Generate attachment metadata
+            $attachment_data = wp_generate_attachment_metadata($attachment_id, $uploaded_file['file']);
+            wp_update_attachment_metadata($attachment_id, $attachment_data);
+            
+            wp_send_json_success(array(
+                'url' => $uploaded_file['url'],
+                'attachment_id' => $attachment_id,
+                'filename' => basename($uploaded_file['file'])
+            ));
             break;
             
         default:

@@ -191,9 +191,9 @@ const PDFGallery = ({
                   currentGrid = [];
                 }
 
-                // Render divider
+                // Render divider with spacing above
                 renderedItems.push(
-                  <div key={item.id} className="relative">
+                  <div key={item.id} className="relative mt-8">
                     <div className="absolute inset-0 flex items-center" aria-hidden="true">
                       <div className="w-full border-t border-border"></div>
                     </div>

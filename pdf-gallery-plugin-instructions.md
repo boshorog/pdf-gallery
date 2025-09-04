@@ -47,7 +47,10 @@ pdf-gallery/
 ### Plugin Features:
 - **Admin Access**: WordPress Admin > PDF Gallery
 - **Frontend Display**: Use shortcode `[pdf_gallery]` 
+- **Direct PDF Upload**: Upload PDF files directly from the admin interface
+- **WordPress Media Integration**: Uploaded PDFs are stored in WordPress media library
 - **Automatic Updates**: All changes are saved to WordPress database
 - **Thumbnail Generation**: Automatic PDF thumbnail creation
 - **Drag & Drop**: Reorder PDFs and dividers in admin
 - **Multi-Select**: Select and delete multiple items at once
+- **Flexible Frontend**: Auto-resizing iframe prevents double scrollbars
