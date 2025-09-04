@@ -144,7 +144,7 @@ const PDFGallery = ({
                           onMouseEnter={() => setHoveredId(pdf.id)}
                           onMouseLeave={() => setHoveredId(null)}
                         >
-                          <div className="aspect-[3/4] overflow-hidden bg-muted">
+                          <div className="aspect-video overflow-hidden bg-muted">
                             <img
                               src={pdf.thumbnail}
                               alt={pdf.title}
@@ -214,7 +214,7 @@ const PDFGallery = ({
                       onMouseEnter={() => setHoveredId(pdf.id)}
                       onMouseLeave={() => setHoveredId(null)}
                     >
-                      <div className="aspect-[3/4] overflow-hidden bg-muted">
+                      <div className="aspect-video overflow-hidden bg-muted">
                         <img
                           src={pdf.thumbnail}
                           alt={pdf.title}
