@@ -156,9 +156,9 @@ public function display_gallery_shortcode($atts) {
         'admin' => $admin,
     ), $index_url);
 
-    // Responsive iframe container with flexible height
-    $html  = '<div class="pdf-gallery-iframe-container" style="position:relative;width:100%;">';
-    $html .= '<iframe src="' . esc_url($src) . '" style="width:100%;height:auto;min-height:600px;border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" onload="this.style.height=this.contentWindow.document.body.scrollHeight+\'px\'"></iframe>';
+    // Responsive iframe container with flexible height and no scrollbars
+    $html  = '<div class="pdf-gallery-iframe-container" style="position:relative;width:100%;overflow:hidden;">';
+    $html .= '<iframe src="' . esc_url($src) . '" style="width:100%;height:auto;min-height:600px;border:0;overflow:hidden;" scrolling="no" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" onload="this.style.height=this.contentWindow.document.body.scrollHeight+\'px\'"></iframe>';
     $html .= '</div>';
     
     // Add JavaScript to auto-resize iframe
