@@ -3,11 +3,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import NewsletterGallery from '@/components/NewsletterGallery';
-import NewsletterAdmin from '@/components/NewsletterAdmin';
+import PDFGallery from '@/components/PDFGallery';
+import PDFAdmin from '@/components/PDFAdmin';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 
-interface Newsletter {
+interface PDF {
   id: string;
   title: string;
   date: string;
@@ -15,71 +15,79 @@ interface Newsletter {
   thumbnail: string;
 }
 
-const initialNewsletters: Newsletter[] = [
+interface Divider {
+  id: string;
+  type: 'divider';
+  text: string;
+}
+
+type GalleryItem = PDF | Divider;
+
+const initialPDFs: PDF[] = [
   {
     id: '1',
-    title: 'Când Isus Ne Cheamă Pe Nume',
-    date: 'Aprilie 2025',
+    title: 'When Jesus Calls Us by Name',
+    date: 'April 2025',
     pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2504_Cand-Isus-Ne-Cheama-Pe-Nume.pdf',
     thumbnail: pdfPlaceholder,
   },
   {
     id: '2',
-    title: 'De la Moarte la Viață',
-    date: 'Martie 2025',
+    title: 'From Death to Life',
+    date: 'March 2025',
     pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2503_De-la-Moarte-la-Viata.pdf',
     thumbnail: pdfPlaceholder,
   },
   {
     id: '3',
-    title: 'De La Februs La Hristos',
-    date: 'Februarie 2025',
+    title: 'From Fever to Christ',
+    date: 'February 2025',
     pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2502_De-La-Februs-La-Hristos.pdf',
     thumbnail: pdfPlaceholder,
   },
   {
     id: '4',
-    title: 'Ce Ne Rezervă Viitorul',
-    date: 'Ianuarie 2025',
+    title: 'What the Future Holds',
+    date: 'January 2025',
     pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf',
     thumbnail: pdfPlaceholder,
   },
   {
     id: '5',
-    title: 'Reflecții asupra darului mântuirii',
-    date: 'Decembrie 2024',
+    title: 'Reflections on the Gift of Salvation',
+    date: 'December 2024',
     pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2412_Reflectii-asupra-darului-mantuirii.pdf',
     thumbnail: pdfPlaceholder,
   },
   {
     id: '6',
-    title: 'Ceasul Al Unsprezecelea',
-    date: 'Noiembrie 2024',
+    title: 'The Eleventh Hour',
+    date: 'November 2024',
     pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2511_Ceasul-Al-Unsprezecelea.pdf',
     thumbnail: pdfPlaceholder,
   },
 ];
 
 const Index = () => {
-  const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
 
-  // Load newsletters from WordPress and check admin access
+  // Load gallery items from WordPress and check admin access
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     
     // Check if running in WordPress admin context
-    if (typeof window !== 'undefined' && (window as any).wpNewsletterGallery) {
-      setIsAdmin((window as any).wpNewsletterGallery.isAdmin);
+    if (typeof window !== 'undefined' && (window as any).wpPDFGallery) {
+      setIsAdmin((window as any).wpPDFGallery.isAdmin);
       
-      // Load newsletters from WordPress
-      const wp = (window as any).wpNewsletterGallery;
+      // Load gallery items from WordPress
+      const wp = (window as any).wpPDFGallery;
       if (wp.ajaxUrl && wp.nonce) {
         const form = new FormData();
-        form.append('action', 'newsletter_gallery_action');
-        form.append('action_type', 'get_newsletters');
+        form.append('action', 'pdf_gallery_action');
+        form.append('action_type', 'get_items');
         form.append('nonce', wp.nonce);
 
         fetch(wp.ajaxUrl, {
@@ -89,23 +97,23 @@ const Index = () => {
         })
           .then((res) => res.json())
           .then((data) => {
-            if (data?.success && Array.isArray(data?.data?.newsletters)) {
-              setNewsletters(data.data.newsletters as Newsletter[]);
+            if (data?.success && Array.isArray(data?.data?.items)) {
+              setGalleryItems(data.data.items as GalleryItem[]);
             } else {
-              setNewsletters([]);
+              setGalleryItems(initialPDFs);
             }
           })
           .catch(() => {
-            setNewsletters([]);
+            setGalleryItems(initialPDFs);
           });
       }
     } else if (urlParams.get('admin') === 'true') {
       setIsAdmin(true);
-      // For development, use initial newsletters
-      setNewsletters(initialNewsletters);
+      // For development, use initial PDFs
+      setGalleryItems(initialPDFs);
     } else {
-      // For development, use initial newsletters
-      setNewsletters(initialNewsletters);
+      // For development, use initial PDFs
+      setGalleryItems(initialPDFs);
     }
   }, []);
 
@@ -130,24 +138,32 @@ const Index = () => {
         {isAdmin ? (
           <Tabs defaultValue="gallery" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="gallery">Newsletter Gallery</TabsTrigger>
-              <TabsTrigger value="admin">Administrare</TabsTrigger>
+              <TabsTrigger value="gallery">PDF Gallery Preview</TabsTrigger>
+              <TabsTrigger value="admin">PDF Management</TabsTrigger>
             </TabsList>
             
             <TabsContent value="gallery" className="mt-0">
-              <NewsletterGallery newsletters={newsletters} />
+              <PDFGallery 
+                items={galleryItems}
+                title="PDF Gallery"
+                description="Browse our collection of PDF documents"
+              />
             </TabsContent>
             
             <TabsContent value="admin" className="mt-0">
-              <NewsletterAdmin 
-                newsletters={newsletters}
-                onNewslettersChange={setNewsletters}
+              <PDFAdmin 
+                items={galleryItems}
+                onItemsChange={setGalleryItems}
               />
             </TabsContent>
           </Tabs>
         ) : (
           <div className="w-full">
-            <NewsletterGallery newsletters={newsletters} />
+            <PDFGallery 
+              items={galleryItems}
+              title="PDF Gallery"
+              description="Browse our collection of PDF documents"
+            />
             
             {/* Hidden admin access button */}
             <div className="fixed bottom-4 right-4">

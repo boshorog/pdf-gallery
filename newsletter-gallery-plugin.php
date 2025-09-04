@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Newsletter Gallery Manager
+ * Plugin Name: PDF Gallery
  * Plugin URI: https://antiohia.ro
- * Description: Manage newsletter PDFs with thumbnail generation. Integrates with WordPress admin authentication.
- * Version: 1.0.1
+ * Description: Manage PDF documents with thumbnail generation and sortable display. Integrates with WordPress admin authentication.
+ * Version: 1.0.2
  * Author: uphill
  * Requires at least: 5.0
  * Tested up to: 6.4
@@ -15,14 +15,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class NewsletterGalleryPlugin {
+class PDFGalleryPlugin {
     
     public function __construct() {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         
         // Add shortcode for frontend display
-        add_shortcode('newsletter_gallery', array($this, 'display_gallery_shortcode'));
+        add_shortcode('pdf_gallery', array($this, 'display_gallery_shortcode'));
         
         // Register activation/deactivation hooks
         register_activation_hook(__FILE__, array($this, 'activate'));
@@ -34,10 +34,10 @@ class NewsletterGalleryPlugin {
      */
     public function add_admin_menu() {
         add_menu_page(
-            'Newsletter Gallery Manager',     // Page title
-            'Newsletter Gallery',            // Menu title
+            'PDF Gallery',                  // Page title
+            'PDF Gallery',                  // Menu title
             'manage_options',               // Capability required
-            'newsletter-gallery-manager',   // Menu slug
+            'pdf-gallery-manager',          // Menu slug
             array($this, 'render_admin_page'), // Callback function
             'dashicons-media-document',     // Icon
             25                             // Position
@@ -79,7 +79,7 @@ class NewsletterGalleryPlugin {
      */
     public function enqueue_admin_scripts($hook_suffix) {
         // Only load on our admin page
-        if ($hook_suffix !== 'toplevel_page_newsletter-gallery-manager') {
+        if ($hook_suffix !== 'toplevel_page_pdf-gallery-manager') {
             return;
         }
         
@@ -90,32 +90,32 @@ class NewsletterGalleryPlugin {
         if (!$js_file || !$css_file) {
             // Show error message in admin if assets not found
             add_action('admin_notices', function() {
-                echo '<div class="notice notice-error"><p>Newsletter Gallery: Plugin assets not found. Please rebuild the plugin.</p></div>';
+                echo '<div class="notice notice-error"><p>PDF Gallery: Plugin assets not found. Please rebuild the plugin.</p></div>';
             });
             return;
         }
         
         // Enqueue the React app's JS and CSS
         wp_enqueue_script(
-            'newsletter-gallery-admin', 
+            'pdf-gallery-admin', 
             $js_file, 
             array(), 
-            '1.0.0', 
+            '1.0.2', 
             true
         );
-        wp_script_add_data('newsletter-gallery-admin', 'type', 'module');
+        wp_script_add_data('pdf-gallery-admin', 'type', 'module');
         
         wp_enqueue_style(
-            'newsletter-gallery-admin', 
+            'pdf-gallery-admin', 
             $css_file, 
             array(), 
-            '1.0.0'
+            '1.0.2'
         );
         
         // Pass WordPress user info to React app
-        wp_localize_script('newsletter-gallery-admin', 'wpNewsletterGallery', array(
+        wp_localize_script('pdf-gallery-admin', 'wpPDFGallery', array(
             'isAdmin' => current_user_can('manage_options'),
-            'nonce' => wp_create_nonce('newsletter_gallery_nonce'),
+            'nonce' => wp_create_nonce('pdf_gallery_nonce'),
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'uploadsUrl' => wp_upload_dir()['baseurl']
         ));
@@ -130,8 +130,8 @@ class NewsletterGalleryPlugin {
         }
         
         echo '<div class="wrap">';
-        echo '<h1>Newsletter Gallery Manager</h1>';
-        echo '<div id="newsletter-gallery-root" style="margin-top: 20px;"></div>';
+        echo '<h1>PDF Gallery</h1>';
+        echo '<div id="pdf-gallery-root" style="margin-top: 20px;"></div>';
         echo '</div>';
     }
     
@@ -142,41 +142,41 @@ class NewsletterGalleryPlugin {
         // Parse attributes
         $atts = shortcode_atts(array(
             'show_admin' => 'false'
-        ), $atts, 'newsletter_gallery');
+        ), $atts, 'pdf_gallery');
         
         // Get asset files
         $js_file = $this->get_asset_url('js');
         $css_file = $this->get_asset_url('css');
         
         if (!$js_file || !$css_file) {
-            return '<div id="newsletter-gallery-root"><p>Newsletter gallery assets not found. Please contact the administrator.</p></div>';
+            return '<div id="pdf-gallery-root"><p>PDF gallery assets not found. Please contact the administrator.</p></div>';
         }
         
         // Enqueue frontend scripts
         wp_enqueue_script(
-            'newsletter-gallery-frontend', 
+            'pdf-gallery-frontend', 
             $js_file, 
             array(), 
             null, 
             true
         );
-        wp_script_add_data('newsletter-gallery-frontend', 'type', 'module');
+        wp_script_add_data('pdf-gallery-frontend', 'type', 'module');
         
         wp_enqueue_style(
-            'newsletter-gallery-frontend', 
+            'pdf-gallery-frontend', 
             $css_file, 
             array(), 
             null
         );
         
         // Pass frontend data
-        wp_localize_script('newsletter-gallery-frontend', 'wpNewsletterGallery', array(
+        wp_localize_script('pdf-gallery-frontend', 'wpPDFGallery', array(
             'isAdmin' => ($atts['show_admin'] === 'true' && current_user_can('manage_options')),
-            'nonce' => wp_create_nonce('newsletter_gallery_nonce'),
+            'nonce' => wp_create_nonce('pdf_gallery_nonce'),
             'ajaxUrl' => admin_url('admin-ajax.php')
         ));
         
-        return '<div id="newsletter-gallery-root"></div>';
+        return '<div id="pdf-gallery-root"></div>';
     }
     
     /**
@@ -185,14 +185,14 @@ class NewsletterGalleryPlugin {
     public function activate() {
         // Create upload directory if it doesn't exist
         $upload_dir = wp_upload_dir();
-        $newsletter_dir = $upload_dir['basedir'] . '/newsletter-gallery';
+        $pdf_gallery_dir = $upload_dir['basedir'] . '/pdf-gallery';
         
-        if (!file_exists($newsletter_dir)) {
-            wp_mkdir_p($newsletter_dir);
+        if (!file_exists($pdf_gallery_dir)) {
+            wp_mkdir_p($pdf_gallery_dir);
         }
         
         // Set default options
-        add_option('newsletter_gallery_version', '1.0.1');
+        add_option('pdf_gallery_version', '1.0.2');
     }
     
     /**
@@ -200,28 +200,28 @@ class NewsletterGalleryPlugin {
      */
     public function deactivate() {
         // Clean up if needed
-        delete_option('newsletter_gallery_version');
+        delete_option('pdf_gallery_version');
     }
 }
 
 // Initialize the plugin
-new NewsletterGalleryPlugin();
+new PDFGalleryPlugin();
 
 // Ensure our scripts load as ES modules even on older WP versions
 add_filter('script_loader_tag', function($tag, $handle, $src) {
-    if (in_array($handle, array('newsletter-gallery-admin', 'newsletter-gallery-frontend'), true)) {
+    if (in_array($handle, array('pdf-gallery-admin', 'pdf-gallery-frontend'), true)) {
         $tag = '<script type="module" src="' . esc_url($src) . '" id="' . esc_attr($handle) . '-js"></script>';
     }
     return $tag;
 }, 10, 3);
 
 // AJAX handlers for frontend/backend communication
-add_action('wp_ajax_newsletter_gallery_action', 'handle_newsletter_gallery_ajax');
-add_action('wp_ajax_nopriv_newsletter_gallery_action', 'handle_newsletter_gallery_ajax');
+add_action('wp_ajax_pdf_gallery_action', 'handle_pdf_gallery_ajax');
+add_action('wp_ajax_nopriv_pdf_gallery_action', 'handle_pdf_gallery_ajax');
 
-function handle_newsletter_gallery_ajax() {
+function handle_pdf_gallery_ajax() {
     // Verify nonce for security
-    if (!wp_verify_nonce($_POST['nonce'], 'newsletter_gallery_nonce')) {
+    if (!wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
         wp_die('Security check failed');
     }
     
@@ -229,27 +229,27 @@ function handle_newsletter_gallery_ajax() {
     $action_type = sanitize_text_field($_POST['action_type']);
     
     switch ($action_type) {
-        case 'save_newsletters':
-            // Handle saving newsletters data
+        case 'save_items':
+            // Handle saving PDF gallery items (PDFs + dividers)
             if (!current_user_can('manage_options')) {
                 wp_send_json_error('Insufficient permissions');
             }
             
-            $newsletters_json = stripslashes($_POST['newsletters']);
-            $newsletters = json_decode($newsletters_json, true);
+            $items_json = stripslashes($_POST['items']);
+            $items = json_decode($items_json, true);
             
-            if (json_last_error() === JSON_ERROR_NONE && is_array($newsletters)) {
-                update_option('newsletter_gallery_data', $newsletters);
-                wp_send_json_success('Newsletters saved successfully');
+            if (json_last_error() === JSON_ERROR_NONE && is_array($items)) {
+                update_option('pdf_gallery_data', $items);
+                wp_send_json_success('PDF gallery items saved successfully');
             } else {
-                wp_send_json_error('Invalid newsletters data');
+                wp_send_json_error('Invalid PDF gallery data');
             }
             break;
             
-        case 'get_newsletters':
-            // Handle getting newsletters data
-            $newsletters = get_option('newsletter_gallery_data', array());
-            wp_send_json_success(array('newsletters' => $newsletters));
+        case 'get_items':
+            // Handle getting PDF gallery items
+            $items = get_option('pdf_gallery_data', array());
+            wp_send_json_success(array('items' => $items));
             break;
             
         default:
