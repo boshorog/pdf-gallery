@@ -162,17 +162,6 @@ useEffect(() => {
               description="Browse our collection of PDF documents"
             />
             
-            {/* Hidden admin access button */}
-            <div className="fixed bottom-4 right-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="opacity-10 hover:opacity-100 transition-opacity"
-                onClick={() => setShowAdminDialog(true)}
-              >
-                Admin
-              </Button>
-            </div>
           </div>
         )}
 
