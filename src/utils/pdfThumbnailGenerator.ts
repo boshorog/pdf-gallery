@@ -1,10 +1,18 @@
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist';
-// Initialize PDF.js worker using a module worker with URL relative to this file (works in WordPress front-end too)
-const pdfWorker = new Worker(
-  new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url),
-  { type: 'module' }
-);
-GlobalWorkerOptions.workerPort = pdfWorker;
+// Initialize PDF.js worker using a more robust approach
+let pdfWorker;
+try {
+  // First try the module worker approach (for modern environments)
+  pdfWorker = new Worker(
+    new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url),
+    { type: 'module' }
+  );
+  GlobalWorkerOptions.workerPort = pdfWorker;
+} catch (moduleError) {
+  console.warn('Module worker failed, falling back to legacy worker:', moduleError);
+  // Fallback to legacy worker
+  GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
 
 export interface ThumbnailResult {
   success: boolean;

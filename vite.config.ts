@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/wp-content/plugins/newsletter-gallery-manager/dist/' : '/',
+  base: mode === 'production' ? '/wp-content/plugins/pdf-gallery-manager/dist/' : '/',
   server: {
     host: "::",
     port: 8080,
@@ -26,8 +26,16 @@ export default defineConfig(({ mode }) => ({
         // Use predictable filenames for WordPress integration
         entryFileNames: 'assets/index.js',
         chunkFileNames: 'assets/[name].js',
-        assetFileNames: 'assets/[name].[ext]'
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name?.endsWith('.css')) {
+            return 'assets/index.css';
+          }
+          return 'assets/[name].[ext]';
+        }
       }
-    }
-  }
+    },
+    // Copy public files to dist
+    copyPublicDir: true
+  },
+  publicDir: 'public'
 }));

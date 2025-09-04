@@ -46,7 +46,7 @@ const PDFGallery = ({
     
     // Extract PDFs that need thumbnail generation
     const pdfsNeedingThumbnails = items.filter((item): item is PDF => 
-      'pdfUrl' in item && (!item.thumbnail || item.thumbnail === '/placeholder-pdf.jpg' || item.thumbnail === pdfPlaceholder)
+      'pdfUrl' in item && (!item.thumbnail || item.thumbnail === pdfPlaceholder || item.thumbnail.includes('placeholder'))
     );
     
     if (pdfsNeedingThumbnails.length > 0) {
@@ -55,9 +55,16 @@ const PDFGallery = ({
       
       const generateThumbnails = async () => {
         try {
-          const results = await PDFThumbnailGenerator.generateMultipleThumbnails(
+          // Set timeout for thumbnail generation to prevent hanging
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Thumbnail generation timeout')), 30000)
+          );
+          
+          const resultsPromise = PDFThumbnailGenerator.generateMultipleThumbnails(
             pdfsNeedingThumbnails.map(pdf => pdf.pdfUrl)
           );
+          
+          const results = await Promise.race([resultsPromise, timeoutPromise]) as any;
           
           console.log('Thumbnail generation results:', results);
           
@@ -81,9 +88,11 @@ const PDFGallery = ({
           setItemsWithThumbnails(updatedItems);
         } catch (error) {
           console.error('Error during thumbnail generation:', error);
-          setItemsWithThumbnails(items.map(item => 
+          // Fallback: use placeholders for all PDFs
+          const fallbackItems = items.map(item => 
             'pdfUrl' in item ? { ...item, thumbnail: pdfPlaceholder } : item
-          ));
+          );
+          setItemsWithThumbnails(fallbackItems);
         } finally {
           setIsGeneratingThumbnails(false);
           console.log('Thumbnail generation complete');
