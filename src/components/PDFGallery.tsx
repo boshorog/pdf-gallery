@@ -146,14 +146,18 @@ const PDFGallery = ({
                           <div
                             className="cursor-pointer"
                             onClick={() => {
-                              // Use a more reliable method to open PDF
-                              const link = document.createElement('a');
-                              link.href = pdf.pdfUrl;
-                              link.target = '_blank';
-                              link.rel = 'noopener noreferrer';
-                              document.body.appendChild(link);
-                              link.click();
-                              document.body.removeChild(link);
+                              // Mobile-friendly PDF opening
+                              if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                                window.open(pdf.pdfUrl, '_blank', 'noopener,noreferrer');
+                              } else {
+                                const link = document.createElement('a');
+                                link.href = pdf.pdfUrl;
+                                link.target = '_blank';
+                                link.rel = 'noopener noreferrer';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                              }
                             }}
                             onMouseEnter={() => setHoveredId(pdf.id)}
                             onMouseLeave={() => setHoveredId(null)}
@@ -204,11 +208,11 @@ const PDFGallery = ({
 
                 // Render divider with spacing above
                 renderedItems.push(
-                  <div key={item.id} className="relative mt-12 pt-4">
-                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                  <div key={item.id} className="relative mt-12">
+                    <div className="absolute top-4 left-0 right-0 flex items-center" aria-hidden="true">
                       <div className="w-full border-t border-border"></div>
                     </div>
-                    <div className="relative flex justify-center">
+                    <div className="relative flex justify-center pt-4">
                       <span className="bg-background px-6 text-lg font-medium text-muted-foreground">
                         {item.text}
                       </span>
@@ -230,14 +234,18 @@ const PDFGallery = ({
                       <div
                         className="cursor-pointer"
                         onClick={() => {
-                          // Use a more reliable method to open PDF
-                          const link = document.createElement('a');
-                          link.href = pdf.pdfUrl;
-                          link.target = '_blank';
-                          link.rel = 'noopener noreferrer';
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
+                          // Mobile-friendly PDF opening
+                          if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                            window.open(pdf.pdfUrl, '_blank', 'noopener,noreferrer');
+                          } else {
+                            const link = document.createElement('a');
+                            link.href = pdf.pdfUrl;
+                            link.target = '_blank';
+                            link.rel = 'noopener noreferrer';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }
                         }}
                         onMouseEnter={() => setHoveredId(pdf.id)}
                         onMouseLeave={() => setHoveredId(null)}
