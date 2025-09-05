@@ -33,6 +33,7 @@ const PDFGallery = ({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [itemsWithThumbnails, setItemsWithThumbnails] = useState<GalleryItem[]>([]);
   const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
+  const [thumbnails, setThumbnails] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     console.log('PDFGallery: useEffect triggered, items count:', items.length);
@@ -51,60 +52,74 @@ const PDFGallery = ({
     
     if (pdfsNeedingThumbnails.length > 0) {
       console.log('Starting thumbnail generation...');
-      console.log('Calling PDFThumbnailGenerator.generateMultipleThumbnails');
-      // Prefill with placeholders so UI isn't blocked
-      const prefilledItems = items.map(item => 
-        'pdfUrl' in item ? { ...item, thumbnail: item.thumbnail || pdfPlaceholder } : item
-      );
-      setItemsWithThumbnails(prefilledItems);
       
-      const generateThumbnails = async () => {
-        try {
-          // Set timeout for thumbnail generation to prevent hanging
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Thumbnail generation timeout')), 30000)
-          );
-          
-          const resultsPromise = PDFThumbnailGenerator.generateMultipleThumbnails(
-            pdfsNeedingThumbnails.map(pdf => pdf.pdfUrl)
-          );
-          
-          const results = await Promise.race([resultsPromise, timeoutPromise]) as any;
-          
-          console.log('Thumbnail generation results:', results);
-          
-          const updatedItems = items.map((item) => {
-            if ('pdfUrl' in item) {
-              const result = results.find(r => r.url === item.pdfUrl);
-              console.log(`Processing PDF ${items.indexOf(item)}:`, result);
-              
-              if (result?.success && result.dataUrl) {
-                console.log(`Successfully generated thumbnail for PDF ${items.indexOf(item)}`);
-                return { ...item, thumbnail: result.dataUrl };
-              } else {
-                console.log(`Using fallback thumbnail for PDF ${items.indexOf(item)}`);
-                return { ...item, thumbnail: pdfPlaceholder };
-              }
-            }
-            return item;
-          });
-          
-          console.log('Setting updated items:', updatedItems.length);
-          setItemsWithThumbnails(updatedItems);
-        } catch (error) {
-          console.error('Error during thumbnail generation:', error);
-          // Fallback: use placeholders for all PDFs
-          const fallbackItems = items.map(item => 
-            'pdfUrl' in item ? { ...item, thumbnail: pdfPlaceholder } : item
-          );
-          setItemsWithThumbnails(fallbackItems);
-        } finally {
-          setIsGeneratingThumbnails(false);
-          console.log('Thumbnail generation complete');
+      // Check cached thumbnails first
+      const itemsWithCached = items.map(item => {
+        if ('pdfUrl' in item) {
+          const cacheKey = `pdf_thumbnail_${item.pdfUrl}`;
+          const cachedThumbnail = localStorage.getItem(cacheKey);
+          if (cachedThumbnail) {
+            return { ...item, thumbnail: cachedThumbnail };
+          }
+          return { ...item, thumbnail: item.thumbnail || pdfPlaceholder };
         }
-      };
+        return item;
+      });
+      setItemsWithThumbnails(itemsWithCached);
       
-      generateThumbnails();
+      // Filter PDFs that still need generation (not cached)
+      const pdfsNeedingGeneration = pdfsNeedingThumbnails.filter(pdf => {
+        const cacheKey = `pdf_thumbnail_${pdf.pdfUrl}`;
+        return !localStorage.getItem(cacheKey);
+      });
+      
+      if (pdfsNeedingGeneration.length > 0) {
+        const generateThumbnails = async () => {
+          try {
+            const thumbnailPromises = pdfsNeedingGeneration.map(async (pdf) => {
+              try {
+                const result = await PDFThumbnailGenerator.generateThumbnail(pdf.pdfUrl);
+                if (result.success && result.dataUrl) {
+                  // Cache the thumbnail
+                  const cacheKey = `pdf_thumbnail_${pdf.pdfUrl}`;
+                  localStorage.setItem(cacheKey, result.dataUrl);
+                  setThumbnails(prev => ({
+                    ...prev,
+                    [pdf.pdfUrl]: result.dataUrl!
+                  }));
+                  return { url: pdf.pdfUrl, dataUrl: result.dataUrl, success: true };
+                }
+                return { url: pdf.pdfUrl, success: false };
+              } catch (error) {
+                console.error('Error generating thumbnail for', pdf.pdfUrl, error);
+                return { url: pdf.pdfUrl, success: false };
+              }
+            });
+            
+            const results = await Promise.all(thumbnailPromises);
+            
+            const updatedItems = itemsWithCached.map((item) => {
+              if ('pdfUrl' in item) {
+                const result = results.find(r => r.url === item.pdfUrl);
+                if (result?.success && result.dataUrl) {
+                  return { ...item, thumbnail: result.dataUrl };
+                }
+              }
+              return item;
+            });
+            
+            setItemsWithThumbnails(updatedItems);
+          } catch (error) {
+            console.error('Error during thumbnail generation:', error);
+          } finally {
+            setIsGeneratingThumbnails(false);
+          }
+        };
+        
+        generateThumbnails();
+      } else {
+        setIsGeneratingThumbnails(false);
+      }
     } else {
       console.log('No thumbnails to generate, using existing items');
       setItemsWithThumbnails(items);
@@ -116,40 +131,40 @@ const PDFGallery = ({
   const displayItems = itemsWithThumbnails.length > 0 ? itemsWithThumbnails : items;
 
   const openPdf = (url: string) => {
-    try {
-      // Method 1: Try window.open first
-      const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-      
-      // If window.open is blocked, fall back to programmatic anchor click
-      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-        // Method 2: Create and click anchor element
-        const link = document.createElement('a');
-        link.href = url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        
-        // Trigger click event
-        const clickEvent = new MouseEvent('click', {
-          view: window,
-          bubbles: true,
-          cancelable: true
-        });
-        link.dispatchEvent(clickEvent);
-        
-        // Clean up
-        setTimeout(() => {
-          document.body.removeChild(link);
-        }, 100);
-      }
-    } catch (error) {
-      console.error('Error opening PDF:', error);
-      // Final fallback: try to set window location
+    // Check if mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // Open in same tab for mobile to avoid popup blocking
+      window.location.href = url;
+    } else {
+      // Use window.open for desktop
       try {
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+        
+        // If window.open is blocked, fall back to programmatic anchor click
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+          const link = document.createElement('a');
+          link.href = url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.style.display = 'none';
+          document.body.appendChild(link);
+          
+          const clickEvent = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+          });
+          link.dispatchEvent(clickEvent);
+          
+          setTimeout(() => {
+            document.body.removeChild(link);
+          }, 100);
+        }
+      } catch (error) {
+        console.error('Error opening PDF:', error);
         window.location.href = url;
-      } catch (locationError) {
-        console.error('All PDF opening methods failed:', locationError);
       }
     }
   };

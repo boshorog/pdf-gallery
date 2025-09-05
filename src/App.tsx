@@ -10,28 +10,46 @@ const queryClient = new QueryClient();
 const App = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    
+    let lastHeight = 0;
     const postHeight = () => {
-      const h = Math.max(
+      const contentHeight = Math.max(
         document.documentElement.scrollHeight,
-        document.body ? document.body.scrollHeight : 0
+        document.documentElement.offsetHeight,
+        document.body ? document.body.scrollHeight : 0,
+        document.body ? document.body.offsetHeight : 0
       );
-      // Notify parent (WordPress) to resize iframe
-      window.parent?.postMessage({ type: 'pdf-gallery:height', height: h }, '*');
+      
+      // Only update if height actually changed to prevent infinite loops
+      if (Math.abs(contentHeight - lastHeight) > 5) {
+        lastHeight = contentHeight;
+        window.parent?.postMessage({ type: 'pdf-gallery:height', height: contentHeight }, '*');
+      }
     };
 
-    // Initial and observed updates
-    postHeight();
-    const ro = new ResizeObserver(() => postHeight());
+    // Debounced height update
+    let timeout: number;
+    const debouncedPostHeight = () => {
+      clearTimeout(timeout);
+      timeout = window.setTimeout(postHeight, 100);
+    };
+
+    // Initial height calculation with delay to ensure content is rendered
+    setTimeout(postHeight, 100);
+    
+    const ro = new ResizeObserver(debouncedPostHeight);
     ro.observe(document.documentElement);
+    if (document.body) ro.observe(document.body);
 
     // Fallback listeners
     window.addEventListener('load', postHeight);
-    window.addEventListener('resize', postHeight);
+    window.addEventListener('resize', debouncedPostHeight);
 
     return () => {
+      clearTimeout(timeout);
       ro.disconnect();
       window.removeEventListener('load', postHeight);
-      window.removeEventListener('resize', postHeight);
+      window.removeEventListener('resize', debouncedPostHeight);
     };
   }, []);
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus } from 'lucide-react';
+import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,11 +51,12 @@ interface SortableItemProps {
   item: GalleryItem;
   onEdit: (item: GalleryItem) => void;
   onDelete: (id: string) => void;
+  onRefresh: (item: GalleryItem) => void;
   isSelected: boolean;
   onSelect: (id: string, selected: boolean) => void;
 }
 
-const SortableItem = ({ item, onEdit, onDelete, isSelected, onSelect }: SortableItemProps) => {
+const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect }: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -113,18 +114,30 @@ const SortableItem = ({ item, onEdit, onDelete, isSelected, onSelect }: Sortable
         
         <div className="flex items-center gap-2">
           {!('type' in item && item.type === 'divider') && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.open((item as PDF).pdfUrl, '_blank')}
-            >
-              <Eye className="w-4 h-4" />
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open((item as PDF).pdfUrl, '_blank')}
+                title="View PDF"
+              >
+                <Eye className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onRefresh(item)}
+                title="Refresh thumbnail"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </>
           )}
           <Button
             variant="outline"
             size="sm"
             onClick={() => onEdit(item)}
+            title="Edit item"
           >
             <Edit className="w-4 h-4" />
           </Button>
@@ -132,6 +145,7 @@ const SortableItem = ({ item, onEdit, onDelete, isSelected, onSelect }: Sortable
             variant="outline"
             size="sm"
             onClick={() => onDelete(item.id)}
+            title="Delete item"
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -338,10 +352,19 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     }
   };
 
+  const handleRefreshThumbnail = (item: GalleryItem) => {
+    if ('pdfUrl' in item) {
+      // Clear cached thumbnail
+      const cacheKey = `pdf_thumbnail_${item.pdfUrl}`;
+      localStorage.removeItem(cacheKey);
+      toast({
+        title: "Thumbnail Refresh",
+        description: "The thumbnail will regenerate at next load",
+      });
+    }
+  };
+
   const handleEdit = (item: GalleryItem) => {
-    // Scroll to top where the editing form will appear
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
     if ('type' in item && item.type === 'divider') {
       setDividerFormData({ text: item.text });
       setEditingId(item.id);
@@ -357,6 +380,16 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       setEditingId(item.id);
       setIsAddingPDF(true);
     }
+    
+    // Scroll to editing section
+    setTimeout(() => {
+      const editSection = document.querySelector('.edit-section');
+      if (editSection) {
+        editSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   const resetPDFForm = () => {
@@ -651,14 +684,15 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
         >
           <SortableContext items={items} strategy={verticalListSortingStrategy}>
             {items.map((item) => (
-              <SortableItem
-                key={item.id}
-                item={item}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                isSelected={selectedItems.has(item.id)}
-                onSelect={handleSelect}
-              />
+                    <SortableItem
+                      key={item.id}
+                      item={item}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onRefresh={handleRefreshThumbnail}
+                      isSelected={selectedItems.has(item.id)}
+                      onSelect={handleSelect}
+                    />
             ))}
           </SortableContext>
         </DndContext>
