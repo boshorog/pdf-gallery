@@ -114,6 +114,13 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground font-sans;
     font-family: 'Inter', system-ui, sans-serif;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  #pdf-gallery-root {
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   /* WordPress frontend overrides for newsletter gallery */

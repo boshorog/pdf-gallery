@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://antiohia.ro
  * Description: Manage PDF documents with thumbnail generation and sortable display. Integrates with WordPress admin authentication.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: uphill
  * Requires at least: 5.0
  * Tested up to: 6.4
@@ -100,7 +100,7 @@ class PDFGalleryPlugin {
             'pdf-gallery-admin', 
             $js_file, 
             array(), 
-            '1.0.2', 
+            '1.0.3', 
             true
         );
         wp_script_add_data('pdf-gallery-admin', 'type', 'module');
@@ -109,7 +109,7 @@ class PDFGalleryPlugin {
             'pdf-gallery-admin', 
             $css_file, 
             array(), 
-            '1.0.2'
+            '1.0.3'
         );
         
         // Pass WordPress user info to React app
@@ -159,8 +159,16 @@ public function display_gallery_shortcode($atts) {
     // Responsive iframe container with flexible height and no internal scrollbars (auto-resize via postMessage)
     $iframe_id = 'pdf-gallery-iframe-' . uniqid();
     $html  = '<div class="pdf-gallery-iframe-container" id="' . esc_attr($iframe_id) . '-container" style="position:relative;width:100%;overflow:hidden;">';
-    $html .= '<style>.pdf-gallery-iframe-container{overflow:hidden;width:100%;} .pdf-gallery-iframe-container iframe{display:block;width:100%;border:0;overflow:hidden;}</style>';
-    $html .= '<iframe id="' . esc_attr($iframe_id) . '" src="' . esc_url($src) . '" scrolling="no" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" style="height:1px;min-height:600px;"></iframe>';
+    $html .= '<style>
+    .pdf-gallery-iframe-container{overflow:hidden!important;width:100%;position:relative;}
+    .pdf-gallery-iframe-container iframe{display:block;width:100%!important;border:0!important;overflow:hidden!important;scrolling:no!important;-webkit-overflow-scrolling:auto!important;-ms-overflow-style:none!important;scrollbar-width:none!important;}
+    .pdf-gallery-iframe-container iframe::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;background:transparent!important;}
+    @media (max-width:768px){
+      .pdf-gallery-iframe-container{overflow:hidden!important;}
+      .pdf-gallery-iframe-container iframe{overflow:hidden!important;scrolling:no!important;}
+    }
+    </style>';
+    $html .= '<iframe id="' . esc_attr($iframe_id) . '" src="' . esc_url($src) . '" scrolling="no" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" style="height:1px;min-height:600px;overflow:hidden;"></iframe>';
     $html .= '</div>';
     
     // Auto-resize listener: receives height from the iframe app and adjusts dynamically (great for mobile)
@@ -187,7 +195,7 @@ public function display_gallery_shortcode($atts) {
         }
         
         // Set default options
-        add_option('pdf_gallery_version', '1.0.2');
+        add_option('pdf_gallery_version', '1.0.3');
     }
     
     /**

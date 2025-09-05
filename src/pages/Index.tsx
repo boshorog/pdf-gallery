@@ -131,7 +131,7 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto">{/* Removed py-8 to eliminate top spacing */}
         {isAdmin ? (
           <Tabs defaultValue="gallery" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8">

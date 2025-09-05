@@ -116,13 +116,42 @@ const PDFGallery = ({
   const displayItems = itemsWithThumbnails.length > 0 ? itemsWithThumbnails : items;
 
   const openPdf = (url: string) => {
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      // Method 1: Try window.open first
+      const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+      
+      // If window.open is blocked, fall back to programmatic anchor click
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        // Method 2: Create and click anchor element
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        
+        // Trigger click event
+        const clickEvent = new MouseEvent('click', {
+          view: window,
+          bubbles: true,
+          cancelable: true
+        });
+        link.dispatchEvent(clickEvent);
+        
+        // Clean up
+        setTimeout(() => {
+          document.body.removeChild(link);
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error opening PDF:', error);
+      // Final fallback: try to set window location
+      try {
+        window.location.href = url;
+      } catch (locationError) {
+        console.error('All PDF opening methods failed:', locationError);
+      }
+    }
   };
 
   return (
@@ -207,7 +236,7 @@ const PDFGallery = ({
 
                 // Render divider with spacing above
                 renderedItems.push(
-                  <div key={item.id} className="mt-12">
+                  <div key={item.id} className="mt-16 mb-6">
                     <div className="flex items-center gap-4">
                       <div className="flex-1 border-t border-border"></div>
                       <span className="bg-background px-6 text-lg font-medium text-muted-foreground">

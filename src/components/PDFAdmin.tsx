@@ -339,6 +339,9 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
   };
 
   const handleEdit = (item: GalleryItem) => {
+    // Scroll to top where the editing form will appear
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     if ('type' in item && item.type === 'divider') {
       setDividerFormData({ text: item.text });
       setEditingId(item.id);
