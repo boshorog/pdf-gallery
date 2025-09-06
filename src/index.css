@@ -139,6 +139,12 @@ All colors MUST be HSL.
     background-color: hsl(var(--border)) !important;
     height: 1px !important;
     flex: 1 !important;
-    max-width: 300px !important;
+  }
+
+  /* Mobile divider full width */
+  @media (max-width: 768px) {
+    .newsletter-divider-line {
+      max-width: none !important;
+    }
   }
 }

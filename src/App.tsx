@@ -12,7 +12,11 @@ const App = () => {
     if (typeof window === 'undefined') return;
     
     let lastHeight = 0;
+    let isUpdating = false;
+    
     const postHeight = () => {
+      if (isUpdating) return;
+      
       const contentHeight = Math.max(
         document.documentElement.scrollHeight,
         document.documentElement.offsetHeight,
@@ -20,22 +24,28 @@ const App = () => {
         document.body ? document.body.offsetHeight : 0
       );
       
-      // Only update if height actually changed to prevent infinite loops
-      if (Math.abs(contentHeight - lastHeight) > 5) {
+      // Add minimum threshold and prevent loops
+      if (Math.abs(contentHeight - lastHeight) > 10) {
+        isUpdating = true;
         lastHeight = contentHeight;
         window.parent?.postMessage({ type: 'pdf-gallery:height', height: contentHeight }, '*');
+        
+        // Reset updating flag after a delay
+        setTimeout(() => {
+          isUpdating = false;
+        }, 200);
       }
     };
 
-    // Debounced height update
+    // Debounced height update with longer delay
     let timeout: number;
     const debouncedPostHeight = () => {
       clearTimeout(timeout);
-      timeout = window.setTimeout(postHeight, 100);
+      timeout = window.setTimeout(postHeight, 300);
     };
 
-    // Initial height calculation with delay to ensure content is rendered
-    setTimeout(postHeight, 100);
+    // Initial height calculation with longer delay
+    setTimeout(postHeight, 500);
     
     const ro = new ResizeObserver(debouncedPostHeight);
     ro.observe(document.documentElement);

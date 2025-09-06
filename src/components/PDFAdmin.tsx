@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw } from 'lucide-react';
+import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,11 +20,10 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import {
   useSortable,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import PDFGallery from './PDFGallery';
+import PDFSettings from './PDFSettings';
 
 interface PDF {
   id: string;
@@ -66,7 +65,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
   } = useSortable({ id: item.id });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     transition,
   };
 
@@ -156,10 +155,12 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
 };
 
 const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
+  const [activeTab, setActiveTab] = useState<'management' | 'preview' | 'settings'>('management');
   const [isAddingPDF, setIsAddingPDF] = useState(false);
   const [isAddingDivider, setIsAddingDivider] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [shortcodeCopied, setShortcodeCopied] = useState(false);
   const [pdfFormData, setPdfFormData] = useState({
     title: '',
     date: '',
@@ -169,6 +170,13 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [dividerFormData, setDividerFormData] = useState({
     text: ''
+  });
+  const [settings, setSettings] = useState({
+    thumbnailStyle: 'default',
+    accentColor: '#7FB3DC',
+    thumbnailShape: 'landscape-16-9',
+    pdfIconPosition: 'top-right',
+    defaultPlaceholder: 'default'
   });
   const { toast } = useToast();
 
@@ -381,13 +389,19 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       setIsAddingPDF(true);
     }
     
-    // Scroll to editing section
+    // Scroll to editing section (plugin area, not top of page)
     setTimeout(() => {
-      const editSection = document.querySelector('.edit-section');
-      if (editSection) {
-        editSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const pluginContainer = document.querySelector('#pdf-gallery-admin, .pdf-gallery-admin, [data-plugin="pdf-gallery"]');
+      if (pluginContainer) {
+        pluginContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Fallback: try to find the first heading or form in the page
+        const editForm = document.querySelector('h2, .edit-section, form');
+        if (editForm) {
+          editForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       }
     }, 100);
   };
@@ -518,206 +532,322 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     }
   };
 
+  const copyShortcode = async () => {
+    const shortcode = '[pdf_gallery]';
+    try {
+      await navigator.clipboard.writeText(shortcode);
+      setShortcodeCopied(true);
+      setTimeout(() => setShortcodeCopied(false), 2000);
+      toast({
+        title: "Copied!",
+        description: "Shortcode copied to clipboard",
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Please copy the shortcode manually",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold">PDF Management</h2>
-          {items.length > 0 && (
-            <div className="flex items-center gap-2">
-              <Checkbox 
-                checked={selectedItems.size === items.length && items.length > 0}
-                onCheckedChange={handleSelectAll}
-              />
-              <span className="text-sm text-muted-foreground">
-                {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select all'}
-              </span>
-            </div>
-          )}
-        </div>
-        <div className="flex gap-2">
-          {selectedItems.size > 0 && (
-            <Button 
-              onClick={handleDeleteSelected}
-              variant="destructive"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete {selectedItems.size} item{selectedItems.size > 1 ? 's' : ''}
-            </Button>
-          )}
-          <Button 
-            onClick={() => setIsAddingPDF(true)}
-            className="bg-primary hover:bg-primary/90"
+      {/* Navigation Tabs */}
+      <div className="border-b border-border">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab('management')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'management'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+            }`}
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Add PDF
-          </Button>
-          <Button 
-            onClick={() => setIsAddingDivider(true)}
-            variant="outline"
+            PDF Management
+          </button>
+          <button
+            onClick={() => setActiveTab('preview')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'preview'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+            }`}
           >
-            <Separator className="w-4 h-0.5" />
-            Add Divider
-          </Button>
-        </div>
+            PDF Gallery Preview
+          </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'settings'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+            }`}
+          >
+            Settings
+          </button>
+        </nav>
       </div>
 
-      {/* PDF Add/Edit Form */}
-      {isAddingPDF && (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {editingId ? 'Edit PDF' : 'Add New PDF'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* File Upload Section */}
-            <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-              <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-              <Label htmlFor="pdfFile" className="cursor-pointer">
-                <span className="text-sm font-medium text-primary hover:underline">
-                  {isUploading ? 'Uploading...' : 'Upload PDF file'}
-                </span>
-                <Input
-                  id="pdfFile"
-                  type="file"
-                  accept=".pdf,application/pdf"
-                  onChange={handleFileUpload}
-                  disabled={isUploading}
-                  className="hidden"
-                />
-              </Label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Or fill in the details manually below
-              </p>
+      {/* Management Tab */}
+      {activeTab === 'management' && (
+        <>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <h2 className="text-2xl font-bold">PDF Management</h2>
+              {items.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Checkbox 
+                    checked={selectedItems.size === items.length && items.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select all'}
+                  </span>
+                </div>
+              )}
             </div>
-
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={pdfFormData.title}
-                onChange={(e) => setPdfFormData(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="PDF Title"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="date">Date</Label>
-              <Input
-                id="date"
-                value={pdfFormData.date}
-                onChange={(e) => setPdfFormData(prev => ({ ...prev, date: e.target.value }))}
-                placeholder="January 2024"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="pdfUrl">PDF URL</Label>
-              <Input
-                id="pdfUrl"
-                value={pdfFormData.pdfUrl}
-                onChange={(e) => setPdfFormData(prev => ({ ...prev, pdfUrl: e.target.value }))}
-                placeholder="https://example.com/document.pdf"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="thumbnail">Thumbnail URL (optional)</Label>
-              <Input
-                id="thumbnail"
-                value={pdfFormData.thumbnail}
-                onChange={(e) => setPdfFormData(prev => ({ ...prev, thumbnail: e.target.value }))}
-                placeholder="https://example.com/thumbnail.jpg"
-              />
-            </div>
-            
             <div className="flex gap-2">
-              <Button onClick={handleSubmitPDF}>
-                {editingId ? 'Update' : 'Add'}
-              </Button>
-              <Button variant="outline" onClick={resetPDFForm}>
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Divider Add/Edit Form */}
-      {isAddingDivider && (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {editingId ? 'Edit Divider' : 'Add New Divider'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="dividerText">Divider Text</Label>
-              <Input
-                id="dividerText"
-                value={dividerFormData.text}
-                onChange={(e) => setDividerFormData(prev => ({ ...prev, text: e.target.value }))}
-                placeholder="2024 Documents"
-              />
-            </div>
-            
-            <div className="flex gap-2">
-              <Button onClick={handleSubmitDivider}>
-                {editingId ? 'Update' : 'Add'}
-              </Button>
-              <Button variant="outline" onClick={resetDividerForm}>
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Sortable Items List */}
-      <div className="space-y-4">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext items={items} strategy={verticalListSortingStrategy}>
-            {items.map((item) => (
-                    <SortableItem
-                      key={item.id}
-                      item={item}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                      onRefresh={handleRefreshThumbnail}
-                      isSelected={selectedItems.has(item.id)}
-                      onSelect={handleSelect}
-                    />
-            ))}
-          </SortableContext>
-        </DndContext>
-      </div>
-
-      {items.length === 0 && !isAddingPDF && !isAddingDivider && (
-        <Card>
-          <CardContent className="text-center py-8">
-            <Upload className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No items yet</h3>
-            <p className="text-muted-foreground mb-4">
-              Start by adding your first PDF or divider.
-            </p>
-            <div className="flex gap-2 justify-center">
-              <Button onClick={() => setIsAddingPDF(true)}>
+              {selectedItems.size > 0 && (
+                <Button 
+                  onClick={handleDeleteSelected}
+                  variant="destructive"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete {selectedItems.size} item{selectedItems.size > 1 ? 's' : ''}
+                </Button>
+              )}
+              <Button 
+                onClick={() => setIsAddingPDF(true)}
+                className="bg-primary hover:bg-primary/90"
+              >
                 <Plus className="w-4 h-4 mr-2" />
-                Add first PDF
+                Add PDF
               </Button>
-              <Button variant="outline" onClick={() => setIsAddingDivider(true)}>
+              <Button 
+                onClick={() => setIsAddingDivider(true)}
+                variant="outline"
+              >
                 <Separator className="w-4 h-0.5" />
-                Add divider
+                Add Divider
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* PDF Add/Edit Form */}
+          {isAddingPDF && (
+            <Card className="edit-section">
+              <CardHeader>
+                <CardTitle>
+                  {editingId ? 'Edit PDF' : 'Add New PDF'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* File Upload Section */}
+                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                  <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                  <Label htmlFor="pdfFile" className="cursor-pointer">
+                    <span className="text-sm font-medium text-primary hover:underline">
+                      {isUploading ? 'Uploading...' : 'Upload PDF file'}
+                    </span>
+                    <Input
+                      id="pdfFile"
+                      type="file"
+                      accept=".pdf,application/pdf"
+                      onChange={handleFileUpload}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Or fill in the details manually below
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="title">Title</Label>
+                  <Input
+                    id="title"
+                    value={pdfFormData.title}
+                    onChange={(e) => setPdfFormData(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="PDF Title"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="date">Date</Label>
+                  <Input
+                    id="date"
+                    value={pdfFormData.date}
+                    onChange={(e) => setPdfFormData(prev => ({ ...prev, date: e.target.value }))}
+                    placeholder="January 2024"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="pdfUrl">PDF URL</Label>
+                  <Input
+                    id="pdfUrl"
+                    value={pdfFormData.pdfUrl}
+                    onChange={(e) => setPdfFormData(prev => ({ ...prev, pdfUrl: e.target.value }))}
+                    placeholder="https://example.com/document.pdf"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="thumbnail">Thumbnail URL (optional)</Label>
+                  <Input
+                    id="thumbnail"
+                    value={pdfFormData.thumbnail}
+                    onChange={(e) => setPdfFormData(prev => ({ ...prev, thumbnail: e.target.value }))}
+                    placeholder="https://example.com/thumbnail.jpg"
+                  />
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button onClick={handleSubmitPDF}>
+                    {editingId ? 'Update' : 'Add'}
+                  </Button>
+                  <Button variant="outline" onClick={resetPDFForm}>
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Divider Add/Edit Form */}
+          {isAddingDivider && (
+            <Card className="edit-section">
+              <CardHeader>
+                <CardTitle>
+                  {editingId ? 'Edit Divider' : 'Add New Divider'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="dividerText">Divider Text</Label>
+                  <Input
+                    id="dividerText"
+                    value={dividerFormData.text}
+                    onChange={(e) => setDividerFormData(prev => ({ ...prev, text: e.target.value }))}
+                    placeholder="2024 Documents"
+                  />
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button onClick={handleSubmitDivider}>
+                    {editingId ? 'Update' : 'Add'}
+                  </Button>
+                  <Button variant="outline" onClick={resetDividerForm}>
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Sortable Items List */}
+          <div className="space-y-4">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext items={items} strategy={verticalListSortingStrategy}>
+                {items.map((item) => (
+                        <SortableItem
+                          key={item.id}
+                          item={item}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                          onRefresh={handleRefreshThumbnail}
+                          isSelected={selectedItems.has(item.id)}
+                          onSelect={handleSelect}
+                        />
+                ))}
+              </SortableContext>
+            </DndContext>
+          </div>
+
+          {items.length === 0 && !isAddingPDF && !isAddingDivider && (
+            <Card>
+              <CardContent className="text-center py-8">
+                <Upload className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No items yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Start by adding your first PDF or divider.
+                </p>
+                <div className="flex gap-2 justify-center">
+                  <Button onClick={() => setIsAddingPDF(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add first PDF
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsAddingDivider(true)}>
+                    <Separator className="w-4 h-0.5" />
+                    Add divider
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+
+      {/* Preview Tab */}
+      {activeTab === 'preview' && (
+        <>
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">PDF Gallery Preview</h2>
+            
+            {/* Shortcode Display */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Paste this shortcode in any page or post to display your PDF gallery:
+                    </p>
+                    <code className="bg-muted px-3 py-1 rounded text-sm font-mono">
+                      [pdf_gallery]
+                    </code>
+                  </div>
+                  <Button
+                    onClick={copyShortcode}
+                    variant="outline"
+                    size="sm"
+                    className="ml-4"
+                  >
+                    {shortcodeCopied ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Preview */}
+            <Card>
+              <CardContent className="p-6">
+                <PDFGallery 
+                  items={items}
+                  title="PDF Gallery Preview"
+                  description="This is how your gallery will look on the frontend"
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
+
+      {/* Settings Tab */}
+      {activeTab === 'settings' && (
+        <PDFSettings 
+          settings={settings}
+          onSettingsChange={setSettings}
+        />
       )}
     </div>
   );

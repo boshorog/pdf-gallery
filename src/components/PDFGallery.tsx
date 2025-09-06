@@ -138,32 +138,30 @@ const PDFGallery = ({
       // Open in same tab for mobile to avoid popup blocking
       window.location.href = url;
     } else {
-      // Use window.open for desktop
+      // For desktop, use a more reliable method
       try {
-        const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+        // Create a temporary anchor element
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
         
-        // If window.open is blocked, fall back to programmatic anchor click
-        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-          const link = document.createElement('a');
-          link.href = url;
-          link.target = '_blank';
-          link.rel = 'noopener noreferrer';
-          link.style.display = 'none';
-          document.body.appendChild(link);
-          
-          const clickEvent = new MouseEvent('click', {
-            view: window,
-            bubbles: true,
-            cancelable: true
-          });
-          link.dispatchEvent(clickEvent);
-          
-          setTimeout(() => {
+        // Add to DOM temporarily
+        document.body.appendChild(link);
+        
+        // Use the click() method directly
+        link.click();
+        
+        // Clean up
+        setTimeout(() => {
+          if (document.body.contains(link)) {
             document.body.removeChild(link);
-          }, 100);
-        }
+          }
+        }, 100);
+        
       } catch (error) {
         console.error('Error opening PDF:', error);
+        // Final fallback - same tab
         window.location.href = url;
       }
     }
@@ -251,10 +249,10 @@ const PDFGallery = ({
 
                 // Render divider with spacing above
                 renderedItems.push(
-                  <div key={item.id} className="mt-16 mb-6">
-                    <div className="flex items-center gap-4">
+                  <div key={item.id} className="mt-20 mb-8">
+                    <div className="flex items-center gap-4 px-0">
                       <div className="flex-1 border-t border-border"></div>
-                      <span className="bg-background px-6 text-lg font-medium text-muted-foreground">
+                      <span className="bg-background px-4 md:px-6 text-lg font-medium text-muted-foreground whitespace-nowrap">
                         {item.text}
                       </span>
                       <div className="flex-1 border-t border-border"></div>
