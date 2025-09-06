@@ -25,7 +25,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
   // keep local state in sync when parent settings change
   // (e.g., when loaded from WordPress)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  React.useEffect(() => {
+  useEffect(() => {
     setLocalSettings(settings);
   }, [settings]);
 
