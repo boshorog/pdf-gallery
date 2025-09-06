@@ -17,11 +17,9 @@ const App = () => {
     const postHeight = () => {
       if (isUpdating) return;
       
-      const contentHeight = Math.max(
-        document.documentElement.scrollHeight,
-        document.documentElement.offsetHeight,
-        document.body ? document.body.scrollHeight : 0,
-        document.body ? document.body.offsetHeight : 0
+      const rootEl = document.getElementById('root');
+      const contentHeight = Math.ceil(
+        rootEl?.scrollHeight || (document.body ? document.body.scrollHeight : 0)
       );
       
       // Add minimum threshold and prevent loops

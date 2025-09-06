@@ -255,6 +255,36 @@ function handle_pdf_gallery_ajax() {
             wp_send_json_success(array('items' => $items));
             break;
             
+        case 'save_settings':
+            // Save plugin settings
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error('Insufficient permissions');
+            }
+            $settings_json = stripslashes($_POST['settings'] ?? '');
+            $settings = json_decode($settings_json, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($settings)) {
+                update_option('pdf_gallery_settings', $settings);
+                wp_send_json_success('Settings saved');
+            } else {
+                wp_send_json_error('Invalid settings data');
+            }
+            break;
+            
+        case 'get_settings':
+            // Get plugin settings with defaults
+            $defaults = array(
+                'thumbnailStyle' => 'default',
+                'accentColor' => '#7FB3DC',
+                'thumbnailShape' => 'landscape-16-9',
+                'pdfIconPosition' => 'top-right',
+                'defaultPlaceholder' => 'default',
+            );
+            $settings = get_option('pdf_gallery_settings', $defaults);
+            // Ensure all keys exist
+            $settings = array_merge($defaults, is_array($settings) ? $settings : array());
+            wp_send_json_success(array('settings' => $settings));
+            break;
+            
         case 'upload_pdf':
             // Handle PDF file upload
             if (!current_user_can('manage_options')) {

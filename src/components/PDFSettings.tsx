@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -21,6 +21,13 @@ interface PDFSettingsProps {
 const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
   const [localSettings, setLocalSettings] = useState(settings);
   const { toast } = useToast();
+
+  // keep local state in sync when parent settings change
+  // (e.g., when loaded from WordPress)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  React.useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
 
   const handleSave = () => {
     onSettingsChange(localSettings);

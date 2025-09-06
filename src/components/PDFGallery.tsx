@@ -23,17 +23,36 @@ interface PDFGalleryProps {
   items?: GalleryItem[];
   title?: string;
   description?: string;
+  settings?: {
+    thumbnailStyle: string;
+    accentColor: string;
+    thumbnailShape: string;
+    pdfIconPosition: string;
+    defaultPlaceholder: string;
+  };
 }
 
 const PDFGallery = ({ 
   items = [], 
   title = "PDF Gallery",
-  description = "Browse our collection of PDF documents"
+  description = "Browse our collection of PDF documents",
+  settings = {
+    thumbnailStyle: 'default',
+    accentColor: '#7FB3DC',
+    thumbnailShape: 'landscape-16-9',
+    pdfIconPosition: 'top-right',
+    defaultPlaceholder: 'default'
+  }
 }: PDFGalleryProps) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [itemsWithThumbnails, setItemsWithThumbnails] = useState<GalleryItem[]>([]);
   const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
   const [thumbnails, setThumbnails] = useState<{ [key: string]: string }>({});
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+  }, []);
 
   useEffect(() => {
     console.log('PDFGallery: useEffect triggered, items count:', items.length);
@@ -130,45 +149,25 @@ const PDFGallery = ({
 
   const displayItems = itemsWithThumbnails.length > 0 ? itemsWithThumbnails : items;
 
-  const openPdf = (url: string) => {
-    // Check if mobile device
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    if (isMobile) {
-      // Open in same tab for mobile to avoid popup blocking
-      window.location.href = url;
-    } else {
-      // For desktop, use a more reliable method
-      try {
-        // Create a temporary anchor element
-        const link = document.createElement('a');
-        link.href = url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        
-        // Add to DOM temporarily
-        document.body.appendChild(link);
-        
-        // Use the click() method directly
-        link.click();
-        
-        // Clean up
-        setTimeout(() => {
-          if (document.body.contains(link)) {
-            document.body.removeChild(link);
-          }
-        }, 100);
-        
-      } catch (error) {
-        console.error('Error opening PDF:', error);
-        // Final fallback - same tab
-        window.location.href = url;
-      }
-    }
-  };
+  // Map settings to classes
+  const aspectClass = settings.thumbnailShape === 'square'
+    ? 'aspect-square'
+    : settings.thumbnailShape === 'landscape-3-2'
+      ? 'aspect-[3/2]'
+      : settings.thumbnailShape === 'portrait-2-3'
+        ? 'aspect-[2/3]'
+        : 'aspect-video';
+
+  const iconPosClass = settings.pdfIconPosition === 'top-left'
+    ? 'top-3 left-3'
+    : settings.pdfIconPosition === 'bottom-right'
+      ? 'bottom-3 right-3'
+      : settings.pdfIconPosition === 'bottom-left'
+        ? 'bottom-3 left-3'
+        : 'top-3 right-3';
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4">
+    <div className="w-full max-w-7xl mx-auto px-4" style={{ ['--accent-color' as any]: settings.accentColor }}>
       {isGeneratingThumbnails && (
         <div className="text-center mb-6">
           <p className="text-sm text-muted-foreground">Generating PDF thumbnails...</p>
@@ -195,14 +194,16 @@ const PDFGallery = ({
                     <div key={`grid-${currentGrid[0].id}`} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                       {currentGrid.map((pdf) => (
                         <div key={pdf.id} className="group">
-                          <div
-                            className="cursor-pointer"
-                            onClick={() => openPdf(pdf.pdfUrl)}
+                          <a
+                            href={pdf.pdfUrl}
+                            target={isMobile ? '_self' : '_blank'}
+                            rel={isMobile ? undefined : 'noopener noreferrer'}
+                            className="block"
                             onMouseEnter={() => setHoveredId(pdf.id)}
                             onMouseLeave={() => setHoveredId(null)}
                           >
                             <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border">
-                              <div className="aspect-video overflow-hidden bg-muted">
+                              <div className={`${aspectClass} overflow-hidden bg-muted`}>
                                 <img
                                   src={pdf.thumbnail}
                                   alt={pdf.title}
@@ -220,7 +221,7 @@ const PDFGallery = ({
                               </div>
 
                               {/* PDF Indicator */}
-                              <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
+                              <div className={`absolute ${iconPosClass} bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm`}>
                                 <div className="flex items-center gap-1">
                                   <FileText className="w-3 h-3 text-muted-foreground" />
                                   <span className="text-xs font-medium text-muted-foreground">PDF</span>
@@ -229,17 +230,15 @@ const PDFGallery = ({
                             </div>
                             
                             {/* Clickable text outside the thumbnail frame */}
-                              <div className="mt-3 transition-colors duration-200">
-                                <a href={pdf.pdfUrl} target="_blank" rel="noopener" className="block">
-                                  <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[#7FB3DC] hover:text-[#7FB3DC]">
-                                    {pdf.date}
-                                  </p>
-                                  <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground group-hover:text-[#7FB3DC] hover:text-[#7FB3DC] transition-colors duration-200">
-                                    {pdf.title}
-                                  </h3>
-                                </a>
-                              </div>
-                          </div>
+                            <div className="mt-3 transition-colors duration-200">
+                              <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)]">
+                                {pdf.date}
+                              </p>
+                              <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)] transition-colors duration-200">
+                                {pdf.title}
+                              </h3>
+                            </div>
+                          </a>
                         </div>
                       ))}
                     </div>
@@ -271,14 +270,16 @@ const PDFGallery = ({
                 <div key={`grid-final`} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {currentGrid.map((pdf) => (
                     <div key={pdf.id} className="group">
-                      <div
-                        className="cursor-pointer"
-                        onClick={() => openPdf(pdf.pdfUrl)}
+                      <a
+                        href={pdf.pdfUrl}
+                        target={isMobile ? '_self' : '_blank'}
+                        rel={isMobile ? undefined : 'noopener noreferrer'}
+                        className="block"
                         onMouseEnter={() => setHoveredId(pdf.id)}
                         onMouseLeave={() => setHoveredId(null)}
                       >
                         <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border">
-                          <div className="aspect-video overflow-hidden bg-muted">
+                          <div className={`${aspectClass} overflow-hidden bg-muted`}>
                             <img
                               src={pdf.thumbnail}
                               alt={pdf.title}
@@ -296,7 +297,7 @@ const PDFGallery = ({
                           </div>
 
                           {/* PDF Indicator */}
-                          <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
+                          <div className={`absolute ${iconPosClass} bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm`}>
                             <div className="flex items-center gap-1">
                               <FileText className="w-3 h-3 text-muted-foreground" />
                               <span className="text-xs font-medium text-muted-foreground">PDF</span>
@@ -306,16 +307,14 @@ const PDFGallery = ({
                         
                         {/* Clickable text outside the thumbnail frame */}
                         <div className="mt-3 transition-colors duration-200">
-                          <a href={pdf.pdfUrl} target="_blank" rel="noopener" className="block">
-                            <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[#7FB3DC] hover:text-[#7FB3DC]">
-                              {pdf.date}
-                            </p>
-                            <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground group-hover:text-[#7FB3DC] hover:text-[#7FB3DC] transition-colors duration-200">
-                              {pdf.title}
-                            </h3>
-                          </a>
+                          <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)]">
+                            {pdf.date}
+                          </p>
+                          <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)] transition-colors duration-200">
+                            {pdf.title}
+                          </h3>
                         </div>
-                      </div>
+                      </a>
                     </div>
                   ))}
                 </div>

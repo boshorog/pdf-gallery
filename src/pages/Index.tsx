@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import PDFGallery from '@/components/PDFGallery';
 import PDFAdmin from '@/components/PDFAdmin';
+import PDFSettings from '@/components/PDFSettings';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 
 interface PDF {
@@ -70,23 +71,30 @@ const initialPDFs: PDF[] = [
 
 const Index = () => {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [settings, setSettings] = useState({
+    thumbnailStyle: 'default',
+    accentColor: '#7FB3DC',
+    thumbnailShape: 'landscape-16-9',
+    pdfIconPosition: 'top-right',
+    defaultPlaceholder: 'default'
+  });
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
 
-// Load gallery items from WordPress and check admin access
-useEffect(() => {
-  const urlParams = new URLSearchParams(window.location.search);
+  // Load gallery items and settings from WordPress and check admin access
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
 
-  const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
+    const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
 
-  const isAdminFlag = wp ? !!wp.isAdmin : urlParams.get('admin') === 'true';
-  setIsAdmin(!!isAdminFlag);
+    const isAdminFlag = wp ? !!wp.isAdmin : urlParams.get('admin') === 'true';
+    setIsAdmin(!!isAdminFlag);
 
-  const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax') || `${window.location.origin}/wp-admin/admin-ajax.php`;
-  const nonce = wp?.nonce || urlParams.get('nonce') || '';
+    const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax') || `${window.location.origin}/wp-admin/admin-ajax.php`;
+    const nonce = wp?.nonce || urlParams.get('nonce') || '';
 
-  if (ajaxUrl && nonce) {
+    if (ajaxUrl && nonce) {
     const form = new FormData();
     form.append('action', 'pdf_gallery_action');
     form.append('action_type', 'get_items');
@@ -108,6 +116,25 @@ useEffect(() => {
       .catch(() => {
         setGalleryItems(initialPDFs);
       });
+
+    // Also fetch settings
+    const settingsForm = new FormData();
+    settingsForm.append('action', 'pdf_gallery_action');
+    settingsForm.append('action_type', 'get_settings');
+    settingsForm.append('nonce', nonce);
+
+    fetch(ajaxUrl, {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: settingsForm,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && data?.data?.settings) {
+          setSettings(data.data.settings);
+        }
+      })
+      .catch(() => {});
   } else {
     // Fallback for development or when no config is provided
     setGalleryItems(initialPDFs);
@@ -130,13 +157,14 @@ useEffect(() => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div id="pdf-gallery-admin" data-plugin="pdf-gallery" className="bg-background">
       <div className="container mx-auto">{/* Removed py-8 to eliminate top spacing */}
         {isAdmin ? (
           <Tabs defaultValue="gallery" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="gallery">PDF Gallery Preview</TabsTrigger>
               <TabsTrigger value="admin">PDF Management</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
             <TabsContent value="gallery" className="mt-0">
@@ -144,6 +172,7 @@ useEffect(() => {
                 items={galleryItems}
                 title="PDF Gallery"
                 description="Browse our collection of PDF documents"
+                settings={settings}
               />
             </TabsContent>
             
@@ -153,6 +182,27 @@ useEffect(() => {
                 onItemsChange={setGalleryItems}
               />
             </TabsContent>
+
+            <TabsContent value="settings" className="mt-0">
+              <PDFSettings 
+                settings={settings}
+                onSettingsChange={async (newSettings) => {
+                  setSettings(newSettings);
+                  const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax') || `${window.location.origin}/wp-admin/admin-ajax.php`;
+                  const nonce = wp?.nonce || urlParams.get('nonce') || '';
+                  if (ajaxUrl && nonce) {
+                    const form = new FormData();
+                    form.append('action', 'pdf_gallery_action');
+                    form.append('action_type', 'save_settings');
+                    form.append('nonce', nonce);
+                    form.append('settings', JSON.stringify(newSettings));
+                    await fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form });
+                  }
+                }}
+              />
+            </TabsContent>
           </Tabs>
         ) : (
           <div className="w-full">
@@ -160,6 +210,7 @@ useEffect(() => {
               items={galleryItems}
               title="PDF Gallery"
               description="Browse our collection of PDF documents"
+              settings={settings}
             />
             
           </div>

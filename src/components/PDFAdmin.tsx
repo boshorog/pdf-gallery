@@ -23,7 +23,6 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import PDFGallery from './PDFGallery';
-import PDFSettings from './PDFSettings';
 
 interface PDF {
   id: string;
@@ -155,7 +154,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
 };
 
 const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
-  const [activeTab, setActiveTab] = useState<'management' | 'preview' | 'settings'>('management');
+  const [activeTab, setActiveTab] = useState<'management' | 'preview'>('management');
   const [isAddingPDF, setIsAddingPDF] = useState(false);
   const [isAddingDivider, setIsAddingDivider] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -576,16 +575,6 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
           >
             PDF Gallery Preview
           </button>
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'settings'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
-            }`}
-          >
-            Settings
-          </button>
         </nav>
       </div>
 
@@ -842,13 +831,6 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
         </>
       )}
 
-      {/* Settings Tab */}
-      {activeTab === 'settings' && (
-        <PDFSettings 
-          settings={settings}
-          onSettingsChange={setSettings}
-        />
-      )}
     </div>
   );
 };
