@@ -177,19 +177,42 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
             onValueChange={(value) => setLocalSettings(prev => ({ ...prev, pdfIconPosition: value }))}
           >
             <div className="grid grid-cols-2 gap-4">
-              {iconPositions.map((position) => (
-                <div key={position.value} className="text-center">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <RadioGroupItem value={position.value} id={position.value} />
-                    <Label htmlFor={position.value} className="text-sm font-medium">
-                      {position.label}
-                    </Label>
-                  </div>
-                  <div className="relative w-20 h-12 bg-muted rounded mx-auto">
-                    <div className={`absolute w-4 h-2 bg-primary rounded-sm ${position.class}`}></div>
-                  </div>
-                </div>
-              ))}
+              {/* Left column (Top Left, Bottom Left) */}
+              <div className="space-y-4">
+                {['top-left','bottom-left'].map((pos) => {
+                  const label = pos === 'top-left' ? 'Top Left' : 'Bottom Left';
+                  const cls = pos === 'top-left' ? 'top-3 left-3' : 'bottom-3 left-3';
+                  return (
+                    <div key={pos} className="text-center">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <RadioGroupItem value={pos} id={pos} />
+                        <Label htmlFor={pos} className="text-sm font-medium">{label}</Label>
+                      </div>
+                      <div className="relative w-20 h-12 bg-muted rounded mx-auto">
+                        <div className={`absolute w-4 h-2 bg-primary rounded-sm ${cls}`}></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Right column (Top Right, Bottom Right) */}
+              <div className="space-y-4">
+                {['top-right','bottom-right'].map((pos) => {
+                  const label = pos === 'top-right' ? 'Top Right' : 'Bottom Right';
+                  const cls = pos === 'top-right' ? 'top-3 right-3' : 'bottom-3 right-3';
+                  return (
+                    <div key={pos} className="text-center">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <RadioGroupItem value={pos} id={pos} />
+                        <Label htmlFor={pos} className="text-sm font-medium">{label}</Label>
+                      </div>
+                      <div className="relative w-20 h-12 bg-muted rounded mx-auto">
+                        <div className={`absolute w-4 h-2 bg-primary rounded-sm ${cls}`}></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </RadioGroup>
         </CardContent>

@@ -162,6 +162,12 @@ const Index = () => {
     } catch (e) {}
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleAdminLogin();
+    }
+  };
+
   return (
     <div id="pdf-gallery-admin" data-plugin="pdf-gallery" className="bg-background">
       <div className="container mx-auto">{/* Removed py-8 to eliminate top spacing */}
