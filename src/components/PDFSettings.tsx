@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
+import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 
 interface PDFSettingsProps {
   settings: {
@@ -44,12 +45,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
     { value: 'portrait-2-3', label: 'Portrait 2:3', aspect: 'aspect-[2/3]' },
   ];
 
-  const iconPositions = [
-    { value: 'top-right', label: 'Top Right', class: 'top-3 right-3' },
-    { value: 'top-left', label: 'Top Left', class: 'top-3 left-3' },
-    { value: 'bottom-right', label: 'Bottom Right', class: 'bottom-3 right-3' },
-    { value: 'bottom-left', label: 'Bottom Left', class: 'bottom-3 left-3' },
-  ];
+  // Note: positions arranged via layout, no need for array order
 
   return (
     <div className="space-y-6">
@@ -80,6 +76,24 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
             <p className="text-sm text-muted-foreground ml-6">
               Includes thumbnail, title, and date
             </p>
+            {/* Preview */}
+            <div className="mt-4">
+              <div className="max-w-xs">
+                <div className="relative bg-card rounded-lg overflow-hidden shadow-sm border border-border">
+                  <div className={`${localSettings.thumbnailShape === 'square' ? 'aspect-square' : localSettings.thumbnailShape === 'landscape-3-2' ? 'aspect-[3/2]' : localSettings.thumbnailShape === 'portrait-2-3' ? 'aspect-[2/3]' : 'aspect-video'} overflow-hidden bg-muted`}>
+                    <img
+                      src={(localSettings.defaultPlaceholder && localSettings.defaultPlaceholder !== 'default') ? localSettings.defaultPlaceholder : pdfPlaceholder}
+                      alt="Thumbnail preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <p className="text-xs text-muted-foreground leading-tight mb-1" style={{ ['--accent-color' as any]: localSettings.accentColor }}>April 2025</p>
+                  <h3 className="font-semibold text-sm leading-tight">Sample PDF Title</h3>
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -187,26 +201,57 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
           <CardTitle>Default Placeholder</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="default-placeholder" 
-              checked={localSettings.defaultPlaceholder === 'default'}
-              onCheckedChange={(checked) => 
-                checked && setLocalSettings(prev => ({ ...prev, defaultPlaceholder: 'default' }))
-              }
-            />
-            <Label htmlFor="default-placeholder">Use default placeholder</Label>
-          </div>
           <div className="flex items-center gap-4">
-            <div className="w-20 h-12 bg-muted rounded flex items-center justify-center">
-              <div className="w-6 h-4 bg-primary/20 rounded"></div>
+            <img
+              src={(localSettings.defaultPlaceholder && localSettings.defaultPlaceholder !== 'default') ? localSettings.defaultPlaceholder : pdfPlaceholder}
+              alt="Current placeholder"
+              className="w-20 h-12 object-cover rounded border border-border"
+            />
+            <div className="space-y-2">
+              <Label htmlFor="placeholder-url">Placeholder URL</Label>
+              <Input
+                id="placeholder-url"
+                placeholder="https://example.com/placeholder.jpg"
+                value={localSettings.defaultPlaceholder === 'default' ? '' : localSettings.defaultPlaceholder}
+                onChange={(e) => setLocalSettings(prev => ({ ...prev, defaultPlaceholder: e.target.value || 'default' }))}
+              />
+              <div>
+                <Label htmlFor="placeholder-file" className="cursor-pointer">Upload image</Label>
+                <Input
+                  id="placeholder-file"
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const wp = (window as any).wpPDFGallery;
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
+                    const nonce = wp?.nonce || urlParams.get('nonce') || '';
+                    if (!ajaxUrl || !nonce) return;
+                    const form = new FormData();
+                    form.append('action', 'pdf_gallery_action');
+                    form.append('action_type', 'upload_image');
+                    form.append('nonce', nonce);
+                    form.append('image_file', file);
+                    const res = await fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form });
+                    const data = await res.json();
+                    if (data?.success && data?.data?.url) {
+                      setLocalSettings(prev => ({ ...prev, defaultPlaceholder: data.data.url }));
+                    }
+                    // reset input
+                    e.currentTarget.value = '';
+                  }}
+                />
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Current default placeholder image
-            </p>
           </div>
         </CardContent>
       </Card>
+
+      <div className="flex justify-end">
+        <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">Save Settings</Button>
+      </div>
     </div>
   );
 };

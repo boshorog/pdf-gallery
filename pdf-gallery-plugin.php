@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://antiohia.ro
  * Description: Manage PDF documents with thumbnail generation and sortable display. Integrates with WordPress admin authentication.
- * Version: 1.0.4
+ * Version: 1.1.2
  * Author: uphill
  * Requires at least: 5.0
  * Tested up to: 6.4
@@ -100,7 +100,7 @@ class PDFGalleryPlugin {
             'pdf-gallery-admin', 
             $js_file, 
             array(), 
-            '1.0.4', 
+            '1.1.2', 
             true
         );
         wp_script_add_data('pdf-gallery-admin', 'type', 'module');
@@ -109,7 +109,7 @@ class PDFGalleryPlugin {
             'pdf-gallery-admin', 
             $css_file, 
             array(), 
-            '1.0.4'
+            '1.1.2'
         );
         
         // Pass WordPress user info to React app
@@ -164,7 +164,7 @@ public function display_gallery_shortcode($atts) {
     .pdf-gallery-iframe-container iframe{display:block;width:100%!important;border:0!important;overflow:hidden!important;scrolling:no!important;-webkit-overflow-scrolling:auto!important;-ms-overflow-style:none!important;scrollbar-width:none!important;}
     .pdf-gallery-iframe-container iframe::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;background:transparent!important;}
     @media (max-width:768px){
-      .pdf-gallery-iframe-container{overflow:hidden!important;}
+      .pdf-gallery-iframe-container{overflow:hidden!important; width:100vw; position:relative; left:50%; transform:translateX(-50%);} 
       .pdf-gallery-iframe-container iframe{overflow:hidden!important;scrolling:no!important;}
     }
     </style>';
@@ -177,6 +177,8 @@ public function display_gallery_shortcode($atts) {
       if(!iframe) return;
       function onMsg(e){ try{ if(!e || !e.data) return; var d = e.data; if(d.type === "pdf-gallery:height" && typeof d.height === "number"){ var minH = 600; iframe.style.height = Math.max(d.height, minH) + "px"; } }catch(err){} }
       window.addEventListener("message", onMsg, false);
+      // Trigger a height check after a short delay to avoid clipping
+      setTimeout(function(){ if(iframe && iframe.contentWindow){ iframe.contentWindow.postMessage({type:'pdf-gallery:height-check'}, '*'); } }, 700);
     })();</script>';
 
     return $html;
@@ -195,7 +197,7 @@ public function display_gallery_shortcode($atts) {
         }
         
         // Set default options
-        add_option('pdf_gallery_version', '1.0.4');
+        add_option('pdf_gallery_version', '1.1.2');
     }
     
     /**
@@ -347,5 +349,54 @@ function handle_pdf_gallery_ajax() {
         default:
             wp_send_json_error('Invalid action');
     }
+}
+
+// New action: upload_image for placeholder and other images
+add_action('wp_ajax_pdf_gallery_upload_image', 'pdf_gallery_upload_image_handler');
+function pdf_gallery_upload_image_handler(){
+    handle_pdf_gallery_upload_image();
+}
+
+function handle_pdf_gallery_upload_image(){
+    if (!wp_verify_nonce($_POST['nonce'] ?? '', 'pdf_gallery_nonce')) {
+        wp_die('Security check failed');
+    }
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Insufficient permissions');
+    }
+    if (!isset($_FILES['image_file'])) {
+        wp_send_json_error('No file uploaded');
+    }
+    $file = $_FILES['image_file'];
+    $allowed = array('image/jpeg','image/png','image/gif','image/webp','image/svg+xml');
+    if (!in_array($file['type'], $allowed, true)) {
+      wp_send_json_error('Only image files are allowed');
+    }
+    require_once(ABSPATH . 'wp-admin/includes/file.php');
+    require_once(ABSPATH . 'wp-admin/includes/media.php');
+    require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+    $upload_overrides = array('test_form' => false);
+    $uploaded_file = wp_handle_upload($file, $upload_overrides);
+    if (isset($uploaded_file['error'])) {
+      wp_send_json_error($uploaded_file['error']);
+    }
+    $attachment = array(
+      'post_mime_type' => $uploaded_file['type'],
+      'post_title' => preg_replace('/\.[^.]+$/', '', basename($uploaded_file['file'])),
+      'post_content' => '',
+      'post_status' => 'inherit'
+    );
+    $attachment_id = wp_insert_attachment($attachment, $uploaded_file['file']);
+    if (is_wp_error($attachment_id)) {
+      wp_send_json_error('Failed to create attachment');
+    }
+    $attachment_data = wp_generate_attachment_metadata($attachment_id, $uploaded_file['file']);
+    wp_update_attachment_metadata($attachment_id, $attachment_data);
+    wp_send_json_success(array(
+      'url' => $uploaded_file['url'],
+      'attachment_id' => $attachment_id,
+      'filename' => basename($uploaded_file['file'])
+    ));
 }
 ?>

@@ -49,6 +49,9 @@ const PDFGallery = ({
   const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
   const [thumbnails, setThumbnails] = useState<{ [key: string]: string }>({});
   const [isMobile, setIsMobile] = useState(false);
+  const placeholderUrl = (settings?.defaultPlaceholder && settings.defaultPlaceholder !== 'default')
+    ? settings.defaultPlaceholder
+    : pdfPlaceholder;
 
   useEffect(() => {
     setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -66,7 +69,7 @@ const PDFGallery = ({
     
     // Extract PDFs that need thumbnail generation
     const pdfsNeedingThumbnails = items.filter((item): item is PDF => 
-      'pdfUrl' in item && (!item.thumbnail || item.thumbnail === pdfPlaceholder || item.thumbnail.includes('placeholder'))
+      'pdfUrl' in item && (!item.thumbnail || item.thumbnail === placeholderUrl || item.thumbnail.includes('placeholder'))
     );
     
     if (pdfsNeedingThumbnails.length > 0) {
@@ -80,7 +83,7 @@ const PDFGallery = ({
           if (cachedThumbnail) {
             return { ...item, thumbnail: cachedThumbnail };
           }
-          return { ...item, thumbnail: item.thumbnail || pdfPlaceholder };
+          return { ...item, thumbnail: item.thumbnail || placeholderUrl };
         }
         return item;
       });
@@ -201,6 +204,7 @@ const PDFGallery = ({
                             className="block"
                             onMouseEnter={() => setHoveredId(pdf.id)}
                             onMouseLeave={() => setHoveredId(null)}
+                            onClick={(e) => { if (isMobile) { e.preventDefault(); window.location.assign(pdf.pdfUrl); } }}
                           >
                             <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border">
                               <div className={`${aspectClass} overflow-hidden bg-muted`}>
@@ -210,7 +214,7 @@ const PDFGallery = ({
                                   className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                                   loading="lazy"
                                   onError={(e) => {
-                                    e.currentTarget.src = pdfPlaceholder;
+                                    e.currentTarget.src = placeholderUrl;
                                   }}
                                 />
                                 {hoveredId === pdf.id && (
@@ -248,8 +252,8 @@ const PDFGallery = ({
 
                 // Render divider with spacing above
                 renderedItems.push(
-                  <div key={item.id} className="mt-20 mb-8">
-                    <div className="flex items-center gap-4 px-0">
+                  <div key={item.id} className="mt-20 mb-8 -mx-4 md:mx-0">
+                    <div className="flex items-center gap-4 px-4 md:px-0">
                       <div className="flex-1 border-t border-border"></div>
                       <span className="bg-background px-4 md:px-6 text-lg font-medium text-muted-foreground whitespace-nowrap">
                         {item.text}
@@ -270,14 +274,15 @@ const PDFGallery = ({
                 <div key={`grid-final`} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {currentGrid.map((pdf) => (
                     <div key={pdf.id} className="group">
-                      <a
-                        href={pdf.pdfUrl}
-                        target={isMobile ? '_self' : '_blank'}
-                        rel={isMobile ? undefined : 'noopener noreferrer'}
-                        className="block"
-                        onMouseEnter={() => setHoveredId(pdf.id)}
-                        onMouseLeave={() => setHoveredId(null)}
-                      >
+                    <a
+                      href={pdf.pdfUrl}
+                      target={isMobile ? '_self' : '_blank'}
+                      rel={isMobile ? undefined : 'noopener noreferrer'}
+                      className="block"
+                      onMouseEnter={() => setHoveredId(pdf.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                      onClick={(e) => { if (isMobile) { e.preventDefault(); window.location.assign(pdf.pdfUrl); } }}
+                    >
                         <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border">
                           <div className={`${aspectClass} overflow-hidden bg-muted`}>
                             <img
@@ -286,7 +291,7 @@ const PDFGallery = ({
                               className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                               loading="lazy"
                               onError={(e) => {
-                                e.currentTarget.src = pdfPlaceholder;
+                                e.currentTarget.src = placeholderUrl;
                               }}
                             />
                             {hoveredId === pdf.id && (

@@ -18,9 +18,21 @@ const App = () => {
       if (isUpdating) return;
       
       const rootEl = document.getElementById('root');
-      const contentHeight = Math.ceil(
-        rootEl?.scrollHeight || (document.body ? document.body.scrollHeight : 0)
-      );
+      const doc = document.documentElement;
+      const body = document.body;
+
+      const heights = [
+        rootEl?.scrollHeight,
+        rootEl?.offsetHeight,
+        doc?.scrollHeight,
+        doc?.offsetHeight,
+        doc?.clientHeight,
+        body?.scrollHeight,
+        body?.offsetHeight,
+        body?.clientHeight,
+      ].filter((v): v is number => typeof v === 'number');
+
+      const contentHeight = Math.max(...heights, 0) + 32; // safety padding
       
       // Add minimum threshold and prevent loops
       if (Math.abs(contentHeight - lastHeight) > 10) {

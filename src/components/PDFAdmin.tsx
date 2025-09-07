@@ -552,35 +552,9 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Navigation Tabs */}
-      <div className="border-b border-border">
-        <nav className="-mb-px flex space-x-8">
-          <button
-            onClick={() => setActiveTab('management')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'management'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
-            }`}
-          >
-            PDF Management
-          </button>
-          <button
-            onClick={() => setActiveTab('preview')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'preview'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
-            }`}
-          >
-            PDF Gallery Preview
-          </button>
-        </nav>
-      </div>
+      {/* Navigation removed: top-level tabs now control sections */}
 
-      {/* Management Tab */}
-      {activeTab === 'management' && (
-        <>
+      <>
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <h2 className="text-2xl font-bold">PDF Management</h2>
@@ -781,55 +755,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
             </Card>
           )}
         </>
-      )}
 
-      {/* Preview Tab */}
-      {activeTab === 'preview' && (
-        <>
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold">PDF Gallery Preview</h2>
-            
-            {/* Shortcode Display */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Paste this shortcode in any page or post to display your PDF gallery:
-                    </p>
-                    <code className="bg-muted px-3 py-1 rounded text-sm font-mono">
-                      [pdf_gallery]
-                    </code>
-                  </div>
-                  <Button
-                    onClick={copyShortcode}
-                    variant="outline"
-                    size="sm"
-                    className="ml-4"
-                  >
-                    {shortcodeCopied ? (
-                      <Check className="w-4 h-4" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Preview */}
-            <Card>
-              <CardContent className="p-6">
-                <PDFGallery 
-                  items={items}
-                  title="PDF Gallery Preview"
-                  description="This is how your gallery will look on the frontend"
-                />
-              </CardContent>
-            </Card>
-          </div>
-        </>
-      )}
 
     </div>
   );

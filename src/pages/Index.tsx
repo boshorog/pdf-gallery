@@ -3,6 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { Copy, Check } from 'lucide-react';
 import PDFGallery from '@/components/PDFGallery';
 import PDFAdmin from '@/components/PDFAdmin';
 import PDFSettings from '@/components/PDFSettings';
@@ -81,6 +83,7 @@ const Index = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
+  const [shortcodeCopied, setShortcodeCopied] = useState(false);
 
   // Load gallery items and settings from WordPress and check admin access
   useEffect(() => {
@@ -150,17 +153,20 @@ const Index = () => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleAdminLogin();
-    }
+  const copyShortcode = async () => {
+    const shortcode = '[pdf_gallery]';
+    try {
+      await navigator.clipboard.writeText(shortcode);
+      setShortcodeCopied(true);
+      setTimeout(() => setShortcodeCopied(false), 2000);
+    } catch (e) {}
   };
 
   return (
     <div id="pdf-gallery-admin" data-plugin="pdf-gallery" className="bg-background">
       <div className="container mx-auto">{/* Removed py-8 to eliminate top spacing */}
         {isAdmin ? (
-          <Tabs defaultValue="gallery" className="w-full">
+          <Tabs defaultValue="admin" className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="gallery">PDF Gallery Preview</TabsTrigger>
               <TabsTrigger value="admin">PDF Management</TabsTrigger>
@@ -168,6 +174,21 @@ const Index = () => {
             </TabsList>
             
             <TabsContent value="gallery" className="mt-0">
+              <div className="space-y-4 mb-6">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Paste this shortcode in any page or post to display your PDF gallery:</p>
+                        <code className="bg-muted px-3 py-1 rounded text-sm font-mono">[pdf_gallery]</code>
+                      </div>
+                      <Button onClick={copyShortcode} variant="outline" size="sm" className="ml-4">
+                        {shortcodeCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
               <PDFGallery 
                 items={galleryItems}
                 title="PDF Gallery"
