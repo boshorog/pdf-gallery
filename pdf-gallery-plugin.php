@@ -15,18 +15,31 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Check if class doesn't exist to prevent redeclaration
+if (class_exists('PDFGalleryPlugin')) {
+    return;
+}
+
 class PDFGalleryPlugin {
     
     public function __construct() {
-        add_action('admin_menu', array($this, 'add_admin_menu'));
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
-        
-        // Add shortcode for frontend display
-        add_shortcode('pdf_gallery', array($this, 'display_gallery_shortcode'));
-        
-        // Register activation/deactivation hooks
+        add_action('init', array($this, 'init'));
         register_activation_hook(__FILE__, array($this, 'activate'));
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+    }
+    
+    public function init() {
+        add_action('admin_menu', array($this, 'add_admin_menu'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        add_shortcode('pdf_gallery', array($this, 'display_gallery_shortcode'));
+        
+        // AJAX handlers
+        add_action('wp_ajax_pdf_gallery_action', array($this, 'handle_pdf_gallery_ajax'));
+        add_action('wp_ajax_nopriv_pdf_gallery_action', array($this, 'handle_pdf_gallery_ajax'));
+        add_action('wp_ajax_pdf_gallery_upload_image', array($this, 'handle_pdf_gallery_upload_image'));
+        
+        // Script filter
+        add_filter('script_loader_tag', array($this, 'modify_script_tag'), 10, 3);
     }
     
     /**
@@ -113,11 +126,12 @@ class PDFGalleryPlugin {
         );
         
         // Pass WordPress user info to React app
+        $upload_dir = wp_upload_dir();
         wp_localize_script('pdf-gallery-admin', 'wpPDFGallery', array(
             'isAdmin' => current_user_can('manage_options'),
             'nonce' => wp_create_nonce('pdf_gallery_nonce'),
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'uploadsUrl' => wp_upload_dir()['baseurl']
+            'uploadsUrl' => isset($upload_dir['baseurl']) ? $upload_dir['baseurl'] : ''
         ));
     }
     
@@ -188,12 +202,18 @@ public function display_gallery_shortcode($atts) {
      * Plugin activation
      */
     public function activate() {
+        // Check if wp_mkdir_p function exists
+        if (!function_exists('wp_mkdir_p')) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+        }
+        
         // Create upload directory if it doesn't exist
         $upload_dir = wp_upload_dir();
-        $pdf_gallery_dir = $upload_dir['basedir'] . '/pdf-gallery';
-        
-        if (!file_exists($pdf_gallery_dir)) {
-            wp_mkdir_p($pdf_gallery_dir);
+        if (isset($upload_dir['basedir'])) {
+            $pdf_gallery_dir = $upload_dir['basedir'] . '/pdf-gallery';
+            if (!file_exists($pdf_gallery_dir)) {
+                wp_mkdir_p($pdf_gallery_dir);
+            }
         }
         
         // Set default options
@@ -207,195 +227,205 @@ public function display_gallery_shortcode($atts) {
         // Clean up if needed
         delete_option('pdf_gallery_version');
     }
-}
-
-// Initialize the plugin
-new PDFGalleryPlugin();
-
-// Ensure our scripts load as ES modules even on older WP versions
-add_filter('script_loader_tag', function($tag, $handle, $src) {
-    if (in_array($handle, array('pdf-gallery-admin', 'pdf-gallery-frontend'), true)) {
-        $tag = '<script type="module" src="' . esc_url($src) . '" id="' . esc_attr($handle) . '-js"></script>';
-    }
-    return $tag;
-}, 10, 3);
-
-// AJAX handlers for frontend/backend communication
-add_action('wp_ajax_pdf_gallery_action', 'handle_pdf_gallery_ajax');
-add_action('wp_ajax_nopriv_pdf_gallery_action', 'handle_pdf_gallery_ajax');
-
-function handle_pdf_gallery_ajax() {
-    // Verify nonce for security
-    if (!wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
-        wp_die('Security check failed');
+    
+    /**
+     * Ensure our scripts load as ES modules
+     */
+    public function modify_script_tag($tag, $handle, $src) {
+        if (in_array($handle, array('pdf-gallery-admin', 'pdf-gallery-frontend'), true)) {
+            $tag = '<script type="module" src="' . esc_url($src) . '" id="' . esc_attr($handle) . '-js"></script>';
+        }
+        return $tag;
     }
     
-    // Handle different AJAX actions here
-    $action_type = sanitize_text_field($_POST['action_type']);
+    /**
+     * Handle AJAX requests
+     */
+    public function handle_pdf_gallery_ajax() {
+        // Verify nonce for security
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
+            wp_die('Security check failed');
+        }
+        
+        // Handle different AJAX actions here
+        $action_type = isset($_POST['action_type']) ? sanitize_text_field($_POST['action_type']) : '';
+        
+        switch ($action_type) {
+            case 'save_items':
+                $this->handle_save_items();
+                break;
+            case 'get_items':
+                $this->handle_get_items();
+                break;
+            case 'save_settings':
+                $this->handle_save_settings();
+                break;
+            case 'get_settings':
+                $this->handle_get_settings();
+                break;
+            case 'upload_pdf':
+                $this->handle_upload_pdf();
+                break;
+            default:
+                wp_send_json_error('Invalid action');
+        }
+    }
     
-    switch ($action_type) {
-        case 'save_items':
-            // Handle saving PDF gallery items (PDFs + dividers)
-            if (!current_user_can('manage_options')) {
-                wp_send_json_error('Insufficient permissions');
-            }
-            
-            $items_json = stripslashes($_POST['items']);
-            $items = json_decode($items_json, true);
-            
-            if (json_last_error() === JSON_ERROR_NONE && is_array($items)) {
-                update_option('pdf_gallery_data', $items);
-                wp_send_json_success('PDF gallery items saved successfully');
-            } else {
-                wp_send_json_error('Invalid PDF gallery data');
-            }
-            break;
-            
-        case 'get_items':
-            // Handle getting PDF gallery items
-            $items = get_option('pdf_gallery_data', array());
-            wp_send_json_success(array('items' => $items));
-            break;
-            
-        case 'save_settings':
-            // Save plugin settings
-            if (!current_user_can('manage_options')) {
-                wp_send_json_error('Insufficient permissions');
-            }
-            $settings_json = stripslashes($_POST['settings'] ?? '');
-            $settings = json_decode($settings_json, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($settings)) {
-                update_option('pdf_gallery_settings', $settings);
-                wp_send_json_success('Settings saved');
-            } else {
-                wp_send_json_error('Invalid settings data');
-            }
-            break;
-            
-        case 'get_settings':
-            // Get plugin settings with defaults
-            $defaults = array(
-                'thumbnailStyle' => 'default',
-                'accentColor' => '#7FB3DC',
-                'thumbnailShape' => 'landscape-16-9',
-                'pdfIconPosition' => 'top-right',
-                'defaultPlaceholder' => 'default',
-            );
-            $settings = get_option('pdf_gallery_settings', $defaults);
-            // Ensure all keys exist
-            $settings = array_merge($defaults, is_array($settings) ? $settings : array());
-            wp_send_json_success(array('settings' => $settings));
-            break;
-            
-        case 'upload_pdf':
-            // Handle PDF file upload
-            if (!current_user_can('manage_options')) {
-                wp_send_json_error('Insufficient permissions');
-            }
-            
-            if (!isset($_FILES['pdf_file'])) {
-                wp_send_json_error('No file uploaded');
-            }
-            
-            $file = $_FILES['pdf_file'];
-            
-            // Check if it's a PDF file
-            if ($file['type'] !== 'application/pdf') {
-                wp_send_json_error('Only PDF files are allowed');
-            }
-            
-            // Check file size (limit to 10MB)
-            if ($file['size'] > 10 * 1024 * 1024) {
-                wp_send_json_error('File size too large. Maximum 10MB allowed.');
-            }
-            
-            // Handle the upload using WordPress media functions
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
-            require_once(ABSPATH . 'wp-admin/includes/media.php');
-            require_once(ABSPATH . 'wp-admin/includes/image.php');
-            
-            $upload_overrides = array('test_form' => false);
-            $uploaded_file = wp_handle_upload($file, $upload_overrides);
-            
-            if (isset($uploaded_file['error'])) {
-                wp_send_json_error($uploaded_file['error']);
-            }
-            
-            // Create attachment
-            $attachment = array(
-                'post_mime_type' => $uploaded_file['type'],
-                'post_title' => preg_replace('/\.[^.]+$/', '', basename($uploaded_file['file'])),
-                'post_content' => '',
-                'post_status' => 'inherit'
-            );
-            
-            $attachment_id = wp_insert_attachment($attachment, $uploaded_file['file']);
-            
-            if (is_wp_error($attachment_id)) {
-                wp_send_json_error('Failed to create attachment');
-            }
-            
-            // Generate attachment metadata
-            $attachment_data = wp_generate_attachment_metadata($attachment_id, $uploaded_file['file']);
-            wp_update_attachment_metadata($attachment_id, $attachment_data);
-            
-            wp_send_json_success(array(
-                'url' => $uploaded_file['url'],
-                'attachment_id' => $attachment_id,
-                'filename' => basename($uploaded_file['file'])
-            ));
-            break;
-            
-        default:
-            wp_send_json_error('Invalid action');
+    private function handle_save_items() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        
+        $items_json = isset($_POST['items']) ? stripslashes($_POST['items']) : '';
+        $items = json_decode($items_json, true);
+        
+        if (json_last_error() === JSON_ERROR_NONE && is_array($items)) {
+            update_option('pdf_gallery_data', $items);
+            wp_send_json_success('PDF gallery items saved successfully');
+        } else {
+            wp_send_json_error('Invalid PDF gallery data');
+        }
+    }
+    
+    private function handle_get_items() {
+        $items = get_option('pdf_gallery_data', array());
+        wp_send_json_success(array('items' => $items));
+    }
+    
+    private function handle_save_settings() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        $settings_json = isset($_POST['settings']) ? stripslashes($_POST['settings']) : '';
+        $settings = json_decode($settings_json, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($settings)) {
+            update_option('pdf_gallery_settings', $settings);
+            wp_send_json_success('Settings saved');
+        } else {
+            wp_send_json_error('Invalid settings data');
+        }
+    }
+    
+    private function handle_get_settings() {
+        $defaults = array(
+            'thumbnailStyle' => 'default',
+            'accentColor' => '#7FB3DC',
+            'thumbnailShape' => 'landscape-16-9',
+            'pdfIconPosition' => 'top-right',
+            'defaultPlaceholder' => 'default',
+        );
+        $settings = get_option('pdf_gallery_settings', $defaults);
+        $settings = array_merge($defaults, is_array($settings) ? $settings : array());
+        wp_send_json_success(array('settings' => $settings));
+    }
+    
+    private function handle_upload_pdf() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        
+        if (!isset($_FILES['pdf_file'])) {
+            wp_send_json_error('No file uploaded');
+        }
+        
+        $file = $_FILES['pdf_file'];
+        
+        if ($file['type'] !== 'application/pdf') {
+            wp_send_json_error('Only PDF files are allowed');
+        }
+        
+        if ($file['size'] > 10 * 1024 * 1024) {
+            wp_send_json_error('File size too large. Maximum 10MB allowed.');
+        }
+        
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        
+        $upload_overrides = array('test_form' => false);
+        $uploaded_file = wp_handle_upload($file, $upload_overrides);
+        
+        if (isset($uploaded_file['error'])) {
+            wp_send_json_error($uploaded_file['error']);
+        }
+        
+        $attachment = array(
+            'post_mime_type' => $uploaded_file['type'],
+            'post_title' => preg_replace('/\.[^.]+$/', '', basename($uploaded_file['file'])),
+            'post_content' => '',
+            'post_status' => 'inherit'
+        );
+        
+        $attachment_id = wp_insert_attachment($attachment, $uploaded_file['file']);
+        
+        if (is_wp_error($attachment_id)) {
+            wp_send_json_error('Failed to create attachment');
+        }
+        
+        $attachment_data = wp_generate_attachment_metadata($attachment_id, $uploaded_file['file']);
+        wp_update_attachment_metadata($attachment_id, $attachment_data);
+        
+        wp_send_json_success(array(
+            'url' => $uploaded_file['url'],
+            'attachment_id' => $attachment_id,
+            'filename' => basename($uploaded_file['file'])
+        ));
+    }
+    
+    /**
+     * Handle image upload
+     */
+    public function handle_pdf_gallery_upload_image() {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
+            wp_die('Security check failed');
+        }
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        if (!isset($_FILES['image_file'])) {
+            wp_send_json_error('No file uploaded');
+        }
+        
+        $file = $_FILES['image_file'];
+        $allowed = array('image/jpeg','image/png','image/gif','image/webp','image/svg+xml');
+        if (!in_array($file['type'], $allowed, true)) {
+            wp_send_json_error('Only image files are allowed');
+        }
+        
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+        $upload_overrides = array('test_form' => false);
+        $uploaded_file = wp_handle_upload($file, $upload_overrides);
+        if (isset($uploaded_file['error'])) {
+            wp_send_json_error($uploaded_file['error']);
+        }
+        
+        $attachment = array(
+            'post_mime_type' => $uploaded_file['type'],
+            'post_title' => preg_replace('/\.[^.]+$/', '', basename($uploaded_file['file'])),
+            'post_content' => '',
+            'post_status' => 'inherit'
+        );
+        
+        $attachment_id = wp_insert_attachment($attachment, $uploaded_file['file']);
+        if (is_wp_error($attachment_id)) {
+            wp_send_json_error('Failed to create attachment');
+        }
+        
+        $attachment_data = wp_generate_attachment_metadata($attachment_id, $uploaded_file['file']);
+        wp_update_attachment_metadata($attachment_id, $attachment_data);
+        
+        wp_send_json_success(array(
+            'url' => $uploaded_file['url'],
+            'attachment_id' => $attachment_id,
+            'filename' => basename($uploaded_file['file'])
+        ));
     }
 }
 
-// New action: upload_image for placeholder and other images
-add_action('wp_ajax_pdf_gallery_upload_image', 'pdf_gallery_upload_image_handler');
-function pdf_gallery_upload_image_handler(){
-    handle_pdf_gallery_upload_image();
-}
-
-function handle_pdf_gallery_upload_image(){
-    if (!wp_verify_nonce($_POST['nonce'] ?? '', 'pdf_gallery_nonce')) {
-        wp_die('Security check failed');
-    }
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error('Insufficient permissions');
-    }
-    if (!isset($_FILES['image_file'])) {
-        wp_send_json_error('No file uploaded');
-    }
-    $file = $_FILES['image_file'];
-    $allowed = array('image/jpeg','image/png','image/gif','image/webp','image/svg+xml');
-    if (!in_array($file['type'], $allowed, true)) {
-      wp_send_json_error('Only image files are allowed');
-    }
-    require_once(ABSPATH . 'wp-admin/includes/file.php');
-    require_once(ABSPATH . 'wp-admin/includes/media.php');
-    require_once(ABSPATH . 'wp-admin/includes/image.php');
-
-    $upload_overrides = array('test_form' => false);
-    $uploaded_file = wp_handle_upload($file, $upload_overrides);
-    if (isset($uploaded_file['error'])) {
-      wp_send_json_error($uploaded_file['error']);
-    }
-    $attachment = array(
-      'post_mime_type' => $uploaded_file['type'],
-      'post_title' => preg_replace('/\.[^.]+$/', '', basename($uploaded_file['file'])),
-      'post_content' => '',
-      'post_status' => 'inherit'
-    );
-    $attachment_id = wp_insert_attachment($attachment, $uploaded_file['file']);
-    if (is_wp_error($attachment_id)) {
-      wp_send_json_error('Failed to create attachment');
-    }
-    $attachment_data = wp_generate_attachment_metadata($attachment_id, $uploaded_file['file']);
-    wp_update_attachment_metadata($attachment_id, $attachment_data);
-    wp_send_json_success(array(
-      'url' => $uploaded_file['url'],
-      'attachment_id' => $attachment_id,
-      'filename' => basename($uploaded_file['file'])
-    ));
+// Initialize the plugin only if WordPress is properly loaded
+if (defined('ABSPATH')) {
+    new PDFGalleryPlugin();
 }
