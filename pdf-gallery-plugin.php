@@ -399,4 +399,3 @@ function handle_pdf_gallery_upload_image(){
       'filename' => basename($uploaded_file['file'])
     ));
 }
-?>
