@@ -24,8 +24,6 @@ class PDFGalleryPlugin {
     
     public function __construct() {
         add_action('init', array($this, 'init'));
-        register_activation_hook(__FILE__, array($this, 'activate'));
-        register_deactivation_hook(__FILE__, array($this, 'deactivate'));
     }
     
     public function init() {
@@ -102,9 +100,7 @@ class PDFGalleryPlugin {
         
         if (!$js_file || !$css_file) {
             // Show error message in admin if assets not found
-            add_action('admin_notices', function() {
-                echo '<div class="notice notice-error"><p>PDF Gallery: Plugin assets not found. Please rebuild the plugin.</p></div>';
-            });
+            add_action('admin_notices', array($this, 'assets_not_found_notice'));
             return;
         }
         
@@ -133,6 +129,10 @@ class PDFGalleryPlugin {
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'uploadsUrl' => isset($upload_dir['baseurl']) ? $upload_dir['baseurl'] : ''
         ));
+    }
+
+    public function assets_not_found_notice() {
+        echo '<div class="notice notice-error"><p>PDF Gallery: Plugin assets not found. Please rebuild the plugin.</p></div>';
     }
     
     /**
@@ -201,7 +201,7 @@ public function display_gallery_shortcode($atts) {
     /**
      * Plugin activation
      */
-    public function activate() {
+    public static function activate() {
         // Check if wp_mkdir_p function exists
         if (!function_exists('wp_mkdir_p')) {
             require_once(ABSPATH . 'wp-admin/includes/file.php');
@@ -223,7 +223,7 @@ public function display_gallery_shortcode($atts) {
     /**
      * Plugin deactivation
      */
-    public function deactivate() {
+    public static function deactivate() {
         // Clean up if needed
         delete_option('pdf_gallery_version');
     }
@@ -427,5 +427,8 @@ public function display_gallery_shortcode($atts) {
 
 // Initialize the plugin only if WordPress is properly loaded
 if (defined('ABSPATH')) {
+    // Register activation/deactivation hooks using static methods for reliability
+    register_activation_hook(__FILE__, array('PDFGalleryPlugin', 'activate'));
+    register_deactivation_hook(__FILE__, array('PDFGalleryPlugin', 'deactivate'));
     new PDFGalleryPlugin();
 }
