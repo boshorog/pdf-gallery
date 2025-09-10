@@ -16,12 +16,12 @@ if (!defined('ABSPATH')) {
 }
 
 // Prevent double-loading within this request
-if (defined('ANTIOHIA_PDF_GALLERY_PLUGIN_LOADED')) {
+if (defined('PDF_GALLERY_PLUGIN_LOADED')) {
     return;
 }
-define('ANTIOHIA_PDF_GALLERY_PLUGIN_LOADED', true);
+define('PDF_GALLERY_PLUGIN_LOADED', true);
 
-class Antiohia_PDF_Gallery_Plugin {
+class PDF_Gallery_Plugin {
     
     public function __construct() {
         add_action('init', array($this, 'init'));
@@ -429,7 +429,7 @@ public function display_gallery_shortcode($atts) {
 // Initialize the plugin only if WordPress is properly loaded
 if (defined('ABSPATH')) {
     // Register activation/deactivation hooks using static methods for reliability
-    register_activation_hook(__FILE__, array('Antiohia_PDF_Gallery_Plugin', 'activate'));
-    register_deactivation_hook(__FILE__, array('Antiohia_PDF_Gallery_Plugin', 'deactivate'));
-    new Antiohia_PDF_Gallery_Plugin();
+    register_activation_hook(__FILE__, array('PDF_Gallery_Plugin', 'activate'));
+    register_deactivation_hook(__FILE__, array('PDF_Gallery_Plugin', 'deactivate'));
+    new PDF_Gallery_Plugin();
 }

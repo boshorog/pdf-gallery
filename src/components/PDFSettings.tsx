@@ -73,24 +73,40 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
               />
               <Label htmlFor="default-style">Default style</Label>
             </div>
-            <p className="text-sm text-muted-foreground ml-6">
-              Includes thumbnail, title, and date
-            </p>
             {/* Preview */}
             <div className="mt-4">
               <div className="max-w-xs">
-                <div className="relative bg-card rounded-lg overflow-hidden shadow-sm border border-border">
-                  <div className={`${localSettings.thumbnailShape === 'square' ? 'aspect-square' : localSettings.thumbnailShape === 'landscape-3-2' ? 'aspect-[3/2]' : localSettings.thumbnailShape === 'portrait-2-3' ? 'aspect-[2/3]' : 'aspect-video'} overflow-hidden bg-muted`}>
-                    <img
-                      src={(localSettings.defaultPlaceholder && localSettings.defaultPlaceholder !== 'default') ? localSettings.defaultPlaceholder : pdfPlaceholder}
-                      alt="Thumbnail preview"
-                      className="w-full h-full object-cover"
-                    />
+                <div className="group">
+                  <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border cursor-pointer">
+                    <div className={`${localSettings.thumbnailShape === 'square' ? 'aspect-square' : localSettings.thumbnailShape === 'landscape-3-2' ? 'aspect-[3/2]' : localSettings.thumbnailShape === 'portrait-2-3' ? 'aspect-[2/3]' : 'aspect-video'} overflow-hidden bg-muted`}>
+                      <img
+                        src={(localSettings.defaultPlaceholder && localSettings.defaultPlaceholder !== 'default') ? localSettings.defaultPlaceholder : pdfPlaceholder}
+                        alt="Thumbnail preview"
+                        className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* PDF Indicator */}
+                    <div className={`absolute ${localSettings.pdfIconPosition === 'top-left' ? 'top-3 left-3' : localSettings.pdfIconPosition === 'bottom-right' ? 'bottom-3 right-3' : localSettings.pdfIconPosition === 'bottom-left' ? 'bottom-3 left-3' : 'top-3 right-3'} bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm`}>
+                      <div className="flex items-center gap-1">
+                        <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="text-xs font-medium text-muted-foreground">PDF</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="mt-3">
-                  <p className="text-xs text-muted-foreground leading-tight mb-1" style={{ ['--accent-color' as any]: localSettings.accentColor }}>April 2025</p>
-                  <h3 className="font-semibold text-sm leading-tight">Sample PDF Title</h3>
+                  
+                  {/* Text below thumbnail */}
+                  <div className="mt-3 transition-colors duration-200" style={{ ['--accent-color' as any]: localSettings.accentColor }}>
+                    <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[var(--accent-color)]">April 2025</p>
+                    <h3 className="font-semibold text-sm leading-tight text-foreground group-hover:text-[var(--accent-color)] transition-colors duration-200">Sample PDF Title</h3>
+                  </div>
                 </div>
               </div>
             </div>
