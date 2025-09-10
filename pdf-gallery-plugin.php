@@ -192,7 +192,7 @@ public function display_gallery_shortcode($atts) {
       function onMsg(e){ try{ if(!e || !e.data) return; var d = e.data; if(d.type === "pdf-gallery:height" && typeof d.height === "number"){ var minH = 600; iframe.style.height = Math.max(d.height, minH) + "px"; } }catch(err){} }
       window.addEventListener("message", onMsg, false);
       // Trigger a height check after a short delay to avoid clipping
-      setTimeout(function(){ if(iframe && iframe.contentWindow){ iframe.contentWindow.postMessage({type:'pdf-gallery:height-check'}, '*'); } }, 700);
+      setTimeout(function(){ if(iframe && iframe.contentWindow){ iframe.contentWindow.postMessage({type:"pdf-gallery:height-check"}, "*"); } }, 700);
     })();</script>';
 
     return $html;
