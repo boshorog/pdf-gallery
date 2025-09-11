@@ -8,6 +8,7 @@ import { Copy, Check } from 'lucide-react';
 import PDFGallery from '@/components/PDFGallery';
 import PDFAdmin from '@/components/PDFAdmin';
 import PDFSettings from '@/components/PDFSettings';
+import ThumbnailStyleShowcase from '@/components/ThumbnailStyleShowcase';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 
 interface PDF {
@@ -170,99 +171,7 @@ const Index = () => {
 
   return (
     <div id="pdf-gallery-admin" data-plugin="pdf-gallery" className="bg-background">
-      <div className="container mx-auto">{/* Removed py-8 to eliminate top spacing */}
-        {isAdmin ? (
-          <Tabs defaultValue="admin" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="gallery">PDF Gallery Preview</TabsTrigger>
-              <TabsTrigger value="admin">PDF Management</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="gallery" className="mt-0">
-              <div className="space-y-4 mb-6">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-2">Paste this shortcode in any page or post to display your PDF gallery:</p>
-                        <code className="bg-muted px-3 py-1 rounded text-sm font-mono">[pdf_gallery]</code>
-                      </div>
-                      <Button onClick={copyShortcode} variant="outline" size="sm" className="ml-4">
-                        {shortcodeCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              <PDFGallery 
-                items={galleryItems}
-                title="PDF Gallery"
-                description="Browse our collection of PDF documents"
-                settings={settings}
-              />
-            </TabsContent>
-            
-            <TabsContent value="admin" className="mt-0">
-              <PDFAdmin 
-                items={galleryItems}
-                onItemsChange={setGalleryItems}
-              />
-            </TabsContent>
-
-            <TabsContent value="settings" className="mt-0">
-              <PDFSettings 
-                settings={settings}
-                onSettingsChange={async (newSettings) => {
-                  setSettings(newSettings);
-                  const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
-                  const urlParams = new URLSearchParams(window.location.search);
-                  const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax') || `${window.location.origin}/wp-admin/admin-ajax.php`;
-                  const nonce = wp?.nonce || urlParams.get('nonce') || '';
-                  if (ajaxUrl && nonce) {
-                    const form = new FormData();
-                    form.append('action', 'pdf_gallery_action');
-                    form.append('action_type', 'save_settings');
-                    form.append('nonce', nonce);
-                    form.append('settings', JSON.stringify(newSettings));
-                    await fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form });
-                  }
-                }}
-              />
-            </TabsContent>
-          </Tabs>
-        ) : (
-          <div className="w-full">
-            <PDFGallery 
-              items={galleryItems}
-              title="PDF Gallery"
-              description="Browse our collection of PDF documents"
-              settings={settings}
-            />
-            
-          </div>
-        )}
-
-        <Dialog open={showAdminDialog} onOpenChange={setShowAdminDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Admin Access</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Input
-                type="password"
-                placeholder="Enter admin password"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                onKeyPress={handleKeyPress}
-              />
-              <Button onClick={handleAdminLogin} className="w-full">
-                Login
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+      <ThumbnailStyleShowcase />
     </div>
   );
 };
