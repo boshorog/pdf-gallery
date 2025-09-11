@@ -62,50 +62,198 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
           <CardTitle>Thumbnail Style</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
+          <div className="space-y-6">
+            {/* Style 4: Elevated Card */}
+            <div className="flex items-center space-x-4">
               <Checkbox 
-                id="default-style" 
-                checked={localSettings.thumbnailStyle === 'default'}
+                id="elevated-card" 
+                checked={localSettings.thumbnailStyle === 'elevated-card'}
                 onCheckedChange={(checked) => 
-                  checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'default' }))
+                  checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'elevated-card' }))
                 }
               />
-              <Label htmlFor="default-style">Default style</Label>
-            </div>
-            {/* Preview */}
-            <div className="mt-4">
-              <div className="max-w-xs">
-                <div className="group">
-                  <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border cursor-pointer">
-                    <div className={`${localSettings.thumbnailShape === 'square' ? 'aspect-square' : localSettings.thumbnailShape === 'landscape-3-2' ? 'aspect-[3/2]' : localSettings.thumbnailShape === 'portrait-2-3' ? 'aspect-[2/3]' : 'aspect-video'} overflow-hidden bg-muted`}>
+              <Label htmlFor="elevated-card">Elevated Card</Label>
+              <div className="flex-1 flex justify-center">
+                <div className="group cursor-pointer">
+                  <div className="relative bg-card rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2 border border-border w-32">
+                    <div className="aspect-[4/3] overflow-hidden bg-muted">
                       <img
-                        src={(localSettings.defaultPlaceholder && localSettings.defaultPlaceholder !== 'default') ? localSettings.defaultPlaceholder : pdfPlaceholder}
+                        src={pdfPlaceholder}
                         alt="Thumbnail preview"
-                        className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                        className="w-full h-full object-cover"
                       />
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/40"></div>
+                    </div>
+                    <div className="absolute bottom-3 right-3">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
                         </svg>
                       </div>
                     </div>
+                    <div className="p-3 bg-gradient-to-t from-card to-transparent">
+                      <p className="text-xs text-muted-foreground mb-1">April 2025</p>
+                      <h3 className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors">Sample PDF Title</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                    {/* PDF Indicator */}
-                    <div className={`absolute ${localSettings.pdfIconPosition === 'top-left' ? 'top-3 left-3' : localSettings.pdfIconPosition === 'bottom-right' ? 'bottom-3 right-3' : localSettings.pdfIconPosition === 'bottom-left' ? 'bottom-3 left-3' : 'top-3 right-3'} bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm`}>
-                      <div className="flex items-center gap-1">
-                        <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            {/* Style 6: Slide Up Text (Modified) */}
+            <div className="flex items-center space-x-4">
+              <Checkbox 
+                id="slide-up-text" 
+                checked={localSettings.thumbnailStyle === 'slide-up-text'}
+                onCheckedChange={(checked) => 
+                  checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'slide-up-text' }))
+                }
+              />
+              <Label htmlFor="slide-up-text">Slide Up Text</Label>
+              <div className="flex-1 flex justify-center">
+                <div className="group cursor-pointer overflow-hidden rounded-xl w-32">
+                  <div className="relative bg-card border border-border rounded-xl overflow-hidden">
+                    <div className="aspect-video overflow-hidden bg-muted">
+                      <img
+                        src={pdfPlaceholder}
+                        alt="Thumbnail preview"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                      <div className="p-3 text-white">
+                        <p className="text-xs opacity-80 mb-1">April 2025</p>
+                        <h3 className="font-semibold text-xs">Sample PDF Title</h3>
+                      </div>
+                      <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13l-3 3m0 0l-3-3m3 3V8" />
                         </svg>
-                        <span className="text-xs font-medium text-muted-foreground">PDF</span>
+                      </div>
+                    </div>
+                    <div className="absolute top-3 left-3 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
+                      <div className="bg-white/90 rounded px-2 py-1">
+                        <span className="text-xs font-medium text-gray-700">PDF</span>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Text below thumbnail */}
-                  <div className="mt-3 transition-colors duration-200" style={{ ['--accent-color' as any]: localSettings.accentColor }}>
-                    <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[var(--accent-color)]">April 2025</p>
-                    <h3 className="font-semibold text-sm leading-tight text-foreground group-hover:text-[var(--accent-color)] transition-colors duration-200">Sample PDF Title</h3>
+                </div>
+              </div>
+            </div>
+
+            {/* Style 7: Gradient Zoom */}
+            <div className="flex items-center space-x-4">
+              <Checkbox 
+                id="gradient-zoom" 
+                checked={localSettings.thumbnailStyle === 'gradient-zoom'}
+                onCheckedChange={(checked) => 
+                  checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'gradient-zoom' }))
+                }
+              />
+              <Label htmlFor="gradient-zoom">Gradient Zoom</Label>
+              <div className="flex-1 flex justify-center">
+                <div className="group cursor-pointer w-32">
+                  <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-1 group-hover:from-primary/40 group-hover:via-secondary/40 group-hover:to-accent/40 transition-all duration-300">
+                    <div className="relative bg-card rounded-xl overflow-hidden">
+                      <div className="aspect-video overflow-hidden bg-muted">
+                        <img
+                          src={pdfPlaceholder}
+                          alt="Thumbnail preview"
+                          className="w-full h-full object-cover transition-all duration-500 group-hover:scale-125"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 animate-pulse">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-2 text-center">
+                    <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">April 2025</p>
+                    <h3 className="font-semibold text-xs text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all">Sample PDF Title</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Style 8: Split Layout */}
+            <div className="flex items-center space-x-4">
+              <Checkbox 
+                id="split-layout" 
+                checked={localSettings.thumbnailStyle === 'split-layout'}
+                onCheckedChange={(checked) => 
+                  checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'split-layout' }))
+                }
+              />
+              <Label htmlFor="split-layout">Split Layout</Label>
+              <div className="flex-1 flex justify-center">
+                <div className="group cursor-pointer w-64">
+                  <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border group-hover:border-primary transition-all duration-300 group-hover:shadow-md">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-16 rounded overflow-hidden bg-muted relative">
+                        <img
+                          src={pdfPlaceholder}
+                          alt="Thumbnail preview"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                        <div className="absolute top-1 right-1">
+                          <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">April 2025</p>
+                      <h3 className="font-semibold text-xs text-foreground mb-1 group-hover:text-primary transition-colors truncate">Sample PDF Title</h3>
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
+                        </svg>
+                        <span className="text-xs text-muted-foreground">Download PDF</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Style 9: Minimal Underline (Modified) */}
+            <div className="flex items-center space-x-4">
+              <Checkbox 
+                id="minimal-underline" 
+                checked={localSettings.thumbnailStyle === 'minimal-underline'}
+                onCheckedChange={(checked) => 
+                  checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'minimal-underline' }))
+                }
+              />
+              <Label htmlFor="minimal-underline">Minimal Underline</Label>
+              <div className="flex-1 flex justify-center">
+                <div className="group cursor-pointer w-32">
+                  <div className="space-y-2">
+                    <div className="relative aspect-video bg-muted rounded-md overflow-hidden">
+                      <img
+                        src={pdfPlaceholder}
+                        alt="Thumbnail preview"
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+                      />
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="w-4 h-4 bg-white/90 rounded-full flex items-center justify-center">
+                          <svg className="w-2 h-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-0.5">April 2025</p>
+                      <h3 className="font-medium text-xs text-foreground relative inline-block">
+                        Sample PDF Title
+                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                      </h3>
+                    </div>
                   </div>
                 </div>
               </div>
