@@ -62,20 +62,54 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
           <CardTitle>Thumbnail Style</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-6">
+            {/* Default Style */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="default" 
+                  checked={localSettings.thumbnailStyle === 'default'}
+                  onCheckedChange={(checked) => 
+                    checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'default' }))
+                  }
+                />
+                <Label htmlFor="default">Default Style</Label>
+              </div>
+              <div className="flex justify-center">
+                <div className="group cursor-pointer w-40">
+                  <div className="relative aspect-video bg-muted rounded overflow-hidden border border-border group-hover:border-primary transition-colors">
+                    <img
+                      src={pdfPlaceholder}
+                      alt="Thumbnail preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className={`absolute ${localSettings.pdfIconPosition === 'top-left' ? 'top-2 left-2' : localSettings.pdfIconPosition === 'top-right' ? 'top-2 right-2' : localSettings.pdfIconPosition === 'bottom-left' ? 'bottom-2 left-2' : 'bottom-2 right-2'}`}>
+                      <div className="bg-black/60 text-white px-2 py-1 text-xs rounded">PDF</div>
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <p className="text-xs text-muted-foreground">April 2025</p>
+                    <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">Sample PDF Title</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Style 4: Elevated Card */}
-            <div className="flex items-center space-x-4">
-              <Checkbox 
-                id="elevated-card" 
-                checked={localSettings.thumbnailStyle === 'elevated-card'}
-                onCheckedChange={(checked) => 
-                  checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'elevated-card' }))
-                }
-              />
-              <Label htmlFor="elevated-card">Elevated Card</Label>
-              <div className="flex-1 flex justify-center">
-                <div className="group cursor-pointer">
-                  <div className="relative bg-card rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2 border border-border w-32">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="elevated-card" 
+                  checked={localSettings.thumbnailStyle === 'elevated-card'}
+                  onCheckedChange={(checked) => 
+                    checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'elevated-card' }))
+                  }
+                />
+                <Label htmlFor="elevated-card">Elevated Card</Label>
+              </div>
+              <div className="flex justify-center">
+                <div className="group cursor-pointer w-40">
+                  <div className="relative bg-card rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2 border border-border">
                     <div className="aspect-[4/3] overflow-hidden bg-muted">
                       <img
                         src={pdfPlaceholder}
@@ -101,17 +135,19 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
             </div>
 
             {/* Style 6: Slide Up Text (Modified) */}
-            <div className="flex items-center space-x-4">
-              <Checkbox 
-                id="slide-up-text" 
-                checked={localSettings.thumbnailStyle === 'slide-up-text'}
-                onCheckedChange={(checked) => 
-                  checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'slide-up-text' }))
-                }
-              />
-              <Label htmlFor="slide-up-text">Slide Up Text</Label>
-              <div className="flex-1 flex justify-center">
-                <div className="group cursor-pointer overflow-hidden rounded-xl w-32">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="slide-up-text" 
+                  checked={localSettings.thumbnailStyle === 'slide-up-text'}
+                  onCheckedChange={(checked) => 
+                    checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'slide-up-text' }))
+                  }
+                />
+                <Label htmlFor="slide-up-text">Slide Up Text</Label>
+              </div>
+              <div className="flex justify-center">
+                <div className="group cursor-pointer overflow-hidden rounded-xl w-40">
                   <div className="relative bg-card border border-border rounded-xl overflow-hidden">
                     <div className="aspect-video overflow-hidden bg-muted">
                       <img
@@ -121,8 +157,8 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                       />
                     </div>
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                      <div className="p-3 text-white">
-                        <p className="text-xs opacity-80 mb-1">April 2025</p>
+                      <div className="p-3 pb-6 text-white">
+                        <p className="text-xs opacity-80">April 2025</p>
                         <h3 className="font-semibold text-xs">Sample PDF Title</h3>
                       </div>
                       <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
@@ -142,17 +178,19 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
             </div>
 
             {/* Style 7: Gradient Zoom */}
-            <div className="flex items-center space-x-4">
-              <Checkbox 
-                id="gradient-zoom" 
-                checked={localSettings.thumbnailStyle === 'gradient-zoom'}
-                onCheckedChange={(checked) => 
-                  checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'gradient-zoom' }))
-                }
-              />
-              <Label htmlFor="gradient-zoom">Gradient Zoom</Label>
-              <div className="flex-1 flex justify-center">
-                <div className="group cursor-pointer w-32">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="gradient-zoom" 
+                  checked={localSettings.thumbnailStyle === 'gradient-zoom'}
+                  onCheckedChange={(checked) => 
+                    checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'gradient-zoom' }))
+                  }
+                />
+                <Label htmlFor="gradient-zoom">Gradient Zoom</Label>
+              </div>
+              <div className="flex justify-center">
+                <div className="group cursor-pointer w-40">
                   <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-1 group-hover:from-primary/40 group-hover:via-secondary/40 group-hover:to-accent/40 transition-all duration-300">
                     <div className="relative bg-card rounded-xl overflow-hidden">
                       <div className="aspect-video overflow-hidden bg-muted">
@@ -181,16 +219,18 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
             </div>
 
             {/* Style 8: Split Layout */}
-            <div className="flex items-center space-x-4">
-              <Checkbox 
-                id="split-layout" 
-                checked={localSettings.thumbnailStyle === 'split-layout'}
-                onCheckedChange={(checked) => 
-                  checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'split-layout' }))
-                }
-              />
-              <Label htmlFor="split-layout">Split Layout</Label>
-              <div className="flex-1 flex justify-center">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="split-layout" 
+                  checked={localSettings.thumbnailStyle === 'split-layout'}
+                  onCheckedChange={(checked) => 
+                    checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'split-layout' }))
+                  }
+                />
+                <Label htmlFor="split-layout">Split Layout</Label>
+              </div>
+              <div className="flex justify-center">
                 <div className="group cursor-pointer w-64">
                   <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border group-hover:border-primary transition-all duration-300 group-hover:shadow-md">
                     <div className="flex-shrink-0">
@@ -221,18 +261,20 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
             </div>
 
             {/* Style 9: Minimal Underline (Modified) */}
-            <div className="flex items-center space-x-4">
-              <Checkbox 
-                id="minimal-underline" 
-                checked={localSettings.thumbnailStyle === 'minimal-underline'}
-                onCheckedChange={(checked) => 
-                  checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'minimal-underline' }))
-                }
-              />
-              <Label htmlFor="minimal-underline">Minimal Underline</Label>
-              <div className="flex-1 flex justify-center">
-                <div className="group cursor-pointer w-32">
-                  <div className="space-y-2">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="minimal-underline" 
+                  checked={localSettings.thumbnailStyle === 'minimal-underline'}
+                  onCheckedChange={(checked) => 
+                    checked && setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'minimal-underline' }))
+                  }
+                />
+                <Label htmlFor="minimal-underline">Minimal Underline</Label>
+              </div>
+              <div className="flex justify-center">
+                <div className="group cursor-pointer w-40">
+                  <div className="space-y-1">
                     <div className="relative aspect-video bg-muted rounded-md overflow-hidden">
                       <img
                         src={pdfPlaceholder}
@@ -248,7 +290,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground mb-0.5">April 2025</p>
+                      <p className="text-xs text-muted-foreground">April 2025</p>
                       <h3 className="font-medium text-xs text-foreground relative inline-block">
                         Sample PDF Title
                         <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>

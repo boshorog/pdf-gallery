@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://antiohia.ro
  * Description: Manage PDF documents with thumbnail generation and sortable display. Integrates with WordPress admin authentication.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: uphill
  * Requires at least: 5.0
  * Tested up to: 6.4
