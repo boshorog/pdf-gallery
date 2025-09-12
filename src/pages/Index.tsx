@@ -79,7 +79,8 @@ const Index = () => {
     accentColor: '#7FB3DC',
     thumbnailShape: 'landscape-16-9',
     pdfIconPosition: 'top-right',
-    defaultPlaceholder: 'default'
+    defaultPlaceholder: 'default',
+    thumbnailSize: 'four-rows'
   });
   const [shortcodeCopied, setShortcodeCopied] = useState(false);
 
@@ -90,7 +91,10 @@ const Index = () => {
     const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax') || `${window.location.origin}/wp-admin/admin-ajax.php`;
     const nonce = wp?.nonce || urlParams.get('nonce') || '';
 
-    if (ajaxUrl && nonce) {
+    // In WordPress, check if we're in admin area to show backend
+    const isWordPressAdmin = wp?.isAdmin || urlParams.get('admin') === '1';
+    
+    if (ajaxUrl && nonce && isWordPressAdmin) {
       const form = new FormData();
       form.append('action', 'pdf_gallery_action');
       form.append('action_type', 'get_items');
@@ -147,6 +151,27 @@ const Index = () => {
     } catch (e) {}
   };
 
+
+  // Check if we should show admin interface (Lovable preview or WordPress admin)
+  const urlParams = new URLSearchParams(window.location.search);
+  const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
+  const isWordPressAdmin = wp?.isAdmin || urlParams.get('admin') === '1';
+  const isLovablePreview = !wp; // If no WordPress object, we're in Lovable
+
+  // Show admin interface only in WordPress admin area or Lovable preview
+  const showAdmin = isLovablePreview || isWordPressAdmin;
+
+  if (!showAdmin) {
+    // Show only the frontend gallery for regular WordPress visitors
+    return (
+      <div className="w-full">
+        <PDFGallery 
+          items={galleryItems} 
+          settings={settings} 
+        />
+      </div>
+    );
+  }
 
   return (
     <div id="pdf-gallery-admin" data-plugin="pdf-gallery" className="bg-background">

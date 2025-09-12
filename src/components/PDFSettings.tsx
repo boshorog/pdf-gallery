@@ -15,19 +15,26 @@ interface PDFSettingsProps {
     thumbnailShape: string;
     pdfIconPosition: string;
     defaultPlaceholder: string;
+    thumbnailSize?: string;
   };
   onSettingsChange: (settings: any) => void;
 }
 
 const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
-  const [localSettings, setLocalSettings] = useState(settings);
+  const [localSettings, setLocalSettings] = useState({
+    ...settings,
+    thumbnailSize: settings.thumbnailSize || 'four-rows'
+  });
   const { toast } = useToast();
 
   // keep local state in sync when parent settings change
   // (e.g., when loaded from WordPress)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    setLocalSettings(settings);
+    setLocalSettings({
+      ...settings,
+      thumbnailSize: settings.thumbnailSize || 'four-rows'
+    });
   }, [settings]);
 
   const handleSave = () => {
@@ -56,6 +63,55 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
         </Button>
       </div>
 
+      {/* Default Placeholder */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Default Placeholder</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-6">
+            <div>
+              <Label>Current placeholder</Label>
+              <div className="mt-2">
+                <img 
+                  src={localSettings.defaultPlaceholder === 'default' ? pdfPlaceholder : localSettings.defaultPlaceholder}
+                  alt="Current placeholder" 
+                  className="w-24 h-16 object-cover rounded border border-border"
+                />
+              </div>
+            </div>
+            <div className="flex-1">
+              <Label>Upload new placeholder</Label>
+              <div className="mt-2 border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center hover:border-muted-foreground/50 transition-colors cursor-pointer">
+                <svg className="w-8 h-8 mx-auto mb-2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3 3m0 0l-3-3m3 3V8" />
+                </svg>
+                <p className="text-sm text-muted-foreground font-medium">Upload image file</p>
+                <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        setLocalSettings(prev => ({ 
+                          ...prev, 
+                          defaultPlaceholder: event.target?.result as string 
+                        }));
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Thumbnail Style */}
       <Card>
         <CardHeader>
@@ -63,8 +119,8 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-6">
-            {/* Default Style */}
-            <div className="space-y-3">
+            {/* Default Style - Original frontend style */}
+            <div className="space-y-3 relative">
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="default" 
@@ -76,27 +132,35 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                 <Label htmlFor="default">Default Style</Label>
               </div>
               <div className="flex justify-center">
-                <div className="group cursor-pointer w-40">
-                  <div className="relative aspect-video bg-muted rounded overflow-hidden border border-border group-hover:border-primary transition-colors">
-                    <img
-                      src={pdfPlaceholder}
-                      alt="Thumbnail preview"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className={`absolute ${localSettings.pdfIconPosition === 'top-left' ? 'top-2 left-2' : localSettings.pdfIconPosition === 'top-right' ? 'top-2 right-2' : localSettings.pdfIconPosition === 'bottom-left' ? 'bottom-2 left-2' : 'bottom-2 right-2'}`}>
-                      <div className="bg-black/60 text-white px-2 py-1 text-xs rounded">PDF</div>
+                <div className="group cursor-pointer w-48">
+                  <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border">
+                    <div className="aspect-video overflow-hidden bg-muted">
+                      <img
+                        src={pdfPlaceholder}
+                        alt="Thumbnail preview"
+                        className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
+                      <div className="flex items-center gap-1">
+                        <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="text-xs font-medium text-muted-foreground">PDF</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-2">
+                  <div className="mt-3">
                     <p className="text-xs text-muted-foreground">April 2025</p>
                     <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">Sample PDF Title</h3>
                   </div>
                 </div>
               </div>
+              <div className="absolute top-0 right-0 w-full h-0.5 bg-border"></div>
             </div>
 
             {/* Style 4: Elevated Card */}
-            <div className="space-y-3">
+            <div className="space-y-3 relative">
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="elevated-card" 
@@ -108,7 +172,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                 <Label htmlFor="elevated-card">Elevated Card</Label>
               </div>
               <div className="flex justify-center">
-                <div className="group cursor-pointer w-40">
+                <div className="group cursor-pointer w-48">
                   <div className="relative bg-card rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2 border border-border">
                     <div className="aspect-[4/3] overflow-hidden bg-muted">
                       <img
@@ -132,10 +196,11 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                   </div>
                 </div>
               </div>
+              <div className="absolute top-0 right-0 w-full h-0.5 bg-border"></div>
             </div>
 
             {/* Style 6: Slide Up Text (Modified) */}
-            <div className="space-y-3">
+            <div className="space-y-3 relative">
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="slide-up-text" 
@@ -147,7 +212,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                 <Label htmlFor="slide-up-text">Slide Up Text</Label>
               </div>
               <div className="flex justify-center">
-                <div className="group cursor-pointer overflow-hidden rounded-xl w-40">
+                <div className="group cursor-pointer overflow-hidden rounded-xl w-48">
                   <div className="relative bg-card border border-border rounded-xl overflow-hidden">
                     <div className="aspect-video overflow-hidden bg-muted">
                       <img
@@ -157,11 +222,11 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                       />
                     </div>
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                      <div className="p-3 pb-6 text-white">
-                        <p className="text-xs opacity-80">April 2025</p>
+                      <div className="p-3 pb-8 text-white">
+                        <p className="text-xs opacity-80 mb-0.5">April 2025</p>
                         <h3 className="font-semibold text-xs">Sample PDF Title</h3>
                       </div>
-                      <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                      <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13l-3 3m0 0l-3-3m3 3V8" />
                         </svg>
@@ -175,10 +240,11 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                   </div>
                 </div>
               </div>
+              <div className="absolute top-0 right-0 w-full h-0.5 bg-border"></div>
             </div>
 
             {/* Style 7: Gradient Zoom */}
-            <div className="space-y-3">
+            <div className="space-y-3 relative">
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="gradient-zoom" 
@@ -190,7 +256,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                 <Label htmlFor="gradient-zoom">Gradient Zoom</Label>
               </div>
               <div className="flex justify-center">
-                <div className="group cursor-pointer w-40">
+                <div className="group cursor-pointer w-48">
                   <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-1 group-hover:from-primary/40 group-hover:via-secondary/40 group-hover:to-accent/40 transition-all duration-300">
                     <div className="relative bg-card rounded-xl overflow-hidden">
                       <div className="aspect-video overflow-hidden bg-muted">
@@ -216,10 +282,11 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                   </div>
                 </div>
               </div>
+              <div className="absolute top-0 right-0 w-full h-0.5 bg-border"></div>
             </div>
 
             {/* Style 8: Split Layout */}
-            <div className="space-y-3">
+            <div className="space-y-3 relative">
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="split-layout" 
@@ -231,8 +298,8 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                 <Label htmlFor="split-layout">Split Layout</Label>
               </div>
               <div className="flex justify-center">
-                <div className="group cursor-pointer w-64">
-                  <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border group-hover:border-primary transition-all duration-300 group-hover:shadow-md">
+                <div className="group cursor-pointer">
+                  <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border group-hover:border-primary transition-all duration-300 group-hover:shadow-md w-56">
                     <div className="flex-shrink-0">
                       <div className="w-12 h-16 rounded overflow-hidden bg-muted relative">
                         <img
@@ -258,6 +325,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                   </div>
                 </div>
               </div>
+              <div className="absolute top-0 right-0 w-full h-0.5 bg-border"></div>
             </div>
 
             {/* Style 9: Minimal Underline (Modified) */}
@@ -273,8 +341,8 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                 <Label htmlFor="minimal-underline">Minimal Underline</Label>
               </div>
               <div className="flex justify-center">
-                <div className="group cursor-pointer w-40">
-                  <div className="space-y-1">
+                <div className="group cursor-pointer w-48">
+                  <div className="space-y-2">
                     <div className="relative aspect-video bg-muted rounded-md overflow-hidden">
                       <img
                         src={pdfPlaceholder}
@@ -290,7 +358,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">April 2025</p>
+                      <p className="text-xs text-muted-foreground mb-1">April 2025</p>
                       <h3 className="font-medium text-xs text-foreground relative inline-block">
                         Sample PDF Title
                         <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
@@ -343,14 +411,14 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
         </CardContent>
       </Card>
 
-      {/* Thumbnail Shape */}
+      {/* Thumbnail Size */}
       <Card>
         <CardHeader>
-          <CardTitle>Thumbnail Shape</CardTitle>
+          <CardTitle>Thumbnail Size</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <RadioGroup 
-            value={localSettings.thumbnailShape} 
+            value={localSettings.thumbnailSize}
             onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailShape: value }))}
           >
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
