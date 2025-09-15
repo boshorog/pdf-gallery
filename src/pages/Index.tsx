@@ -92,7 +92,7 @@ const Index = () => {
     const nonce = wp?.nonce || urlParams.get('nonce') || '';
 
     // In WordPress, check if we're in admin area to show backend
-    const isWordPressAdmin = wp?.isAdmin || urlParams.get('admin') === '1';
+    const isWordPressAdmin = !!wp?.isAdmin;
     
     if (ajaxUrl && nonce && isWordPressAdmin) {
       const form = new FormData();
@@ -155,7 +155,7 @@ const Index = () => {
   // Check if we should show admin interface (Lovable preview or WordPress admin)
   const urlParams = new URLSearchParams(window.location.search);
   const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
-  const isWordPressAdmin = wp?.isAdmin || urlParams.get('admin') === '1';
+  const isWordPressAdmin = !!wp?.isAdmin;
   const isLovablePreview = !wp; // If no WordPress object, we're in Lovable
 
   // Show admin interface only in WordPress admin area or Lovable preview
