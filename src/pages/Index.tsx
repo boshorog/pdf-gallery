@@ -91,10 +91,11 @@ const Index = () => {
     const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax') || `${window.location.origin}/wp-admin/admin-ajax.php`;
     const nonce = wp?.nonce || urlParams.get('nonce') || '';
 
-    // In WordPress, check if we're in admin area to show backend
-    const isWordPressAdmin = !!wp?.isAdmin;
+    // Determine admin context via wp object or shortcode param
+    const isWordPressAdmin = !!wp?.isAdmin || urlParams.get('admin') === 'true';
     
-    if (ajaxUrl && nonce && isWordPressAdmin) {
+    if (ajaxUrl && nonce) {
+      // Fetch gallery items
       const form = new FormData();
       form.append('action', 'pdf_gallery_action');
       form.append('action_type', 'get_items');
@@ -117,7 +118,7 @@ const Index = () => {
           setGalleryItems(initialPDFs);
         });
 
-      // Also fetch settings
+      // Also fetch settings (needed for frontend visitors too)
       const settingsForm = new FormData();
       settingsForm.append('action', 'pdf_gallery_action');
       settingsForm.append('action_type', 'get_settings');
@@ -155,8 +156,9 @@ const Index = () => {
   // Check if we should show admin interface (Lovable preview or WordPress admin)
   const urlParams = new URLSearchParams(window.location.search);
   const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
-  const isWordPressAdmin = !!wp?.isAdmin;
-  const isLovablePreview = !wp; // If no WordPress object, we're in Lovable
+  const isWordPressAdmin = !!wp?.isAdmin || urlParams.get('admin') === 'true';
+  const hostname = window.location.hostname;
+  const isLovablePreview = hostname.includes('lovable.app') || hostname === 'localhost';
 
   // Show admin interface only in WordPress admin area or Lovable preview
   const showAdmin = isLovablePreview || isWordPressAdmin;

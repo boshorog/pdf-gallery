@@ -37,12 +37,33 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
     });
   }, [settings]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Update local/parent state immediately
     onSettingsChange(localSettings);
-    toast({
-      title: "Settings Saved",
-      description: "Your gallery settings have been updated successfully",
-    });
+
+    // Persist to WordPress if available (admin page or shortcode iframe with nonce)
+    try {
+      const wp = (window as any).wpPDFGallery;
+      const urlParams = new URLSearchParams(window.location.search);
+      const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
+      const nonce = wp?.nonce || urlParams.get('nonce') || '';
+
+      if (ajaxUrl && nonce) {
+        const form = new FormData();
+        form.append('action', 'pdf_gallery_action');
+        form.append('action_type', 'save_settings');
+        form.append('nonce', nonce);
+        form.append('settings', JSON.stringify(localSettings));
+        await fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form });
+      }
+
+      toast({
+        title: "Settings Saved",
+        description: "Your gallery settings have been updated successfully",
+      });
+    } catch (e) {
+      toast({ title: "Saved locally", description: "Could not reach WordPress AJAX." });
+    }
   };
 
   const thumbnailShapes = [
@@ -131,31 +152,37 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                 />
                 <Label htmlFor="default">Default Style</Label>
               </div>
-              <div className="flex justify-center">
-                <div className="group cursor-pointer w-48">
-                  <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border">
-                    <div className="aspect-video overflow-hidden bg-muted">
-                      <img
-                        src={pdfPlaceholder}
-                        alt="Thumbnail preview"
-                        className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
-                      <div className="flex items-center gap-1">
-                        <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span className="text-xs font-medium text-muted-foreground">PDF</span>
+                <div className="flex justify-center">
+                  <div className="group cursor-pointer w-48">
+                    <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border">
+                      <div className="aspect-video overflow-hidden bg-muted relative">
+                        <img
+                          src={pdfPlaceholder}
+                          alt="Thumbnail preview"
+                          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 3h7m0 0v7m0-7L10 14" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10v11a1 1 0 001 1h11" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
+                        <div className="flex items-center gap-1">
+                          <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span className="text-xs font-medium text-muted-foreground">PDF</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="mt-3">
-                    <p className="text-xs text-muted-foreground">April 2025</p>
-                    <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">Sample PDF Title</h3>
+                    <div className="mt-3">
+                      <p className="text-xs text-muted-foreground">April 2025</p>
+                      <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">Sample PDF Title</h3>
+                    </div>
                   </div>
                 </div>
-              </div>
               <div className="absolute top-0 right-0 w-full h-0.5 bg-border"></div>
             </div>
 
