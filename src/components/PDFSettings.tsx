@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
+import { FileText, ExternalLink } from 'lucide-react';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 
 interface PDFSettingsProps {
@@ -162,17 +163,12 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                           className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 3h7m0 0v7m0-7L10 14" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10v11a1 1 0 001 1h11" />
-                          </svg>
+                          <ExternalLink className="w-8 h-8 text-white" />
                         </div>
                       </div>
                       <div className="absolute top-3 right-3 bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm">
                         <div className="flex items-center gap-1">
-                          <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
+                          <FileText className="w-3 h-3 text-muted-foreground" />
                           <span className="text-xs font-medium text-muted-foreground">PDF</span>
                         </div>
                       </div>
@@ -445,130 +441,26 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <RadioGroup 
-            value={localSettings.thumbnailSize}
-            onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailShape: value }))}
+            value={localSettings.thumbnailSize || 'four-rows'}
+            onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailSize: value }))}
           >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {thumbnailShapes.map((shape) => (
-                <div key={shape.value} className="text-center">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <RadioGroupItem value={shape.value} id={shape.value} />
-                    <Label htmlFor={shape.value} className="text-sm font-medium">
-                      {shape.label}
-                    </Label>
-                  </div>
-                  <div className={`w-16 h-auto bg-muted rounded mx-auto ${shape.aspect} flex items-center justify-center`}>
-                    <div className="w-6 h-6 bg-primary/20 rounded"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </RadioGroup>
-        </CardContent>
-      </Card>
-
-      {/* PDF Icon Position */}
-      <Card>
-        <CardHeader>
-          <CardTitle>PDF Icon Position</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <RadioGroup 
-            value={localSettings.pdfIconPosition} 
-            onValueChange={(value) => setLocalSettings(prev => ({ ...prev, pdfIconPosition: value }))}
-          >
-            <div className="grid grid-cols-2 gap-4">
-              {/* Left column (Top Left, Bottom Left) */}
-              <div className="space-y-4">
-                {['top-left','bottom-left'].map((pos) => {
-                  const label = pos === 'top-left' ? 'Top Left' : 'Bottom Left';
-                  const cls = pos === 'top-left' ? 'top-3 left-3' : 'bottom-3 left-3';
-                  return (
-                    <div key={pos} className="text-center">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <RadioGroupItem value={pos} id={pos} />
-                        <Label htmlFor={pos} className="text-sm font-medium">{label}</Label>
-                      </div>
-                      <div className="relative w-20 h-12 bg-muted rounded mx-auto">
-                        <div className={`absolute w-4 h-2 bg-primary rounded-sm ${cls}`}></div>
-                      </div>
-                    </div>
-                  );
-                })}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="three-rows" id="three-rows" />
+                <Label htmlFor="three-rows" className="text-sm font-medium">3 columns</Label>
               </div>
-              {/* Right column (Top Right, Bottom Right) */}
-              <div className="space-y-4">
-                {['top-right','bottom-right'].map((pos) => {
-                  const label = pos === 'top-right' ? 'Top Right' : 'Bottom Right';
-                  const cls = pos === 'top-right' ? 'top-3 right-3' : 'bottom-3 right-3';
-                  return (
-                    <div key={pos} className="text-center">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <RadioGroupItem value={pos} id={pos} />
-                        <Label htmlFor={pos} className="text-sm font-medium">{label}</Label>
-                      </div>
-                      <div className="relative w-20 h-12 bg-muted rounded mx-auto">
-                        <div className={`absolute w-4 h-2 bg-primary rounded-sm ${cls}`}></div>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="four-rows" id="four-rows" />
+                <Label htmlFor="four-rows" className="text-sm font-medium">4 columns</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="five-rows" id="five-rows" />
+                <Label htmlFor="five-rows" className="text-sm font-medium">5 columns</Label>
               </div>
             </div>
           </RadioGroup>
-        </CardContent>
-      </Card>
-
-      {/* Default Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Default Placeholder</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
-            <img
-              src={(localSettings.defaultPlaceholder && localSettings.defaultPlaceholder !== 'default') ? localSettings.defaultPlaceholder : pdfPlaceholder}
-              alt="Current placeholder"
-              className="w-20 h-12 object-cover rounded border border-border"
-            />
-            <div className="space-y-2">
-              <Label htmlFor="placeholder-url">Placeholder URL</Label>
-              <Input
-                id="placeholder-url"
-                placeholder="https://example.com/placeholder.jpg"
-                value={localSettings.defaultPlaceholder === 'default' ? '' : localSettings.defaultPlaceholder}
-                onChange={(e) => setLocalSettings(prev => ({ ...prev, defaultPlaceholder: e.target.value || 'default' }))}
-              />
-              <div>
-                <Label htmlFor="placeholder-file" className="cursor-pointer">Upload image</Label>
-                <Input
-                  id="placeholder-file"
-                  type="file"
-                  accept="image/*"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const wp = (window as any).wpPDFGallery;
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
-                    const nonce = wp?.nonce || urlParams.get('nonce') || '';
-                    if (!ajaxUrl || !nonce) return;
-                    const form = new FormData();
-                    form.append('action', 'pdf_gallery_action');
-                    form.append('action_type', 'upload_image');
-                    form.append('nonce', nonce);
-                    form.append('image_file', file);
-                    const res = await fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form });
-                    const data = await res.json();
-                    if (data?.success && data?.data?.url) {
-                      setLocalSettings(prev => ({ ...prev, defaultPlaceholder: data.data.url }));
-                    }
-                    // reset input
-                    e.currentTarget.value = '';
-                  }}
-                />
-              </div>
-            </div>
+          <div className="text-xs text-muted-foreground mt-3 p-2 bg-muted/50 rounded">
+            <strong>Note:</strong> On mobile devices, thumbnails will always be displayed one by one for optimal viewing experience.
           </div>
         </CardContent>
       </Card>
