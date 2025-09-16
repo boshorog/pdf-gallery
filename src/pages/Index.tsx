@@ -8,6 +8,7 @@ import { Copy, Check } from 'lucide-react';
 import PDFGallery from '@/components/PDFGallery';
 import PDFAdmin from '@/components/PDFAdmin';
 import PDFSettings from '@/components/PDFSettings';
+import SettingsLayoutOptions from '@/components/SettingsLayoutOptions';
 import ThumbnailStyleShowcase from '@/components/ThumbnailStyleShowcase';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 
@@ -176,64 +177,9 @@ const Index = () => {
   }
 
   return (
-    <div id="pdf-gallery-admin" data-plugin="pdf-gallery" className="bg-background">
-      <div className="bg-background min-h-screen">
-        <div className="container mx-auto p-6">
-          <Tabs defaultValue="gallery" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="preview">Preview</TabsTrigger>
-              <TabsTrigger value="gallery">Gallery Management</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="preview" className="mt-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Gallery Preview</h3>
-                </div>
-                <div className="p-4 bg-muted rounded-lg">
-                  <h2 className="font-semibold mb-2">Plugin Shortcode</h2>
-                  <div className="flex gap-2">
-                    <Input
-                      value="[pdf_gallery]"
-                      readOnly
-                      className="flex-1"
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={copyShortcode}
-                    >
-                      {shortcodeCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Copy this shortcode to display the PDF gallery on any page or post.
-                  </p>
-                </div>
-                <PDFGallery 
-                  items={galleryItems} 
-                  settings={settings} 
-                />
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="gallery" className="mt-6">
-              <PDFAdmin 
-                items={galleryItems} 
-                onItemsChange={setGalleryItems} 
-              />
-            </TabsContent>
-            
-            <TabsContent value="settings" className="mt-6">
-              <PDFSettings 
-                settings={settings} 
-                onSettingsChange={setSettings} 
-              />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* Show Settings Layout Options */}
+      <SettingsLayoutOptions />
     </div>
   );
 };
