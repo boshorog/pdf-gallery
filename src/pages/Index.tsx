@@ -177,9 +177,10 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Show Settings Layout Options */}
-      <SettingsLayoutOptions />
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-7xl mx-auto">
+        <SettingsLayoutOptions />
+      </div>
     </div>
   );
 };
