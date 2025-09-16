@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, ExternalLink } from 'lucide-react';
+import { FileText, ExternalLink, Upload } from 'lucide-react';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 
 interface PDFSettingsProps {
@@ -104,30 +104,35 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
             </div>
             <div className="flex-1">
               <Label>Upload new placeholder</Label>
-              <div className="relative mt-2 border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center hover:border-muted-foreground/50 transition-colors cursor-pointer">
-                <svg className="w-8 h-8 mx-auto mb-2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3 3m0 0l-3-3m3 3V8" />
-                </svg>
-                <p className="text-sm text-muted-foreground font-medium">Upload image file</p>
-                <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        setLocalSettings(prev => ({ 
-                          ...prev, 
-                          defaultPlaceholder: event.target?.result as string 
-                        }));
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
+              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center mt-2 cursor-pointer hover:border-muted-foreground/50 transition-colors">
+                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                <Label htmlFor="placeholderFile" className="cursor-pointer">
+                  <span className="text-sm font-medium text-primary hover:underline">
+                    Upload image file
+                  </span>
+                  <Input
+                    id="placeholderFile"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          setLocalSettings(prev => ({ 
+                            ...prev, 
+                            defaultPlaceholder: event.target?.result as string 
+                          }));
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  PNG, JPG up to 2MB
+                </p>
               </div>
             </div>
           </div>
@@ -179,7 +184,6 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                     </div>
                   </div>
                 </div>
-              <div className="absolute top-0 right-0 w-full h-0.5 bg-border"></div>
             </div>
 
             {/* Style 4: Elevated Card */}
@@ -219,7 +223,6 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                   </div>
                 </div>
               </div>
-              <div className="absolute top-0 right-0 w-full h-0.5 bg-border"></div>
             </div>
 
             {/* Style 6: Slide Up Text (Modified) */}
@@ -263,7 +266,6 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                   </div>
                 </div>
               </div>
-              <div className="absolute top-0 right-0 w-full h-0.5 bg-border"></div>
             </div>
 
             {/* Style 7: Gradient Zoom */}
@@ -305,7 +307,6 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                   </div>
                 </div>
               </div>
-              <div className="absolute top-0 right-0 w-full h-0.5 bg-border"></div>
             </div>
 
             {/* Style 8: Split Layout */}
@@ -348,7 +349,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                   </div>
                 </div>
               </div>
-              <div className="absolute top-0 right-0 w-full h-0.5 bg-border"></div>
+              
             </div>
 
             {/* Style 9: Minimal Underline (Modified) */}
@@ -439,27 +440,80 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
         <CardHeader>
           <CardTitle>Thumbnail Size</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <RadioGroup 
             value={localSettings.thumbnailSize || 'four-rows'}
             onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailSize: value }))}
           >
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="three-rows" id="three-rows" />
-                <Label htmlFor="three-rows" className="text-sm font-medium">3 columns</Label>
+            <div className="grid grid-cols-3 gap-6">
+              {/* 3 Columns */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="three-rows" id="three-rows" />
+                    <Label htmlFor="three-rows" className="text-sm font-medium cursor-pointer">3 columns</Label>
+                  </div>
+                </div>
+                <div className="flex justify-center">
+                  <div className="grid grid-cols-3 gap-1 w-16">
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="four-rows" id="four-rows" />
-                <Label htmlFor="four-rows" className="text-sm font-medium">4 columns</Label>
+
+              {/* 4 Columns */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="four-rows" id="four-rows" />
+                    <Label htmlFor="four-rows" className="text-sm font-medium cursor-pointer">4 columns</Label>
+                  </div>
+                </div>
+                <div className="flex justify-center">
+                  <div className="grid grid-cols-4 gap-1 w-20">
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="five-rows" id="five-rows" />
-                <Label htmlFor="five-rows" className="text-sm font-medium">5 columns</Label>
+
+              {/* 5 Columns */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="five-rows" id="five-rows" />
+                    <Label htmlFor="five-rows" className="text-sm font-medium cursor-pointer">5 columns</Label>
+                  </div>
+                </div>
+                <div className="flex justify-center">
+                  <div className="grid grid-cols-5 gap-1 w-24">
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </RadioGroup>
-          <div className="text-xs text-muted-foreground mt-3 p-2 bg-muted/50 rounded">
+          <div className="text-xs text-muted-foreground mt-4 p-3 bg-muted/50 rounded">
             <strong>Note:</strong> On mobile devices, thumbnails will always be displayed one by one for optimal viewing experience.
           </div>
         </CardContent>

@@ -1,15 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Copy, Check } from 'lucide-react';
 import PDFGallery from '@/components/PDFGallery';
 import PDFAdmin from '@/components/PDFAdmin';
 import PDFSettings from '@/components/PDFSettings';
-import SettingsLayoutOptions from '@/components/SettingsLayoutOptions';
-import ThumbnailStyleShowcase from '@/components/ThumbnailStyleShowcase';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 
 interface PDF {
@@ -179,7 +175,54 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
-        <SettingsLayoutOptions />
+        <Tabs defaultValue="management" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="management">Gallery Management</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="preview">Preview</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="management" className="mt-6">
+            <PDFAdmin items={galleryItems} onItemsChange={setGalleryItems} />
+          </TabsContent>
+          
+          <TabsContent value="settings" className="mt-6">
+            <PDFSettings 
+              settings={settings} 
+              onSettingsChange={setSettings} 
+            />
+          </TabsContent>
+          
+          <TabsContent value="preview" className="mt-6">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Preview</h2>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={copyShortcode}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    {shortcodeCopied ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                    {shortcodeCopied ? 'Copied!' : 'Copy Shortcode'}
+                  </Button>
+                </div>
+              </div>
+              <Card>
+                <CardContent className="p-6">
+                  <PDFGallery 
+                    items={galleryItems} 
+                    settings={settings} 
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
