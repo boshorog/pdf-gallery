@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Copy, Check } from 'lucide-react';
 import PDFGallery from '@/components/PDFGallery';
@@ -195,9 +196,10 @@ const Index = () => {
           
           <TabsContent value="preview" className="mt-6">
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <h2 className="text-2xl font-bold">Preview</h2>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Input readOnly value="[pdf_gallery]" className="font-mono w-full sm:w-56" />
                   <Button
                     onClick={copyShortcode}
                     variant="outline"

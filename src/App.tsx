@@ -13,10 +13,9 @@ const App = () => {
     
     let lastHeight = 0;
     let isUpdating = false;
-    
-    const postHeight = () => {
-      if (isUpdating) return;
-      
+    let lastSentAt = 0;
+
+    const measure = () => {
       const rootEl = document.getElementById('root');
       const doc = document.documentElement;
       const body = document.body;
@@ -32,44 +31,59 @@ const App = () => {
         body?.clientHeight,
       ].filter((v): v is number => typeof v === 'number');
 
-      const contentHeight = Math.max(...heights, 0) + 32; // safety padding
-      
-      // Add minimum threshold and prevent loops
-      if (Math.abs(contentHeight - lastHeight) > 10) {
+      const raw = Math.max(...heights, 0) + 48; // extra padding to avoid cutting the last row
+      const contentHeight = Math.ceil(raw / 16) * 16; // align to 16px to reduce micro-jitter
+      return contentHeight;
+    };
+    
+    const postHeight = () => {
+      if (isUpdating) return;
+      const now = Date.now();
+      const contentHeight = measure();
+
+      if (Math.abs(contentHeight - lastHeight) > 12 && (now - lastSentAt) > 700) {
         isUpdating = true;
         lastHeight = contentHeight;
+        lastSentAt = now;
         window.parent?.postMessage({ type: 'pdf-gallery:height', height: contentHeight }, '*');
-        
-        // Reset updating flag after a delay
         setTimeout(() => {
           isUpdating = false;
-        }, 200);
+        }, 250);
       }
     };
 
-    // Debounced height update with longer delay
-    let timeout: number;
-    const debouncedPostHeight = () => {
-      clearTimeout(timeout);
-      timeout = window.setTimeout(postHeight, 300);
+    let rafId = 0;
+    const schedule = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => postHeight());
     };
 
-    // Initial height calculation with longer delay
+    // Debounced height update
+    let timeout: number;
+    const debouncedSchedule = () => {
+      clearTimeout(timeout);
+      timeout = window.setTimeout(schedule, 300);
+    };
+
+    // Initial and follow-up height calculations to catch async image/lazy loads
     setTimeout(postHeight, 500);
+    setTimeout(postHeight, 1500);
+    setTimeout(postHeight, 3000);
     
-    const ro = new ResizeObserver(debouncedPostHeight);
+    const ro = new ResizeObserver(debouncedSchedule);
     ro.observe(document.documentElement);
     if (document.body) ro.observe(document.body);
 
     // Fallback listeners
     window.addEventListener('load', postHeight);
-    window.addEventListener('resize', debouncedPostHeight);
+    window.addEventListener('resize', debouncedSchedule);
 
     return () => {
       clearTimeout(timeout);
+      cancelAnimationFrame(rafId);
       ro.disconnect();
       window.removeEventListener('load', postHeight);
-      window.removeEventListener('resize', debouncedPostHeight);
+      window.removeEventListener('resize', debouncedSchedule);
     };
   }, []);
 
