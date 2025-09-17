@@ -607,25 +607,26 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* File Upload Section */}
-                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                <Label
+                  htmlFor="pdfFile"
+                  className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-muted-foreground/50 transition-colors block"
+                >
                   <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                  <Label htmlFor="pdfFile" className="cursor-pointer">
-                    <span className="text-sm font-medium text-primary hover:underline">
-                      {isUploading ? 'Uploading...' : 'Upload PDF file'}
-                    </span>
-                    <Input
-                      id="pdfFile"
-                      type="file"
-                      accept=".pdf,application/pdf"
-                      onChange={handleFileUpload}
-                      disabled={isUploading}
-                      className="hidden"
-                    />
-                  </Label>
+                  <span className="text-sm font-medium text-primary hover:underline">
+                    {isUploading ? 'Uploading...' : 'Upload PDF file'}
+                  </span>
                   <p className="text-xs text-muted-foreground mt-1">
                     Or fill in the details manually below
                   </p>
-                </div>
+                  <Input
+                    id="pdfFile"
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    onChange={handleFileUpload}
+                    disabled={isUploading}
+                    className="hidden"
+                  />
+                </Label>
 
                 <div>
                   <Label htmlFor="title">Title</Label>

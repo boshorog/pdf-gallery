@@ -103,37 +103,37 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
               </div>
             </div>
             <div className="flex-1">
-              <Label>Upload new placeholder</Label>
-              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center mt-2 cursor-pointer hover:border-muted-foreground/50 transition-colors">
+              <Label
+                htmlFor="placeholderFile"
+                className="border-2 border-dashed border-border rounded-lg p-6 text-center mt-2 cursor-pointer hover:border-muted-foreground/50 transition-colors block"
+              >
                 <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <Label htmlFor="placeholderFile" className="cursor-pointer">
-                  <span className="text-sm font-medium text-primary hover:underline">
-                    Upload image file
-                  </span>
-                  <Input
-                    id="placeholderFile"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                          setLocalSettings(prev => ({ 
-                            ...prev, 
-                            defaultPlaceholder: event.target?.result as string 
-                          }));
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-                </Label>
+                <span className="text-sm font-medium text-primary hover:underline">
+                  Upload new placeholder
+                </span>
                 <p className="text-xs text-muted-foreground mt-1">
                   PNG, JPG up to 2MB
                 </p>
-              </div>
+                <Input
+                  id="placeholderFile"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        setLocalSettings(prev => ({ 
+                          ...prev, 
+                          defaultPlaceholder: event.target?.result as string 
+                        }));
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </Label>
             </div>
           </div>
         </CardContent>
@@ -455,13 +455,12 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                   </div>
                 </div>
                 <div className="flex justify-center">
-                  <div className="grid grid-cols-3 gap-1 w-16">
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                  <div className="grid grid-cols-3 gap-1 w-20">
+                    <div className="w-6 h-8 bg-muted"></div>
+                    <div className="w-6 h-8 bg-muted"></div>
+                    <div className="w-6 h-8 bg-muted"></div>
+                    <div className="w-6 h-8 bg-muted"></div>
+                    <div className="w-6 h-8 bg-muted"></div>
                   </div>
                 </div>
               </div>
@@ -476,14 +475,13 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                 </div>
                 <div className="flex justify-center">
                   <div className="grid grid-cols-4 gap-1 w-20">
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                    <div className="w-4 h-6 bg-muted"></div>
+                    <div className="w-4 h-6 bg-muted"></div>
+                    <div className="w-4 h-6 bg-muted"></div>
+                    <div className="w-4 h-6 bg-muted"></div>
+                    <div className="w-4 h-6 bg-muted"></div>
+                    <div className="w-4 h-6 bg-muted"></div>
+                    <div className="w-4 h-6 bg-muted"></div>
                   </div>
                 </div>
               </div>
@@ -497,17 +495,16 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                   </div>
                 </div>
                 <div className="flex justify-center">
-                  <div className="grid grid-cols-5 gap-1 w-24">
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                    <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                  <div className="grid grid-cols-5 gap-1 w-20">
+                    <div className="w-3 h-4 bg-muted"></div>
+                    <div className="w-3 h-4 bg-muted"></div>
+                    <div className="w-3 h-4 bg-muted"></div>
+                    <div className="w-3 h-4 bg-muted"></div>
+                    <div className="w-3 h-4 bg-muted"></div>
+                    <div className="w-3 h-4 bg-muted"></div>
+                    <div className="w-3 h-4 bg-muted"></div>
+                    <div className="w-3 h-4 bg-muted"></div>
+                    <div className="w-3 h-4 bg-muted"></div>
                   </div>
                 </div>
               </div>

@@ -178,9 +178,9 @@ const Index = () => {
       <div className="max-w-7xl mx-auto">
         <Tabs defaultValue="management" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="management">Gallery Management</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
           </TabsList>
           
           <TabsContent value="management" className="mt-6">
