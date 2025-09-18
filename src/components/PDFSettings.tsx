@@ -8,6 +8,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, ExternalLink, Upload } from 'lucide-react';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
+import { useLicense } from '@/hooks/useLicense';
+import ProBanner from '@/components/ProBanner';
 
 interface PDFSettingsProps {
   settings: {
@@ -27,6 +29,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
     thumbnailSize: settings.thumbnailSize || 'four-rows'
   });
   const { toast } = useToast();
+  const license = useLicense();
 
   // keep local state in sync when parent settings change
   // (e.g., when loaded from WordPress)
@@ -78,15 +81,23 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
 
   return (
     <div className="space-y-6">
+      {!license.isPro && (
+        <ProBanner className="mb-6" />
+      )}
+      
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Settings</h2>
-        <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
+        <Button 
+          onClick={handleSave} 
+          className="bg-primary hover:bg-primary/90"
+          disabled={!license.isPro}
+        >
           Save Settings
         </Button>
       </div>
 
       {/* Default Placeholder */}
-      <Card>
+      <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
         <CardHeader>
           <CardTitle>Default Placeholder</CardTitle>
         </CardHeader>
@@ -140,7 +151,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
       </Card>
 
       {/* Thumbnail Style */}
-      <Card>
+      <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
         <CardHeader>
           <CardTitle>Thumbnail Style</CardTitle>
         </CardHeader>
@@ -397,7 +408,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
       </Card>
 
       {/* Accent Color */}
-      <Card>
+      <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
         <CardHeader>
           <CardTitle>Accent Color</CardTitle>
         </CardHeader>
@@ -436,7 +447,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
       </Card>
 
       {/* Thumbnail Size */}
-      <Card>
+      <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
         <CardHeader>
           <CardTitle>Thumbnail Size</CardTitle>
         </CardHeader>

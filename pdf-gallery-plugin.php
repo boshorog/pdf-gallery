@@ -264,11 +264,38 @@ public function display_gallery_shortcode($atts) {
             case 'get_settings':
                 $this->handle_get_settings();
                 break;
-            case 'upload_pdf':
-                $this->handle_upload_pdf();
-                break;
+        case 'check_license':
+            $this->handle_check_license();
+            break;
             default:
                 wp_send_json_error('Invalid action');
+        }
+    }
+    
+    private function handle_check_license() {
+        // For now, return free version by default
+        // This can be expanded to check actual license keys from database
+        $license_key = get_option('pdf_gallery_license_key', '');
+        
+        if (empty($license_key)) {
+            wp_send_json_success(array(
+                'license' => array(
+                    'isValid' => true,
+                    'isPro' => false,
+                    'status' => 'free'
+                )
+            ));
+        } else {
+            // Here you would validate the license key
+            // For now, we'll assume any non-empty key is valid Pro
+            wp_send_json_success(array(
+                'license' => array(
+                    'isValid' => true,
+                    'isPro' => true,
+                    'status' => 'pro',
+                    'expiryDate' => '2025-12-31' // Example expiry date
+                )
+            ));
         }
     }
     

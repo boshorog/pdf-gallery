@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { useLicense } from '@/hooks/useLicense';
 import {
   DndContext,
   closestCenter,
@@ -178,6 +179,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     defaultPlaceholder: 'default'
   });
   const { toast } = useToast();
+  const license = useLicense();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -248,6 +250,19 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
         variant: "destructive",
       });
       return;
+    }
+
+    // Check license restrictions for free version
+    if (!license.isPro && !editingId) {
+      const pdfCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
+      if (pdfCount >= 1) {
+        toast({
+          title: "Upgrade Required",
+          description: "Free version allows only 1 PDF. Upgrade to Pro for unlimited PDFs.",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     let updated: GalleryItem[];
@@ -581,7 +596,21 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                 </Button>
               )}
               <Button 
-                onClick={() => setIsAddingPDF(true)}
+                onClick={() => {
+                  // Check license restrictions for free version
+                  if (!license.isPro) {
+                    const pdfCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
+                    if (pdfCount >= 1) {
+                      toast({
+                        title: "Upgrade Required", 
+                        description: "Free version allows only 1 PDF. Upgrade to Pro for unlimited PDFs.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                  }
+                  setIsAddingPDF(true);
+                }}
                 className="bg-primary hover:bg-primary/90"
               >
                 <Plus className="w-4 h-4 mr-2" />

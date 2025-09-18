@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FileText, ExternalLink } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
+import { useLicense } from '@/hooks/useLicense';
 
 interface PDF {
   id: string;
@@ -51,6 +52,7 @@ const PDFGallery = ({
   const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
   const [thumbnails, setThumbnails] = useState<{ [key: string]: string }>({});
   const [isMobile, setIsMobile] = useState(false);
+  const license = useLicense();
   const placeholderUrl = (settings?.defaultPlaceholder && settings.defaultPlaceholder !== 'default')
     ? settings.defaultPlaceholder
     : pdfPlaceholder;
@@ -193,7 +195,10 @@ const PDFGallery = ({
       onClick: (e: any) => { if (isMobile) { e.preventDefault(); window.location.assign(pdf.pdfUrl); } }
     };
 
-    switch (settings.thumbnailStyle) {
+    // Force default style for free version
+    const effectiveStyle = license.isPro ? settings.thumbnailStyle : 'default';
+
+    switch (effectiveStyle) {
       case 'elevated-card':
         return (
           <a key={pdf.id} {...baseProps}>
