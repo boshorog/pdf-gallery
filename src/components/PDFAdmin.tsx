@@ -765,7 +765,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
 
           {/* Duplicate Action Buttons at Bottom */}
           {items.length > 0 && (
-            <div className="flex gap-2 pt-4 border-t border-border">
+            <div className="flex gap-2 pt-4 justify-end">
               <Button 
                 onClick={() => {
                   // Check license restrictions for free version

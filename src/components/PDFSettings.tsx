@@ -88,9 +88,10 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Settings</h2>
         <Button 
-          onClick={handleSave} 
-          className={!license.isPro ? "opacity-50 cursor-not-allowed" : "bg-primary hover:bg-primary/90"}
+          onClick={() => { if (license.isPro) handleSave(); }}
+          className={!license.isPro ? "opacity-50 cursor-not-allowed pointer-events-none" : "bg-primary hover:bg-primary/90"}
           disabled={!license.isPro}
+          aria-disabled={!license.isPro}
         >
           Save Settings
         </Button>

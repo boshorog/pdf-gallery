@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name: PDF Gallery
- * Plugin URI: https://antiohia.ro
+ * Plugin URI: https://kindpixels.com
  * Description: PDF Gallery creates visually stunning galleries from PDF and DOCX files. Easily organize, sort, and showcase your documents in beautiful grid layouts. With built-in sorting, live previews, and responsive design, PDF Gallery gives website owners the perfect solution for presenting important files in a user-friendly, attractive format, and enable quick downloads.
- * Version: 1.2.4
+ * Version: 1.2.5
  * Author: KIND PIXELS
  * Requires at least: 5.0
  * Tested up to: 6.4
@@ -44,6 +44,9 @@ class PDF_Gallery_Plugin {
         
         // Script filter
         add_filter('script_loader_tag', array($this, 'modify_script_tag'), 10, 3);
+
+        // Plugin action links
+        add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'plugin_action_links'));
     }
     
     /**
@@ -115,7 +118,7 @@ class PDF_Gallery_Plugin {
             'pdf-gallery-admin', 
             $js_file, 
             array(), 
-            '1.1.2', 
+            '1.2.5', 
             true
         );
         wp_script_add_data('pdf-gallery-admin', 'type', 'module');
@@ -124,7 +127,7 @@ class PDF_Gallery_Plugin {
             'pdf-gallery-admin', 
             $css_file, 
             array(), 
-            '1.1.2'
+            '1.2.5'
         );
         
         // Pass WordPress user info to React app
@@ -188,7 +191,7 @@ public function display_gallery_shortcode($atts) {
       .pdf-gallery-iframe-container iframe{overflow:hidden!important;scrolling:no!important;}
     }
     </style>';
-    $html .= '<iframe id="' . esc_attr($iframe_id) . '" src="' . esc_url($src) . '" scrolling="no" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" style="height:1px;min-height:600px;overflow:hidden;"></iframe>';
+    $html .= '<iframe id="' . esc_attr($iframe_id) . '" src="' . esc_url($src) . '" scrolling="no" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" style="height:1px;min-height:600px;overflow:hidden;"></iframe>';
     $html .= '</div>';
     
     // Auto-resize listener: receives height from the iframe app and adjusts dynamically (great for mobile)
@@ -223,7 +226,7 @@ public function display_gallery_shortcode($atts) {
         }
         
         // Set default options
-        add_option('pdf_gallery_version', '1.1.2');
+        add_option('pdf_gallery_version', '1.2.5');
     }
     
     /**
@@ -242,6 +245,17 @@ public function display_gallery_shortcode($atts) {
             $tag = '<script type="module" src="' . esc_url($src) . '" id="' . esc_attr($handle) . '-js"></script>';
         }
         return $tag;
+    }
+    
+    /**
+     * Add links on the plugins page
+     */
+    public function plugin_action_links($links) {
+        $site_link = '<a href="https://kindpixels.com" target="_blank">Visit plugin site</a>';
+        $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank">Upgrade to Pro</a>';
+        array_unshift($links, $upgrade_link);
+        array_unshift($links, $site_link);
+        return $links;
     }
     
     /**

@@ -2,9 +2,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Crown, ExternalLink, Star, Zap, Unlock, Key, Check } from 'lucide-react';
+import { Crown, ExternalLink, Star, Zap, Unlock, Key, Check, X } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useLicense } from '@/hooks/useLicense';
+import { verifyMasterKey, activateMasterPro, deactivateMasterPro, isMasterProActive } from '@/utils/licenseMaster';
 
 interface ProBannerProps {
   className?: string;
@@ -14,6 +16,7 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   const [licenseKey, setLicenseKey] = useState('');
   const [isActivating, setIsActivating] = useState(false);
   const { toast } = useToast();
+  const license = useLicense();
 
   const handleActivateLicense = async () => {
     if (!licenseKey.trim()) {
@@ -28,7 +31,15 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
     setIsActivating(true);
     
     try {
-      // Freemius integration - use their API
+      // 1) Temporary master key activation (frontend-only)
+      if (verifyMasterKey(licenseKey)) {
+        activateMasterPro();
+        toast({ title: 'Success!', description: 'Master license activated. Refreshing...' });
+        setTimeout(() => window.location.reload(), 800);
+        return;
+      }
+
+      // 2) Freemius integration - use their API
       const wp = (window as any).wpPDFGallery;
       const urlParams = new URLSearchParams(window.location.search);
       const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
@@ -50,23 +61,23 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
         
         if (data?.success) {
           toast({
-            title: "Success!",
-            description: "Pro license activated successfully. Refreshing page...",
+            title: 'Success!',
+            description: 'Pro license activated successfully. Refreshing page...',
           });
           setTimeout(() => window.location.reload(), 1500);
         } else {
           toast({
-            title: "Invalid License",
-            description: data?.data?.message || "The license key is invalid or expired",
-            variant: "destructive"
+            title: 'Invalid License',
+            description: data?.data?.message || 'The license key is invalid or expired',
+            variant: 'destructive'
           });
         }
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to activate license. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to activate license. Please try again.',
+        variant: 'destructive'
       });
     } finally {
       setIsActivating(false);
@@ -107,59 +118,81 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
                 <span className="text-sm font-medium">Advanced Settings</span>
               </div>
             </div>
-            
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="license-key" className="text-sm font-medium mb-2 block">
-                  Already have a license key?
-                </Label>
-                <div className="flex gap-2 max-w-md">
-                  <div className="relative flex-1">
-                    <Input
-                      id="license-key"
-                      type="text"
-                      placeholder="Enter your license key"
-                      value={licenseKey}
-                      onChange={(e) => setLicenseKey(e.target.value)}
-                      className="pr-10"
-                      disabled={isActivating}
-                    />
-                    <Key className="w-4 h-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                  </div>
-                  <Button 
-                    onClick={handleActivateLicense}
-                    disabled={isActivating || !licenseKey.trim()}
-                    variant="outline"
-                    className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50"
-                  >
-                    {isActivating ? (
-                      "Activating..."
-                    ) : (
-                      <>
-                        <Check className="w-4 h-4 mr-1" />
-                        Activate
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <div className="h-px bg-border flex-1"></div>
-                <span className="text-xs text-muted-foreground px-2">or</span>
-                <div className="h-px bg-border flex-1"></div>
-              </div>
-              
-              <div className="max-w-md">
-                <Button 
-                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium"
-                  onClick={() => window.open('https://kindpixels.com/pdf-gallery-pro', '_blank')}
+
+            {/* Licensed state */}
+            {license.isPro ? (
+              <div className="flex items-center justify-between max-w-md mx-auto">
+                <div className="text-sm font-medium text-foreground">PDF Gallery Pro is active</div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { deactivateMasterPro(); window.location.reload(); }}
+                  className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50"
+                  aria-label="Deactivate license"
+                  title="Deactivate license"
                 >
-                  Get PDF Gallery Pro
-                  <ExternalLink className="w-4 h-4 ml-2" />
+                  <X className="w-4 h-4" />
                 </Button>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                {/* Get Pro button first */}
+                <div className="w-full flex justify-center">
+                  <div className="w-full max-w-md">
+                    <Button 
+                      className="w-full h-9 text-sm bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium"
+                      onClick={() => window.open('https://kindpixels.com/pdf-gallery-pro', '_blank')}
+                    >
+                      Get PDF Gallery Pro
+                      <ExternalLink className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Divider matching width */}
+                <div className="w-full flex justify-center">
+                  <div className="flex items-center gap-2 w-full max-w-md">
+                    <div className="h-px bg-border flex-1"></div>
+                    <span className="text-xs text-muted-foreground px-2">or</span>
+                    <div className="h-px bg-border flex-1"></div>
+                  </div>
+                </div>
+                
+                {/* License input section below divider */}
+                <div className="w-full flex justify-center">
+                  <div className="flex gap-2 w-full max-w-md">
+                    <div className="relative flex-1">
+                      <Input
+                        id="license-key"
+                        type="text"
+                        placeholder="Enter your license key"
+                        value={licenseKey}
+                        onChange={(e) => setLicenseKey(e.target.value)}
+                        className="pr-10 h-9 text-sm"
+                        disabled={isActivating}
+                      />
+                      <Key className="w-4 h-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                    </div>
+                    <Button 
+                      onClick={handleActivateLicense}
+                      disabled={isActivating || !licenseKey.trim()}
+                      variant="outline"
+                      size="sm"
+                      className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50"
+                    >
+                      {isActivating ? (
+                        'Activating...'
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4 mr-1" />
+                          Activate
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

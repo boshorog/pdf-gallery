@@ -59,7 +59,8 @@ const PDFGallery = ({
     : pdfPlaceholder;
 
   useEffect(() => {
-    console.log('PDFGallery: useEffect triggered, items count:', items.length);
+    // Notify parent page to allow height auto-resize
+    window.parent?.postMessage({ type: 'pdf-gallery:height-check' }, '*');
     
     if (items.length === 0) {
       setItemsWithThumbnails([]);
@@ -189,7 +190,7 @@ const PDFGallery = ({
       className: "block",
       onMouseEnter: () => setHoveredId(pdf.id),
       onMouseLeave: () => setHoveredId(null),
-      onClick: (e: any) => { if (isMobile) { e.preventDefault(); window.location.assign(pdf.pdfUrl); } }
+      onClick: (e: any) => { if (isMobile) { e.preventDefault(); try { window.top?.location.assign(pdf.pdfUrl); } catch { window.location.assign(pdf.pdfUrl); } } }
     };
 
     // Force default style for free version

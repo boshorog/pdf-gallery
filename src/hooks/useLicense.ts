@@ -15,7 +15,13 @@ export const useLicense = (): LicenseInfo => {
   });
 
   useEffect(() => {
-    // Check license from WordPress backend
+    // 1) Temporary master key override (frontend-only)
+    if (isMasterProActive()) {
+      setLicense({ isValid: true, isPro: true, status: 'pro' });
+      return; // Skip remote check
+    }
+
+    // 2) Check license from WordPress backend (Freemius)
     const wp = (window as any).wpPDFGallery;
     const urlParams = new URLSearchParams(window.location.search);
     const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
