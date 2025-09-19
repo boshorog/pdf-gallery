@@ -104,7 +104,7 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
               Unlock advanced features to create stunning, unlimited PDF galleries with custom styling options.
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
               <div className="flex items-center gap-2">
                 <Unlock className="w-4 h-4 text-orange-500" />
                 <span className="text-sm font-medium">Unlimited Galleries</span>
@@ -121,7 +121,7 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
 
             {/* Licensed state */}
             {license.isPro ? (
-              <div className="flex items-center justify-between max-w-md mx-auto">
+              <div className="flex items-center justify-between max-w-md mx-auto mt-4">
                 <div className="text-sm font-medium text-foreground">PDF Gallery Pro is active</div>
                 <Button
                   variant="outline"

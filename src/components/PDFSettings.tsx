@@ -81,9 +81,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
 
   return (
     <div className="space-y-6">
-      {!license.isPro && (
-        <ProBanner className="mb-6" />
-      )}
+      <ProBanner className="mb-6" />
       
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Settings</h2>

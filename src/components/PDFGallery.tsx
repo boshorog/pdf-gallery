@@ -185,12 +185,11 @@ const PDFGallery = ({
   const renderThumbnail = (pdf: PDF) => {
     const baseProps = {
       href: pdf.pdfUrl,
-      target: isMobile ? '_self' : '_blank',
+      target: isMobile ? '_top' : '_blank',
       rel: isMobile ? undefined : 'noopener noreferrer',
       className: "block",
       onMouseEnter: () => setHoveredId(pdf.id),
-      onMouseLeave: () => setHoveredId(null),
-      onClick: (e: any) => { if (isMobile) { e.preventDefault(); try { window.top?.location.assign(pdf.pdfUrl); } catch { window.location.assign(pdf.pdfUrl); } } }
+      onMouseLeave: () => setHoveredId(null)
     };
 
     // Force default style for free version
