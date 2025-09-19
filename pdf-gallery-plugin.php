@@ -267,6 +267,9 @@ public function display_gallery_shortcode($atts) {
         case 'check_license':
             $this->handle_check_license();
             break;
+        case 'activate_license':
+            $this->handle_activate_license();
+            break;
             default:
                 wp_send_json_error('Invalid action');
         }
@@ -296,6 +299,48 @@ public function display_gallery_shortcode($atts) {
                     'expiryDate' => '2025-12-31' // Example expiry date
                 )
             ));
+        }
+    }
+    
+    private function handle_activate_license() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        
+        $license_key = isset($_POST['license_key']) ? sanitize_text_field($_POST['license_key']) : '';
+        
+        if (empty($license_key)) {
+            wp_send_json_error(array('message' => 'License key is required'));
+        }
+        
+        // Validate license key format (basic validation)
+        if (strlen($license_key) < 10) {
+            wp_send_json_error(array('message' => 'Invalid license key format'));
+        }
+        
+        // Here you would typically:
+        // 1. Validate the license key against your server/database
+        // 2. Check if it's not already used on another domain
+        // 3. Check expiry date, etc.
+        
+        // For now, we'll accept any key that looks like a valid format
+        // You can add more sophisticated validation later
+        if (preg_match('/^[A-Z0-9\-]{10,}$/i', $license_key)) {
+            update_option('pdf_gallery_license_key', $license_key);
+            update_option('pdf_gallery_license_status', 'active');
+            update_option('pdf_gallery_license_activated_date', current_time('mysql'));
+            
+            wp_send_json_success(array(
+                'message' => 'License activated successfully',
+                'license' => array(
+                    'isValid' => true,
+                    'isPro' => true,
+                    'status' => 'pro',
+                    'expiryDate' => '2025-12-31'
+                )
+            ));
+        } else {
+            wp_send_json_error(array('message' => 'Invalid license key'));
         }
     }
     
