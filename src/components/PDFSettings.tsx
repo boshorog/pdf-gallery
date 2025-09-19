@@ -89,7 +89,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
         <h2 className="text-2xl font-bold">Settings</h2>
         <Button 
           onClick={handleSave} 
-          className="bg-primary hover:bg-primary/90"
+          className={!license.isPro ? "opacity-50 cursor-not-allowed" : "bg-primary hover:bg-primary/90"}
           disabled={!license.isPro}
         >
           Save Settings

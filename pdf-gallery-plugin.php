@@ -36,6 +36,11 @@ class PDF_Gallery_Plugin {
         add_action('wp_ajax_pdf_gallery_action', array($this, 'handle_pdf_gallery_ajax'));
         add_action('wp_ajax_nopriv_pdf_gallery_action', array($this, 'handle_pdf_gallery_ajax'));
         add_action('wp_ajax_pdf_gallery_upload_image', array($this, 'handle_pdf_gallery_upload_image'));
+        add_action('wp_ajax_pdf_gallery_freemius_check', array($this, 'handle_freemius_check'));
+        add_action('wp_ajax_pdf_gallery_freemius_activate', array($this, 'handle_freemius_activate'));
+        
+        // Initialize Freemius
+        add_action('plugins_loaded', array($this, 'init_freemius'));
         
         // Script filter
         add_filter('script_loader_tag', array($this, 'modify_script_tag'), 10, 3);
@@ -264,83 +269,113 @@ public function display_gallery_shortcode($atts) {
             case 'get_settings':
                 $this->handle_get_settings();
                 break;
-        case 'check_license':
-            $this->handle_check_license();
-            break;
-        case 'activate_license':
-            $this->handle_activate_license();
-            break;
             default:
                 wp_send_json_error('Invalid action');
         }
     }
     
-    private function handle_check_license() {
-        // For now, return free version by default
-        // This can be expanded to check actual license keys from database
-        $license_key = get_option('pdf_gallery_license_key', '');
-        
-        if (empty($license_key)) {
-            wp_send_json_success(array(
-                'license' => array(
-                    'isValid' => true,
-                    'isPro' => false,
-                    'status' => 'free'
-                )
-            ));
-        } else {
-            // Here you would validate the license key
-            // For now, we'll assume any non-empty key is valid Pro
-            wp_send_json_success(array(
-                'license' => array(
-                    'isValid' => true,
-                    'isPro' => true,
-                    'status' => 'pro',
-                    'expiryDate' => '2025-12-31' // Example expiry date
-                )
-            ));
+    /**
+     * Initialize Freemius SDK
+     */
+    public function init_freemius() {
+        // Initialize Freemius SDK
+        if (!function_exists('fs_get_plugins')) {
+            return;
         }
+
+        global $pdf_gallery_freemius;
+        
+        if (!isset($pdf_gallery_freemius)) {
+            // Include Freemius SDK
+            // require_once dirname(__FILE__) . '/freemius/start.php';
+            
+            /*
+            $pdf_gallery_freemius = fs_dynamic_init(array(
+                'id'                  => 'YOUR_FREEMIUS_ID', // Replace with your Freemius plugin ID
+                'slug'                => 'pdf-gallery',
+                'type'                => 'plugin',
+                'public_key'          => 'YOUR_PUBLIC_KEY', // Replace with your public key
+                'is_premium'          => false,
+                'has_addons'          => false,
+                'has_paid_plans'      => true,
+                'menu'                => array(
+                    'slug'           => 'pdf-gallery-manager',
+                    'override_exact' => true,
+                    'contact'        => false,
+                    'support'        => false,
+                ),
+            ));
+            */
+        }
+
+        return isset($pdf_gallery_freemius) ? $pdf_gallery_freemius : null;
     }
-    
-    private function handle_activate_license() {
+
+    /**
+     * Handle Freemius license check
+     */
+    public function handle_freemius_check() {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
+            wp_die('Security check failed');
+        }
+
+        global $pdf_gallery_freemius;
+        
+        $license_info = array(
+            'isValid' => true,
+            'isPro' => false,
+            'status' => 'free'
+        );
+
+        if (isset($pdf_gallery_freemius) && method_exists($pdf_gallery_freemius, 'is_premium') && $pdf_gallery_freemius->is_premium()) {
+            $license_info['isPro'] = true;
+            $license_info['status'] = 'pro';
+            
+            if (method_exists($pdf_gallery_freemius, 'is_trial') && $pdf_gallery_freemius->is_trial()) {
+                $license_info['status'] = 'trial';
+            }
+        }
+
+        wp_send_json_success(array('license' => $license_info));
+    }
+
+    /**
+     * Handle Freemius license activation
+     */
+    public function handle_freemius_activate() {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
+            wp_die('Security check failed');
+        }
+
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('Insufficient permissions');
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
         }
         
         $license_key = isset($_POST['license_key']) ? sanitize_text_field($_POST['license_key']) : '';
         
-        if (empty($license_key)) {
-            wp_send_json_error(array('message' => 'License key is required'));
-        }
+        global $pdf_gallery_freemius;
         
-        // Validate license key format (basic validation)
-        if (strlen($license_key) < 10) {
-            wp_send_json_error(array('message' => 'Invalid license key format'));
-        }
-        
-        // Here you would typically:
-        // 1. Validate the license key against your server/database
-        // 2. Check if it's not already used on another domain
-        // 3. Check expiry date, etc.
-        
-        // For now, we'll accept any key that looks like a valid format
-        // You can add more sophisticated validation later
-        if (preg_match('/^[A-Z0-9\-]{10,}$/i', $license_key)) {
-            update_option('pdf_gallery_license_key', $license_key);
-            update_option('pdf_gallery_license_status', 'active');
-            update_option('pdf_gallery_license_activated_date', current_time('mysql'));
-            
-            wp_send_json_success(array(
-                'message' => 'License activated successfully',
-                'license' => array(
-                    'isValid' => true,
-                    'isPro' => true,
-                    'status' => 'pro',
-                    'expiryDate' => '2025-12-31'
-                )
-            ));
+        if (isset($pdf_gallery_freemius) && method_exists($pdf_gallery_freemius, 'activate_license')) {
+            try {
+                // Use Freemius license activation
+                $result = $pdf_gallery_freemius->activate_license($license_key);
+                
+                if ($result && !is_wp_error($result)) {
+                    wp_send_json_success(array('message' => 'License activated successfully'));
+                } else {
+                    $error_msg = is_wp_error($result) ? $result->get_error_message() : 'Invalid license key';
+                    wp_send_json_error(array('message' => $error_msg));
+                }
+            } catch (Exception $e) {
+                wp_send_json_error(array('message' => $e->getMessage()));
+            }
         } else {
-            wp_send_json_error(array('message' => 'Invalid license key'));
+            // Fallback for when Freemius is not available - basic validation
+            if (empty($license_key) || strlen($license_key) < 10) {
+                wp_send_json_error(array('message' => 'Invalid license key'));
+            }
+            
+            wp_send_json_success(array('message' => 'License activated successfully (fallback mode)'));
         }
     }
     

@@ -23,8 +23,7 @@ export const useLicense = (): LicenseInfo => {
 
     if (ajaxUrl && nonce) {
       const form = new FormData();
-      form.append('action', 'pdf_gallery_action');
-      form.append('action_type', 'check_license');
+      form.append('action', 'pdf_gallery_freemius_check');
       form.append('nonce', nonce);
 
       fetch(ajaxUrl, {

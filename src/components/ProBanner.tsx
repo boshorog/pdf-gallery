@@ -28,6 +28,7 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
     setIsActivating(true);
     
     try {
+      // Freemius integration - use their API
       const wp = (window as any).wpPDFGallery;
       const urlParams = new URLSearchParams(window.location.search);
       const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
@@ -35,8 +36,7 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
 
       if (ajaxUrl && nonce) {
         const form = new FormData();
-        form.append('action', 'pdf_gallery_action');
-        form.append('action_type', 'activate_license');
+        form.append('action', 'pdf_gallery_freemius_activate');
         form.append('license_key', licenseKey.trim());
         form.append('nonce', nonce);
 
@@ -113,23 +113,24 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
                 <Label htmlFor="license-key" className="text-sm font-medium mb-2 block">
                   Already have a license key?
                 </Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 max-w-md">
                   <div className="relative flex-1">
-                    <Key className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="license-key"
                       type="text"
                       placeholder="Enter your license key"
                       value={licenseKey}
                       onChange={(e) => setLicenseKey(e.target.value)}
-                      className="pl-10"
+                      className="pr-10"
                       disabled={isActivating}
                     />
+                    <Key className="w-4 h-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                   </div>
                   <Button 
                     onClick={handleActivateLicense}
                     disabled={isActivating || !licenseKey.trim()}
-                    className="bg-green-600 hover:bg-green-700 text-white"
+                    variant="outline"
+                    className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50"
                   >
                     {isActivating ? (
                       "Activating..."
@@ -149,13 +150,15 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
                 <div className="h-px bg-border flex-1"></div>
               </div>
               
-              <Button 
-                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium"
-                onClick={() => window.open('https://kindpixels.com/pdf-gallery-pro', '_blank')}
-              >
-                Get PDF Gallery Pro
-                <ExternalLink className="w-4 h-4 ml-2" />
-              </Button>
+              <div className="max-w-md">
+                <Button 
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium"
+                  onClick={() => window.open('https://kindpixels.com/pdf-gallery-pro', '_blank')}
+                >
+                  Get PDF Gallery Pro
+                  <ExternalLink className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>

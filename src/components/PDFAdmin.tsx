@@ -763,6 +763,40 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
             </DndContext>
           </div>
 
+          {/* Duplicate Action Buttons at Bottom */}
+          {items.length > 0 && (
+            <div className="flex gap-2 pt-4 border-t border-border">
+              <Button 
+                onClick={() => {
+                  // Check license restrictions for free version
+                  if (!license.isPro) {
+                    const pdfCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
+                    if (pdfCount >= 1) {
+                      toast({
+                        title: "Upgrade Required", 
+                        description: "Free version allows only 1 PDF. Upgrade to Pro for unlimited PDFs.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                  }
+                  setIsAddingPDF(true);
+                }}
+                className="bg-primary hover:bg-primary/90"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add PDF
+              </Button>
+              <Button 
+                onClick={() => setIsAddingDivider(true)}
+                variant="outline"
+              >
+                <Separator className="w-4 h-0.5" />
+                Add Divider
+              </Button>
+            </div>
+          )}
+
           {items.length === 0 && !isAddingPDF && !isAddingDivider && (
             <Card>
               <CardContent className="text-center py-8">

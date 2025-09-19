@@ -3,6 +3,7 @@ import { FileText, ExternalLink } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PDF {
   id: string;
@@ -51,15 +52,11 @@ const PDFGallery = ({
   const [itemsWithThumbnails, setItemsWithThumbnails] = useState<GalleryItem[]>([]);
   const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
   const [thumbnails, setThumbnails] = useState<{ [key: string]: string }>({});
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
   const license = useLicense();
   const placeholderUrl = (settings?.defaultPlaceholder && settings.defaultPlaceholder !== 'default')
     ? settings.defaultPlaceholder
     : pdfPlaceholder;
-
-  useEffect(() => {
-    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-  }, []);
 
   useEffect(() => {
     console.log('PDFGallery: useEffect triggered, items count:', items.length);
