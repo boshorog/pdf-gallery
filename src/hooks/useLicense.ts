@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { isMasterProActive } from '@/utils/licenseMaster';
 
 export interface LicenseInfo {
   isValid: boolean;
