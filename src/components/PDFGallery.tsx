@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FileText, ExternalLink } from 'lucide-react';
+import { FileText, ExternalLink, FileType, Presentation } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
@@ -11,6 +11,7 @@ interface PDF {
   date: string;
   pdfUrl: string;
   thumbnail: string;
+  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx';
 }
 
 interface Divider {
@@ -181,6 +182,20 @@ const PDFGallery = ({
     }
   };
 
+  // Get file type icon and color
+  const getFileTypeIcon = (fileType: string = 'pdf') => {
+    switch (fileType) {
+      case 'doc':
+      case 'docx':
+        return { icon: FileType, color: 'text-blue-600', bgColor: 'bg-blue-100', label: 'DOC' };
+      case 'ppt':
+      case 'pptx':
+        return { icon: Presentation, color: 'text-orange-600', bgColor: 'bg-orange-100', label: 'PPT' };
+      default:
+        return { icon: FileText, color: 'text-red-600', bgColor: 'bg-red-100', label: 'PDF' };
+    }
+  };
+
   // Render thumbnail based on style
   const renderThumbnail = (pdf: PDF) => {
     const baseProps = {
@@ -208,6 +223,8 @@ const PDFGallery = ({
 
     // Force default style for free version
     const effectiveStyle = license.isPro ? settings.thumbnailStyle : 'default';
+    const fileTypeInfo = getFileTypeIcon(pdf.fileType);
+    const IconComponent = fileTypeInfo.icon;
 
     switch (effectiveStyle) {
       case 'elevated-card':
@@ -396,11 +413,11 @@ const PDFGallery = ({
                   )}
                 </div>
 
-                {/* PDF Indicator */}
+                {/* File Type Indicator */}
                 <div className={`absolute ${iconPosClass} bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm`}>
                   <div className="flex items-center gap-1">
-                    <FileText className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-xs font-medium text-muted-foreground">PDF</span>
+                    <IconComponent className={`w-3 h-3 ${fileTypeInfo.color}`} />
+                    <span className={`text-xs font-medium ${fileTypeInfo.color}`}>{fileTypeInfo.label}</span>
                   </div>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check } from 'lucide-react';
+import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,6 +31,7 @@ interface PDF {
   date: string;
   pdfUrl: string;
   thumbnail: string;
+  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx';
 }
 
 interface Divider {
@@ -98,7 +99,14 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
           ) : (
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
-                <FileText className="w-6 h-6 text-muted-foreground" />
+                {(() => {
+                  const fileType = (item as PDF).fileType || 'pdf';
+                  const IconComponent = fileType === 'doc' || fileType === 'docx' ? FileType :
+                                      fileType === 'ppt' || fileType === 'pptx' ? Presentation : FileText;
+                  const colorClass = fileType === 'doc' || fileType === 'docx' ? 'text-blue-600' :
+                                    fileType === 'ppt' || fileType === 'pptx' ? 'text-orange-600' : 'text-red-600';
+                  return <IconComponent className={`w-6 h-6 ${colorClass}`} />;
+                })()}
               </div>
               <div>
                 <h3 className="font-semibold">{(item as PDF).title}</h3>
@@ -118,7 +126,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                 variant="outline"
                 size="sm"
                 onClick={() => window.open((item as PDF).pdfUrl, '_blank')}
-                title="View PDF"
+                title="View Document"
               >
                 <Eye className="w-4 h-4" />
               </Button>
@@ -156,16 +164,17 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
 
 const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
   const [activeTab, setActiveTab] = useState<'management' | 'preview'>('management');
-  const [isAddingPDF, setIsAddingPDF] = useState(false);
+  const [isAddingDocument, setIsAddingDocument] = useState(false);
   const [isAddingDivider, setIsAddingDivider] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [shortcodeCopied, setShortcodeCopied] = useState(false);
-  const [pdfFormData, setPdfFormData] = useState({
+  const [documentFormData, setDocumentFormData] = useState({
     title: '',
     date: '',
     pdfUrl: '',
-    thumbnail: ''
+    thumbnail: '',
+    fileType: 'pdf'
   });
   const [isUploading, setIsUploading] = useState(false);
   const [dividerFormData, setDividerFormData] = useState({
@@ -242,8 +251,8 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     }
   };
 
-  const handleSubmitPDF = async () => {
-    if (!pdfFormData.title || !pdfFormData.date || !pdfFormData.pdfUrl) {
+  const handleSubmitDocument = async () => {
+    if (!documentFormData.title || !documentFormData.date || !documentFormData.pdfUrl) {
       toast({
         title: "Error",
         description: "All fields are required",
@@ -254,11 +263,11 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
 
     // Check license restrictions for free version
     if (!license.isPro && !editingId) {
-      const pdfCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
-      if (pdfCount >= 1) {
+      const documentCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
+      if (documentCount >= 1) {
         toast({
           title: "Upgrade Required",
-          description: "Free version allows only 1 PDF. Upgrade to Pro for unlimited PDFs.",
+          description: "Free version allows only 1 document. Upgrade to Pro for unlimited documents.",
           variant: "destructive",
         });
         return;
@@ -268,20 +277,21 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     let updated: GalleryItem[];
     
     if (editingId) {
-      // Update existing PDF
+      // Update existing document
       updated = items.map(item =>
         item.id === editingId && !('type' in item && item.type === 'divider')
-          ? { ...item, ...pdfFormData }
+          ? { ...item, ...documentFormData, fileType: documentFormData.fileType as PDF['fileType'] || 'pdf' }
           : item
       );
     } else {
-      // Add new PDF at the top
-      const newPDF: PDF = {
+      // Add new document at the top
+      const newDocument: PDF = {
         id: Date.now().toString(),
-        ...pdfFormData,
-        thumbnail: pdfFormData.thumbnail || '/placeholder-pdf.jpg'
+        ...documentFormData,
+        thumbnail: documentFormData.thumbnail || '/placeholder-pdf.jpg',
+          fileType: documentFormData.fileType as PDF['fileType'] || 'pdf'
       };
-      updated = [newPDF, ...items];
+      updated = [newDocument, ...items];
     }
 
     // Save to WordPress first
@@ -291,13 +301,13 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       onItemsChange(updated);
       toast({
         title: editingId ? "Updated" : "Added",
-        description: `PDF has been ${editingId ? 'updated' : 'added'} successfully`,
+        description: `Document has been ${editingId ? 'updated' : 'added'} successfully`,
       });
-      resetPDFForm();
+      resetDocumentForm();
     } else {
       toast({
         title: "Error",
-        description: "Could not save PDF",
+        description: "Could not save document",
         variant: "destructive",
       });
     }
@@ -392,15 +402,16 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       setEditingId(item.id);
       setIsAddingDivider(true);
     } else {
-      const pdf = item as PDF;
-      setPdfFormData({
-        title: pdf.title,
-        date: pdf.date,
-        pdfUrl: pdf.pdfUrl,
-        thumbnail: pdf.thumbnail
+      const document = item as PDF;
+      setDocumentFormData({
+        title: document.title,
+        date: document.date,
+        pdfUrl: document.pdfUrl,
+        thumbnail: document.thumbnail,
+        fileType: document.fileType || 'pdf'
       });
       setEditingId(item.id);
-      setIsAddingPDF(true);
+      setIsAddingDocument(true);
     }
     
     // Scroll to editing section (plugin area, not top of page)
@@ -420,14 +431,15 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     }, 100);
   };
 
-  const resetPDFForm = () => {
-    setPdfFormData({
+  const resetDocumentForm = () => {
+    setDocumentFormData({
       title: '',
       date: '',
       pdfUrl: '',
-      thumbnail: ''
+      thumbnail: '',
+      fileType: 'pdf'
     });
-    setIsAddingPDF(false);
+    setIsAddingDocument(false);
     setEditingId(null);
   };
 
@@ -518,7 +530,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       
       if (data.success) {
         // Auto-fill the form with uploaded file data
-        setPdfFormData(prev => ({
+        setDocumentFormData(prev => ({
           ...prev,
           title: file.name.replace('.pdf', ''),
           pdfUrl: data.data.url,
@@ -609,7 +621,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                       return;
                     }
                   }
-                  setIsAddingPDF(true);
+                  setIsAddingDocument(true);
                 }}
                 className="bg-primary hover:bg-primary/90"
               >
@@ -627,7 +639,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
           </div>
 
           {/* PDF Add/Edit Form */}
-          {isAddingPDF && (
+          {isAddingDocument && (
             <Card className="edit-section">
               <CardHeader>
                 <CardTitle>
@@ -642,7 +654,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                 >
                   <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                   <span className="text-sm font-medium text-primary hover:underline">
-                    {isUploading ? 'Uploading...' : 'Upload PDF file'}
+                    {isUploading ? 'Uploading...' : 'Upload Document file'}
                   </span>
                   <p className="text-xs text-muted-foreground mt-1">
                     Or fill in the details manually below
@@ -650,7 +662,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                   <Input
                     id="pdfFile"
                     type="file"
-                    accept=".pdf,application/pdf"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation"
                     onChange={handleFileUpload}
                     disabled={isUploading}
                     className="hidden"
@@ -661,9 +673,9 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                   <Label htmlFor="title">Title</Label>
                   <Input
                     id="title"
-                    value={pdfFormData.title}
-                    onChange={(e) => setPdfFormData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="PDF Title"
+                    value={documentFormData.title}
+                    onChange={(e) => setDocumentFormData(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="Document Title"
                   />
                 </div>
                 
@@ -671,18 +683,18 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                   <Label htmlFor="date">Date</Label>
                   <Input
                     id="date"
-                    value={pdfFormData.date}
-                    onChange={(e) => setPdfFormData(prev => ({ ...prev, date: e.target.value }))}
+                    value={documentFormData.date}
+                    onChange={(e) => setDocumentFormData(prev => ({ ...prev, date: e.target.value }))}
                     placeholder="January 2024"
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="pdfUrl">PDF URL</Label>
+                  <Label htmlFor="pdfUrl">Document URL</Label>
                   <Input
                     id="pdfUrl"
-                    value={pdfFormData.pdfUrl}
-                    onChange={(e) => setPdfFormData(prev => ({ ...prev, pdfUrl: e.target.value }))}
+                    value={documentFormData.pdfUrl}
+                    onChange={(e) => setDocumentFormData(prev => ({ ...prev, pdfUrl: e.target.value }))}
                     placeholder="https://example.com/document.pdf"
                   />
                 </div>
@@ -691,17 +703,17 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                   <Label htmlFor="thumbnail">Thumbnail URL (optional)</Label>
                   <Input
                     id="thumbnail"
-                    value={pdfFormData.thumbnail}
-                    onChange={(e) => setPdfFormData(prev => ({ ...prev, thumbnail: e.target.value }))}
+                    value={documentFormData.thumbnail}
+                    onChange={(e) => setDocumentFormData(prev => ({ ...prev, thumbnail: e.target.value }))}
                     placeholder="https://example.com/thumbnail.jpg"
                   />
                 </div>
                 
                 <div className="flex gap-2">
-                  <Button onClick={handleSubmitPDF}>
+                  <Button onClick={handleSubmitDocument}>
                     {editingId ? 'Update' : 'Add'}
                   </Button>
-                  <Button variant="outline" onClick={resetPDFForm}>
+                  <Button variant="outline" onClick={resetDocumentForm}>
                     Cancel
                   </Button>
                 </div>
@@ -780,7 +792,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                       return;
                     }
                   }
-                  setIsAddingPDF(true);
+                  setIsAddingDocument(true);
                 }}
                 className="bg-primary hover:bg-primary/90"
               >
@@ -797,18 +809,18 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
             </div>
           )}
 
-          {items.length === 0 && !isAddingPDF && !isAddingDivider && (
+          {items.length === 0 && !isAddingDocument && !isAddingDivider && (
             <Card>
               <CardContent className="text-center py-8">
                 <Upload className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No items yet</h3>
                 <p className="text-muted-foreground mb-4">
-                  Start by adding your first PDF or divider.
+                  Start by adding your first document or divider.
                 </p>
                 <div className="flex gap-2 justify-center">
-                  <Button onClick={() => setIsAddingPDF(true)}>
+                  <Button onClick={() => setIsAddingDocument(true)}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Add first PDF
+                    Add first Document
                   </Button>
                   <Button variant="outline" onClick={() => setIsAddingDivider(true)}>
                     <Separator className="w-4 h-0.5" />
