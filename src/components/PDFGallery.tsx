@@ -185,11 +185,25 @@ const PDFGallery = ({
   const renderThumbnail = (pdf: PDF) => {
     const baseProps = {
       href: pdf.pdfUrl,
-      target: isMobile ? '_top' : '_blank',
+      target: isMobile ? undefined : '_blank',
       rel: isMobile ? undefined : 'noopener noreferrer',
       className: "block",
       onMouseEnter: () => setHoveredId(pdf.id),
-      onMouseLeave: () => setHoveredId(null)
+      onMouseLeave: () => setHoveredId(null),
+      onClick: (e: any) => {
+        if (isMobile) {
+          e.preventDefault();
+          try {
+            if (window.top && window.top !== window) {
+              (window.top as Window).location.href = pdf.pdfUrl;
+            } else {
+              window.location.href = pdf.pdfUrl;
+            }
+          } catch {
+            window.location.href = pdf.pdfUrl;
+          }
+        }
+      },
     };
 
     // Force default style for free version
