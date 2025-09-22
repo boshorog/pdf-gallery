@@ -86,7 +86,7 @@ const PDFGallery = ({
           if (cachedThumbnail) {
             return { ...item, thumbnail: cachedThumbnail };
           }
-          return { ...item, thumbnail: item.thumbnail || placeholderUrl };
+          return { ...item, thumbnail: placeholderUrl };
         }
         return item;
       });
@@ -421,7 +421,10 @@ const PDFGallery = ({
     <div className="w-full max-w-7xl mx-auto px-4" style={{ ['--accent-color' as any]: settings.accentColor }}>
       {isGeneratingThumbnails && (
         <div className="text-center mb-6">
-          <p className="text-sm text-muted-foreground">Generating PDF thumbnails...</p>
+          <p className="text-sm text-muted-foreground animate-pulse">
+            Generating PDF thumbnails
+            <span className="animate-[ping_1s_ease-in-out_infinite]">...</span>
+          </p>
         </div>
       )}
 

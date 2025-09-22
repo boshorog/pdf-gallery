@@ -527,7 +527,14 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
       </Card>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">Save Settings</Button>
+        <Button 
+          onClick={() => { if (license.isPro) handleSave(); }}
+          className={!license.isPro ? "opacity-50 cursor-not-allowed pointer-events-none" : "bg-primary hover:bg-primary/90"}
+          disabled={!license.isPro}
+          aria-disabled={!license.isPro}
+        >
+          Save Settings
+        </Button>
       </div>
     </div>
   );

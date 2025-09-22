@@ -94,7 +94,7 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-lg font-bold text-foreground">Upgrade to PDF Gallery Pro</h3>
+              <h3 className="text-lg font-bold text-foreground">Upgrade to PDF Gallery</h3>
               <div className="px-2 py-1 text-xs font-medium bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full">
                 Pro
               </div>
@@ -122,7 +122,10 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
             {/* Licensed state */}
             {license.isPro ? (
               <div className="flex items-center justify-between max-w-md mx-auto mt-4">
-                <div className="text-sm font-medium text-foreground">PDF Gallery Pro is active</div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  <div className="text-sm font-medium text-foreground">PDF Gallery Pro is active</div>
+                </div>
                 <Button
                   variant="outline"
                   size="sm"
