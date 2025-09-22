@@ -452,8 +452,15 @@ public function display_gallery_shortcode($atts) {
         
         $file = $_FILES['pdf_file'];
         
-        if ($file['type'] !== 'application/pdf') {
-            wp_send_json_error('Only PDF files are allowed');
+        $allowed_types = array(
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        );
+        if (!in_array($file['type'], $allowed_types, true)) {
+            wp_send_json_error('Only PDF, DOC, DOCX, PPT and PPTX files are allowed');
         }
         
         if ($file['size'] > 10 * 1024 * 1024) {

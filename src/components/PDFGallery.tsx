@@ -184,41 +184,21 @@ const PDFGallery = ({
 
   // Get file type icon and color
   const getFileTypeIcon = (fileType: string = 'pdf') => {
-    switch (fileType) {
-      case 'doc':
-      case 'docx':
-        return { icon: FileType, color: 'text-blue-600', bgColor: 'bg-blue-100', label: 'DOC' };
-      case 'ppt':
-      case 'pptx':
-        return { icon: Presentation, color: 'text-orange-600', bgColor: 'bg-orange-100', label: 'PPT' };
-      default:
-        return { icon: FileText, color: 'text-red-600', bgColor: 'bg-red-100', label: 'PDF' };
-    }
+    let label: 'PDF' | 'DOC' | 'PPT' = 'PDF';
+    if (fileType === 'doc' || fileType === 'docx') label = 'DOC';
+    else if (fileType === 'ppt' || fileType === 'pptx') label = 'PPT';
+    return { icon: FileText, color: 'text-muted-foreground', bgColor: 'bg-muted', label };
   };
 
   // Render thumbnail based on style
   const renderThumbnail = (pdf: PDF) => {
     const baseProps = {
       href: pdf.pdfUrl,
-      target: isMobile ? undefined : '_blank',
+      target: isMobile ? '_top' : '_blank',
       rel: isMobile ? undefined : 'noopener noreferrer',
       className: "block",
       onMouseEnter: () => setHoveredId(pdf.id),
       onMouseLeave: () => setHoveredId(null),
-      onClick: (e: any) => {
-        if (isMobile) {
-          e.preventDefault();
-          try {
-            if (window.top && window.top !== window) {
-              (window.top as Window).location.href = pdf.pdfUrl;
-            } else {
-              window.location.href = pdf.pdfUrl;
-            }
-          } catch {
-            window.location.href = pdf.pdfUrl;
-          }
-        }
-      },
     };
 
     // Force default style for free version
@@ -285,7 +265,7 @@ const PDFGallery = ({
                 </div>
                 <div className="absolute top-3 left-3 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
                   <div className="bg-white/90 rounded px-2 py-1">
-                    <span className="text-xs font-medium text-gray-700">PDF</span>
+                    <span className="text-xs font-medium text-muted-foreground">{fileTypeInfo.label}</span>
                   </div>
                 </div>
               </div>
@@ -448,8 +428,8 @@ const PDFGallery = ({
       {displayItems.length === 0 ? (
         <div className="text-center py-12">
           <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">No PDFs available</h3>
-          <p className="text-muted-foreground">PDFs will appear here when they are added.</p>
+          <h3 className="text-xl font-semibold mb-2">No documents available</h3>
+          <p className="text-muted-foreground">Documents will appear here when they are added.</p>
         </div>
       ) : (
         <div className="space-y-8">

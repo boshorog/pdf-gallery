@@ -99,17 +99,14 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
           ) : (
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
-                {(() => {
-                  const fileType = (item as PDF).fileType || 'pdf';
-                  const IconComponent = fileType === 'doc' || fileType === 'docx' ? FileType :
-                                      fileType === 'ppt' || fileType === 'pptx' ? Presentation : FileText;
-                  const colorClass = fileType === 'doc' || fileType === 'docx' ? 'text-blue-600' :
-                                    fileType === 'ppt' || fileType === 'pptx' ? 'text-orange-600' : 'text-red-600';
-                  return <IconComponent className={`w-6 h-6 ${colorClass}`} />;
-                })()}
+                <FileText className="w-6 h-6 text-muted-foreground" />
               </div>
               <div>
-                <h3 className="font-semibold">{(item as PDF).title}</h3>
+                {(() => {
+                  const ft = ((item as PDF).fileType || 'pdf');
+                  const label = (ft === 'doc' || ft === 'docx') ? 'DOC Document:' : (ft === 'ppt' || ft === 'pptx') ? 'PPT Document:' : 'PDF Document:';
+                  return <h3 className="font-semibold">{label} {(item as PDF).title}</h3>;
+                })()}
                 <p className="text-sm text-muted-foreground">{(item as PDF).date}</p>
                 <p className="text-xs text-muted-foreground truncate max-w-xs">
                   {(item as PDF).pdfUrl}
@@ -497,10 +494,17 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.type !== 'application/pdf') {
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    ];
+    if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Error",
-        description: "Please select a PDF file",
+        description: "Please select a PDF, DOC, DOCX, PPT, or PPTX file",
         variant: "destructive",
       });
       return;
@@ -530,16 +534,20 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       
       if (data.success) {
         // Auto-fill the form with uploaded file data
+        const baseName = file.name.replace(/\.[^.]+$/, '');
+        const ext = (file.name.split('.').pop() || '').toLowerCase();
+        const mappedType = ['doc','docx','ppt','pptx'].includes(ext) ? ext as 'doc' | 'docx' | 'ppt' | 'pptx' : 'pdf';
         setDocumentFormData(prev => ({
           ...prev,
-          title: file.name.replace('.pdf', ''),
+          title: baseName,
           pdfUrl: data.data.url,
-          date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+          date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' }),
+          fileType: mappedType,
         }));
         
         toast({
           title: "Uploaded",
-          description: "PDF file uploaded successfully",
+          description: "Document file uploaded successfully",
         });
       } else {
         throw new Error(data.data || 'Upload failed');
@@ -584,7 +592,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       <>
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
-              <h2 className="text-2xl font-bold">PDF Management</h2>
+              <h2 className="text-2xl font-bold">Gallery Management</h2>
               {items.length > 0 && (
                 <div className="flex items-center gap-2">
                   <Checkbox 
@@ -615,7 +623,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                     if (pdfCount >= 1) {
                       toast({
                         title: "Upgrade Required", 
-                        description: "Free version allows only 1 PDF. Upgrade to Pro for unlimited PDFs.",
+                        description: "Free version allows only 1 document. Upgrade to Pro for unlimited documents.",
                         variant: "destructive",
                       });
                       return;
@@ -626,7 +634,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                 className="bg-primary hover:bg-primary/90"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add PDF
+                Add Document
               </Button>
               <Button 
                 onClick={() => setIsAddingDivider(true)}
@@ -643,7 +651,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
             <Card className="edit-section">
               <CardHeader>
                 <CardTitle>
-                  {editingId ? 'Edit PDF' : 'Add New PDF'}
+                  {editingId ? 'Edit Document' : 'Add New Document'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -786,7 +794,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                     if (pdfCount >= 1) {
                       toast({
                         title: "Upgrade Required", 
-                        description: "Free version allows only 1 PDF. Upgrade to Pro for unlimited PDFs.",
+                        description: "Free version allows only 1 document. Upgrade to Pro for unlimited documents.",
                         variant: "destructive",
                       });
                       return;
@@ -797,7 +805,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                 className="bg-primary hover:bg-primary/90"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add PDF
+                Add Document
               </Button>
               <Button 
                 onClick={() => setIsAddingDivider(true)}
