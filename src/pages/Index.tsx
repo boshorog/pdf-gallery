@@ -8,6 +8,7 @@ import PDFGallery from '@/components/PDFGallery';
 import PDFAdmin from '@/components/PDFAdmin';
 import PDFSettings from '@/components/PDFSettings';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
+import logo from '@/assets/pdf-gallery-logo.png';
 
 interface PDF {
   id: string;
@@ -176,6 +177,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
+        <div className="mb-4 flex items-center gap-3">
+          <img src={logo} alt="PDF Gallery logo" className="h-8 w-auto" />
+        </div>
         <Tabs defaultValue="management" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="preview">Preview</TabsTrigger>
@@ -197,7 +201,7 @@ const Index = () => {
           <TabsContent value="preview" className="mt-6">
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <h2 className="text-2xl font-bold">Preview</h2>
+                <h2 className="text-2xl font-bold">Preview Gallery</h2>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <Input readOnly value="[pdf_gallery]" className="font-mono w-full sm:w-56" />
                   <Button

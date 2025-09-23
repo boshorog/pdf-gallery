@@ -105,32 +105,30 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
-              <div className="flex items-center gap-2">
-                <Unlock className="w-4 h-4 text-orange-500" />
-                <span className="text-sm font-medium">Unlimited Galleries</span>
+              <div className="flex items-center gap-3">
+                <Unlock className="w-5 h-5 text-orange-500" />
+                <span className="text-base font-semibold">Unlimited Galleries</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-orange-500" />
-                <span className="text-sm font-medium">All Thumbnail Styles</span>
+              <div className="flex items-center gap-3">
+                <Star className="w-5 h-5 text-orange-500" />
+                <span className="text-base font-semibold">All Thumbnail Styles</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-orange-500" />
-                <span className="text-sm font-medium">Advanced Settings</span>
+              <div className="flex items-center gap-3">
+                <Zap className="w-5 h-5 text-orange-500" />
+                <span className="text-base font-semibold">Advanced Settings</span>
               </div>
             </div>
 
             {/* Licensed state */}
             {license.isPro ? (
-              <div className="flex items-center justify-between max-w-md mx-auto mt-4">
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <div className="text-sm font-medium text-foreground">PDF Gallery Pro is active</div>
-                </div>
+              <div className="flex items-center max-w-md mx-auto mt-4 gap-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <div className="text-sm font-medium text-foreground">PDF Gallery Pro is active</div>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => { deactivateMasterPro(); window.location.reload(); }}
-                  className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50"
+                  className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50 ml-2"
                   aria-label="Deactivate license"
                   title="Deactivate license"
                 >

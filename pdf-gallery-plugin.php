@@ -283,6 +283,9 @@ public function display_gallery_shortcode($atts) {
             case 'get_settings':
                 $this->handle_get_settings();
                 break;
+            case 'upload_pdf':
+                $this->handle_upload_pdf();
+                break;
             default:
                 wp_send_json_error('Invalid action');
         }
@@ -457,7 +460,9 @@ public function display_gallery_shortcode($atts) {
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/vnd.ms-powerpoint',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         );
         if (!in_array($file['type'], $allowed_types, true)) {
             wp_send_json_error('Only PDF, DOC, DOCX, PPT and PPTX files are allowed');

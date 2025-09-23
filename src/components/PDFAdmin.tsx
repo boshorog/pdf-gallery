@@ -498,6 +498,8 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       'application/pdf',
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/vnd.ms-powerpoint',
       'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     ];
@@ -536,7 +538,11 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
         // Auto-fill the form with uploaded file data
         const baseName = file.name.replace(/\.[^.]+$/, '');
         const ext = (file.name.split('.').pop() || '').toLowerCase();
-        const mappedType = ['doc','docx','ppt','pptx'].includes(ext) ? ext as 'doc' | 'docx' | 'ppt' | 'pptx' : 'pdf';
+        const mappedType = ((): 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' => {
+          if (ext === 'doc' || ext === 'docx' || ext === 'xls' || ext === 'xlsx') return 'doc';
+          if (ext === 'ppt' || ext === 'pptx') return 'ppt';
+          return 'pdf';
+        })();
         setDocumentFormData(prev => ({
           ...prev,
           title: baseName,
@@ -665,12 +671,12 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                     {isUploading ? 'Uploading...' : 'Upload Document file'}
                   </span>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Or fill in the details manually below
+                    Accepted: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX
                   </p>
                   <Input
                     id="pdfFile"
                     type="file"
-                    accept=".pdf,.doc,.docx,.ppt,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     onChange={handleFileUpload}
                     disabled={isUploading}
                     className="hidden"
@@ -801,6 +807,11 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                     }
                   }
                   setIsAddingDocument(true);
+                  setTimeout(() => {
+                    const editSection = document.querySelector('.edit-section');
+                    if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    else window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }, 50);
                 }}
                 className="bg-primary hover:bg-primary/90"
               >
@@ -808,7 +819,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                 Add Document
               </Button>
               <Button 
-                onClick={() => setIsAddingDivider(true)}
+                onClick={() => { setIsAddingDivider(true); setTimeout(() => { const editSection = document.querySelector('.edit-section'); if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); else window.scrollTo({ top: 0, behavior: 'smooth' }); }, 50); }}
                 variant="outline"
               >
                 <Separator className="w-4 h-0.5" />

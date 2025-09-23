@@ -153,7 +153,14 @@ const PDFGallery = ({
   }, [items]);
 
 
-  const displayItems = itemsWithThumbnails.length > 0 ? itemsWithThumbnails : items;
+  const baseItems = itemsWithThumbnails.length > 0 ? itemsWithThumbnails : items;
+  const displayItems = baseItems.map((item) => {
+    if ('pdfUrl' in item) {
+      const thumb = (item as PDF).thumbnail;
+      return { ...item, thumbnail: thumb && thumb.trim() ? thumb : placeholderUrl } as PDF;
+    }
+    return item;
+  });
 
   // Map settings to classes
   const aspectClass = settings.thumbnailShape === 'square'
@@ -199,6 +206,17 @@ const PDFGallery = ({
       className: "block",
       onMouseEnter: () => setHoveredId(pdf.id),
       onMouseLeave: () => setHoveredId(null),
+      onClick: (e: React.MouseEvent) => {
+        if (isMobile) {
+          e.preventDefault();
+          try {
+            // Navigate the top window to ensure Android opens the file
+            (window.top || window).location.href = pdf.pdfUrl;
+          } catch {
+            window.location.href = pdf.pdfUrl;
+          }
+        }
+      }
     };
 
     // Force default style for free version
