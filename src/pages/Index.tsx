@@ -178,7 +178,7 @@ const Index = () => {
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
         <div className="mb-4 flex items-center gap-3">
-          <img src={logo} alt="PDF Gallery logo" className="h-8 w-auto" />
+          <img src={logo} alt="PDF Gallery logo" className="w-[400px] h-auto" />
         </div>
         <Tabs defaultValue="management" className="w-full">
           <TabsList className="grid w-full grid-cols-3">

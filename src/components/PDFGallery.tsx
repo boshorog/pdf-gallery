@@ -54,6 +54,7 @@ const PDFGallery = ({
   const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
   const [thumbnails, setThumbnails] = useState<{ [key: string]: string }>({});
   const isMobile = useIsMobile();
+  const isAndroid = /Android/i.test(navigator.userAgent || '');
   const license = useLicense();
   const placeholderUrl = (settings?.defaultPlaceholder && settings.defaultPlaceholder !== 'default')
     ? settings.defaultPlaceholder
@@ -199,21 +200,21 @@ const PDFGallery = ({
 
   // Render thumbnail based on style
   const renderThumbnail = (pdf: PDF) => {
+    const httpsUrl = PDFThumbnailGenerator.toHttps(pdf.pdfUrl);
     const baseProps = {
-      href: pdf.pdfUrl,
-      target: isMobile ? '_top' : '_blank',
-      rel: isMobile ? undefined : 'noopener noreferrer',
+      href: httpsUrl,
+      target: isAndroid ? '_self' : (isMobile ? '_top' : '_blank'),
+      rel: isAndroid || isMobile ? undefined : 'noopener noreferrer',
       className: "block",
       onMouseEnter: () => setHoveredId(pdf.id),
       onMouseLeave: () => setHoveredId(null),
       onClick: (e: React.MouseEvent) => {
-        if (isMobile) {
+        if (isAndroid || isMobile) {
           e.preventDefault();
           try {
-            // Navigate the top window to ensure Android opens the file
-            (window.top || window).location.href = pdf.pdfUrl;
+            (window.top || window).location.assign(httpsUrl);
           } catch {
-            window.location.href = pdf.pdfUrl;
+            window.location.assign(httpsUrl);
           }
         }
       }
@@ -440,8 +441,7 @@ const PDFGallery = ({
       {isGeneratingThumbnails && (
         <div className="text-center mb-6">
           <p className="text-sm text-muted-foreground animate-pulse">
-            Generating PDF thumbnails
-            <span className="animate-[ping_1s_ease-in-out_infinite]">...</span>
+            Generating thumbnails...
           </p>
         </div>
       )}

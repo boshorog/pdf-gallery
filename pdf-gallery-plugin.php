@@ -252,7 +252,7 @@ public function display_gallery_shortcode($atts) {
      */
     public function plugin_action_links($links) {
         $site_link = '<a href="https://kindpixels.com" target="_blank">Visit plugin site</a>';
-        $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank">Upgrade to Pro</a>';
+        $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank"><strong>Upgrade to Pro</strong></a>';
         array_unshift($links, $upgrade_link);
         array_unshift($links, $site_link);
         return $links;

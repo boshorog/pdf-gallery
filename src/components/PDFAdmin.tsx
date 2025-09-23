@@ -24,6 +24,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import PDFGallery from './PDFGallery';
+import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 
 interface PDF {
   id: string;
@@ -122,7 +123,15 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open((item as PDF).pdfUrl, '_blank')}
+                onClick={() => {
+                  const url = PDFThumbnailGenerator.toHttps((item as PDF).pdfUrl);
+                  const isAndroid = /Android/i.test(navigator.userAgent || '');
+                  if (isAndroid) {
+                    try { (window.top || window).location.assign(url); } catch { window.location.assign(url); }
+                  } else {
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                  }
+                }}
                 title="View Document"
               >
                 <Eye className="w-4 h-4" />
