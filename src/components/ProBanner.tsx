@@ -104,36 +104,43 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
               Unlock advanced features to create stunning, unlimited PDF galleries with custom styling options.
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className="flex items-center gap-3">
-                <Unlock className="w-5 h-5 text-orange-500" />
-                <span className="text-base font-semibold">Unlimited Galleries</span>
+                <Unlock className="w-6 h-6 text-orange-500" />
+                <span className="text-lg font-semibold">Unlimited Galleries</span>
               </div>
               <div className="flex items-center gap-3">
-                <Star className="w-5 h-5 text-orange-500" />
-                <span className="text-base font-semibold">All Thumbnail Styles</span>
+                <Star className="w-6 h-6 text-orange-500" />
+                <span className="text-lg font-semibold">All Thumbnail Styles</span>
               </div>
               <div className="flex items-center gap-3">
-                <Zap className="w-5 h-5 text-orange-500" />
-                <span className="text-base font-semibold">Advanced Settings</span>
+                <Zap className="w-6 h-6 text-orange-500" />
+                <span className="text-lg font-semibold">Advanced Settings</span>
               </div>
             </div>
 
             {/* Licensed state */}
             {license.isPro ? (
-              <div className="flex items-center max-w-md mx-auto mt-4 gap-2">
-                <Check className="w-4 h-4 text-green-500" />
-                <div className="text-sm font-medium text-foreground">PDF Gallery Pro is active</div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => { deactivateMasterPro(); window.location.reload(); }}
-                  className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50 ml-2"
-                  aria-label="Deactivate license"
-                  title="Deactivate license"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+              <div className="max-w-md mx-auto mt-4 space-y-1">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  <div className="text-sm font-medium text-foreground">PDF Gallery Pro is active</div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { deactivateMasterPro(); window.location.reload(); }}
+                    className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50 ml-1"
+                    aria-label="Deactivate license"
+                    title="Deactivate license"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                {isMasterProActive() && (
+                  <div className="text-xs text-muted-foreground ml-6">
+                    Registered to: daniel@kindpixels.com
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-3">
