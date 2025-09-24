@@ -181,10 +181,11 @@ const Index = () => {
           <img src={logo} alt="PDF Gallery logo" className="w-[400px] h-auto" />
         </div>
         <Tabs defaultValue="management" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="management">Gallery Management</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="documentation">Documentation</TabsTrigger>
           </TabsList>
           
           <TabsContent value="management" className="mt-6">
@@ -227,6 +228,20 @@ const Index = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="documentation" className="mt-6">
+            <Card>
+              <CardContent className="p-0">
+                <iframe
+                  src="https://kindpixels.com/pdf-gallery/documentation/"
+                  title="PDF Gallery Documentation"
+                  className="w-full"
+                  style={{ height: '70vh', border: '0' }}
+                  loading="lazy"
+                />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

@@ -209,16 +209,12 @@ const PDFGallery = ({
       onMouseEnter: () => setHoveredId(pdf.id),
       onMouseLeave: () => setHoveredId(null),
       onClick: (e: React.MouseEvent) => {
-        if (isAndroid || isMobile) {
+        if (isAndroid) {
           e.preventDefault();
-          try {
-            (window.top || window).location.assign(httpsUrl);
-          } catch {
-            window.location.assign(httpsUrl);
-          }
+          try { (window.top || window).location.assign(httpsUrl); } catch { window.location.assign(httpsUrl); }
         }
       }
-    };
+    } as const;
 
     // Force default style for free version
     const effectiveStyle = license.isPro ? settings.thumbnailStyle : 'default';

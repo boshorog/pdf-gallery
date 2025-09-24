@@ -17,6 +17,11 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   const [isActivating, setIsActivating] = useState(false);
   const { toast } = useToast();
   const license = useLicense();
+  const isPro = license.isPro;
+  const heading = isPro ? 'Welcome to PDF Gallery Pro' : 'Upgrade to PDF Gallery Pro';
+  const description = isPro
+    ? 'You have access to advanced features to create stunning, unlimited PDF galleries with advanced settings and custom styling options.'
+    : 'Unlock advanced features to create stunning, unlimited PDF galleries with custom styling options.';
 
   const handleActivateLicense = async () => {
     if (!licenseKey.trim()) {
@@ -94,14 +99,14 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-lg font-bold text-foreground">Upgrade to PDF Gallery</h3>
+              <h3 className="text-lg font-bold text-foreground">{heading}</h3>
               <div className="px-2 py-1 text-xs font-medium bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full">
                 Pro
               </div>
             </div>
             
             <p className="text-sm text-muted-foreground mb-4">
-              Unlock advanced features to create stunning, unlimited PDF galleries with custom styling options.
+              {description}
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
