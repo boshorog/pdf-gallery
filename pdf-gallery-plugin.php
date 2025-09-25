@@ -60,7 +60,7 @@ class PDF_Gallery_Plugin {
             'pdf-gallery-manager',          // Menu slug
             array($this, 'render_admin_page'), // Callback function
             'dashicons-media-document',     // Icon
-            25                             // Position
+            100                            // Position (high number = bottom of menu)
         );
     }
     

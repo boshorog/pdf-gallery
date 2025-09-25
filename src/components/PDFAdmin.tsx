@@ -689,12 +689,12 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                     {isUploading ? 'Uploading...' : 'Upload Document file'}
                   </span>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Accepted: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX
+                    Accepted: PDF, DOC/DOCX, PPT/PPTX, XLS/XLSX, JPG/JPEG, PNG, GIF, WEBP
                   </p>
                   <Input
                     id="pdfFile"
                     type="file"
-                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/jpeg,image/png,image/gif,image/webp"
                     onChange={handleFileUpload}
                     disabled={isUploading}
                     className="hidden"
