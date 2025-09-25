@@ -520,11 +520,16 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/vnd.ms-powerpoint',
       'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
     ];
     if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Error",
-        description: "Please select a PDF, DOC, DOCX, PPT, or PPTX file",
+        description: "Please select a PDF, DOC/DOCX, PPT/PPTX, XLS/XLSX, or an image (JPG/JPEG, PNG, GIF, WEBP)",
         variant: "destructive",
       });
       return;
@@ -556,9 +561,11 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
         // Auto-fill the form with uploaded file data
         const baseName = file.name.replace(/\.[^.]+$/, '');
         const ext = (file.name.split('.').pop() || '').toLowerCase();
-        const mappedType = ((): 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' => {
-          if (ext === 'doc' || ext === 'docx' || ext === 'xls' || ext === 'xlsx') return 'doc';
-          if (ext === 'ppt' || ext === 'pptx') return 'ppt';
+        const mappedType: PDF['fileType'] = (() => {
+          if (ext === 'doc' || ext === 'docx') return ext as 'doc' | 'docx';
+          if (ext === 'ppt' || ext === 'pptx') return ext as 'ppt' | 'pptx';
+          if (ext === 'xls' || ext === 'xlsx') return ext as 'xls' | 'xlsx';
+          if (ext === 'jpg' || ext === 'jpeg' || ext === 'png' || ext === 'gif' || ext === 'webp') return ext as 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp';
           return 'pdf';
         })();
         setDocumentFormData(prev => ({
