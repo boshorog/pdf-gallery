@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FileText, ExternalLink, FileType, Presentation } from 'lucide-react';
+import { FileText, ExternalLink, FileType, Presentation, Image } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
+import { generateThumbnail } from '@/utils/supabaseClient';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -11,7 +12,7 @@ interface PDF {
   date: string;
   pdfUrl: string;
   thumbnail: string;
-  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx';
+  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp';
 }
 
 interface Divider {
@@ -211,7 +212,14 @@ const PDFGallery = ({
       onClick: (e: React.MouseEvent) => {
         if (isAndroid) {
           e.preventDefault();
-          try { (window.top || window).location.assign(httpsUrl); } catch { window.location.assign(httpsUrl); }
+          // Use Google Docs viewer for Android compatibility
+          const encodedUrl = encodeURIComponent(httpsUrl);
+          const googleViewerUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
+          try { 
+            (window.top || window).open(googleViewerUrl, '_blank');
+          } catch { 
+            window.open(googleViewerUrl, '_blank');
+          }
         }
       }
     } as const;

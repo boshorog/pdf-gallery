@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: PDF Gallery creates visually stunning galleries from PDF and DOCX files. Easily organize, sort, and showcase your documents in beautiful grid layouts. With built-in sorting, live previews, and responsive design, PDF Gallery gives website owners the perfect solution for presenting important files in a user-friendly, attractive format, and enable quick downloads.
- * Version: 1.2.5
+ * Version: 1.3.1
  * Author: KIND PIXELS
  * Requires at least: 5.0
  * Tested up to: 6.4
@@ -118,7 +118,7 @@ class PDF_Gallery_Plugin {
             'pdf-gallery-admin', 
             $js_file, 
             array(), 
-            '1.2.5', 
+            '1.3.1', 
             true
         );
         wp_script_add_data('pdf-gallery-admin', 'type', 'module');
@@ -127,7 +127,7 @@ class PDF_Gallery_Plugin {
             'pdf-gallery-admin', 
             $css_file, 
             array(), 
-            '1.2.5'
+            '1.3.1'
         );
         
         // Pass WordPress user info to React app
@@ -252,9 +252,12 @@ public function display_gallery_shortcode($atts) {
      */
     public function plugin_action_links($links) {
         $site_link = '<a href="https://kindpixels.com" target="_blank">Visit plugin site</a>';
-        $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank"><strong>Upgrade to Pro</strong></a>';
-        array_unshift($links, $upgrade_link);
+        $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank" style="font-weight: bold;">Upgrade to Pro!</a>';
+        
+        // Add site link first, then upgrade link at the end
         array_unshift($links, $site_link);
+        $links[] = $upgrade_link;
+        
         return $links;
     }
     
@@ -462,10 +465,15 @@ public function display_gallery_shortcode($atts) {
             'application/vnd.ms-powerpoint',
             'application/vnd.openxmlformats-officedocument.presentationml.presentation',
             'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/gif',
+            'image/webp'
         );
         if (!in_array($file['type'], $allowed_types, true)) {
-            wp_send_json_error('Only PDF, DOC, DOCX, PPT and PPTX files are allowed');
+            wp_send_json_error('Only PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, and image files are allowed');
         }
         
         if ($file['size'] > 10 * 1024 * 1024) {

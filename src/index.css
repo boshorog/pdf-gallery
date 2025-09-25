@@ -17,7 +17,7 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 84% 11%;
 
-    --primary: 198 60% 68%; /* Blue #7FB3DC */
+    --primary: 120 31% 61%; /* Plugin color #86B584 */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96%;
@@ -34,7 +34,7 @@ All colors MUST be HSL.
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    --ring: 120 31% 61%; /* Plugin color #86B584 */
 
     --radius: 0.75rem;
 
@@ -73,7 +73,7 @@ All colors MUST be HSL.
     --popover: 222 84% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 198 65% 75%; /* Lighter blue for dark mode */
+    --primary: 120 31% 61%; /* Plugin color #86B584 */
     --primary-foreground: 222 84% 5%;
 
     --secondary: 217 33% 17%;
@@ -90,7 +90,7 @@ All colors MUST be HSL.
 
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 217 91% 60%;
+    --ring: 120 31% 61%;
 
     --newsletter-hover: 217 33% 17%;
     --newsletter-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);

@@ -16,6 +16,7 @@ interface PDF {
   date: string;
   pdfUrl: string;
   thumbnail: string;
+  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp';
 }
 
 interface Divider {

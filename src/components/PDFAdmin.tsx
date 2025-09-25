@@ -32,7 +32,7 @@ interface PDF {
   date: string;
   pdfUrl: string;
   thumbnail: string;
-  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx';
+  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp';
 }
 
 interface Divider {
@@ -105,7 +105,16 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
               <div>
                 {(() => {
                   const ft = ((item as PDF).fileType || 'pdf');
-                  const label = (ft === 'doc' || ft === 'docx') ? 'DOC Document:' : (ft === 'ppt' || ft === 'pptx') ? 'PPT Document:' : 'PDF Document:';
+                  let label = 'PDF Document:';
+                  if (ft === 'doc' || ft === 'docx') {
+                    label = 'DOC Document:';
+                  } else if (ft === 'ppt' || ft === 'pptx') {
+                    label = 'PPT Document:';
+                  } else if (ft === 'xls' || ft === 'xlsx') {
+                    label = 'XLS Document:';
+                  } else if (ft === 'jpg' || ft === 'jpeg' || ft === 'png' || ft === 'gif' || ft === 'webp') {
+                    label = 'Photo:';
+                  }
                   return <h3 className="font-semibold">{label} {(item as PDF).title}</h3>;
                 })()}
                 <p className="text-sm text-muted-foreground">{(item as PDF).date}</p>

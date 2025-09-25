@@ -11,7 +11,7 @@ interface PDF {
   date: string;
   pdfUrl: string;
   thumbnail: string;
-  fileType?: string;
+  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp';
 }
 
 interface EditDocumentModalProps {
@@ -83,6 +83,13 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
                 <SelectItem value="docx">DOCX</SelectItem>
                 <SelectItem value="ppt">PPT</SelectItem>
                 <SelectItem value="pptx">PPTX</SelectItem>
+                <SelectItem value="xls">XLS</SelectItem>
+                <SelectItem value="xlsx">XLSX</SelectItem>
+                <SelectItem value="jpg">JPG</SelectItem>
+                <SelectItem value="jpeg">JPEG</SelectItem>
+                <SelectItem value="png">PNG</SelectItem>
+                <SelectItem value="gif">GIF</SelectItem>
+                <SelectItem value="webp">WEBP</SelectItem>
               </SelectContent>
             </Select>
           </div>
