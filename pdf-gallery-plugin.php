@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: PDF Gallery creates visually stunning galleries from PDF and DOCX files. Easily organize, sort, and showcase your documents in beautiful grid layouts. With built-in sorting, live previews, and responsive design, PDF Gallery gives website owners the perfect solution for presenting important files in a user-friendly, attractive format, and enable quick downloads.
- * Version: 1.3.1
+ * Version: 1.3.2
  * Author: KIND PIXELS
  * Requires at least: 5.0
  * Tested up to: 6.4
@@ -118,7 +118,7 @@ class PDF_Gallery_Plugin {
             'pdf-gallery-admin', 
             $js_file, 
             array(), 
-            '1.3.1', 
+            '1.3.2', 
             true
         );
         wp_script_add_data('pdf-gallery-admin', 'type', 'module');
@@ -127,7 +127,7 @@ class PDF_Gallery_Plugin {
             'pdf-gallery-admin', 
             $css_file, 
             array(), 
-            '1.3.1'
+            '1.3.2'
         );
         
         // Pass WordPress user info to React app
@@ -251,7 +251,7 @@ public function display_gallery_shortcode($atts) {
      * Add links on the plugins page
      */
     public function plugin_action_links($links) {
-        $site_link = '<a href="https://kindpixels.com" target="_blank">Visit plugin site</a>';
+        $site_link = '<a href="https://kindpixels.com" target="_blank" rel="noopener noreferrer">Visit plugin site</a>';
         $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank" style="font-weight: bold;">Upgrade to Pro!</a>';
         
         // Add site link first, then upgrade link at the end

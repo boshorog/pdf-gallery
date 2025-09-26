@@ -72,17 +72,24 @@ const PDFGallery = ({
 
     setIsGeneratingThumbnails(true);
     
-    // Extract PDFs that need thumbnail generation
+    // Extract PDFs that need thumbnail generation (excluding images which use themselves as thumbnails)
     const pdfsNeedingThumbnails = items.filter((item): item is PDF => 
-      'pdfUrl' in item && (!item.thumbnail || item.thumbnail === placeholderUrl || item.thumbnail.includes('placeholder'))
+      'pdfUrl' in item && 
+      (!item.thumbnail || item.thumbnail === placeholderUrl || item.thumbnail.includes('placeholder')) &&
+      !['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(item.fileType || 'pdf')
     );
     
     if (pdfsNeedingThumbnails.length > 0) {
       console.log('Starting thumbnail generation...');
       
-      // Check cached thumbnails first
+      // Check cached thumbnails first and set image files to use themselves as thumbnails
       const itemsWithCached = items.map(item => {
         if ('pdfUrl' in item) {
+          // For image files, use the original URL as thumbnail
+          if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(item.fileType || 'pdf')) {
+            return { ...item, thumbnail: item.pdfUrl };
+          }
+          
           const cacheKey = `pdf_thumbnail_${item.pdfUrl}`;
           const cachedThumbnail = localStorage.getItem(cacheKey);
           if (cachedThumbnail) {
@@ -193,9 +200,10 @@ const PDFGallery = ({
 
   // Get file type icon and color
   const getFileTypeIcon = (fileType: string = 'pdf') => {
-    let label: 'PDF' | 'DOC' | 'PPT' = 'PDF';
+    let label: 'PDF' | 'DOC' | 'PPT' | 'IMG' = 'PDF';
     if (fileType === 'doc' || fileType === 'docx') label = 'DOC';
     else if (fileType === 'ppt' || fileType === 'pptx') label = 'PPT';
+    else if (fileType === 'jpg' || fileType === 'jpeg' || fileType === 'png' || fileType === 'gif' || fileType === 'webp') label = 'IMG';
     return { icon: FileText, color: 'text-muted-foreground', bgColor: 'bg-muted', label };
   };
 
@@ -430,7 +438,7 @@ const PDFGallery = ({
                 <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)]">
                   {pdf.date}
                 </p>
-                <h3 className="font-semibold text-sm line-clamp-2 leading-tight text-foreground group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)] transition-colors duration-200">
+                <h3 className="font-semibold text-sm leading-tight text-foreground group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)] transition-colors duration-200 truncate">
                   {pdf.title}
                 </h3>
               </div>
@@ -441,19 +449,18 @@ const PDFGallery = ({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4" style={{ ['--accent-color' as any]: settings.accentColor }}>
+    <div className="w-full max-w-7xl mx-auto px-2" style={{ ['--accent-color' as any]: settings.accentColor }}>
       {isGeneratingThumbnails && (
-        <div className="text-center mb-6">
-          <p className="text-sm text-muted-foreground animate-pulse">
-            Generating thumbnails...
-          </p>
+        <div className="text-center mb-6 flex items-center justify-center gap-2">
+          <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm text-muted-foreground">Generating thumbnails...</p>
         </div>
       )}
 
       {displayItems.length === 0 ? (
         <div className="text-center py-12">
           <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">No documents available</h3>
+          <h3 className="text-xl font-semibold mb-2">No documents yet</h3>
           <p className="text-muted-foreground">Documents will appear here when they are added.</p>
         </div>
       ) : (
