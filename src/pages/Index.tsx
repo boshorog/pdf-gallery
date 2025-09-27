@@ -80,7 +80,7 @@ const Index = () => {
         .then((data) => {
           if (data?.success && data?.data) {
             const galleries = data.data.galleries || [];
-            const currentGalleryId = data.data.current_gallery_id || '';
+            let currentGalleryId = data.data.current_gallery_id || '';
             
             if (galleries.length === 0) {
               // Create empty default gallery
@@ -95,9 +95,13 @@ const Index = () => {
                 currentGalleryId: 'main'
               });
             } else {
+              // If no current gallery is set, use the first gallery
+              if (!currentGalleryId) {
+                currentGalleryId = galleries[0].id;
+              }
               setGalleryState({
                 galleries,
-                currentGalleryId: currentGalleryId || galleries[0].id
+                currentGalleryId: currentGalleryId
               });
             }
           } else {
@@ -203,11 +207,11 @@ const Index = () => {
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
         {/* Plugin Logo */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-start mb-6">
           <img 
             src="/src/assets/pdf-gallery-logo.png" 
             alt="PDF Gallery Plugin Logo" 
-            className="h-12 w-auto"
+            className="w-[400px] h-auto"
           />
         </div>
         
@@ -255,12 +259,10 @@ const Index = () => {
                 Showing: {currentGallery?.name || 'Main Gallery'}
               </p>
             </div>
-            <div className="mt-8">
-              <PDFGallery 
-                items={currentItems} 
-                settings={settings} 
-              />
-            </div>
+            <PDFGallery 
+              items={currentItems} 
+              settings={settings} 
+            />
           </TabsContent>
           
           <TabsContent value="gallery">

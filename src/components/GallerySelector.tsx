@@ -305,7 +305,7 @@ export const GallerySelector = ({
                 Are you sure you want to delete the gallery "{currentGallery?.name}"? This action cannot be undone and will permanently delete all documents in this gallery.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter className="flex items-center justify-end gap-2">
+            <AlertDialogFooter className="flex items-center gap-2">
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction onClick={handleDeleteGallery} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                 Delete Gallery

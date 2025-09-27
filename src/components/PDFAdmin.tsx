@@ -69,7 +69,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
           <div 
             {...attributes} 
             {...listeners}
-            className="cursor-grab hover:cursor-grabbing"
+            className="cursor-grab hover:cursor-grabbing p-2 -m-2"
           >
             <GripVertical className="w-5 h-5 text-muted-foreground" />
           </div>
@@ -103,10 +103,19 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                     const pdfItem = item as PDF;
                     let fileType = pdfItem.fileType?.toLowerCase();
                     
-                    // If no fileType, try to detect from URL
+                    // If no fileType, try to detect from URL or filename
                     if (!fileType) {
                       const url = pdfItem.pdfUrl || '';
-                      const extension = url.split('.').pop()?.toLowerCase();
+                      const title = pdfItem.title || '';
+                      
+                      // Try from URL extension first
+                      let extension = url.split('.').pop()?.toLowerCase();
+                      
+                      // If URL doesn't have extension, try from title
+                      if (!extension || !['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) {
+                        extension = title.split('.').pop()?.toLowerCase();
+                      }
+                      
                       fileType = extension || 'pdf';
                     }
                     
@@ -668,7 +677,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 ml-12">
               {items.length > 0 && (
                 <>
                   <Checkbox 
