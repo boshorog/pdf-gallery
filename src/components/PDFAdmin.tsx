@@ -253,63 +253,72 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       return;
     }
 
-    if (license.isPro) {
-      // Pro version: bulk upload with auto-start
-      const newFiles = Array.from(fileList).map(file => ({
-        file,
-        title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
-        subtitle: '',
-        fileType: getFileType(file),
-        progress: 0
-      }));
-      setFiles(prev => [...newFiles, ...prev]); // Add new files at the top
-      
-      // Auto-start upload immediately
-      setTimeout(() => {
-        if (newFiles.length > 0) {
-          processAutoUploads(newFiles);
-        }
-      }, 100);
-    } else {
-      // Free version: block multi-select and show upgrade message
-      if (fileList.length > 1) {
-        toast({
-          title: 'Upgrade required',
-          description: 'Bulk upload is a Pro feature. Please select a single file or upgrade to Pro.',
-          variant: 'destructive',
-        });
-        return;
-      }
-      // Single file only, traditional modal approach
-      if (fileList.length > 0) {
-        const file = fileList[0]; // Only take first file
-        setDocumentFormData({
-          title: file.name.replace(/\.[^/.]+$/, ""),
-          date: '',
-          pdfUrl: '',
-          thumbnail: '',
-          fileType: getFileType(file)
-        });
-        setIsAddingDocument(true);
-        
-        // Upload single file immediately in background
+    // Convert FileList to array
+    const newFiles = Array.from(fileList);
+    
+    // Only allow multi-file upload for Pro users
+    if (newFiles.length > 1 && !license.isPro) {
+      toast({
+        title: "Pro Feature",
+        description: "Bulk upload is available only with the Pro version. Please select one file at a time.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const processedFiles = newFiles.map(file => ({
+      file,
+      title: file.name.replace(/\.[^/.]+$/, ''),
+      subtitle: '',
+      fileType: getFileType(file),
+      progress: 0,
+    }));
+    setFiles(processedFiles);
+
+    // If Pro user with multiple files, don't auto-process
+    if (license.isPro && processedFiles.length > 1) {
+      // Files staged for manual processing
+      return;
+    }
+
+    // Single file processing
+    if (processedFiles.length === 1) {
+      if (license.isPro) {
+        // Pro version: auto-upload single files and close form
         setIsUploading(true);
-        uploadFileToWP({
-          file,
-          title: file.name.replace(/\.[^/.]+$/, ""),
-          subtitle: '',
-          fileType: getFileType(file)
-        }, 0).then(url => {
-          setDocumentFormData(prev => ({ ...prev, pdfUrl: url }));
+        uploadFileToWP(processedFiles[0], 0).then(url => {
+          const newPDF: PDF = {
+            id: Date.now().toString(),
+            title: processedFiles[0].title,
+            date: processedFiles[0].subtitle || '',
+            pdfUrl: url,
+            thumbnail: '',
+            fileType: (processedFiles[0].fileType as PDF['fileType']) || 'pdf'
+          };
+          const updated = [newPDF, ...items];
+          const updatedGalleries = updateCurrentGalleryItems(updated);
+          return saveGalleriesToWP(updatedGalleries);
+        }).then(() => {
+          setFiles([]);
+          setIsAddingDocument(false); // Auto-close form
+          toast({ title: 'Uploaded', description: 'File uploaded and added to gallery' });
         }).catch(err => {
           console.error('Upload failed:', err);
           toast({ title: 'Error', description: 'File upload failed', variant: 'destructive' });
         }).finally(() => {
           setIsUploading(false);
         });
+      } else {
+        // Free version: show error for file upload attempts
+        toast({
+          title: "Upload Not Available",
+          description: "File uploads require the Pro version. Please add documents manually using URLs.",
+          variant: "destructive",
+        });
+        setFiles([]);
       }
     }
-  }, [license.isPro, galleries.length, currentGalleryId]);
+  }, [license.isPro, galleries.length, currentGalleryId, items]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -422,6 +431,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       const updatedGalleries = updateCurrentGalleryItems(accItems);
       await saveGalleriesToWP(updatedGalleries);
       setFiles([]);
+      setIsAddingDocument(false); // Auto-close form after upload
       toast({ title: 'Uploaded', description: `${filesToUpload.length} file${filesToUpload.length !== 1 ? 's' : ''} uploaded and added to gallery` });
     } catch (error) {
       console.error('Upload error:', error);
@@ -898,7 +908,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox aligned with item checkboxes */}
-            <div className="flex items-center space-x-3 ml-2.5">
+            <div className="flex items-center space-x-3 ml-5">
               {items.length > 0 && (
                 <>
                   <Checkbox 

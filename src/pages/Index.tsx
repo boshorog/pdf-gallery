@@ -89,17 +89,25 @@ const Index = () => {
                 const backupRaw = localStorage.getItem('pdf_gallery_backup');
                 const backup = backupRaw ? JSON.parse(backupRaw) : null;
                 if (Array.isArray(backup) && backup.length > 0) {
+                  // Ensure galleries have proper structure with names
+                  const restoredGalleries = backup.map((gallery: any) => ({
+                    id: gallery.id || 'main',
+                    name: gallery.name || 'Main Gallery',
+                    items: Array.isArray(gallery.items) ? gallery.items : [],
+                    createdAt: gallery.createdAt || new Date().toISOString(),
+                  }));
+                  
                   // Attempt server restore so it persists
                   const restoreForm = new FormData();
                   restoreForm.append('action', 'pdf_gallery_action');
                   restoreForm.append('action_type', 'save_galleries');
                   restoreForm.append('nonce', nonce);
-                  restoreForm.append('galleries', JSON.stringify(backup));
-                  restoreForm.append('current_gallery_id', backup[0]?.id || 'main');
+                  restoreForm.append('galleries', JSON.stringify(restoredGalleries));
+                  restoreForm.append('current_gallery_id', restoredGalleries[0]?.id || 'main');
                   fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: restoreForm }).catch(() => {});
                   setGalleryState({
-                    galleries: backup,
-                    currentGalleryId: backup[0]?.id || 'main',
+                    galleries: restoredGalleries,
+                    currentGalleryId: restoredGalleries[0]?.id || 'main',
                   });
                   return; // Done
                 }
