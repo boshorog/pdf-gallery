@@ -60,20 +60,27 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
 
   return (
     <Card ref={setNodeRef} style={style} className="bg-background">
-      <CardContent className="flex items-center justify-between p-3">
-        <div className="flex items-center space-x-4">
+      <CardContent className="flex items-center justify-between p-2">
+        <div className="flex items-center space-x-3">
+          <div
+            {...attributes}
+            {...listeners}
+            className="w-10 flex items-center justify-center cursor-grab hover:cursor-grabbing py-4 -my-4"
+            title="Drag to reorder"
+            aria-label="Drag handle"
+          >
+            <div aria-hidden="true" className="grid grid-cols-3 gap-x-0.5 gap-y-1">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <span key={i} className="w-1 h-1 rounded-full bg-muted-foreground/70 block" />
+              ))}
+            </div>
+          </div>
           <Checkbox 
             checked={isSelected}
             onCheckedChange={(checked) => onSelect(item.id, !!checked)}
+            aria-label="Select item"
           />
-          <div 
-            {...attributes} 
-            {...listeners}
-            className="cursor-grab hover:cursor-grabbing p-2 -m-2"
-          >
-            <GripVertical className="w-5 h-5 text-muted-foreground" />
-          </div>
-          
+        </div>
           {('type' in item && item.type === 'divider') ? (
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
@@ -676,13 +683,16 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
 
       <>
           <div className="flex justify-between items-center">
-            {/* Left: Select All Checkbox */}
-            <div className="flex items-center gap-2 ml-12">
+            {/* Left: Select All Checkbox aligned with item checkboxes */}
+            <div className="flex items-center gap-2">
+              {/* Spacer to align with drag handle width */}
+              <div className="w-10 shrink-0" />
               {items.length > 0 && (
                 <>
                   <Checkbox 
                     checked={selectedItems.size === items.length && items.length > 0}
                     onCheckedChange={handleSelectAll}
+                    aria-label="Select all"
                   />
                   <span className="text-sm text-muted-foreground">
                     {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select all'}
@@ -846,7 +856,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
           )}
 
           {/* Sortable Items List */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}

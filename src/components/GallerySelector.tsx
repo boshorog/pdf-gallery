@@ -306,8 +306,8 @@ export const GallerySelector = ({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex items-center gap-2">
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteGallery} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              <AlertDialogCancel className="h-9">Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteGallery} className="h-9 bg-destructive text-destructive-foreground hover:bg-destructive/90">
                 Delete Gallery
               </AlertDialogAction>
             </AlertDialogFooter>

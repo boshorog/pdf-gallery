@@ -164,7 +164,8 @@ class PDF_Gallery_Plugin {
 public function display_gallery_shortcode($atts) {
     // Parse attributes
     $atts = shortcode_atts(array(
-        'show_admin' => 'false'
+        'show_admin' => 'false',
+        'name' => ''
     ), $atts, 'pdf_gallery');
 
     // Build iframe URL to isolate styles from the host theme
@@ -177,6 +178,7 @@ public function display_gallery_shortcode($atts) {
         'nonce' => $nonce,
         'ajax'  => $ajax,
         'admin' => $admin,
+        'name'  => sanitize_title($atts['name'])
     ), $index_url);
 
     // Responsive iframe container with flexible height and no internal scrollbars (auto-resize via postMessage)
@@ -492,10 +494,20 @@ public function display_gallery_shortcode($atts) {
             update_option('pdf_gallery_current_gallery_id', $current_id);
         }
 
-        wp_send_json_success(array(
-            'galleries' => $galleries,
-            'current_gallery_id' => $current_id,
-        ));
+        // Front-end request can specify a gallery name to preview via shortcode
+        if (isset($_POST['requested_gallery_name'])) {
+            $req = sanitize_text_field($_POST['requested_gallery_name']);
+            if (!empty($req) && is_array($galleries)) {
+                $slug = sanitize_title($req);
+                foreach ($galleries as $g) {
+                    $gname = isset($g['name']) ? $g['name'] : '';
+                    if (sanitize_title($gname) === $slug) {
+                        $current_id = $g['id'];
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private function handle_save_galleries() {

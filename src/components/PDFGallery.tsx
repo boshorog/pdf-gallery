@@ -61,6 +61,19 @@ const PDFGallery = ({
     ? settings.defaultPlaceholder
     : pdfPlaceholder;
 
+  const getItemFileType = (it: any): string => {
+    try {
+      const url = 'pdfUrl' in it ? (it.pdfUrl || '') : '';
+      const title = 'title' in it ? (it.title || '') : '';
+      const thumb = 'thumbnail' in it ? (it.thumbnail || '') : '';
+      const source = url || title || thumb;
+      const ext = (source.split('.').pop() || '').toLowerCase();
+      if (!ext) return (it.fileType || 'pdf');
+      return ext;
+    } catch {
+      return 'pdf';
+    }
+  };
   useEffect(() => {
     // Notify parent page to allow height auto-resize
     window.parent?.postMessage({ type: 'pdf-gallery:height-check' }, '*');
@@ -75,8 +88,8 @@ const PDFGallery = ({
     // Extract PDFs that need thumbnail generation (excluding images which use themselves as thumbnails)
     const pdfsNeedingThumbnails = items.filter((item): item is PDF => 
       'pdfUrl' in item && 
-      (!item.thumbnail || item.thumbnail === placeholderUrl || item.thumbnail.includes('placeholder')) &&
-      !['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(item.fileType || 'pdf')
+      (!item.thumbnail || item.thumbnail === placeholderUrl || (item as any).thumbnail?.includes('placeholder')) &&
+      !['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(getItemFileType(item))
     );
     
     if (pdfsNeedingThumbnails.length > 0) {
@@ -86,11 +99,11 @@ const PDFGallery = ({
       const itemsWithCached = items.map(item => {
         if ('pdfUrl' in item) {
           // For image files, use the original URL as thumbnail
-          if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(item.fileType || 'pdf')) {
-            return { ...item, thumbnail: item.pdfUrl };
+          if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(getItemFileType(item))) {
+            return { ...item, thumbnail: (item as PDF).pdfUrl };
           }
           
-          const cacheKey = `pdf_thumbnail_${item.pdfUrl}`;
+          const cacheKey = `pdf_thumbnail_${(item as PDF).pdfUrl}`;
           const cachedThumbnail = localStorage.getItem(cacheKey);
           if (cachedThumbnail) {
             return { ...item, thumbnail: cachedThumbnail };
@@ -234,7 +247,7 @@ const PDFGallery = ({
 
     // Force default style for free version
     const effectiveStyle = license.isPro ? settings.thumbnailStyle : 'default';
-    const fileTypeInfo = getFileTypeIcon(pdf.fileType);
+    const fileTypeInfo = getFileTypeIcon(getItemFileType(pdf));
     const IconComponent = fileTypeInfo.icon;
 
     switch (effectiveStyle) {

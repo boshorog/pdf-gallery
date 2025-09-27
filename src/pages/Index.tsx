@@ -63,14 +63,14 @@ const Index = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
     const nonce = wp?.nonce || urlParams.get('nonce') || '';
-
+    const requestedGalleryName = urlParams.get('name') || '';
     if (ajaxUrl && nonce) {
       // Fetch galleries from WordPress
       const form = new FormData();
       form.append('action', 'pdf_gallery_action');
       form.append('action_type', 'get_galleries');
       form.append('nonce', nonce);
-
+      if (requestedGalleryName) { form.append('requested_gallery_name', requestedGalleryName); }
       fetch(ajaxUrl, {
         method: 'POST',
         credentials: 'same-origin',
@@ -96,7 +96,12 @@ const Index = () => {
               });
             } else {
               // If no current gallery is set, use the first gallery
-              if (!currentGalleryId) {
+              if (requestedGalleryName) {
+                const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9-_]/g, '-');
+                const match = galleries.find((g: Gallery) => slug(g.name) === slug(requestedGalleryName));
+                if (match) { currentGalleryId = match.id; }
+              }
+              if (!currentGalleryId && galleries.length > 0) {
                 currentGalleryId = galleries[0].id;
               }
               setGalleryState({
