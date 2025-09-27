@@ -60,7 +60,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
 
   return (
     <Card ref={setNodeRef} style={style} className="bg-background">
-      <CardContent className="flex items-center justify-between px-2 pl-12 py-3">
+      <CardContent className="flex items-center justify-between px-2 pl-8 py-3">
         <div className="flex items-center space-x-3">
           <Checkbox className="mt-0" 
             checked={isSelected}
@@ -681,7 +681,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox aligned with item checkboxes */}
-            <div className="flex items-center space-x-3 pl-12">
+            <div className="flex items-center space-x-3 pl-8">
               {items.length > 0 && (
                 <>
                   <Checkbox 
