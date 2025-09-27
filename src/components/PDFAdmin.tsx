@@ -265,7 +265,16 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
         }
       }, 100);
     } else {
-      // Free version: single file only, traditional modal approach
+      // Free version: block multi-select and show upgrade message
+      if (fileList.length > 1) {
+        toast({
+          title: 'Upgrade required',
+          description: 'Bulk upload is a Pro feature. Please select a single file or upgrade to Pro.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      // Single file only, traditional modal approach
       if (fileList.length > 0) {
         const file = fileList[0]; // Only take first file
         setDocumentFormData({
@@ -402,9 +411,10 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
           fileType: (f.fileType as PDF['fileType']) || 'pdf'
         };
         accItems = [newPDF, ...accItems];
-        const updatedGalleries = updateCurrentGalleryItems(accItems);
-        await saveGalleriesToWP(updatedGalleries);
       }
+      // Single atomic save after all uploads complete
+      const updatedGalleries = updateCurrentGalleryItems(accItems);
+      await saveGalleriesToWP(updatedGalleries);
       setFiles([]);
       toast({ title: 'Uploaded', description: `${filesToUpload.length} file${filesToUpload.length !== 1 ? 's' : ''} uploaded and added to gallery` });
     } catch (error) {
@@ -423,6 +433,11 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   );
 
   const saveGalleriesToWP = async (updatedGalleries: Gallery[]) => {
+    // Safety guard: never persist an empty galleries array
+    if (!Array.isArray(updatedGalleries) || updatedGalleries.length === 0) {
+      console.warn('Aborting save: empty galleries payload');
+      return false;
+    }
     const wp = (window as any).wpPDFGallery;
     if (wp?.ajaxUrl && wp?.nonce) {
       try {
@@ -874,7 +889,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox aligned with item checkboxes */}
-            <div className="flex items-center space-x-3 pl-3">
+            <div className="flex items-center space-x-3 ml-2.5">
               {items.length > 0 && (
                 <>
                   <Checkbox 
@@ -976,7 +991,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   <input
                     ref={fileInputRef}
                     type="file"
-                    multiple
+                    multiple={license.isPro}
                     accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp"
                     onChange={handleFileInput}
                     className="hidden"

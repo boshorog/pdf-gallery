@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Upload, X, FileText } from 'lucide-react';
+import { useLicense } from '@/hooks/useLicense';
+import { useToast } from '@/hooks/use-toast';
 
 interface FileUpload {
   file: File;
@@ -27,6 +29,8 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const license = useLicense();
 
   const getFileType = (file: File): string => {
     const extension = file.name.split('.').pop()?.toLowerCase();
@@ -39,6 +43,14 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
   };
 
   const handleFiles = useCallback((fileList: FileList) => {
+    if (!license.isPro && fileList.length > 1) {
+      toast({
+        title: 'Upgrade required',
+        description: 'Bulk upload is a Pro feature. Please select a single file or upgrade to Pro.',
+        variant: 'destructive',
+      });
+      return;
+    }
     const newFiles: FileUpload[] = Array.from(fileList).map(file => ({
       file,
       title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
@@ -54,7 +66,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
         processAutoUploads(newFiles);
       }
     }, 100);
-  }, []);
+  }, [license.isPro, toast]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -216,7 +228,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
             <input
               ref={fileInputRef}
               type="file"
-              multiple
+              multiple={license.isPro}
               accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp"
               onChange={handleFileInput}
               className="hidden"
