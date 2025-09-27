@@ -137,30 +137,41 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Upload Area */}
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
               isDragOver 
-                ? 'border-primary bg-primary/5' 
+                ? 'bg-primary border-primary text-primary-foreground' 
                 : 'border-muted-foreground/25 hover:border-muted-foreground/50'
             }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
+            onDragEnter={(e) => { e.preventDefault(); setIsDragOver(true); }}
           >
-            <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <div className="space-y-2">
-              <p className="text-lg font-medium">Drop files here or click to browse</p>
-              <p className="text-sm text-muted-foreground">
-                Supports PDF, DOC, DOCX, PPT, PPTX, and image files
-              </p>
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              className="mt-4"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              Browse Files
-            </Button>
+            {isDragOver ? (
+              <div className="flex flex-col items-center justify-center gap-2 py-6">
+                <Upload className="mx-auto h-12 w-12 text-primary-foreground/90" />
+                <p className="text-lg font-semibold">Drop your files here</p>
+                <p className="text-sm opacity-90">Release to upload</p>
+              </div>
+            ) : (
+              <>
+                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <div className="space-y-2">
+                  <p className="text-lg font-medium">Drop files here or click to browse</p>
+                  <p className="text-sm text-muted-foreground">
+                    Supports PDF, DOC, DOCX, PPT, PPTX, and image files
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Browse Files
+                </Button>
+              </>
+            )}
             <input
               ref={fileInputRef}
               type="file"
@@ -169,6 +180,14 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
               onChange={handleFileInput}
               className="hidden"
             />
+            {isUploading && (
+              <div className="absolute left-0 right-0 bottom-0">
+                <Progress
+                  value={Math.round(files.reduce((sum, f) => sum + (f.progress || 0), 0) / Math.max(files.length || 1, 1))}
+                  className="h-1 rounded-none"
+                />
+              </div>
+            )}
           </div>
 
           {/* File List */}
@@ -214,7 +233,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
                         />
                       </div>
                       <div>
-                        <Label htmlFor={`subtitle-${index}`}>Subtitle</Label>
+                        <Label htmlFor={`subtitle-${index}`}>Subtitle (optional)</Label>
                         <Input
                           id={`subtitle-${index}`}
                           value={file.subtitle}

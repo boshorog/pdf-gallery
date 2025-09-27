@@ -60,7 +60,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
 
   return (
     <Card ref={setNodeRef} style={style} className="bg-background">
-      <CardContent className="flex items-center justify-between px-2 pl-8 py-3">
+      <CardContent className="flex items-center justify-between px-2 pl-3 py-3">
         <div className="flex items-center space-x-3">
           <Checkbox className="mt-0" 
             checked={isSelected}
@@ -298,7 +298,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   };
 
   const handleSubmitDocument = async () => {
-    if (!documentFormData.title || !documentFormData.date || !documentFormData.pdfUrl) {
+    if (!documentFormData.title || !documentFormData.pdfUrl) {
       toast({
         title: "Error",
         description: "All fields are required",
@@ -681,7 +681,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox aligned with item checkboxes */}
-            <div className="flex items-center space-x-3 pl-8">
+            <div className="flex items-center space-x-3 pl-3">
               {items.length > 0 && (
                 <>
                   <Checkbox 
@@ -778,12 +778,12 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 </div>
                 
                 <div className="space-y-3">
-                  <Label htmlFor="date">Date</Label>
+                  <Label htmlFor="date">Subtitle (optional)</Label>
                   <Input
                     id="date"
                     value={documentFormData.date}
                     onChange={(e) => setDocumentFormData(prev => ({ ...prev, date: e.target.value }))}
-                    placeholder="January 2024"
+                    placeholder="Optional subtitle"
                   />
                 </div>
                 
