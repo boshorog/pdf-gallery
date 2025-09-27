@@ -1,104 +1,74 @@
 import { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Copy, Check } from 'lucide-react';
-import PDFGallery from '@/components/PDFGallery';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Check, Copy } from 'lucide-react';
 import PDFAdmin from '@/components/PDFAdmin';
+import PDFGallery from '@/components/PDFGallery';
 import PDFSettings from '@/components/PDFSettings';
-import pdfPlaceholder from '@/assets/pdf-placeholder.png';
-import logo from '@/assets/pdf-gallery-logo.png';
+import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 
-interface PDF {
-  id: string;
-  title: string;
-  date: string;
-  pdfUrl: string;
-  thumbnail: string;
-  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp';
-}
-
-interface Divider {
-  id: string;
-  type: 'divider';
-  text: string;
-}
-
-type GalleryItem = PDF | Divider;
-
-const initialPDFs: PDF[] = [
+// Initial PDF data (fallback for development)
+const initialPDFs: GalleryItem[] = [
   {
     id: '1',
-    title: 'When Jesus Calls Us by Name',
-    date: 'April 2025',
-    pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2504_Cand-Isus-Ne-Cheama-Pe-Nume.pdf',
-    thumbnail: pdfPlaceholder,
+    title: 'Newsletter January 2024',
+    date: 'January 2024',
+    pdfUrl: '/src/assets/newsletter-thumbnail-1.jpg',
+    thumbnail: '/src/assets/newsletter-thumbnail-1.jpg',
+    fileType: 'pdf'
   },
   {
     id: '2',
-    title: 'From Death to Life',
-    date: 'March 2025',
-    pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2503_De-la-Moarte-la-Viata.pdf',
-    thumbnail: pdfPlaceholder,
+    title: 'Newsletter February 2024',
+    date: 'February 2024',
+    pdfUrl: '/src/assets/newsletter-thumbnail-2.jpg',
+    thumbnail: '/src/assets/newsletter-thumbnail-2.jpg',
+    fileType: 'pdf'
   },
   {
     id: '3',
-    title: 'From Fever to Christ',
-    date: 'February 2025',
-    pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2502_De-La-Februs-La-Hristos.pdf',
-    thumbnail: pdfPlaceholder,
+    title: 'Newsletter March 2024',
+    date: 'March 2024',
+    pdfUrl: '/src/assets/newsletter-thumbnail-3.jpg',
+    thumbnail: '/src/assets/newsletter-thumbnail-3.jpg',
+    fileType: 'pdf'
   },
   {
     id: '4',
-    title: 'What the Future Holds',
-    date: 'January 2025',
-    pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf',
-    thumbnail: pdfPlaceholder,
-  },
-  {
-    id: '5',
-    title: 'Reflections on the Gift of Salvation',
-    date: 'December 2024',
-    pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2412_Reflectii-asupra-darului-mantuirii.pdf',
-    thumbnail: pdfPlaceholder,
-  },
-  {
-    id: '6',
-    title: 'The Eleventh Hour',
-    date: 'November 2024',
-    pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/04/newsletter2511_Ceasul-Al-Unsprezecelea.pdf',
-    thumbnail: pdfPlaceholder,
-  },
+    title: 'Newsletter April 2024',
+    date: 'April 2024',
+    pdfUrl: '/src/assets/newsletter-thumbnail-4.jpg',
+    thumbnail: '/src/assets/newsletter-thumbnail-4.jpg',
+    fileType: 'pdf'
+  }
 ];
 
 const Index = () => {
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [galleryState, setGalleryState] = useState<GalleryState>({
+    galleries: [],
+    currentGalleryId: ''
+  });
   const [settings, setSettings] = useState({
     thumbnailStyle: 'default',
     accentColor: '#7FB3DC',
     thumbnailShape: 'landscape-16-9',
     pdfIconPosition: 'top-right',
-    defaultPlaceholder: 'default',
-    thumbnailSize: 'four-rows'
+    defaultPlaceholder: 'default'
   });
   const [shortcodeCopied, setShortcodeCopied] = useState(false);
 
-  // Load gallery items and settings from WordPress
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
     const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
-    const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax') || `${window.location.origin}/wp-admin/admin-ajax.php`;
+    const urlParams = new URLSearchParams(window.location.search);
+    const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
     const nonce = wp?.nonce || urlParams.get('nonce') || '';
 
-    // Determine admin context via wp object or shortcode param
-    const isWordPressAdmin = !!wp?.isAdmin || urlParams.get('admin') === 'true';
-    
     if (ajaxUrl && nonce) {
-      // Fetch gallery items
+      // Fetch galleries from WordPress
       const form = new FormData();
       form.append('action', 'pdf_gallery_action');
-      form.append('action_type', 'get_items');
+      form.append('action_type', 'get_galleries');
       form.append('nonce', nonce);
 
       fetch(ajaxUrl, {
@@ -108,14 +78,54 @@ const Index = () => {
       })
         .then((res) => res.json())
         .then((data) => {
-          if (data?.success && Array.isArray(data?.data?.items)) {
-            setGalleryItems(data.data.items as GalleryItem[]);
+          if (data?.success && data?.data) {
+            const galleries = data.data.galleries || [];
+            const currentGalleryId = data.data.current_gallery_id || '';
+            
+            if (galleries.length === 0) {
+              // Create default gallery with existing items
+              const defaultGallery: Gallery = {
+                id: 'main',
+                name: 'Main Gallery',
+                items: initialPDFs,
+                createdAt: new Date().toISOString(),
+              };
+              setGalleryState({
+                galleries: [defaultGallery],
+                currentGalleryId: 'main'
+              });
+            } else {
+              setGalleryState({
+                galleries,
+                currentGalleryId: currentGalleryId || galleries[0].id
+              });
+            }
           } else {
-            setGalleryItems(initialPDFs);
+            // Create default gallery for development
+            const defaultGallery: Gallery = {
+              id: 'main',
+              name: 'Main Gallery',
+              items: initialPDFs,
+              createdAt: new Date().toISOString(),
+            };
+            setGalleryState({
+              galleries: [defaultGallery],
+              currentGalleryId: 'main'
+            });
           }
         })
         .catch(() => {
-          setGalleryItems(initialPDFs);
+          // Create default gallery for development
+          const defaultGallery: Gallery = {
+            id: 'main',
+            name: 'Main Gallery',
+            items: initialPDFs,
+            createdAt: new Date().toISOString(),
+          };
+          setGalleryState({
+            galleries: [defaultGallery],
+            currentGalleryId: 'main'
+          });
         });
 
       // Also fetch settings (needed for frontend visitors too)
@@ -138,19 +148,33 @@ const Index = () => {
         .catch(() => {});
     } else {
       // Fallback for development or when no config is provided
-      setGalleryItems(initialPDFs);
+      const defaultGallery: Gallery = {
+        id: 'main',
+        name: 'Main Gallery',
+        items: initialPDFs,
+        createdAt: new Date().toISOString(),
+      };
+      setGalleryState({
+        galleries: [defaultGallery],
+        currentGalleryId: 'main'
+      });
     }
   }, []);
 
 
   const copyShortcode = async () => {
-    const shortcode = '[pdf_gallery]';
+    const currentGallery = galleryState.galleries.find(g => g.id === galleryState.currentGalleryId);
+    const galleryName = currentGallery?.name || 'main';
+    const shortcode = `[pdf_gallery name="${galleryName.toLowerCase().replace(/[^a-z0-9-_]/g, '-')}"]`;
     try {
       await navigator.clipboard.writeText(shortcode);
       setShortcodeCopied(true);
       setTimeout(() => setShortcodeCopied(false), 2000);
     } catch (e) {}
   };
+
+  const currentGallery = galleryState.galleries.find(g => g.id === galleryState.currentGalleryId);
+  const currentItems = currentGallery?.items || [];
 
 
   // Check if we should show admin interface (Lovable preview or WordPress admin)
@@ -168,7 +192,7 @@ const Index = () => {
     return (
       <div className="w-full">
         <PDFGallery 
-          items={galleryItems} 
+          items={currentItems} 
           settings={settings} 
         />
       </div>
@@ -178,69 +202,87 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-4 flex items-center gap-3">
-          <img src={logo} alt="PDF Gallery logo" className="w-[400px] h-auto" />
-        </div>
-        <Tabs defaultValue="management" className="w-full">
+        <Tabs defaultValue="preview" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="preview">Preview</TabsTrigger>
-            <TabsTrigger value="management">Gallery Management</TabsTrigger>
+            <TabsTrigger value="gallery">Gallery Management</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="documentation">Documentation</TabsTrigger>
+            <TabsTrigger value="docs">Documentation</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="management" className="mt-6">
-            <PDFAdmin items={galleryItems} onItemsChange={setGalleryItems} />
+          <TabsContent value="preview" className="space-y-6">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold mb-2">Gallery Shortcode</h3>
+              <p className="text-muted-foreground mb-4">
+                Copy this shortcode to display the current gallery on any page or post:
+              </p>
+              <div className="flex items-center justify-center gap-2">
+                <code className="bg-muted px-3 py-2 rounded text-sm font-mono">
+                  {(() => {
+                    const galleryName = currentGallery?.name || 'main';
+                    return `[pdf_gallery name="${galleryName.toLowerCase().replace(/[^a-z0-9-_]/g, '-')}"]`;
+                  })()}
+                </code>
+                <Button 
+                  onClick={copyShortcode}
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  {shortcodeCopied ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      Copy
+                    </>
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Showing: {currentGallery?.name || 'Main Gallery'}
+              </p>
+            </div>
+            <div className="mt-8 border rounded-lg overflow-hidden">
+              <PDFGallery 
+                items={currentItems} 
+                settings={settings} 
+              />
+            </div>
           </TabsContent>
           
-          <TabsContent value="settings" className="mt-6">
+          <TabsContent value="gallery">
+            <PDFAdmin 
+              galleries={galleryState.galleries}
+              currentGalleryId={galleryState.currentGalleryId}
+              onGalleriesChange={(galleries) => setGalleryState(prev => ({ ...prev, galleries }))}
+              onCurrentGalleryChange={(galleryId) => setGalleryState(prev => ({ ...prev, currentGalleryId: galleryId }))}
+            />
+          </TabsContent>
+          
+          <TabsContent value="settings">
             <PDFSettings 
               settings={settings} 
               onSettingsChange={setSettings} 
             />
           </TabsContent>
           
-          <TabsContent value="preview" className="mt-6">
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <h2 className="text-2xl font-bold">Preview Gallery</h2>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <Input readOnly value="[pdf_gallery]" className="font-mono w-full sm:w-56" />
-                  <Button
-                    onClick={copyShortcode}
-                    variant="outline"
-                    className="flex items-center gap-2"
-                  >
-                    {shortcodeCopied ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                    {shortcodeCopied ? 'Copied!' : 'Copy Shortcode'}
-                  </Button>
-                </div>
-              </div>
-              <Card>
-                <CardContent className="p-6">
-                  <PDFGallery 
-                    items={galleryItems} 
-                    settings={settings} 
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="documentation" className="mt-6">
+          <TabsContent value="docs">
             <Card>
-              <CardContent className="p-0">
-                <iframe
-                  src="https://kindpixels.com/pdf-gallery/documentation/"
-                  title="PDF Gallery Documentation"
-                  className="w-full"
-                  style={{ height: '70vh', border: '0' }}
-                  loading="lazy"
-                />
+              <CardHeader>
+                <CardTitle>Plugin Documentation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="w-full h-[600px] border rounded-lg overflow-hidden">
+                  <iframe 
+                    src="https://kindpixels.com/pdf-gallery-plugin-docs/" 
+                    className="w-full h-full"
+                    title="PDF Gallery Plugin Documentation"
+                  />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

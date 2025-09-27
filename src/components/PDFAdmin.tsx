@@ -25,27 +25,14 @@ import {
 } from '@dnd-kit/sortable';
 import PDFGallery from './PDFGallery';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
-
-interface PDF {
-  id: string;
-  title: string;
-  date: string;
-  pdfUrl: string;
-  thumbnail: string;
-  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp';
-}
-
-interface Divider {
-  id: string;
-  type: 'divider';
-  text: string;
-}
-
-type GalleryItem = PDF | Divider;
+import { GallerySelector } from './GallerySelector';
+import { Gallery, GalleryItem, PDF, Divider } from '@/types/gallery';
 
 interface PDFAdminProps {
-  items: GalleryItem[];
-  onItemsChange: (items: GalleryItem[]) => void;
+  galleries: Gallery[];
+  currentGalleryId: string;
+  onGalleriesChange: (galleries: Gallery[]) => void;
+  onCurrentGalleryChange: (galleryId: string) => void;
 }
 
 interface SortableItemProps {
@@ -99,75 +86,83 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
             </div>
           ) : (
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
-                <FileText className="w-6 h-6 text-muted-foreground" />
+              <div className="relative w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                {(item as PDF).thumbnail ? (
+                  <img 
+                    src={(item as PDF).thumbnail} 
+                    alt={(item as PDF).title}
+                    className="w-full h-full object-cover rounded"
+                  />
+                ) : (
+                  <FileText className="w-6 h-6 text-muted-foreground" />
+                )}
+                
+                {/* File type badge */}
+                <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs px-1 py-0.5 rounded text-[10px] font-medium">
+                  {(() => {
+                    const fileType = (item as PDF).fileType?.toLowerCase();
+                    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType || '')) {
+                      return 'IMG';
+                    } else if (fileType === 'pdf') {
+                      return 'PDF';
+                    } else if (['doc', 'docx'].includes(fileType || '')) {
+                      return 'DOC';
+                    } else if (['ppt', 'pptx'].includes(fileType || '')) {
+                      return 'PPT';
+                    } else if (['xls', 'xlsx'].includes(fileType || '')) {
+                      return 'XLS';
+                    } else {
+                      return 'PDF';
+                    }
+                  })()}
+                </div>
               </div>
               <div>
-                {(() => {
-                  const ft = ((item as PDF).fileType || 'pdf');
-                  let label = 'PDF Document:';
-                  if (ft === 'doc' || ft === 'docx') {
-                    label = 'DOC Document:';
-                  } else if (ft === 'ppt' || ft === 'pptx') {
-                    label = 'PPT Document:';
-                  } else if (ft === 'xls' || ft === 'xlsx') {
-                    label = 'XLS Document:';
-                  } else if (ft === 'jpg' || ft === 'jpeg' || ft === 'png' || ft === 'gif' || ft === 'webp') {
-                    label = 'Photo:';
-                  }
-                  return <h3 className="font-semibold">{label} {(item as PDF).title}</h3>;
-                })()}
+                <h3 className="font-semibold">{(item as PDF).title}</h3>
                 <p className="text-sm text-muted-foreground">{(item as PDF).date}</p>
-                <p className="text-xs text-muted-foreground truncate max-w-xs">
-                  {(item as PDF).pdfUrl}
-                </p>
               </div>
             </div>
           )}
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center space-x-2">
           {!('type' in item && item.type === 'divider') && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const url = PDFThumbnailGenerator.toHttps((item as PDF).pdfUrl);
-                  const isAndroid = /Android/i.test(navigator.userAgent || '');
-                  if (isAndroid) {
-                    try { (window.top || window).location.assign(url); } catch { window.location.assign(url); }
-                  } else {
-                    window.open(url, '_blank', 'noopener,noreferrer');
-                  }
-                }}
-                title="View Document"
-              >
-                <Eye className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onRefresh(item)}
-                title="Refresh thumbnail"
-              >
-                <RefreshCw className="w-4 h-4" />
-              </Button>
-            </>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.open((item as PDF).pdfUrl, '_blank')}
+              title="View document"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
           )}
+          
+          {!('type' in item && item.type === 'divider') && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onRefresh(item)}
+              title="Refresh thumbnail"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          )}
+          
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => onEdit(item)}
-            title="Edit item"
+            title="Edit"
           >
             <Edit className="w-4 h-4" />
           </Button>
+          
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => onDelete(item.id)}
-            title="Delete item"
+            title="Delete"
+            className="text-destructive hover:text-destructive"
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -177,7 +172,10 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
   );
 };
 
-const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
+const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGalleryChange }: PDFAdminProps) => {
+  const currentGallery = galleries.find(g => g.id === currentGalleryId);
+  const items = currentGallery?.items || [];
+  
   const [activeTab, setActiveTab] = useState<'management' | 'preview'>('management');
   const [isAddingDocument, setIsAddingDocument] = useState(false);
   const [isAddingDivider, setIsAddingDivider] = useState(false);
@@ -212,15 +210,16 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     })
   );
 
-  const saveItemsToWP = async (updatedItems: GalleryItem[]) => {
+  const saveGalleriesToWP = async (updatedGalleries: Gallery[]) => {
     const wp = (window as any).wpPDFGallery;
     if (wp?.ajaxUrl && wp?.nonce) {
       try {
         const form = new FormData();
         form.append('action', 'pdf_gallery_action');
-        form.append('action_type', 'save_items');
+        form.append('action_type', 'save_galleries');
         form.append('nonce', wp.nonce);
-        form.append('items', JSON.stringify(updatedItems));
+        form.append('galleries', JSON.stringify(updatedGalleries));
+        form.append('current_gallery_id', currentGalleryId);
 
         const res = await fetch(wp.ajaxUrl, {
           method: 'POST',
@@ -238,6 +237,16 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     return true; // Return true for non-WP environments
   };
 
+  const updateCurrentGalleryItems = (updatedItems: GalleryItem[]) => {
+    const updatedGalleries = galleries.map(gallery => 
+      gallery.id === currentGalleryId 
+        ? { ...gallery, items: updatedItems }
+        : gallery
+    );
+    onGalleriesChange(updatedGalleries);
+    return updatedGalleries;
+  };
+
   const handleDragEnd = async (event: any) => {
     const { active, over } = event;
 
@@ -246,12 +255,12 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       const newIndex = items.findIndex((item) => item.id === over.id);
 
       const newItems = arrayMove(items, oldIndex, newIndex);
+      const updatedGalleries = updateCurrentGalleryItems(newItems);
       
       // Save to WordPress first
-      const saved = await saveItemsToWP(newItems);
+      const saved = await saveGalleriesToWP(updatedGalleries);
       
       if (saved) {
-        onItemsChange(newItems);
         toast({
           title: "Reordered",
           description: "Items have been reordered successfully",
@@ -276,18 +285,8 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       return;
     }
 
-    // Check license restrictions for free version
-    if (!license.isPro && !editingId) {
-      const documentCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
-      if (documentCount >= 1) {
-        toast({
-          title: "Upgrade Required",
-          description: "Free version allows only 1 document. Upgrade to Pro for unlimited documents.",
-          variant: "destructive",
-        });
-        return;
-      }
-    }
+    // Check license restrictions for free version - unlimited documents per gallery, but only 1 gallery total
+    // This check is removed as free version allows unlimited documents within the single allowed gallery
 
     let updated: GalleryItem[];
     
@@ -299,30 +298,29 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
           : item
       );
     } else {
-      // Add new document at the top
-      const newDocument: PDF = {
+      // Add new document
+      const newPDF: PDF = {
         id: Date.now().toString(),
         ...documentFormData,
-        thumbnail: documentFormData.thumbnail || '/placeholder-pdf.jpg',
-          fileType: documentFormData.fileType as PDF['fileType'] || 'pdf'
+        fileType: documentFormData.fileType as PDF['fileType'] || 'pdf'
       };
-      updated = [newDocument, ...items];
+      updated = [...items, newPDF];
     }
 
     // Save to WordPress first
-    const saved = await saveItemsToWP(updated);
+    const updatedGalleries = updateCurrentGalleryItems(updated);
+    const saved = await saveGalleriesToWP(updatedGalleries);
     
     if (saved) {
-      onItemsChange(updated);
+      resetDocumentForm();
       toast({
         title: editingId ? "Updated" : "Added",
-        description: `Document has been ${editingId ? 'updated' : 'added'} successfully`,
+        description: `Document ${editingId ? 'updated' : 'added'} successfully`,
       });
-      resetDocumentForm();
     } else {
       toast({
         title: "Error",
-        description: "Could not save document",
+        description: "Failed to save the document",
         variant: "destructive",
       });
     }
@@ -338,112 +336,37 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
       return;
     }
 
-    let updated: GalleryItem[];
+    const newDivider: Divider = {
+      id: Date.now().toString(),
+      type: 'divider',
+      text: dividerFormData.text
+    };
     
-    if (editingId) {
-      // Update existing divider
-      updated = items.map(item =>
-        item.id === editingId && ('type' in item && item.type === 'divider')
-          ? { ...item, text: dividerFormData.text }
-          : item
-      );
-    } else {
-      // Add new divider at the top
-      const newDivider: Divider = {
-        id: Date.now().toString(),
-        type: 'divider',
-        text: dividerFormData.text
-      };
-      updated = [newDivider, ...items];
-    }
+    const updated = editingId 
+      ? items.map(item => 
+          item.id === editingId && 'type' in item && item.type === 'divider'
+            ? { ...item, text: dividerFormData.text }
+            : item
+        )
+      : [...items, newDivider];
 
     // Save to WordPress first
-    const saved = await saveItemsToWP(updated);
+    const updatedGalleries = updateCurrentGalleryItems(updated);
+    const saved = await saveGalleriesToWP(updatedGalleries);
     
     if (saved) {
-      onItemsChange(updated);
+      resetDividerForm();
       toast({
         title: editingId ? "Updated" : "Added",
-        description: `Divider has been ${editingId ? 'updated' : 'added'} successfully`,
+        description: `Divider ${editingId ? 'updated' : 'added'} successfully`,
       });
-      resetDividerForm();
     } else {
       toast({
         title: "Error",
-        description: "Could not save divider",
+        description: "Failed to save the divider",
         variant: "destructive",
       });
     }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      const updated = items.filter(item => item.id !== id);
-      
-      // Save to WordPress first
-      const saved = await saveItemsToWP(updated);
-      
-      if (saved) {
-        onItemsChange(updated);
-        toast({
-          title: "Deleted",
-          description: "Item has been deleted successfully",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Could not delete item",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
-  const handleRefreshThumbnail = (item: GalleryItem) => {
-    if ('pdfUrl' in item) {
-      // Clear cached thumbnail
-      const cacheKey = `pdf_thumbnail_${item.pdfUrl}`;
-      localStorage.removeItem(cacheKey);
-      toast({
-        title: "Thumbnail Refresh",
-        description: "The thumbnail will regenerate at next load",
-      });
-    }
-  };
-
-  const handleEdit = (item: GalleryItem) => {
-    if ('type' in item && item.type === 'divider') {
-      setDividerFormData({ text: item.text });
-      setEditingId(item.id);
-      setIsAddingDivider(true);
-    } else {
-      const document = item as PDF;
-      setDocumentFormData({
-        title: document.title,
-        date: document.date,
-        pdfUrl: document.pdfUrl,
-        thumbnail: document.thumbnail,
-        fileType: document.fileType || 'pdf'
-      });
-      setEditingId(item.id);
-      setIsAddingDocument(true);
-    }
-    
-    // Scroll to editing section (plugin area, not top of page)
-    setTimeout(() => {
-      const pluginContainer = document.querySelector('#pdf-gallery-admin, .pdf-gallery-admin, [data-plugin="pdf-gallery"]');
-      if (pluginContainer) {
-        pluginContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
-        // Fallback: try to find the first heading or form in the page
-        const editForm = document.querySelector('h2, .edit-section, form');
-        if (editForm) {
-          editForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      }
-    }, 100);
   };
 
   const resetDocumentForm = () => {
@@ -464,47 +387,121 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     setEditingId(null);
   };
 
-  const handleSelect = (id: string, selected: boolean) => {
-    const newSelected = new Set(selectedItems);
-    if (selected) {
-      newSelected.add(id);
-    } else {
-      newSelected.delete(id);
-    }
-    setSelectedItems(newSelected);
-  };
-
-  const handleSelectAll = () => {
-    if (selectedItems.size === items.length) {
-      setSelectedItems(new Set());
-    } else {
-      setSelectedItems(new Set(items.map(item => item.id)));
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this item?')) {
+      const updated = items.filter(item => item.id !== id);
+      
+      // Save to WordPress first
+      const updatedGalleries = updateCurrentGalleryItems(updated);
+      const saved = await saveGalleriesToWP(updatedGalleries);
+      
+      if (saved) {
+        setSelectedItems(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(id);
+          return newSet;
+        });
+        toast({
+          title: "Deleted",
+          description: "Item deleted successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete the item",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const handleDeleteSelected = async () => {
     if (selectedItems.size === 0) return;
     
-    if (window.confirm(`Are you sure you want to delete ${selectedItems.size} item(s)?`)) {
+    if (confirm(`Are you sure you want to delete ${selectedItems.size} selected item${selectedItems.size > 1 ? 's' : ''}?`)) {
       const updated = items.filter(item => !selectedItems.has(item.id));
       
       // Save to WordPress first
-      const saved = await saveItemsToWP(updated);
+      const updatedGalleries = updateCurrentGalleryItems(updated);
+      const saved = await saveGalleriesToWP(updatedGalleries);
       
       if (saved) {
-        onItemsChange(updated);
         setSelectedItems(new Set());
         toast({
           title: "Deleted",
-          description: `${selectedItems.size} item(s) have been deleted successfully`,
+          description: `${selectedItems.size} item${selectedItems.size > 1 ? 's' : ''} deleted successfully`,
         });
       } else {
         toast({
           title: "Error",
-          description: "Could not delete selected items",
+          description: "Failed to delete the selected items",
           variant: "destructive",
         });
       }
+    }
+  };
+
+  const handleRefreshThumbnail = async (item: GalleryItem) => {
+    if ('type' in item && item.type === 'divider') return;
+    
+    const updated = items.map(i => 
+      i.id === item.id ? { ...i, thumbnail: '' } : i
+    );
+    
+    // Save to WordPress first
+    const updatedGalleries = updateCurrentGalleryItems(updated);
+    const saved = await saveGalleriesToWP(updatedGalleries);
+    
+    if (saved) {
+      toast({
+        title: "Refreshed",
+        description: "Thumbnail cache cleared",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to refresh thumbnail",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = (item: GalleryItem) => {
+    if ('type' in item && item.type === 'divider') {
+      setDividerFormData({ text: item.text });
+      setIsAddingDivider(true);
+      setEditingId(item.id);
+    } else {
+      const pdfItem = item as PDF;
+      setDocumentFormData({
+        title: pdfItem.title,
+        date: pdfItem.date,
+        pdfUrl: pdfItem.pdfUrl,
+        thumbnail: pdfItem.thumbnail,
+        fileType: pdfItem.fileType || 'pdf'
+      });
+      setIsAddingDocument(true);
+      setEditingId(item.id);
+    }
+  };
+
+  const handleSelect = (id: string, selected: boolean) => {
+    setSelectedItems(prev => {
+      const newSet = new Set(prev);
+      if (selected) {
+        newSet.add(id);
+      } else {
+        newSet.delete(id);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedItems(new Set(items.map(item => item.id)));
+    } else {
+      setSelectedItems(new Set());
     }
   };
 
@@ -512,93 +509,94 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      toast({
-        title: "Error",
-        description: "Please select a PDF, DOC/DOCX, PPT/PPTX, XLS/XLSX, or an image (JPG/JPEG, PNG, GIF, WEBP)",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    // Set uploading state
     setIsUploading(true);
-    
+
     try {
       const wp = (window as any).wpPDFGallery;
-      if (!wp?.ajaxUrl || !wp?.nonce) {
-        throw new Error('WordPress environment not available');
-      }
-
-      const formData = new FormData();
-      formData.append('action', 'pdf_gallery_action');
-      formData.append('action_type', 'upload_pdf');
-      formData.append('nonce', wp.nonce);
-      formData.append('pdf_file', file);
-
-      const response = await fetch(wp.ajaxUrl, {
-        method: 'POST',
-        credentials: 'same-origin',
-        body: formData,
-      });
-
-      const data = await response.json();
       
-      if (data.success) {
-        // Auto-fill the form with uploaded file data
-        const baseName = file.name.replace(/\.[^.]+$/, '');
-        const ext = (file.name.split('.').pop() || '').toLowerCase();
-        const mappedType: PDF['fileType'] = (() => {
-          if (ext === 'doc' || ext === 'docx') return ext as 'doc' | 'docx';
-          if (ext === 'ppt' || ext === 'pptx') return ext as 'ppt' | 'pptx';
-          if (ext === 'xls' || ext === 'xlsx') return ext as 'xls' | 'xlsx';
-          if (ext === 'jpg' || ext === 'jpeg' || ext === 'png' || ext === 'gif' || ext === 'webp') return ext as 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp';
-          return 'pdf';
-        })();
+      if (wp?.ajaxUrl && wp?.nonce) {
+        const formData = new FormData();
+        formData.append('action', 'pdf_gallery_upload');
+        formData.append('nonce', wp.nonce);
+        formData.append('file', file);
+
+        const response = await fetch(wp.ajaxUrl, {
+          method: 'POST',
+          credentials: 'same-origin',
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          // Use the uploaded file data
+          setDocumentFormData(prev => ({
+            ...prev,
+            title: result.data.title || file.name.replace(/\.[^/.]+$/, ""),
+            pdfUrl: result.data.url,
+            thumbnail: result.data.thumbnail || '',
+            fileType: result.data.fileType || 'pdf'
+          }));
+
+          toast({
+            title: "Success",
+            description: "File uploaded successfully",
+          });
+        } else {
+          throw new Error(result.data?.message || 'Upload failed');
+        }
+      } else {
+        // Fallback for development environment
+        const fileUrl = URL.createObjectURL(file);
+        const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'pdf';
+        
         setDocumentFormData(prev => ({
           ...prev,
-          title: baseName,
-          pdfUrl: data.data.url,
-          date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' }),
-          fileType: mappedType,
+          title: file.name.replace(/\.[^/.]+$/, ""),
+          pdfUrl: fileUrl,
+          thumbnail: '',
+          fileType: fileExtension as any
         }));
-        
+
+        // Generate thumbnail if it's a PDF
+        if (fileExtension === 'pdf') {
+          try {
+            const generator = new PDFThumbnailGenerator();
+            const thumbnailUrl = await generator.generateThumbnail(fileUrl, 'pdf');
+            if (thumbnailUrl) {
+              setDocumentFormData(prev => ({
+                ...prev,
+                thumbnail: thumbnailUrl
+              }));
+            }
+          } catch (error) {
+            console.warn('Failed to generate thumbnail:', error);
+          }
+        }
+
         toast({
-          title: "Uploaded",
-          description: "Document file uploaded successfully",
+          title: "File Selected", 
+          description: "File loaded for development preview",
         });
-      } else {
-        throw new Error(data.data || 'Upload failed');
       }
     } catch (error) {
       console.error('Upload error:', error);
       toast({
-        title: "Upload Error",
-        description: error instanceof Error ? error.message : "Failed to upload PDF",
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Failed to upload file",
         variant: "destructive",
       });
     } finally {
       setIsUploading(false);
-      // Reset file input
+      // Clear the input value so the same file can be selected again
       event.target.value = '';
     }
   };
 
   const copyShortcode = async () => {
-    const shortcode = '[pdf_gallery]';
+    const galleryName = currentGallery?.name || 'main';
+    const shortcode = `[pdf_gallery name="${galleryName.toLowerCase().replace(/[^a-z0-9-_]/g, '-')}"]`;
     try {
       await navigator.clipboard.writeText(shortcode);
       setShortcodeCopied(true);
@@ -616,16 +614,52 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
     }
   };
 
+  // Gallery management functions
+  const handleGalleryCreate = (name: string) => {
+    const newGallery: Gallery = {
+      id: Date.now().toString(),
+      name,
+      items: [],
+      createdAt: new Date().toISOString(),
+    };
+    const updatedGalleries = [...galleries, newGallery];
+    onGalleriesChange(updatedGalleries);
+    onCurrentGalleryChange(newGallery.id);
+    saveGalleriesToWP(updatedGalleries);
+  };
+
+  const handleGalleryRename = (galleryId: string, newName: string) => {
+    const updatedGalleries = galleries.map(gallery => 
+      gallery.id === galleryId 
+        ? { ...gallery, name: newName }
+        : gallery
+    );
+    onGalleriesChange(updatedGalleries);
+    saveGalleriesToWP(updatedGalleries);
+  };
+
+  const handleGalleryDelete = (galleryId: string) => {
+    const updatedGalleries = galleries.filter(g => g.id !== galleryId);
+    onGalleriesChange(updatedGalleries);
+    
+    // Switch to first available gallery
+    if (updatedGalleries.length > 0) {
+      onCurrentGalleryChange(updatedGalleries[0].id);
+    }
+    
+    saveGalleriesToWP(updatedGalleries);
+  };
+
   return (
     <div className="space-y-6">
       {/* Navigation removed: top-level tabs now control sections */}
 
       <>
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <h2 className="text-2xl font-bold">Gallery Management</h2>
+            {/* Left: Select All Checkbox */}
+            <div className="flex items-center gap-2">
               {items.length > 0 && (
-                <div className="flex items-center gap-2">
+                <>
                   <Checkbox 
                     checked={selectedItems.size === items.length && items.length > 0}
                     onCheckedChange={handleSelectAll}
@@ -633,9 +667,23 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                   <span className="text-sm text-muted-foreground">
                     {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select all'}
                   </span>
-                </div>
+                </>
               )}
             </div>
+
+            {/* Center: Gallery Management */}
+            <div className="flex items-center gap-4">
+              <GallerySelector
+                galleries={galleries}
+                currentGalleryId={currentGalleryId}
+                onGalleryChange={onCurrentGalleryChange}
+                onGalleryCreate={handleGalleryCreate}
+                onGalleryRename={handleGalleryRename}
+                onGalleryDelete={handleGalleryDelete}
+              />
+            </div>
+
+            {/* Right: Action Buttons */}
             <div className="flex gap-2">
               {selectedItems.size > 0 && (
                 <Button 
@@ -647,21 +695,7 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
                 </Button>
               )}
               <Button 
-                onClick={() => {
-                  // Check license restrictions for free version
-                  if (!license.isPro) {
-                    const pdfCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
-                    if (pdfCount >= 1) {
-                      toast({
-                        title: "Upgrade Required", 
-                        description: "Free version allows only 1 document. Upgrade to Pro for unlimited documents.",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                  }
-                  setIsAddingDocument(true);
-                }}
+                onClick={() => setIsAddingDocument(true)}
                 className="bg-primary hover:bg-primary/90"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -819,18 +853,6 @@ const PDFAdmin = ({ items, onItemsChange }: PDFAdminProps) => {
             <div className="flex gap-2 pt-4 justify-end">
               <Button 
                 onClick={() => {
-                  // Check license restrictions for free version
-                  if (!license.isPro) {
-                    const pdfCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
-                    if (pdfCount >= 1) {
-                      toast({
-                        title: "Upgrade Required", 
-                        description: "Free version allows only 1 document. Upgrade to Pro for unlimited documents.",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                  }
                   setIsAddingDocument(true);
                   setTimeout(() => {
                     const editSection = document.querySelector('.edit-section');
