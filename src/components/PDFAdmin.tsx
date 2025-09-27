@@ -562,8 +562,8 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
         // Generate thumbnail if it's a PDF
         if (fileExtension === 'pdf') {
           try {
-            const generator = new PDFThumbnailGenerator();
-            const thumbnailUrl = await generator.generateThumbnail(fileUrl, 'pdf');
+            const result = await PDFThumbnailGenerator.generateThumbnail(fileUrl);
+            const thumbnailUrl = result.success ? result.dataUrl : null;
             if (thumbnailUrl) {
               setDocumentFormData(prev => ({
                 ...prev,
