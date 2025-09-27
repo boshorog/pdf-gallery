@@ -289,6 +289,12 @@ public function display_gallery_shortcode($atts) {
             case 'upload_pdf':
                 $this->handle_upload_pdf();
                 break;
+            case 'get_galleries':
+                $this->handle_get_galleries();
+                break;
+            case 'save_galleries':
+                $this->handle_save_galleries();
+                break;
             default:
                 wp_send_json_error('Invalid action');
         }
@@ -447,6 +453,71 @@ public function display_gallery_shortcode($atts) {
         wp_send_json_success(array('settings' => $settings));
     }
     
+    private function handle_get_galleries() {
+        // Fetch galleries and current selection. If not present, migrate from legacy items
+        $galleries = get_option('pdf_gallery_galleries', null);
+        $current_id = get_option('pdf_gallery_current_gallery_id', '');
+
+        if (!is_array($galleries)) {
+            $legacy_items = get_option('pdf_gallery_data', array());
+            if (is_array($legacy_items) && count($legacy_items) > 0) {
+                $galleries = array(
+                    array(
+                        'id' => 'main',
+                        'name' => 'Main Gallery',
+                        'items' => $legacy_items,
+                        'createdAt' => current_time('mysql'),
+                    )
+                );
+                $current_id = 'main';
+                update_option('pdf_gallery_galleries', $galleries);
+                update_option('pdf_gallery_current_gallery_id', $current_id);
+            } else {
+                $galleries = array(
+                    array(
+                        'id' => 'main',
+                        'name' => 'Main Gallery',
+                        'items' => array(),
+                        'createdAt' => current_time('mysql'),
+                    )
+                );
+                $current_id = 'main';
+                update_option('pdf_gallery_galleries', $galleries);
+                update_option('pdf_gallery_current_gallery_id', $current_id);
+            }
+        }
+
+        if (empty($current_id) && is_array($galleries) && count($galleries) > 0) {
+            $current_id = isset($galleries[0]['id']) ? $galleries[0]['id'] : 'main';
+            update_option('pdf_gallery_current_gallery_id', $current_id);
+        }
+
+        wp_send_json_success(array(
+            'galleries' => $galleries,
+            'current_gallery_id' => $current_id,
+        ));
+    }
+
+    private function handle_save_galleries() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        $galleries_json = isset($_POST['galleries']) ? stripslashes($_POST['galleries']) : '';
+        $current_id = isset($_POST['current_gallery_id']) ? sanitize_text_field($_POST['current_gallery_id']) : '';
+        $galleries = json_decode($galleries_json, true);
+
+        if (json_last_error() === JSON_ERROR_NONE && is_array($galleries)) {
+            update_option('pdf_gallery_galleries', $galleries);
+            if (!empty($current_id)) {
+                update_option('pdf_gallery_current_gallery_id', $current_id);
+            }
+            wp_send_json_success('Galleries saved successfully');
+        } else {
+            wp_send_json_error('Invalid galleries data');
+        }
+    }
+
     private function handle_upload_pdf() {
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Insufficient permissions');

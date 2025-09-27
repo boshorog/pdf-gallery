@@ -515,37 +515,39 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     try {
       const wp = (window as any).wpPDFGallery;
       
-      if (wp?.ajaxUrl && wp?.nonce) {
-        const formData = new FormData();
-        formData.append('action', 'pdf_gallery_upload');
-        formData.append('nonce', wp.nonce);
-        formData.append('file', file);
+        if (wp?.ajaxUrl && wp?.nonce) {
+          const formData = new FormData();
+          formData.append('action', 'pdf_gallery_action');
+          formData.append('action_type', 'upload_pdf');
+          formData.append('nonce', wp.nonce);
+          formData.append('pdf_file', file);
 
-        const response = await fetch(wp.ajaxUrl, {
-          method: 'POST',
-          credentials: 'same-origin',
-          body: formData,
-        });
-
-        const result = await response.json();
-
-        if (result.success && result.data) {
-          // Use the uploaded file data
-          setDocumentFormData(prev => ({
-            ...prev,
-            title: result.data.title || file.name.replace(/\.[^/.]+$/, ""),
-            pdfUrl: result.data.url,
-            thumbnail: result.data.thumbnail || '',
-            fileType: result.data.fileType || 'pdf'
-          }));
-
-          toast({
-            title: "Success",
-            description: "File uploaded successfully",
+          const response = await fetch(wp.ajaxUrl, {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: formData,
           });
-        } else {
-          throw new Error(result.data?.message || 'Upload failed');
-        }
+
+          const result = await response.json();
+
+          if (result.success && result.data) {
+            const filename = result.data.filename || file.name;
+            const fileExtension = (filename.split('.').pop() || '').toLowerCase();
+            setDocumentFormData(prev => ({
+              ...prev,
+              title: filename.replace(/\.[^/.]+$/, ''),
+              pdfUrl: result.data.url,
+              thumbnail: '',
+              fileType: fileExtension as any
+            }));
+
+            toast({
+              title: 'Success',
+              description: 'File uploaded successfully',
+            });
+          } else {
+            throw new Error(result.data?.message || 'Upload failed');
+          }
       } else {
         // Fallback for development environment
         const fileUrl = URL.createObjectURL(file);
@@ -657,7 +659,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pl-4">
               {items.length > 0 && (
                 <>
                   <Checkbox 
@@ -742,7 +744,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   />
                 </Label>
 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="title">Title</Label>
                   <Input
                     id="title"
@@ -752,7 +754,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   />
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="date">Date</Label>
                   <Input
                     id="date"
@@ -762,7 +764,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   />
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="pdfUrl">Document URL</Label>
                   <Input
                     id="pdfUrl"
@@ -772,7 +774,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   />
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="thumbnail">Thumbnail URL (optional)</Label>
                   <Input
                     id="thumbnail"
@@ -803,7 +805,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="dividerText">Divider Text</Label>
                   <Input
                     id="dividerText"

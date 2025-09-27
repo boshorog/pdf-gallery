@@ -105,7 +105,7 @@ const Index = () => {
             const defaultGallery: Gallery = {
               id: 'main',
               name: 'Main Gallery',
-              items: initialPDFs,
+              items: [],
               createdAt: new Date().toISOString(),
             };
             setGalleryState({
@@ -116,11 +116,11 @@ const Index = () => {
         })
         .catch(() => {
           // Create default gallery for development
-          const defaultGallery: Gallery = {
-            id: 'main',
-            name: 'Main Gallery',
-            items: initialPDFs,
-            createdAt: new Date().toISOString(),
+            const defaultGallery: Gallery = {
+              id: 'main',
+              name: 'Main Gallery',
+              items: [],
+              createdAt: new Date().toISOString(),
           };
           setGalleryState({
             galleries: [defaultGallery],
@@ -151,7 +151,7 @@ const Index = () => {
       const defaultGallery: Gallery = {
         id: 'main',
         name: 'Main Gallery',
-        items: initialPDFs,
+        items: [],
         createdAt: new Date().toISOString(),
       };
       setGalleryState({

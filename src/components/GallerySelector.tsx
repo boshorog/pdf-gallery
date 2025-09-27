@@ -148,12 +148,14 @@ export const GallerySelector = ({
         <div className="flex items-center gap-1">
           <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
             <DialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => setRenameGalleryName(currentGallery?.name || '')}
-              >
+               <Button
+                 variant="ghost"
+                 size="sm"
+                 className="h-8 w-8 p-0"
+                 aria-label="Rename Gallery"
+                 title="Rename Gallery"
+                 onClick={() => setRenameGalleryName(currentGallery?.name || '')}
+               >
                 <Edit2 className="h-3 w-3" />
               </Button>
             </DialogTrigger>
@@ -162,7 +164,7 @@ export const GallerySelector = ({
                 <DialogTitle>Rename Gallery</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="rename-gallery">Gallery Name</Label>
                   <Input
                     id="rename-gallery"
@@ -186,11 +188,13 @@ export const GallerySelector = ({
 
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-              >
+               <Button
+                 variant="ghost"
+                 size="sm"
+                 className="h-8 w-8 p-0"
+                 aria-label="Add Gallery"
+                 title="Add Gallery"
+               >
                 <Plus className="h-3 w-3" />
               </Button>
             </DialogTrigger>
@@ -199,7 +203,7 @@ export const GallerySelector = ({
                 <DialogTitle>Create New Gallery</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="new-gallery">Gallery Name</Label>
                   <Input
                     id="new-gallery"
@@ -244,12 +248,14 @@ export const GallerySelector = ({
       <div className="flex items-center gap-1">
         <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
           <DialogTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={() => setRenameGalleryName(currentGallery?.name || '')}
-            >
+             <Button
+               variant="ghost"
+               size="sm"
+               className="h-8 w-8 p-0"
+               aria-label="Rename Gallery"
+               title="Rename Gallery"
+               onClick={() => setRenameGalleryName(currentGallery?.name || '')}
+             >
               <Edit2 className="h-3 w-3" />
             </Button>
           </DialogTrigger>
@@ -258,8 +264,8 @@ export const GallerySelector = ({
               <DialogTitle>Rename Gallery</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="rename-gallery">Gallery Name</Label>
+               <div className="space-y-2">
+                 <Label htmlFor="rename-gallery">Gallery Name</Label>
                 <Input
                   id="rename-gallery"
                   value={renameGalleryName}
@@ -282,11 +288,13 @@ export const GallerySelector = ({
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-            >
+             <Button
+               variant="ghost"
+               size="sm"
+               className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+               aria-label="Delete Gallery"
+               title="Delete Gallery"
+             >
               <Trash2 className="h-3 w-3" />
             </Button>
           </AlertDialogTrigger>
@@ -308,11 +316,13 @@ export const GallerySelector = ({
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-            >
+             <Button
+               variant="ghost"
+               size="sm"
+               className="h-8 w-8 p-0"
+               aria-label="Add Gallery"
+               title="Add Gallery"
+             >
               <Plus className="h-3 w-3" />
             </Button>
           </DialogTrigger>
@@ -321,8 +331,8 @@ export const GallerySelector = ({
               <DialogTitle>Create New Gallery</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="new-gallery">Gallery Name</Label>
+               <div className="space-y-2">
+                 <Label htmlFor="new-gallery">Gallery Name</Label>
                 <Input
                   id="new-gallery"
                   value={newGalleryName}
