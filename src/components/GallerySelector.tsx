@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,6 +57,13 @@ export const GallerySelector = ({
   const license = useLicense();
 
   const currentGallery = galleries.find(g => g.id === currentGalleryId);
+
+  // Ensure a default gallery is selected when none is set
+  useEffect(() => {
+    if (!currentGalleryId && galleries.length > 0) {
+      onGalleryChange(galleries[0].id);
+    }
+  }, [currentGalleryId, galleries, onGalleryChange]);
 
   const handleCreateGallery = () => {
     if (!license.isPro && galleries.length >= 1) {
@@ -232,7 +239,7 @@ export const GallerySelector = ({
   // Multiple galleries - show dropdown selector with management buttons
   return (
     <div className="flex items-center gap-2">
-      <Select value={currentGalleryId} onValueChange={onGalleryChange}>
+      <Select value={currentGalleryId || (galleries[0]?.id ?? '')} onValueChange={onGalleryChange}>
         <SelectTrigger className="w-48">
           <SelectValue />
         </SelectTrigger>
@@ -306,7 +313,7 @@ export const GallerySelector = ({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex items-center gap-2">
-              <AlertDialogCancel className="h-9">Cancel</AlertDialogCancel>
+              <AlertDialogCancel className="h-9 mt-0">Cancel</AlertDialogCancel>
               <AlertDialogAction onClick={handleDeleteGallery} className="h-9 bg-destructive text-destructive-foreground hover:bg-destructive/90">
                 Delete Gallery
               </AlertDialogAction>

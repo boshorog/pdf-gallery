@@ -62,6 +62,11 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
     <Card ref={setNodeRef} style={style} className="bg-background">
       <CardContent className="flex items-center justify-between p-2">
         <div className="flex items-center space-x-3">
+          <Checkbox 
+            checked={isSelected}
+            onCheckedChange={(checked) => onSelect(item.id, !!checked)}
+            aria-label="Select item"
+          />
           <div
             {...attributes}
             {...listeners}
@@ -75,11 +80,6 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
               ))}
             </div>
           </div>
-          <Checkbox 
-            checked={isSelected}
-            onCheckedChange={(checked) => onSelect(item.id, !!checked)}
-            aria-label="Select item"
-          />
         </div>
           {('type' in item && item.type === 'divider') ? (
             <div className="flex items-center space-x-3">
@@ -683,9 +683,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox aligned with item checkboxes */}
-            <div className="flex items-center space-x-3">
-              {/* Spacer to align with drag handle width */}
-              <div className="w-10 shrink-0" />
+            <div className="flex items-center space-x-3 pl-2">
               {items.length > 0 && (
                 <>
                   <Checkbox 
