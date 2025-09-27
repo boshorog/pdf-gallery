@@ -255,6 +255,13 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       progress: 0
     }));
     setFiles(prev => [...newFiles, ...prev]); // Add new files at the top
+    
+    // Auto-start upload immediately
+    setTimeout(() => {
+      if (newFiles.length > 0) {
+        processAutoUploads(newFiles);
+      }
+    }, 100);
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -346,13 +353,12 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     });
   };
 
-  const processUploads = async () => {
-    if (files.length === 0) return;
+  const processAutoUploads = async (filesToUpload: Array<{file: File; title: string; subtitle: string; fileType: string; progress: number}>) => {
     setIsUploading(true);
     try {
       let accItems = items.slice();
-      for (let i = 0; i < files.length; i++) {
-        const f = files[i];
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const f = filesToUpload[i];
         if (!f.title.trim()) continue;
         const url = await uploadFileToWP(f, i);
         const newPDF: PDF = {
@@ -368,13 +374,12 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
         await saveGalleriesToWP(updatedGalleries);
       }
       setFiles([]);
-      toast({ title: 'Uploaded', description: 'Files uploaded and added to gallery' });
+      toast({ title: 'Uploaded', description: `${filesToUpload.length} file${filesToUpload.length !== 1 ? 's' : ''} uploaded and added to gallery` });
     } catch (error) {
       console.error('Upload error:', error);
       toast({ title: 'Error', description: 'Failed to upload one or more files', variant: 'destructive' });
     } finally {
       setIsUploading(false);
-      setIsAddingDocument(false);
     }
   };
 
@@ -451,7 +456,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   };
 
   const handleSubmitDocuments = async () => {
-    await processUploads();
+    await processAutoUploads(files);
   };
 
   const handleSubmitDocument = async () => {
@@ -556,6 +561,40 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     setFiles([]);
     setIsAddingDocument(false);
     setEditingId(null);
+  };
+
+  // Fix legacy example.com URLs
+  const fixExampleUrls = async () => {
+    const itemsToFix = items.filter(item => 
+      'pdfUrl' in item && (item as PDF).pdfUrl.includes('example.com')
+    );
+    
+    if (itemsToFix.length === 0) {
+      toast({ title: 'No issues found', description: 'All URLs appear to be valid' });
+      return;
+    }
+
+    const updatedItems = items.map(item => {
+      if ('pdfUrl' in item && (item as PDF).pdfUrl.includes('example.com')) {
+        const filename = (item as PDF).pdfUrl.split('/').pop() || 'document.pdf';
+        const wp = (window as any).wpPDFGallery;
+        const uploadsUrl = wp?.uploadsUrl || 'https://example.com/wp-content/uploads';
+        return { ...item, pdfUrl: `${uploadsUrl}/pdf-gallery/${filename}` } as PDF;
+      }
+      return item;
+    });
+
+    const updatedGalleries = updateCurrentGalleryItems(updatedItems);
+    const saved = await saveGalleriesToWP(updatedGalleries);
+    
+    if (saved) {
+      toast({ 
+        title: 'URLs Fixed', 
+        description: `Fixed ${itemsToFix.length} example.com URL${itemsToFix.length !== 1 ? 's' : ''}` 
+      });
+    } else {
+      toast({ title: 'Error', description: 'Failed to fix URLs', variant: 'destructive' });
+    }
   };
 
   const resetDividerForm = () => {
@@ -865,6 +904,15 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
 
             {/* Right: Action Buttons */}
             <div className="flex gap-2">
+              {items.some(item => 'pdfUrl' in item && (item as PDF).pdfUrl.includes('example.com')) && (
+                <Button 
+                  onClick={fixExampleUrls}
+                  variant="outline"
+                  className="text-amber-600 border-amber-200 hover:bg-amber-50"
+                >
+                  Fix URLs
+                </Button>
+              )}
               {selectedItems.size > 0 && (
                 <Button 
                   onClick={handleDeleteSelected}
@@ -953,10 +1001,12 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   )}
                 </div>
 
-                {/* File List */}
-                {files.length > 0 && (
+                 {/* File List - Only show during upload process */}
+                {(files.length > 0 || isUploading) && (
                   <div className="space-y-4">
-                    <Label className="text-base font-medium">Selected Files ({files.length})</Label>
+                    <Label className="text-base font-medium">
+                      {isUploading ? 'Uploading Files...' : `Selected Files (${files.length})`}
+                    </Label>
                     <div className="space-y-3 max-h-60 overflow-y-auto">
                       {files.map((file, index) => (
                         <div key={index} className="border rounded-lg p-4 space-y-3">
@@ -975,39 +1025,20 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                                 </p>
                               </div>
                             </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeFile(index)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <Label htmlFor={`title-${index}`}>Title *</Label>
-                              <Input
-                                id={`title-${index}`}
-                                value={file.title}
-                                onChange={(e) => updateFileData(index, 'title', e.target.value)}
-                                placeholder="Document title"
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor={`subtitle-${index}`}>Subtitle (optional)</Label>
-                              <Input
-                                id={`subtitle-${index}`}
-                                value={file.subtitle}
-                                onChange={(e) => updateFileData(index, 'subtitle', e.target.value)}
-                                placeholder="Optional subtitle"
-                              />
-                            </div>
+                            {!isUploading && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeFile(index)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
 
                           {/* Progress bar during upload */}
-                          {isUploading && file.progress > 0 && (
+                          {isUploading && (
                             <div className="space-y-1">
                               <div className="flex justify-between text-sm">
                                 <span>Uploading...</span>
@@ -1022,17 +1053,13 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   </div>
                 )}
 
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={resetDocumentForm} disabled={isUploading}>
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={handleSubmitDocuments}
-                    disabled={files.length === 0 || isUploading || files.some(f => !f.title.trim())}
-                  >
-                    {isUploading ? 'Uploading...' : `Add ${files.length} Document${files.length !== 1 ? 's' : ''}`}
-                  </Button>
-                </div>
+                {!isUploading && files.length === 0 && (
+                  <div className="flex justify-end gap-2">
+                    <Button type="button" variant="outline" onClick={resetDocumentForm}>
+                      Close
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

@@ -47,6 +47,13 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
       progress: 0
     }));
     setFiles(prev => [...prev, ...newFiles]);
+    
+    // Auto-start upload immediately
+    setTimeout(() => {
+      if (newFiles.length > 0) {
+        processAutoUploads(newFiles);
+      }
+    }, 100);
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -85,31 +92,66 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     ));
   };
 
-  const simulateUpload = async (file: FileUpload, index: number): Promise<string> => {
-    // Simulate file upload with progress
-    for (let progress = 0; progress <= 100; progress += 10) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-      setFiles(prev => prev.map((f, i) => 
-        i === index ? { ...f, progress } : f
-      ));
-    }
-    // Return a mock URL - in real implementation, this would be the actual uploaded file URL
-    return `https://example.com/uploads/${file.file.name}`;
+  const uploadFileToWP = (file: FileUpload, index: number): Promise<string> => {
+    const wp = (window as any).wpPDFGallery;
+    return new Promise((resolve, reject) => {
+      // Fallback: simulate in non-WordPress environments
+      if (!wp?.ajaxUrl || !wp?.nonce) {
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress = Math.min(100, progress + 10);
+          setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress } : f));
+          if (progress >= 100) {
+            clearInterval(interval);
+            resolve(`https://example.com/uploads/${file.file.name}`);
+          }
+        }, 50);
+        return;
+      }
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', wp.ajaxUrl, true);
+      xhr.withCredentials = true;
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress: percent } : f));
+        }
+      };
+
+      xhr.onload = () => {
+        try {
+          const res = JSON.parse(xhr.responseText || '{}');
+          if (res?.success && res?.data?.url) {
+            setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress: 100 } : f));
+            resolve(res.data.url as string);
+          } else {
+            reject(res?.data || res || 'Upload failed');
+          }
+        } catch (err) {
+          reject(err);
+        }
+      };
+
+      xhr.onerror = () => reject('Network error');
+
+      const form = new FormData();
+      form.append('action', 'pdf_gallery_action');
+      form.append('action_type', 'upload_pdf');
+      form.append('nonce', wp.nonce);
+      form.append('pdf_file', file.file);
+      xhr.send(form);
+    });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (files.length === 0) return;
-
+  const processAutoUploads = async (filesToUpload: FileUpload[]) => {
     setIsUploading(true);
-    
     try {
-      // Upload files and add them
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const file = filesToUpload[i];
         if (!file.title.trim()) continue;
-        
-        const url = await simulateUpload(file, i);
+        const url = await uploadFileToWP(file, i);
         onAdd({ 
           title: file.title, 
           date: file.subtitle || '', 
@@ -117,16 +159,15 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
           fileType: file.fileType 
         });
       }
-      
-      // Reset form
       setFiles([]);
-      setIsUploading(false);
       onClose();
     } catch (error) {
       console.error('Upload error:', error);
+    } finally {
       setIsUploading(false);
     }
   };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -134,7 +175,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
         <DialogHeader>
           <DialogTitle>Add Documents</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form className="space-y-6">
           {/* Upload Area */}
           <div
             className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
@@ -190,10 +231,12 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
             )}
           </div>
 
-          {/* File List */}
-          {files.length > 0 && (
+          {/* File List - Only show during upload process */}
+          {(files.length > 0 || isUploading) && (
             <div className="space-y-4">
-              <Label className="text-base font-medium">Selected Files ({files.length})</Label>
+              <Label className="text-base font-medium">
+                {isUploading ? 'Uploading Files...' : `Selected Files (${files.length})`}
+              </Label>
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {files.map((file, index) => (
                   <div key={index} className="border rounded-lg p-4 space-y-3">
@@ -212,39 +255,20 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
                           </p>
                         </div>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFile(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor={`title-${index}`}>Title *</Label>
-                        <Input
-                          id={`title-${index}`}
-                          value={file.title}
-                          onChange={(e) => updateFileData(index, 'title', e.target.value)}
-                          placeholder="Document title"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor={`subtitle-${index}`}>Subtitle (optional)</Label>
-                        <Input
-                          id={`subtitle-${index}`}
-                          value={file.subtitle}
-                          onChange={(e) => updateFileData(index, 'subtitle', e.target.value)}
-                          placeholder="Optional subtitle"
-                        />
-                      </div>
+                      {!isUploading && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFile(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
 
                     {/* Progress bar during upload */}
-                    {isUploading && file.progress > 0 && (
+                    {isUploading && (
                       <div className="space-y-1">
                         <div className="flex justify-between text-sm">
                           <span>Uploading...</span>
@@ -259,17 +283,13 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
             </div>
           )}
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isUploading}>
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={files.length === 0 || isUploading || files.some(f => !f.title.trim())}
-            >
-              {isUploading ? 'Uploading...' : `Add ${files.length} Document${files.length !== 1 ? 's' : ''}`}
-            </Button>
-          </div>
+          {!isUploading && files.length === 0 && (
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Close
+              </Button>
+            </div>
+          )}
         </form>
       </DialogContent>
     </Dialog>
