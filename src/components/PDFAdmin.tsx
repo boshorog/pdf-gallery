@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation, Image } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -60,7 +60,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
 
   return (
     <Card ref={setNodeRef} style={style} className="bg-background">
-      <CardContent className="flex items-center justify-between p-2">
+      <CardContent className="flex items-center justify-between px-2 pl-6">
         <div className="flex items-center space-x-3">
           <Checkbox 
             checked={isSelected}
@@ -80,7 +80,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
               ))}
             </div>
           </div>
-        </div>
+
           {('type' in item && item.type === 'divider') ? (
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
@@ -101,44 +101,48 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                     className="w-full h-full object-cover rounded"
                   />
                 ) : (
-                  <FileText className="w-6 h-6 text-muted-foreground" />
+                  (() => {
+                    const pdfItem = item as PDF;
+                    let fileType = pdfItem.fileType?.toLowerCase();
+                    if (!fileType) {
+                      const url = pdfItem.pdfUrl || '';
+                      const title = pdfItem.title || '';
+                      let extension = url.split('.').pop()?.toLowerCase();
+                      if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp'].includes(extension)) {
+                        extension = title.split('.').pop()?.toLowerCase();
+                      }
+                      fileType = extension || 'pdf';
+                    }
+                    const isImage = ['jpg','jpeg','png','gif','webp'].includes(fileType || '');
+                    const IconComp = isImage
+                      ? Image
+                      : (['ppt','pptx'].includes(fileType || '')
+                        ? Presentation
+                        : (['doc','docx','xls','xlsx'].includes(fileType || '')
+                          ? FileType
+                          : FileText));
+                    return <IconComp className="w-6 h-6 text-muted-foreground" />;
+                  })()
                 )}
-                
-                {/* File type badge */}
                 <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs px-1 py-0.5 rounded text-[10px] font-medium">
                   {(() => {
                     const pdfItem = item as PDF;
                     let fileType = pdfItem.fileType?.toLowerCase();
-                    
-                    // If no fileType, try to detect from URL or filename
                     if (!fileType) {
                       const url = pdfItem.pdfUrl || '';
                       const title = pdfItem.title || '';
-                      
-                      // Try from URL extension first
                       let extension = url.split('.').pop()?.toLowerCase();
-                      
-                      // If URL doesn't have extension, try from title
-                      if (!extension || !['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) {
+                      if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp'].includes(extension)) {
                         extension = title.split('.').pop()?.toLowerCase();
                       }
-                      
                       fileType = extension || 'pdf';
                     }
-                    
-                    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType || '')) {
-                      return 'IMG';
-                    } else if (fileType === 'pdf') {
-                      return 'PDF';
-                    } else if (['doc', 'docx'].includes(fileType || '')) {
-                      return 'DOC';
-                    } else if (['ppt', 'pptx'].includes(fileType || '')) {
-                      return 'PPT';
-                    } else if (['xls', 'xlsx'].includes(fileType || '')) {
-                      return 'XLS';
-                    } else {
-                      return 'PDF';
-                    }
+                    if (['jpg','jpeg','png','gif','webp'].includes(fileType || '')) return 'IMG';
+                    if (fileType === 'pdf') return 'PDF';
+                    if (['doc','docx'].includes(fileType || '')) return 'DOC';
+                    if (['ppt','pptx'].includes(fileType || '')) return 'PPT';
+                    if (['xls','xlsx'].includes(fileType || '')) return 'XLS';
+                    return 'PDF';
                   })()}
                 </div>
               </div>
@@ -148,7 +152,8 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
               </div>
             </div>
           )}
-        
+        </div>
+
         <div className="flex items-center space-x-2">
           {!('type' in item && item.type === 'divider') && (
             <Button
@@ -199,6 +204,13 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
 const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGalleryChange }: PDFAdminProps) => {
   const currentGallery = galleries.find(g => g.id === currentGalleryId);
   const items = currentGallery?.items || [];
+
+  // Ensure a default gallery is selected when none is set
+  useEffect(() => {
+    if (!currentGalleryId && galleries.length > 0) {
+      onCurrentGalleryChange(galleries[0].id);
+    }
+  }, [currentGalleryId, galleries, onCurrentGalleryChange]);
   
   const [activeTab, setActiveTab] = useState<'management' | 'preview'>('management');
   const [isAddingDocument, setIsAddingDocument] = useState(false);
@@ -683,7 +695,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox aligned with item checkboxes */}
-            <div className="flex items-center space-x-3 pl-2">
+            <div className="flex items-center space-x-3 pl-4">
               {items.length > 0 && (
                 <>
                   <Checkbox 
