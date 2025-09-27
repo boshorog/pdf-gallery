@@ -83,11 +83,11 @@ const Index = () => {
             const currentGalleryId = data.data.current_gallery_id || '';
             
             if (galleries.length === 0) {
-              // Create default gallery with existing items
+              // Create empty default gallery
               const defaultGallery: Gallery = {
                 id: 'main',
                 name: 'Main Gallery',
-                items: initialPDFs,
+                items: [],
                 createdAt: new Date().toISOString(),
               };
               setGalleryState({

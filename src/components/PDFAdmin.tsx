@@ -886,11 +886,11 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 <div className="flex gap-2 justify-center">
                   <Button onClick={() => setIsAddingDocument(true)}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Add first Document
+                    Add Document
                   </Button>
                   <Button variant="outline" onClick={() => setIsAddingDivider(true)}>
                     <Separator className="w-4 h-0.5" />
-                    Add divider
+                    Add Divider
                   </Button>
                 </div>
               </CardContent>
