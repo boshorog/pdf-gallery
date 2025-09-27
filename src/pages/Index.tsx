@@ -134,6 +134,44 @@ const Index = () => {
               if (!currentGalleryId && galleries.length > 0) {
                 currentGalleryId = galleries[0].id;
               }
+
+              // Attempt smart restore if local backup has more/better data
+              try {
+                const backupRaw = localStorage.getItem('pdf_gallery_backup');
+                const backup = backupRaw ? JSON.parse(backupRaw) : null;
+                const backupIsBetter = Array.isArray(backup) && (
+                  backup.length > galleries.length ||
+                  (galleries.length === 1 && galleries[0]?.name === 'Main Gallery' && backup.length >= 1)
+                );
+                if (backupIsBetter) {
+                  const restoredGalleries = backup.map((gallery: any) => ({
+                    id: gallery.id || 'main',
+                    name: gallery.name || 'Main Gallery',
+                    items: Array.isArray(gallery.items) ? gallery.items : [],
+                    createdAt: gallery.createdAt || new Date().toISOString(),
+                  }));
+
+                  // Persist restore to server
+                  if (ajaxUrl && nonce) {
+                    const restoreForm = new FormData();
+                    restoreForm.append('action', 'pdf_gallery_action');
+                    restoreForm.append('action_type', 'save_galleries');
+                    restoreForm.append('nonce', nonce);
+                    restoreForm.append('galleries', JSON.stringify(restoredGalleries));
+                    restoreForm.append('current_gallery_id', restoredGalleries[0]?.id || 'main');
+                    fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: restoreForm }).catch(() => {});
+                  }
+
+                  setGalleryState({
+                    galleries: restoredGalleries,
+                    currentGalleryId: restoredGalleries[0]?.id || 'main',
+                  });
+                  // Save a local backup as well
+                  try { localStorage.setItem('pdf_gallery_backup', JSON.stringify(restoredGalleries)); } catch {}
+                  return;
+                }
+              } catch {}
+
               // Save a local backup to help recover from accidental overwrites
               try { localStorage.setItem('pdf_gallery_backup', JSON.stringify(galleries)); } catch {}
               setGalleryState({

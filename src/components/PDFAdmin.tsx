@@ -275,48 +275,9 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     }));
     setFiles(processedFiles);
 
-    // If Pro user with multiple files, don't auto-process
-    if (license.isPro && processedFiles.length > 1) {
-      // Files staged for manual processing
-      return;
-    }
-
-    // Single file processing
-    if (processedFiles.length === 1) {
-      if (license.isPro) {
-        // Pro version: auto-upload single files and close form
-        setIsUploading(true);
-        uploadFileToWP(processedFiles[0], 0).then(url => {
-          const newPDF: PDF = {
-            id: Date.now().toString(),
-            title: processedFiles[0].title,
-            date: processedFiles[0].subtitle || '',
-            pdfUrl: url,
-            thumbnail: '',
-            fileType: (processedFiles[0].fileType as PDF['fileType']) || 'pdf'
-          };
-          const updated = [newPDF, ...items];
-          const updatedGalleries = updateCurrentGalleryItems(updated);
-          return saveGalleriesToWP(updatedGalleries);
-        }).then(() => {
-          setFiles([]);
-          setIsAddingDocument(false); // Auto-close form
-          toast({ title: 'Uploaded', description: 'File uploaded and added to gallery' });
-        }).catch(err => {
-          console.error('Upload failed:', err);
-          toast({ title: 'Error', description: 'File upload failed', variant: 'destructive' });
-        }).finally(() => {
-          setIsUploading(false);
-        });
-      } else {
-        // Free version: show error for file upload attempts
-        toast({
-          title: "Upload Not Available",
-          description: "File uploads require the Pro version. Please add documents manually using URLs.",
-          variant: "destructive",
-        });
-        setFiles([]);
-      }
+    // Auto-process uploads for both Free (single) and Pro (single/multiple)
+    if (processedFiles.length > 0) {
+      processAutoUploads(processedFiles);
     }
   }, [license.isPro, galleries.length, currentGalleryId, items]);
 
@@ -908,7 +869,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox aligned with item checkboxes */}
-            <div className="flex items-center space-x-3 ml-5">
+            <div className="flex items-center space-x-3 ml-[22px]">
               {items.length > 0 && (
                 <>
                   <Checkbox 
