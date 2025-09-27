@@ -60,7 +60,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
 
   return (
     <Card ref={setNodeRef} style={style} className="bg-background">
-      <CardContent className="flex items-center justify-between px-2 pl-8 py-3">
+      <CardContent className="flex items-center justify-between px-2 pl-12 py-3">
         <div className="flex items-center space-x-3">
           <Checkbox className="mt-0" 
             checked={isSelected}
@@ -108,10 +108,6 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                       }
                       ft = extension || 'pdf';
                     }
-                    if (['jpg','jpeg','png','gif','webp'].includes(ft || '')) return 'bg-accent text-accent-foreground';
-                    if (['doc','docx'].includes(ft || '')) return 'bg-secondary text-secondary-foreground';
-                    if (['ppt','pptx'].includes(ft || '')) return 'bg-destructive text-destructive-foreground';
-                    if (['xls','xlsx'].includes(ft || '')) return 'bg-secondary text-secondary-foreground';
                     return 'bg-primary text-primary-foreground';
                   })()}`}
                 >
@@ -136,7 +132,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                   })()}
                 </div>
               </div>
-              <div>
+              <div className="ml-2">
                 <h3 className="font-semibold">{(item as PDF).title}</h3>
                 <p className="text-sm text-muted-foreground">{(item as PDF).date}</p>
               </div>
@@ -330,7 +326,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
         ...documentFormData,
         fileType: documentFormData.fileType as PDF['fileType'] || 'pdf'
       };
-      updated = [...items, newPDF];
+      updated = [newPDF, ...items];
     }
 
     // Save to WordPress first
@@ -374,7 +370,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
             ? { ...item, text: dividerFormData.text }
             : item
         )
-      : [...items, newDivider];
+      : [newDivider, ...items];
 
     // Save to WordPress first
     const updatedGalleries = updateCurrentGalleryItems(updated);
@@ -685,7 +681,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox aligned with item checkboxes */}
-            <div className="flex items-center space-x-3 pl-8">
+            <div className="flex items-center space-x-3 pl-12">
               {items.length > 0 && (
                 <>
                   <Checkbox 
