@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation, Image } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation, Image, X } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useLicense } from '@/hooks/useLicense';
 import {
@@ -212,6 +213,16 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     fileType: 'pdf'
   });
   const [isUploading, setIsUploading] = useState(false);
+  const [files, setFiles] = useState<Array<{
+    file: File;
+    title: string;
+    subtitle: string;
+    fileType: string;
+    progress: number;
+    url?: string;
+  }>>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [dividerFormData, setDividerFormData] = useState({
     text: ''
   });
@@ -224,6 +235,75 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   });
   const { toast } = useToast();
   const license = useLicense();
+
+  const getFileType = (file: File): string => {
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '')) return 'img';
+    if (extension === 'pdf') return 'pdf';
+    if (['doc', 'docx'].includes(extension || '')) return 'doc';
+    if (['ppt', 'pptx'].includes(extension || '')) return 'ppt';
+    if (['xls', 'xlsx'].includes(extension || '')) return 'xls';
+    return 'pdf';
+  };
+
+  const handleFiles = useCallback((fileList: FileList) => {
+    const newFiles = Array.from(fileList).map(file => ({
+      file,
+      title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
+      subtitle: '',
+      fileType: getFileType(file),
+      progress: 0
+    }));
+    setFiles(prev => [...newFiles, ...prev]); // Add new files at the top
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFiles(files);
+    }
+  }, [handleFiles]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
+
+  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      handleFiles(files);
+    }
+  }, [handleFiles]);
+
+  const removeFile = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updateFileData = (index: number, field: string, value: string) => {
+    setFiles(prev => prev.map((file, i) => 
+      i === index ? { ...file, [field]: value } : file
+    ));
+  };
+
+  const simulateUpload = async (file: { file: File; title: string; subtitle: string; fileType: string }, index: number): Promise<string> => {
+    // Simulate file upload with progress
+    for (let progress = 0; progress <= 100; progress += 10) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      setFiles(prev => prev.map((f, i) => 
+        i === index ? { ...f, progress } : f
+      ));
+    }
+    // Return a mock URL - in real implementation, this would be the actual uploaded file URL
+    return `https://example.com/uploads/${file.file.name}`;
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -297,18 +377,60 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     }
   };
 
+  const handleSubmitDocuments = async () => {
+    if (files.length === 0) return;
+
+    setIsUploading(true);
+    
+    try {
+      // Upload files and add them
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (!file.title.trim()) continue;
+        
+        const url = await simulateUpload(file, i);
+        const newPDF: PDF = {
+          id: Date.now().toString() + i,
+          title: file.title,
+          date: file.subtitle || '',
+          pdfUrl: url,
+          thumbnail: '',
+          fileType: file.fileType as PDF['fileType'] || 'pdf'
+        };
+        
+        const updatedItems = [newPDF, ...items];
+        const updatedGalleries = updateCurrentGalleryItems(updatedItems);
+        await saveGalleriesToWP(updatedGalleries);
+      }
+      
+      // Reset form
+      setFiles([]);
+      setIsUploading(false);
+      setIsAddingDocument(false);
+      toast({
+        title: "Added",
+        description: `${files.length} document${files.length !== 1 ? 's' : ''} added successfully`,
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      setIsUploading(false);
+      toast({
+        title: "Error",
+        description: "Failed to upload documents",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSubmitDocument = async () => {
     if (!documentFormData.title || !documentFormData.pdfUrl) {
       toast({
         title: "Error",
-        description: "All fields are required",
+        description: "Title and URL are required",
         variant: "destructive",
       });
       return;
     }
-
-    // Check license restrictions for free version - unlimited documents per gallery, but only 1 gallery total
-    // This check is removed as free version allows unlimited documents within the single allowed gallery
 
     let updated: GalleryItem[];
     
@@ -399,6 +521,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       thumbnail: '',
       fileType: 'pdf'
     });
+    setFiles([]);
     setIsAddingDocument(false);
     setEditingId(null);
   };
@@ -736,37 +859,159 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
             </div>
           </div>
 
-          {/* PDF Add/Edit Form */}
-          {isAddingDocument && (
+          {/* Multi-File Upload Form */}
+          {isAddingDocument && !editingId && (
             <Card className="edit-section">
               <CardHeader>
-                <CardTitle>
-                  {editingId ? 'Edit Document' : 'Add New Document'}
-                </CardTitle>
+                <CardTitle>Add Documents</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {/* File Upload Section */}
-                <Label
-                  htmlFor="pdfFile"
-                  className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-muted-foreground/50 transition-colors block"
+              <CardContent className="space-y-6">
+                {/* Upload Area */}
+                <div
+                  className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                    isDragOver 
+                      ? 'bg-primary border-primary text-primary-foreground' 
+                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                  }`}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDragEnter={(e) => { e.preventDefault(); setIsDragOver(true); }}
                 >
-                  <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                  <span className="text-sm font-medium text-primary hover:underline">
-                    {isUploading ? 'Uploading...' : 'Upload Document file'}
-                  </span>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Accepted: PDF, DOC/DOCX, PPT/PPTX, XLS/XLSX, JPG/JPEG, PNG, GIF, WEBP
-                  </p>
-                  <Input
-                    id="pdfFile"
+                  {isDragOver ? (
+                    <div className="flex flex-col items-center justify-center gap-2 py-6">
+                      <Upload className="mx-auto h-12 w-12 text-primary-foreground/90" />
+                      <p className="text-lg font-semibold">Drop your files here</p>
+                      <p className="text-sm opacity-90">Release to upload</p>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                      <div className="space-y-2">
+                        <p className="text-lg font-medium">Drop files here or click to browse</p>
+                        <p className="text-sm text-muted-foreground">
+                          Supports PDF, DOC, DOCX, PPT, PPTX, and image files
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="mt-4"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Browse Files
+                      </Button>
+                    </>
+                  )}
+                  <input
+                    ref={fileInputRef}
                     type="file"
-                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/jpeg,image/png,image/gif,image/webp"
-                    onChange={handleFileUpload}
-                    disabled={isUploading}
+                    multiple
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp"
+                    onChange={handleFileInput}
                     className="hidden"
                   />
-                </Label>
+                  {isUploading && (
+                    <div className="absolute left-0 right-0 bottom-0">
+                      <Progress
+                        value={Math.round(files.reduce((sum, f) => sum + (f.progress || 0), 0) / Math.max(files.length || 1, 1))}
+                        className="h-1 rounded-none"
+                      />
+                    </div>
+                  )}
+                </div>
 
+                {/* File List */}
+                {files.length > 0 && (
+                  <div className="space-y-4">
+                    <Label className="text-base font-medium">Selected Files ({files.length})</Label>
+                    <div className="space-y-3 max-h-60 overflow-y-auto">
+                      {files.map((file, index) => (
+                        <div key={index} className="border rounded-lg p-4 space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="relative w-10 h-10 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                                <FileText className="w-5 h-5 text-muted-foreground" />
+                                <div className="absolute -top-1 -right-1 text-xs px-1 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">
+                                  {file.fileType.toUpperCase()}
+                                </div>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">{file.file.name}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {(file.file.size / 1024 / 1024).toFixed(2)} MB
+                                </p>
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFile(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <Label htmlFor={`title-${index}`}>Title *</Label>
+                              <Input
+                                id={`title-${index}`}
+                                value={file.title}
+                                onChange={(e) => updateFileData(index, 'title', e.target.value)}
+                                placeholder="Document title"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`subtitle-${index}`}>Subtitle (optional)</Label>
+                              <Input
+                                id={`subtitle-${index}`}
+                                value={file.subtitle}
+                                onChange={(e) => updateFileData(index, 'subtitle', e.target.value)}
+                                placeholder="Optional subtitle"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Progress bar during upload */}
+                          {isUploading && file.progress > 0 && (
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-sm">
+                                <span>Uploading...</span>
+                                <span>{file.progress}%</span>
+                              </div>
+                              <Progress value={file.progress} className="h-2" />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={resetDocumentForm} disabled={isUploading}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleSubmitDocuments}
+                    disabled={files.length === 0 || isUploading || files.some(f => !f.title.trim())}
+                  >
+                    {isUploading ? 'Uploading...' : `Add ${files.length} Document${files.length !== 1 ? 's' : ''}`}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Single Document Edit Form */}
+          {isAddingDocument && editingId && (
+            <Card className="edit-section">
+              <CardHeader>
+                <CardTitle>Edit Document</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <Label htmlFor="title">Title</Label>
                   <Input
@@ -809,7 +1054,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 
                 <div className="flex gap-2">
                   <Button onClick={handleSubmitDocument}>
-                    {editingId ? 'Update' : 'Add'}
+                    Update
                   </Button>
                   <Button variant="outline" onClick={resetDocumentForm}>
                     Cancel
