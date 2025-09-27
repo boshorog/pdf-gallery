@@ -247,6 +247,12 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   };
 
   const handleFiles = useCallback((fileList: FileList) => {
+    // Prevent actions before galleries are loaded to avoid accidental overwrites
+    if (galleries.length === 0 || !currentGalleryId) {
+      toast({ title: 'Please wait', description: 'Galleries are loading. Try again in a moment.' });
+      return;
+    }
+
     if (license.isPro) {
       // Pro version: bulk upload with auto-start
       const newFiles = Array.from(fileList).map(file => ({
@@ -303,7 +309,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
         });
       }
     }
-  }, [license.isPro]);
+  }, [license.isPro, galleries.length, currentGalleryId]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -455,6 +461,9 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
         });
         
         const data = await res.json();
+        if (data?.success) {
+          try { localStorage.setItem('pdf_gallery_backup', JSON.stringify(updatedGalleries)); } catch {}
+        }
         return data?.success;
       } catch (error) {
         console.error('Failed to save to WordPress:', error);

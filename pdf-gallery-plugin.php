@@ -489,6 +489,44 @@ public function display_gallery_shortcode($atts) {
             }
         }
 
+        // If galleries option exists but is empty, try to restore from backup or legacy
+        if (is_array($galleries) && count($galleries) === 0) {
+            $backup = get_option('pdf_gallery_galleries_backup', null);
+            if (is_array($backup) && count($backup) > 0) {
+                $galleries = $backup;
+                $current_id = isset($galleries[0]['id']) ? $galleries[0]['id'] : 'main';
+                update_option('pdf_gallery_galleries', $galleries);
+                update_option('pdf_gallery_current_gallery_id', $current_id);
+            } else {
+                $legacy_items = get_option('pdf_gallery_data', array());
+                if (is_array($legacy_items) && count($legacy_items) > 0) {
+                    $galleries = array(
+                        array(
+                            'id' => 'main',
+                            'name' => 'Main Gallery',
+                            'items' => $legacy_items,
+                            'createdAt' => current_time('mysql'),
+                        )
+                    );
+                    $current_id = 'main';
+                    update_option('pdf_gallery_galleries', $galleries);
+                    update_option('pdf_gallery_current_gallery_id', $current_id);
+                } else {
+                    $galleries = array(
+                        array(
+                            'id' => 'main',
+                            'name' => 'Main Gallery',
+                            'items' => array(),
+                            'createdAt' => current_time('mysql'),
+                        )
+                    );
+                    $current_id = 'main';
+                    update_option('pdf_gallery_galleries', $galleries);
+                    update_option('pdf_gallery_current_gallery_id', $current_id);
+                }
+            }
+        }
+
         if (empty($current_id) && is_array($galleries) && count($galleries) > 0) {
             $current_id = isset($galleries[0]['id']) ? $galleries[0]['id'] : 'main';
             update_option('pdf_gallery_current_gallery_id', $current_id);
@@ -525,6 +563,15 @@ public function display_gallery_shortcode($atts) {
         $galleries = json_decode($galleries_json, true);
 
         if (json_last_error() === JSON_ERROR_NONE && is_array($galleries)) {
+            // Refuse to overwrite with an empty array (safety)
+            if (count($galleries) === 0) {
+                wp_send_json_error('Refusing to overwrite galleries with empty payload');
+            }
+            // Backup current value before overwriting
+            $existing = get_option('pdf_gallery_galleries', null);
+            if (is_array($existing) && count($existing) > 0) {
+                update_option('pdf_gallery_galleries_backup', $existing);
+            }
             update_option('pdf_gallery_galleries', $galleries);
             if (!empty($current_id)) {
                 update_option('pdf_gallery_current_gallery_id', $current_id);

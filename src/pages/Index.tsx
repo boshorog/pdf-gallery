@@ -84,6 +84,27 @@ const Index = () => {
             let currentGalleryId = data.data.current_gallery_id || '';
             
             if (galleries.length === 0) {
+              // Try to restore from local backup if available
+              try {
+                const backupRaw = localStorage.getItem('pdf_gallery_backup');
+                const backup = backupRaw ? JSON.parse(backupRaw) : null;
+                if (Array.isArray(backup) && backup.length > 0) {
+                  // Attempt server restore so it persists
+                  const restoreForm = new FormData();
+                  restoreForm.append('action', 'pdf_gallery_action');
+                  restoreForm.append('action_type', 'save_galleries');
+                  restoreForm.append('nonce', nonce);
+                  restoreForm.append('galleries', JSON.stringify(backup));
+                  restoreForm.append('current_gallery_id', backup[0]?.id || 'main');
+                  fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: restoreForm }).catch(() => {});
+                  setGalleryState({
+                    galleries: backup,
+                    currentGalleryId: backup[0]?.id || 'main',
+                  });
+                  return; // Done
+                }
+              } catch {}
+
               // Create empty default gallery
               const defaultGallery: Gallery = {
                 id: 'main',
@@ -105,6 +126,8 @@ const Index = () => {
               if (!currentGalleryId && galleries.length > 0) {
                 currentGalleryId = galleries[0].id;
               }
+              // Save a local backup to help recover from accidental overwrites
+              try { localStorage.setItem('pdf_gallery_backup', JSON.stringify(galleries)); } catch {}
               setGalleryState({
                 galleries,
                 currentGalleryId: currentGalleryId
