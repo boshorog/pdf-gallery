@@ -164,9 +164,9 @@ export const GallerySelector = ({
                 <DialogTitle>Rename Gallery</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="space-y-2">
+               <div className="space-y-3">
                   <Label htmlFor="rename-gallery">Gallery Name</Label>
-                  <Input
+                 <Input
                     id="rename-gallery"
                     value={renameGalleryName}
                     onChange={(e) => setRenameGalleryName(e.target.value)}
@@ -203,9 +203,9 @@ export const GallerySelector = ({
                 <DialogTitle>Create New Gallery</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="space-y-2">
+               <div className="space-y-3">
                   <Label htmlFor="new-gallery">Gallery Name</Label>
-                  <Input
+                 <Input
                     id="new-gallery"
                     value={newGalleryName}
                     onChange={(e) => setNewGalleryName(e.target.value)}
@@ -264,9 +264,9 @@ export const GallerySelector = ({
               <DialogTitle>Rename Gallery</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-               <div className="space-y-2">
-                 <Label htmlFor="rename-gallery">Gallery Name</Label>
-                <Input
+               <div className="space-y-3">
+                  <Label htmlFor="rename-gallery">Gallery Name</Label>
+                 <Input
                   id="rename-gallery"
                   value={renameGalleryName}
                   onChange={(e) => setRenameGalleryName(e.target.value)}
@@ -305,7 +305,7 @@ export const GallerySelector = ({
                 Are you sure you want to delete the gallery "{currentGallery?.name}"? This action cannot be undone and will permanently delete all documents in this gallery.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
+            <AlertDialogFooter className="flex items-center justify-end gap-2">
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction onClick={handleDeleteGallery} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                 Delete Gallery
@@ -331,9 +331,9 @@ export const GallerySelector = ({
               <DialogTitle>Create New Gallery</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-               <div className="space-y-2">
-                 <Label htmlFor="new-gallery">Gallery Name</Label>
-                <Input
+               <div className="space-y-3">
+                  <Label htmlFor="new-gallery">Gallery Name</Label>
+                 <Input
                   id="new-gallery"
                   value={newGalleryName}
                   onChange={(e) => setNewGalleryName(e.target.value)}

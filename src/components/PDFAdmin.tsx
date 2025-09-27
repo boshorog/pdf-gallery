@@ -60,7 +60,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
 
   return (
     <Card ref={setNodeRef} style={style} className="bg-background">
-      <CardContent className="flex items-center justify-between p-4">
+      <CardContent className="flex items-center justify-between p-3">
         <div className="flex items-center space-x-4">
           <Checkbox 
             checked={isSelected}
@@ -100,7 +100,16 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                 {/* File type badge */}
                 <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs px-1 py-0.5 rounded text-[10px] font-medium">
                   {(() => {
-                    const fileType = (item as PDF).fileType?.toLowerCase();
+                    const pdfItem = item as PDF;
+                    let fileType = pdfItem.fileType?.toLowerCase();
+                    
+                    // If no fileType, try to detect from URL
+                    if (!fileType) {
+                      const url = pdfItem.pdfUrl || '';
+                      const extension = url.split('.').pop()?.toLowerCase();
+                      fileType = extension || 'pdf';
+                    }
+                    
                     if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType || '')) {
                       return 'IMG';
                     } else if (fileType === 'pdf') {
@@ -659,7 +668,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox */}
-            <div className="flex items-center gap-2 pl-4">
+            <div className="flex items-center gap-2">
               {items.length > 0 && (
                 <>
                   <Checkbox 
@@ -744,7 +753,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   />
                 </Label>
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Label htmlFor="title">Title</Label>
                   <Input
                     id="title"
@@ -754,7 +763,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   />
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Label htmlFor="date">Date</Label>
                   <Input
                     id="date"
@@ -764,7 +773,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   />
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Label htmlFor="pdfUrl">Document URL</Label>
                   <Input
                     id="pdfUrl"
@@ -774,7 +783,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   />
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Label htmlFor="thumbnail">Thumbnail URL (optional)</Label>
                   <Input
                     id="thumbnail"
@@ -805,7 +814,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Label htmlFor="dividerText">Divider Text</Label>
                   <Input
                     id="dividerText"
@@ -828,7 +837,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
           )}
 
           {/* Sortable Items List */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}

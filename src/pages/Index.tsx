@@ -202,7 +202,16 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
-        <Tabs defaultValue="preview" className="w-full">
+        {/* Plugin Logo */}
+        <div className="flex justify-center mb-6">
+          <img 
+            src="/src/assets/pdf-gallery-logo.png" 
+            alt="PDF Gallery Plugin Logo" 
+            className="h-12 w-auto"
+          />
+        </div>
+        
+        <Tabs defaultValue="gallery" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="gallery">Gallery Management</TabsTrigger>
@@ -246,7 +255,7 @@ const Index = () => {
                 Showing: {currentGallery?.name || 'Main Gallery'}
               </p>
             </div>
-            <div className="mt-8 border rounded-lg overflow-hidden">
+            <div className="mt-8">
               <PDFGallery 
                 items={currentItems} 
                 settings={settings} 
