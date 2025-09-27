@@ -146,7 +146,7 @@ const Index = () => {
                 if (backupIsBetter) {
                   const restoredGalleries = backup.map((gallery: any) => ({
                     id: gallery.id || 'main',
-                    name: gallery.name || 'Main Gallery',
+                    name: gallery.name || (gallery.id === 'main' ? 'Main Gallery' : `Gallery ${gallery.id}`),
                     items: Array.isArray(gallery.items) ? gallery.items : [],
                     createdAt: gallery.createdAt || new Date().toISOString(),
                   }));

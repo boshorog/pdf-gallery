@@ -134,8 +134,8 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                 </div>
               </div>
               <div className="ml-4.5">
-                <h3 className="font-semibold">{(item as PDF).title}</h3>
-                <p className="text-sm text-muted-foreground">{(item as PDF).date}</p>
+                <h3 className="text-base font-semibold">{(item as PDF).title}</h3>
+                <p className="text-xs text-muted-foreground">{(item as PDF).date}</p>
               </div>
             </div>
           )}

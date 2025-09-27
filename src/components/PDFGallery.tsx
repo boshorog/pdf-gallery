@@ -448,12 +448,12 @@ const PDFGallery = ({
               
               {/* Clickable text outside the thumbnail frame */}
               <div className="mt-3 transition-colors duration-200">
-                <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)]">
-                  {pdf.date}
-                </p>
                 <h3 className="font-semibold text-sm leading-tight text-foreground group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)] transition-colors duration-200 truncate">
                   {pdf.title}
                 </h3>
+                <p className="text-xs text-muted-foreground leading-tight mt-1 group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)]">
+                  {pdf.date}
+                </p>
               </div>
             </div>
           </a>
