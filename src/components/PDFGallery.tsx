@@ -274,8 +274,8 @@ const PDFGallery = ({
                   </div>
                 </div>
                 <div className="p-3 bg-gradient-to-t from-card to-transparent">
-                  <p className="text-xs text-muted-foreground mb-1">{pdf.date}</p>
                   <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">{pdf.title}</h3>
+                  <p className="text-xs text-muted-foreground mt-1">{pdf.date}</p>
                 </div>
               </div>
             </div>
@@ -298,8 +298,8 @@ const PDFGallery = ({
                 </div>
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                   <div className="p-3 pb-8 text-white">
-                    <p className="text-xs opacity-80 mb-0.5">{pdf.date}</p>
                     <h3 className="font-semibold text-sm">{pdf.title}</h3>
+                    <p className="text-xs opacity-80 mt-0.5">{pdf.date}</p>
                   </div>
                   <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -343,8 +343,8 @@ const PDFGallery = ({
                 </div>
               </div>
               <div className="mt-2 text-center">
-                <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">{pdf.date}</p>
                 <h3 className="font-semibold text-sm text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all">{pdf.title}</h3>
+                <p className="text-xs text-muted-foreground mt-1 group-hover:text-primary transition-colors">{pdf.date}</p>
               </div>
             </div>
           </a>
@@ -370,8 +370,8 @@ const PDFGallery = ({
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">{pdf.date}</p>
                   <h3 className="font-semibold text-sm text-foreground mb-1 group-hover:text-primary transition-colors truncate">{pdf.title}</h3>
+                  <p className="text-xs text-muted-foreground group-hover:text-primary transition-colors">{pdf.date}</p>
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
@@ -405,13 +405,13 @@ const PDFGallery = ({
                     </div>
                   </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">{pdf.date}</p>
-                  <h3 className="font-medium text-sm text-foreground relative inline-block">
-                    {pdf.title}
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-                  </h3>
-                </div>
+            <div>
+              <h3 className="font-medium text-sm text-foreground relative inline-block">
+                {pdf.title}
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+              </h3>
+              <p className="text-xs text-muted-foreground mt-1">{pdf.date}</p>
+            </div>
               </div>
             </div>
           </a>

@@ -62,7 +62,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
   return (
     <Card ref={setNodeRef} style={style} className="bg-background">
       <CardContent className="flex items-center justify-between px-2 pl-3 py-3">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 ml-2.5">
           <Checkbox className="mt-0" 
             checked={isSelected}
             onCheckedChange={(checked) => onSelect(item.id, !!checked)}
@@ -133,7 +133,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                   })()}
                 </div>
               </div>
-              <div className="ml-2">
+              <div className="ml-4.5">
                 <h3 className="font-semibold">{(item as PDF).title}</h3>
                 <p className="text-sm text-muted-foreground">{(item as PDF).date}</p>
               </div>
@@ -247,22 +247,54 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   };
 
   const handleFiles = useCallback((fileList: FileList) => {
-    const newFiles = Array.from(fileList).map(file => ({
-      file,
-      title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
-      subtitle: '',
-      fileType: getFileType(file),
-      progress: 0
-    }));
-    setFiles(prev => [...newFiles, ...prev]); // Add new files at the top
-    
-    // Auto-start upload immediately
-    setTimeout(() => {
-      if (newFiles.length > 0) {
-        processAutoUploads(newFiles);
+    if (license.isPro) {
+      // Pro version: bulk upload with auto-start
+      const newFiles = Array.from(fileList).map(file => ({
+        file,
+        title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
+        subtitle: '',
+        fileType: getFileType(file),
+        progress: 0
+      }));
+      setFiles(prev => [...newFiles, ...prev]); // Add new files at the top
+      
+      // Auto-start upload immediately
+      setTimeout(() => {
+        if (newFiles.length > 0) {
+          processAutoUploads(newFiles);
+        }
+      }, 100);
+    } else {
+      // Free version: single file only, traditional modal approach
+      if (fileList.length > 0) {
+        const file = fileList[0]; // Only take first file
+        setDocumentFormData({
+          title: file.name.replace(/\.[^/.]+$/, ""),
+          date: '',
+          pdfUrl: '',
+          thumbnail: '',
+          fileType: getFileType(file)
+        });
+        setIsAddingDocument(true);
+        
+        // Upload single file immediately in background
+        setIsUploading(true);
+        uploadFileToWP({
+          file,
+          title: file.name.replace(/\.[^/.]+$/, ""),
+          subtitle: '',
+          fileType: getFileType(file)
+        }, 0).then(url => {
+          setDocumentFormData(prev => ({ ...prev, pdfUrl: url }));
+        }).catch(err => {
+          console.error('Upload failed:', err);
+          toast({ title: 'Error', description: 'File upload failed', variant: 'destructive' });
+        }).finally(() => {
+          setIsUploading(false);
+        });
       }
-    }, 100);
-  }, []);
+    }
+  }, [license.isPro]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -563,39 +595,6 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     setEditingId(null);
   };
 
-  // Fix legacy example.com URLs
-  const fixExampleUrls = async () => {
-    const itemsToFix = items.filter(item => 
-      'pdfUrl' in item && (item as PDF).pdfUrl.includes('example.com')
-    );
-    
-    if (itemsToFix.length === 0) {
-      toast({ title: 'No issues found', description: 'All URLs appear to be valid' });
-      return;
-    }
-
-    const updatedItems = items.map(item => {
-      if ('pdfUrl' in item && (item as PDF).pdfUrl.includes('example.com')) {
-        const filename = (item as PDF).pdfUrl.split('/').pop() || 'document.pdf';
-        const wp = (window as any).wpPDFGallery;
-        const uploadsUrl = wp?.uploadsUrl || 'https://example.com/wp-content/uploads';
-        return { ...item, pdfUrl: `${uploadsUrl}/pdf-gallery/${filename}` } as PDF;
-      }
-      return item;
-    });
-
-    const updatedGalleries = updateCurrentGalleryItems(updatedItems);
-    const saved = await saveGalleriesToWP(updatedGalleries);
-    
-    if (saved) {
-      toast({ 
-        title: 'URLs Fixed', 
-        description: `Fixed ${itemsToFix.length} example.com URL${itemsToFix.length !== 1 ? 's' : ''}` 
-      });
-    } else {
-      toast({ title: 'Error', description: 'Failed to fix URLs', variant: 'destructive' });
-    }
-  };
 
   const resetDividerForm = () => {
     setDividerFormData({ text: '' });
@@ -904,15 +903,6 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
 
             {/* Right: Action Buttons */}
             <div className="flex gap-2">
-              {items.some(item => 'pdfUrl' in item && (item as PDF).pdfUrl.includes('example.com')) && (
-                <Button 
-                  onClick={fixExampleUrls}
-                  variant="outline"
-                  className="text-amber-600 border-amber-200 hover:bg-amber-50"
-                >
-                  Fix URLs
-                </Button>
-              )}
               {selectedItems.size > 0 && (
                 <Button 
                   onClick={handleDeleteSelected}

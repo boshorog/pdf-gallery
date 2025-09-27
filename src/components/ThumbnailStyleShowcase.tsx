@@ -30,8 +30,8 @@ const ThumbnailStyleShowcase = () => {
             </div>
           </div>
           <div className="mt-3">
-            <p className="text-xs text-muted-foreground leading-tight mb-1 group-hover:text-primary transition-colors">April 2025</p>
             <h3 className="font-semibold text-sm leading-tight text-foreground group-hover:text-primary transition-colors">Sample PDF Title</h3>
+            <p className="text-xs text-muted-foreground leading-tight mt-1 group-hover:text-primary transition-colors">April 2025</p>
           </div>
         </div>
       )
@@ -58,8 +58,8 @@ const ThumbnailStyleShowcase = () => {
             </div>
           </div>
           <div className="mt-4 text-center">
-            <p className="text-xs text-muted-foreground mb-1">April 2025</p>
             <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">Sample PDF Title</h3>
+            <p className="text-xs text-muted-foreground mt-1">April 2025</p>
           </div>
         </div>
       )
@@ -90,8 +90,8 @@ const ThumbnailStyleShowcase = () => {
             </div>
           </div>
           <div className="mt-4 text-center">
-            <p className="text-xs text-muted-foreground mb-1">April 2025</p>
             <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">Sample PDF Title</h3>
+            <p className="text-xs text-muted-foreground mt-1">April 2025</p>
           </div>
         </div>
       )
@@ -118,8 +118,8 @@ const ThumbnailStyleShowcase = () => {
               </div>
             </div>
             <div className="p-4 bg-gradient-to-t from-card to-transparent">
-              <p className="text-xs text-muted-foreground mb-1">April 2025</p>
               <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">Sample PDF Title</h3>
+              <p className="text-xs text-muted-foreground mt-1">April 2025</p>
             </div>
           </div>
         </div>
@@ -146,11 +146,11 @@ const ThumbnailStyleShowcase = () => {
               </div>
             </div>
             <div className="absolute bottom-1 left-3 right-3">
-              <p className="text-xs text-gray-600 text-center font-handwriting">April 2025</p>
+              <h3 className="text-xs text-gray-600 text-center font-handwriting font-semibold">Sample PDF Title</h3>
             </div>
           </div>
           <div className="mt-2 text-center transform group-hover:translate-y-1 transition-transform duration-300">
-            <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">Sample PDF Title</h3>
+            <p className="text-xs text-muted-foreground">April 2025</p>
           </div>
         </div>
       )
@@ -170,8 +170,8 @@ const ThumbnailStyleShowcase = () => {
             </div>
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
               <div className="p-4 text-white">
-                <p className="text-xs opacity-80 mb-1">April 2025</p>
                 <h3 className="font-semibold text-sm">Sample PDF Title</h3>
+                <p className="text-xs opacity-80 mt-1">April 2025</p>
                 <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13l-3 3m0 0l-3-3m3 3V8" />
@@ -213,8 +213,8 @@ const ThumbnailStyleShowcase = () => {
             </div>
           </div>
           <div className="mt-3 text-center">
-            <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">April 2025</p>
             <h3 className="font-semibold text-sm text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all">Sample PDF Title</h3>
+            <p className="text-xs text-muted-foreground mt-1 group-hover:text-primary transition-colors">April 2025</p>
           </div>
         </div>
       )
@@ -238,8 +238,8 @@ const ThumbnailStyleShowcase = () => {
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">April 2025</p>
-              <h3 className="font-semibold text-sm text-foreground mb-2 group-hover:text-primary transition-colors truncate">Sample PDF Title</h3>
+              <h3 className="font-semibold text-sm text-foreground mb-1 group-hover:text-primary transition-colors truncate">Sample PDF Title</h3>
+              <p className="text-xs text-muted-foreground group-hover:text-primary transition-colors">April 2025</p>
               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
@@ -272,11 +272,11 @@ const ThumbnailStyleShowcase = () => {
               </div>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">April 2025</p>
               <h3 className="font-medium text-sm text-foreground relative inline-block">
                 Sample PDF Title
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
               </h3>
+              <p className="text-xs text-muted-foreground mt-1">April 2025</p>
             </div>
           </div>
         </div>
@@ -303,8 +303,8 @@ const ThumbnailStyleShowcase = () => {
               <span className="text-xs font-bold text-gray-800">PDF</span>
             </div>
             <div className="absolute bottom-4 left-4 right-8 text-white">
-              <p className="text-xs opacity-90 mb-1">April 2025</p>
               <h3 className="font-bold text-sm leading-tight group-hover:text-yellow-300 transition-colors">Sample PDF Title</h3>
+              <p className="text-xs opacity-90 mt-1">April 2025</p>
             </div>
           </div>
         </div>
