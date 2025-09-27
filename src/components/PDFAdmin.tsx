@@ -293,16 +293,89 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     ));
   };
 
-  const simulateUpload = async (file: { file: File; title: string; subtitle: string; fileType: string }, index: number): Promise<string> => {
-    // Simulate file upload with progress
-    for (let progress = 0; progress <= 100; progress += 10) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-      setFiles(prev => prev.map((f, i) => 
-        i === index ? { ...f, progress } : f
-      ));
+  const uploadFileToWP = (file: { file: File; title: string; subtitle: string; fileType: string }, index: number): Promise<string> => {
+    const wp = (window as any).wpPDFGallery;
+    return new Promise((resolve, reject) => {
+      // Fallback: simulate in non-WordPress environments
+      if (!wp?.ajaxUrl || !wp?.nonce) {
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress = Math.min(100, progress + 10);
+          setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress } : f));
+          if (progress >= 100) {
+            clearInterval(interval);
+            resolve(`https://example.com/uploads/${file.file.name}`);
+          }
+        }, 50);
+        return;
+      }
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', wp.ajaxUrl, true);
+      xhr.withCredentials = true;
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress: percent } : f));
+        }
+      };
+
+      xhr.onload = () => {
+        try {
+          const res = JSON.parse(xhr.responseText || '{}');
+          if (res?.success && res?.data?.url) {
+            setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress: 100 } : f));
+            resolve(res.data.url as string);
+          } else {
+            reject(res?.data || res || 'Upload failed');
+          }
+        } catch (err) {
+          reject(err);
+        }
+      };
+
+      xhr.onerror = () => reject('Network error');
+
+      const form = new FormData();
+      form.append('action', 'pdf_gallery_action');
+      form.append('action_type', 'upload_pdf');
+      form.append('nonce', wp.nonce);
+      form.append('pdf_file', file.file);
+      xhr.send(form);
+    });
+  };
+
+  const processUploads = async () => {
+    if (files.length === 0) return;
+    setIsUploading(true);
+    try {
+      let accItems = items.slice();
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        if (!f.title.trim()) continue;
+        const url = await uploadFileToWP(f, i);
+        const newPDF: PDF = {
+          id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2,6)}`,
+          title: f.title,
+          date: f.subtitle || '',
+          pdfUrl: url,
+          thumbnail: '',
+          fileType: (f.fileType as PDF['fileType']) || 'pdf'
+        };
+        accItems = [newPDF, ...accItems];
+        const updatedGalleries = updateCurrentGalleryItems(accItems);
+        await saveGalleriesToWP(updatedGalleries);
+      }
+      setFiles([]);
+      toast({ title: 'Uploaded', description: 'Files uploaded and added to gallery' });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({ title: 'Error', description: 'Failed to upload one or more files', variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+      setIsAddingDocument(false);
     }
-    // Return a mock URL - in real implementation, this would be the actual uploaded file URL
-    return `https://example.com/uploads/${file.file.name}`;
   };
 
   const sensors = useSensors(
@@ -378,48 +451,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   };
 
   const handleSubmitDocuments = async () => {
-    if (files.length === 0) return;
-
-    setIsUploading(true);
-    
-    try {
-      // Upload files and add them
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (!file.title.trim()) continue;
-        
-        const url = await simulateUpload(file, i);
-        const newPDF: PDF = {
-          id: Date.now().toString() + i,
-          title: file.title,
-          date: file.subtitle || '',
-          pdfUrl: url,
-          thumbnail: '',
-          fileType: file.fileType as PDF['fileType'] || 'pdf'
-        };
-        
-        const updatedItems = [newPDF, ...items];
-        const updatedGalleries = updateCurrentGalleryItems(updatedItems);
-        await saveGalleriesToWP(updatedGalleries);
-      }
-      
-      // Reset form
-      setFiles([]);
-      setIsUploading(false);
-      setIsAddingDocument(false);
-      toast({
-        title: "Added",
-        description: `${files.length} document${files.length !== 1 ? 's' : ''} added successfully`,
-      });
-    } catch (error) {
-      console.error('Upload error:', error);
-      setIsUploading(false);
-      toast({
-        title: "Error",
-        description: "Failed to upload documents",
-        variant: "destructive",
-      });
-    }
+    await processUploads();
   };
 
   const handleSubmitDocument = async () => {
