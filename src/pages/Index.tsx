@@ -7,6 +7,7 @@ import PDFAdmin from '@/components/PDFAdmin';
 import PDFGallery from '@/components/PDFGallery';
 import PDFSettings from '@/components/PDFSettings';
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
+import pluginLogo from '@/assets/pdf-gallery-logo.png';
 
 // Initial PDF data (fallback for development)
 const initialPDFs: GalleryItem[] = [
@@ -213,11 +214,11 @@ const Index = () => {
       <div className="max-w-7xl mx-auto">
         {/* Plugin Logo */}
         <div className="flex justify-start mb-6">
-          <img 
-            src="/src/assets/pdf-gallery-logo.png" 
-            alt="PDF Gallery Plugin Logo" 
-            className="w-[400px] h-auto"
-          />
+            <img 
+              src={pluginLogo}
+              alt="PDF Gallery Plugin Logo"
+              className="w-[400px] h-auto"
+            />
         </div>
         
         <Tabs defaultValue="gallery" className="w-full">

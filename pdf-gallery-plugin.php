@@ -508,6 +508,11 @@ public function display_gallery_shortcode($atts) {
                 }
             }
         }
+
+        wp_send_json_success(array(
+            'galleries' => $galleries,
+            'current_gallery_id' => $current_id,
+        ));
     }
 
     private function handle_save_galleries() {

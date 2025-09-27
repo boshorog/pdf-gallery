@@ -148,7 +148,6 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
               </div>
             </div>
           )}
-        </div>
         
         <div className="flex items-center space-x-2">
           {!('type' in item && item.type === 'divider') && (
@@ -684,7 +683,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox aligned with item checkboxes */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center space-x-3">
               {/* Spacer to align with drag handle width */}
               <div className="w-10 shrink-0" />
               {items.length > 0 && (
