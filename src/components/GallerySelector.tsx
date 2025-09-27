@@ -60,7 +60,7 @@ export const GallerySelector = ({
 
   // Ensure a default gallery is selected when none is set
   useEffect(() => {
-    if (!currentGalleryId && galleries.length > 0) {
+    if ((!currentGalleryId || !galleries.some(g => g.id === currentGalleryId)) && galleries.length > 0) {
       onGalleryChange(galleries[0].id);
     }
   }, [currentGalleryId, galleries, onGalleryChange]);
@@ -240,8 +240,8 @@ export const GallerySelector = ({
   return (
     <div className="flex items-center gap-2">
       <Select value={currentGalleryId || (galleries[0]?.id ?? '')} onValueChange={onGalleryChange}>
-        <SelectTrigger className="w-48">
-          <SelectValue />
+        <SelectTrigger className="w-56">
+          <SelectValue placeholder={currentGallery?.name || galleries[0]?.name || 'Select gallery'} />
         </SelectTrigger>
         <SelectContent>
           {galleries.map((gallery) => (
@@ -314,7 +314,7 @@ export const GallerySelector = ({
             </AlertDialogHeader>
             <AlertDialogFooter className="flex items-center gap-2">
               <AlertDialogCancel className="h-9 mt-0">Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteGallery} className="h-9 bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              <AlertDialogAction onClick={handleDeleteGallery} className="h-9 bg-destructive text-destructive-foreground hover:bg-destructive/90 mt-0">
                 Delete Gallery
               </AlertDialogAction>
             </AlertDialogFooter>

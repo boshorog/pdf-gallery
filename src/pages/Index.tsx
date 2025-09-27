@@ -171,6 +171,16 @@ const Index = () => {
     }
   }, []);
 
+  // Ensure first gallery is selected by default whenever galleries load
+  useEffect(() => {
+    if (galleryState.galleries.length > 0) {
+      const exists = galleryState.galleries.some(g => g.id === galleryState.currentGalleryId);
+      if (!galleryState.currentGalleryId || !exists) {
+        setGalleryState(prev => ({ ...prev, currentGalleryId: prev.galleries[0].id }));
+      }
+    }
+  }, [galleryState.galleries, galleryState.currentGalleryId]);
+
 
   const copyShortcode = async () => {
     const currentGallery = galleryState.galleries.find(g => g.id === galleryState.currentGalleryId);

@@ -60,9 +60,9 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
 
   return (
     <Card ref={setNodeRef} style={style} className="bg-background">
-      <CardContent className="flex items-center justify-between px-2 pl-6">
+      <CardContent className="flex items-center justify-between px-2 pl-8 py-3">
         <div className="flex items-center space-x-3">
-          <Checkbox 
+          <Checkbox className="mt-0" 
             checked={isSelected}
             onCheckedChange={(checked) => onSelect(item.id, !!checked)}
             aria-label="Select item"
@@ -70,7 +70,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
           <div
             {...attributes}
             {...listeners}
-            className="w-10 flex items-center justify-center cursor-grab hover:cursor-grabbing py-4 -my-4"
+            className="w-10 flex items-center justify-center cursor-grab hover:cursor-grabbing h-10"
             title="Drag to reorder"
             aria-label="Drag handle"
           >
@@ -94,37 +94,27 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
           ) : (
             <div className="flex items-center space-x-3">
               <div className="relative w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
-                {(item as PDF).thumbnail ? (
-                  <img 
-                    src={(item as PDF).thumbnail} 
-                    alt={(item as PDF).title}
-                    className="w-full h-full object-cover rounded"
-                  />
-                ) : (
-                  (() => {
+                <FileText className="w-6 h-6 text-muted-foreground" />
+                <div
+                  className={`absolute -top-1 -right-1 text-xs px-1 py-0.5 rounded text-[10px] font-medium ${(() => {
                     const pdfItem = item as PDF;
-                    let fileType = pdfItem.fileType?.toLowerCase();
-                    if (!fileType) {
+                    let ft = pdfItem.fileType?.toLowerCase();
+                    if (!ft) {
                       const url = pdfItem.pdfUrl || '';
                       const title = pdfItem.title || '';
                       let extension = url.split('.').pop()?.toLowerCase();
                       if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp'].includes(extension)) {
                         extension = title.split('.').pop()?.toLowerCase();
                       }
-                      fileType = extension || 'pdf';
+                      ft = extension || 'pdf';
                     }
-                    const isImage = ['jpg','jpeg','png','gif','webp'].includes(fileType || '');
-                    const IconComp = isImage
-                      ? Image
-                      : (['ppt','pptx'].includes(fileType || '')
-                        ? Presentation
-                        : (['doc','docx','xls','xlsx'].includes(fileType || '')
-                          ? FileType
-                          : FileText));
-                    return <IconComp className="w-6 h-6 text-muted-foreground" />;
-                  })()
-                )}
-                <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs px-1 py-0.5 rounded text-[10px] font-medium">
+                    if (['jpg','jpeg','png','gif','webp'].includes(ft || '')) return 'bg-accent text-accent-foreground';
+                    if (['doc','docx'].includes(ft || '')) return 'bg-secondary text-secondary-foreground';
+                    if (['ppt','pptx'].includes(ft || '')) return 'bg-destructive text-destructive-foreground';
+                    if (['xls','xlsx'].includes(ft || '')) return 'bg-secondary text-secondary-foreground';
+                    return 'bg-primary text-primary-foreground';
+                  })()}`}
+                >
                   {(() => {
                     const pdfItem = item as PDF;
                     let fileType = pdfItem.fileType?.toLowerCase();
@@ -695,7 +685,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       <>
           <div className="flex justify-between items-center">
             {/* Left: Select All Checkbox aligned with item checkboxes */}
-            <div className="flex items-center space-x-3 pl-4">
+            <div className="flex items-center space-x-3 pl-8">
               {items.length > 0 && (
                 <>
                   <Checkbox 
