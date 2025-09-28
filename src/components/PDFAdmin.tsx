@@ -87,31 +87,16 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
               <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
                 <Minus className="w-6 h-6 text-muted-foreground" />
               </div>
-              <div>
-                <h3 className="font-semibold">Divider: {item.text}</h3>
-                <p className="text-sm text-muted-foreground">Section divider</p>
+              <div className="ml-6">
+                <h3 className="text-sm font-semibold">Divider: {item.text}</h3>
+                <p className="text-xs text-muted-foreground">Section divider</p>
               </div>
             </div>
           ) : (
             <div className="flex items-center space-x-3">
               <div className="relative w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
                 <FileText className="w-6 h-6 text-muted-foreground" />
-                <div
-                  className={`absolute -top-1 -right-1 text-xs px-1 py-0.5 rounded text-[10px] font-medium ${(() => {
-                    const pdfItem = item as PDF;
-                    let ft = pdfItem.fileType?.toLowerCase();
-                    if (!ft) {
-                      const url = pdfItem.pdfUrl || '';
-                      const title = pdfItem.title || '';
-                      let extension = url.split('.').pop()?.toLowerCase();
-                      if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp'].includes(extension)) {
-                        extension = title.split('.').pop()?.toLowerCase();
-                      }
-                      ft = extension || 'pdf';
-                    }
-                    return 'bg-primary text-primary-foreground';
-                  })()}`}
-                >
+                <div className="absolute -top-1 -right-1 min-w-[24px] px-1 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground text-center">
                   {(() => {
                     const pdfItem = item as PDF;
                     let fileType = pdfItem.fileType?.toLowerCase();
@@ -133,8 +118,8 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                   })()}
                 </div>
               </div>
-              <div className="ml-4.5">
-                <h3 className="text-base font-semibold">{(item as PDF).title}</h3>
+              <div className="ml-6">
+                <h3 className="text-sm font-semibold">{(item as PDF).title}</h3>
                 <p className="text-xs text-muted-foreground">{(item as PDF).date}</p>
               </div>
             </div>
@@ -167,7 +152,14 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onEdit(item)}
+            onClick={() => {
+              onEdit(item);
+              setTimeout(() => {
+                const editSection = document.querySelector('.edit-section');
+                if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                else window.scrollTo({ top: 0, behavior: 'smooth' });
+              }, 50);
+            }}
             title="Edit"
           >
             <Edit className="w-4 h-4" />
@@ -886,6 +878,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
 
             {/* Center: Gallery Management */}
             <div className="flex items-center gap-4">
+              <span className="font-bold text-foreground">Gallery:</span>
               <GallerySelector
                 galleries={galleries}
                 currentGalleryId={currentGalleryId}
@@ -955,7 +948,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                       <div className="space-y-2">
                         <p className="text-lg font-medium">Drop files here or click to browse</p>
                         <p className="text-sm text-muted-foreground">
-                          Supports PDF, DOC, DOCX, PPT, PPTX, and image files
+                          Supports PDF, PPT/PPTX, DOC/DOCX, XLS/XLSX, and image files
                         </p>
                       </div>
                       <Button

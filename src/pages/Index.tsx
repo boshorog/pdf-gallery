@@ -340,9 +340,6 @@ const Index = () => {
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Showing: {currentGallery?.name || 'Main Gallery'}
-              </p>
             </div>
             <PDFGallery 
               items={currentItems} 
