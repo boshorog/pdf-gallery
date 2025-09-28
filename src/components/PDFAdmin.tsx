@@ -87,7 +87,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
               <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
                 <Minus className="w-6 h-6 text-muted-foreground" />
               </div>
-              <div className="ml-6">
+              <div className="ml-10">
                 <h3 className="text-sm font-semibold">Divider: {item.text}</h3>
                 <p className="text-xs text-muted-foreground">Section divider</p>
               </div>
@@ -118,7 +118,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                   })()}
                 </div>
               </div>
-              <div className="ml-6">
+              <div className="ml-10">
                 <h3 className="text-sm font-semibold">{(item as PDF).title}</h3>
                 <p className="text-xs text-muted-foreground">{(item as PDF).date}</p>
               </div>
@@ -905,7 +905,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 className="bg-primary hover:bg-primary/90"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Document
+                Add File(s)
               </Button>
               <Button 
                 onClick={() => setIsAddingDivider(true)}
@@ -1170,7 +1170,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 className="bg-primary hover:bg-primary/90"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Document
+                Add File(s)
               </Button>
               <Button 
                 onClick={() => { setIsAddingDivider(true); setTimeout(() => { const editSection = document.querySelector('.edit-section'); if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); else window.scrollTo({ top: 0, behavior: 'smooth' }); }, 50); }}
@@ -1193,7 +1193,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 <div className="flex gap-2 justify-center">
                   <Button onClick={() => setIsAddingDocument(true)}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Add Document
+                    Add File(s)
                   </Button>
                   <Button variant="outline" onClick={() => setIsAddingDivider(true)}>
                     <Separator className="w-4 h-0.5" />
