@@ -473,7 +473,7 @@ const PDFGallery = ({
       {displayItems.length === 0 ? (
         <div className="text-center py-12">
           <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">No documents yet</h3>
+          <h3 className="text-xl font-semibold mb-2">No content yet</h3>
           <p className="text-muted-foreground">Documents will appear here when they are added.</p>
         </div>
       ) : (

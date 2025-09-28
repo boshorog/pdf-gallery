@@ -87,7 +87,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
               <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
                 <Minus className="w-6 h-6 text-muted-foreground" />
               </div>
-              <div className="ml-10">
+              <div className="ml-2.5">
                 <h3 className="text-sm font-semibold">Divider: {item.text}</h3>
                 <p className="text-xs text-muted-foreground">Section divider</p>
               </div>
@@ -109,7 +109,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                       }
                       fileType = extension || 'pdf';
                     }
-                    if (['jpg','jpeg','png','gif','webp'].includes(fileType || '')) return 'IMG';
+                    if (['img','jpg','jpeg','png','gif','webp'].includes(fileType || '')) return 'IMG';
                     if (fileType === 'pdf') return 'PDF';
                     if (['doc','docx'].includes(fileType || '')) return 'DOC';
                     if (['ppt','pptx'].includes(fileType || '')) return 'PPT';
@@ -118,7 +118,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                   })()}
                 </div>
               </div>
-              <div className="ml-10">
+              <div className="ml-2.5">
                 <h3 className="text-sm font-semibold">{(item as PDF).title}</h3>
                 <p className="text-xs text-muted-foreground">{(item as PDF).date}</p>
               </div>
