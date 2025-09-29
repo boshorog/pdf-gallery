@@ -310,7 +310,7 @@ const Index = () => {
             <TabsTrigger value="settings" className="flex items-center gap-1.5">
               Settings
               <sup className="ml-0.5">
-                <span className="inline-block px-1.5 py-[1px] text-[9px] font-medium bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full leading-none">
+                <span className="inline-block px-1.5 py-[2px] text-[9px] font-medium bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full leading-none">
                   Pro
                 </span>
               </sup>
