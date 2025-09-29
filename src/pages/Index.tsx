@@ -6,11 +6,7 @@ import { Check, Copy } from 'lucide-react';
 import PDFAdmin from '@/components/PDFAdmin';
 import PDFGallery from '@/components/PDFGallery';
 import PDFSettings from '@/components/PDFSettings';
-import SettingsProposal1 from '@/components/SettingsProposal1';
 import SettingsProposal2 from '@/components/SettingsProposal2';
-import SettingsProposal3 from '@/components/SettingsProposal3';
-import SettingsProposal4 from '@/components/SettingsProposal4';
-import SettingsProposal5 from '@/components/SettingsProposal5';
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pluginLogo from '@/assets/pdf-gallery-logo.png';
 
@@ -362,44 +358,7 @@ const Index = () => {
           </TabsContent>
           
           <TabsContent value="settings">
-            <div className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold mb-2">Settings Design Proposals</h2>
-                <p className="text-muted-foreground">Here are 5 different design approaches for the Settings section:</p>
-              </div>
-              
-              <div className="space-y-12">
-                <div>
-                  <h3 className="text-xl font-semibold mb-4 text-primary">Proposal 1: Tabbed Layout</h3>
-                  <p className="text-sm text-muted-foreground mb-6">Organize settings into clean tabs for better navigation</p>
-                  <SettingsProposal1 settings={settings} onSettingsChange={setSettings} />
-                </div>
-                
-                <div className="border-t pt-8">
-                  <h3 className="text-xl font-semibold mb-4 text-secondary">Proposal 2: Sidebar Navigation</h3>
-                  <p className="text-sm text-muted-foreground mb-6">Use a sidebar for navigation with detailed content panels</p>
-                  <SettingsProposal2 settings={settings} onSettingsChange={setSettings} />
-                </div>
-                
-                <div className="border-t pt-8">
-                  <h3 className="text-xl font-semibold mb-4 text-accent">Proposal 3: Compact Grid</h3>
-                  <p className="text-sm text-muted-foreground mb-6">More compact cards arranged in a responsive grid layout</p>
-                  <SettingsProposal3 settings={settings} onSettingsChange={setSettings} />
-                </div>
-                
-                <div className="border-t pt-8">
-                  <h3 className="text-xl font-semibold mb-4 text-green-600">Proposal 4: Setup Wizard</h3>
-                  <p className="text-sm text-muted-foreground mb-6">Step-by-step configuration with progress tracking</p>
-                  <SettingsProposal4 settings={settings} onSettingsChange={setSettings} />
-                </div>
-                
-                <div className="border-t pt-8">
-                  <h3 className="text-xl font-semibold mb-4 text-purple-600">Proposal 5: Modern Dashboard</h3>
-                  <p className="text-sm text-muted-foreground mb-6">Dashboard-style layout with gradient effects and visual stats</p>
-                  <SettingsProposal5 settings={settings} onSettingsChange={setSettings} />
-                </div>
-              </div>
-            </div>
+            <SettingsProposal2 settings={settings} onSettingsChange={setSettings} />
           </TabsContent>
           
           <TabsContent value="docs">
