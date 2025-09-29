@@ -18,7 +18,7 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   const { toast } = useToast();
   const license = useLicense();
   const isPro = license.isPro;
-  const heading = isPro ? 'Welcome to PDF Gallery Pro' : 'Upgrade to PDF Gallery Pro';
+  const heading = isPro ? 'Welcome to PDF Gallery Pro' : 'Upgrade to PDF Gallery';
   const description = isPro
     ? 'You have access to advanced features to create stunning, unlimited PDF galleries with advanced settings and custom styling options.'
     : 'Unlock advanced features to create stunning, unlimited PDF galleries with custom styling options.';

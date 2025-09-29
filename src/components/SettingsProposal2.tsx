@@ -19,6 +19,10 @@ interface SettingsProposal2Props {
     pdfIconPosition: string;
     defaultPlaceholder: string;
     thumbnailSize?: string;
+    settingsScope?: string;
+    enableThumbnailCache?: boolean;
+    autoRefreshCache?: boolean;
+    cacheDuration?: string;
   };
   onSettingsChange: (settings: any) => void;
 }
@@ -183,8 +187,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                             </div>
                           </div>
                           <div className="mt-3">
-                            <h3 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">Sample PDF Title That Might Be Long...</h3>
-                            <p className="text-xs text-muted-foreground truncate">April 2025 Description...</p>
+                            <h3 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">Sample PDF Title That Might Be Long</h3>
+                            <p className="text-xs text-muted-foreground truncate">April 2025 Description</p>
                           </div>
                         </div>
                       </div>
@@ -225,8 +229,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                               </div>
                             </div>
                             <div className="p-3 bg-gradient-to-t from-card to-transparent">
-                              <p className="text-xs text-muted-foreground mb-1 truncate">April 2025 Description...</p>
-                              <h3 className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors truncate">Sample PDF Title...</h3>
+                              <p className="text-xs text-muted-foreground mb-1 truncate">April 2025 Description</p>
+                              <h3 className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors truncate">Sample PDF Title That Might Be Long</h3>
                             </div>
                           </div>
                         </div>
@@ -261,8 +265,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                             </div>
                             <div className="absolute inset-x-0 bottom-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                               <div className="p-3 pb-6 text-white">
-                                <h3 className="font-bold text-base text-white truncate">Sample PDF Title...</h3>
-                                <p className="text-xs opacity-80 mb-0.5 truncate">April 2025 Description...</p>
+                                <h3 className="font-bold text-base text-white truncate">Sample PDF Title That Might Be Long</h3>
+                                <p className="text-xs opacity-80 mb-0.5 truncate">April 2025 Description</p>
                               </div>
                               <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
                                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,7 +322,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                             </div>
                           </div>
                           <div className="mt-1 text-center">
-                            <h3 className="font-semibold text-xs text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all truncate">Sample PDF Title...</h3>
+                            <h3 className="font-semibold text-xs text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all truncate">Sample PDF Title That Might Be Long</h3>
                             <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors truncate">April 2025 Description...</p>
                           </div>
                         </div>
@@ -566,8 +570,74 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
               </CardTitle>
               <p className="text-sm text-muted-foreground">Additional configuration options</p>
             </CardHeader>
-            <CardContent>
-              {/* This section is intentionally left blank for now */}
+            <CardContent className="space-y-6">
+              {/* Settings Scope Section */}
+              <div className="space-y-3">
+                <Label className="text-base font-medium">Settings Scope</Label>
+                <RadioGroup 
+                  value={localSettings.settingsScope || 'all'} 
+                  onValueChange={(value) => setLocalSettings(prev => ({ ...prev, settingsScope: value }))}
+                  className="space-y-3"
+                >
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value="all" id="scope-all" />
+                    <div>
+                      <Label htmlFor="scope-all" className="cursor-pointer font-medium">Apply to all galleries</Label>
+                      <p className="text-sm text-muted-foreground">Use these settings as defaults for all PDF galleries</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value="current" id="scope-current" />
+                    <div>
+                      <Label htmlFor="scope-current" className="cursor-pointer font-medium">Current gallery only</Label>
+                      <p className="text-sm text-muted-foreground">Apply settings only to the currently selected gallery</p>
+                    </div>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Thumbnail Caching Section */}
+              <div className="space-y-3">
+                <Label className="text-base font-medium">Thumbnail Caching</Label>
+                <p className="text-sm text-muted-foreground">Control how thumbnails are cached for better performance</p>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium">Enable thumbnail caching</Label>
+                      <p className="text-xs text-muted-foreground">Cache generated thumbnails to improve loading speed</p>
+                    </div>
+                    <Checkbox 
+                      checked={localSettings.enableThumbnailCache !== false}
+                      onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, enableThumbnailCache: checked === true }))}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium">Auto-refresh cache</Label>
+                      <p className="text-xs text-muted-foreground">Automatically refresh thumbnails when PDFs are updated</p>
+                    </div>
+                    <Checkbox 
+                      checked={localSettings.autoRefreshCache !== false}
+                      onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, autoRefreshCache: checked === true }))}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Cache duration (hours)</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="168"
+                      value={localSettings.cacheDuration || '24'}
+                      onChange={(e) => setLocalSettings(prev => ({ ...prev, cacheDuration: e.target.value }))}
+                      className="w-24"
+                    />
+                    <p className="text-xs text-muted-foreground">How long to keep cached thumbnails (1-168 hours)</p>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         );
