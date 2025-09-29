@@ -7,6 +7,7 @@ import PDFAdmin from '@/components/PDFAdmin';
 import PDFGallery from '@/components/PDFGallery';
 import PDFSettings from '@/components/PDFSettings';
 import SettingsProposal2 from '@/components/SettingsProposal2';
+import { IconOptions } from '@/components/IconOptions';
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pluginLogo from '@/assets/pdf-gallery-logo.png';
 
@@ -357,7 +358,8 @@ const Index = () => {
             />
           </TabsContent>
           
-          <TabsContent value="settings">
+          <TabsContent value="settings" className="space-y-6">
+            <IconOptions />
             <SettingsProposal2 settings={settings} onSettingsChange={setSettings} />
           </TabsContent>
           
