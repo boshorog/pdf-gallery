@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, ExternalLink, Upload, Image, Palette, Grid3X3, Settings2, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { FileText, ExternalLink, Upload, Image, Palette, Grid3X3, Settings2, ChevronRight, LayoutGrid } from 'lucide-react';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
 import ProBanner from '@/components/ProBanner';
@@ -28,7 +28,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
     ...settings,
     thumbnailSize: settings.thumbnailSize || 'four-rows'
   });
-  const [activeSection, setActiveSection] = useState('placeholder');
+  const [activeSection, setActiveSection] = useState('style');
   const { toast } = useToast();
   const license = useLicense();
 
@@ -66,8 +66,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
   };
 
   const sidebarItems = [
+    { id: 'style', label: 'Thumbnail Style', icon: LayoutGrid },
     { id: 'placeholder', label: 'Placeholder Image', icon: Image },
-    { id: 'style', label: 'Thumbnail Style', icon: MoreHorizontal },
     { id: 'color', label: 'Accent Color', icon: Palette },
     { id: 'size', label: 'Grid Size', icon: Grid3X3 },
   ];
@@ -88,11 +88,11 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <Label>Current placeholder</Label>
-                  <div className="flex justify-center">
+                  <div className="flex justify-start">
                     <img 
                       src={localSettings.defaultPlaceholder === 'default' ? pdfPlaceholder : localSettings.defaultPlaceholder}
                       alt="Current placeholder" 
-                      className="w-40 h-32 object-cover rounded-lg border border-border shadow-sm"
+                      className="w-48 h-40 object-cover rounded-lg border border-border shadow-sm"
                     />
                   </div>
                 </div>
@@ -100,7 +100,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                   <Label>Upload new placeholder</Label>
                   <Label
                     htmlFor="placeholderFile2"
-                    className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors block h-32 flex flex-col justify-center"
+                    className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors block h-40 flex flex-col justify-center w-full max-w-xs"
                   >
                     <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                     <span className="text-sm font-medium text-primary hover:underline block mb-1">
@@ -140,7 +140,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
           <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <MoreHorizontal className="w-5 h-5" />
+                <LayoutGrid className="w-5 h-5" />
                 Thumbnail Styles
               </CardTitle>
               <p className="text-sm text-muted-foreground">Choose how your document thumbnails appear in the gallery</p>
@@ -182,8 +182,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                             </div>
                           </div>
                           <div className="mt-3">
-                            <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">Sample PDF Title</h3>
-                            <p className="text-xs text-muted-foreground">April 2025</p>
+                            <h3 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">Sample PDF Title That Might Be Long...</h3>
+                            <p className="text-xs text-muted-foreground truncate">April 2025 Description...</p>
                           </div>
                         </div>
                       </div>
@@ -224,8 +224,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                               </div>
                             </div>
                             <div className="p-3 bg-gradient-to-t from-card to-transparent">
-                              <p className="text-xs text-muted-foreground mb-1">April 2025</p>
-                              <h3 className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors">Sample PDF Title</h3>
+                              <p className="text-xs text-muted-foreground mb-1 truncate">April 2025 Description...</p>
+                              <h3 className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors truncate">Sample PDF Title...</h3>
                             </div>
                           </div>
                         </div>
@@ -258,10 +258,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                               />
                             </div>
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                              <div className="p-3 pb-8 text-white">
-                                <h3 className="font-semibold text-xs">Sample PDF Title</h3>
-                                <p className="text-xs opacity-80 mb-0.5">April 2025</p>
+                            <div className="absolute inset-x-0 bottom-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                              <div className="p-3 pb-6 text-white">
+                                <h3 className="font-bold text-base text-white truncate">Sample PDF Title...</h3>
+                                <p className="text-xs opacity-80 mb-0.5 truncate">April 2025 Description...</p>
                               </div>
                               <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
                                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,9 +316,9 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                               </div>
                             </div>
                           </div>
-                          <div className="mt-2 text-center">
-                            <h3 className="font-semibold text-xs text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all">Sample PDF Title</h3>
-                            <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">April 2025</p>
+                          <div className="mt-1 text-center">
+                            <h3 className="font-semibold text-xs text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all truncate">Sample PDF Title...</h3>
+                            <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors truncate">April 2025 Description...</p>
                           </div>
                         </div>
                       </div>
@@ -356,8 +356,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                               </div>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-xs text-foreground mb-1 group-hover:text-primary transition-colors truncate">Sample PDF Title</h3>
-                              <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">April 2025</p>
+                              <h3 className="font-semibold text-xs text-foreground mb-1 group-hover:text-primary transition-colors truncate">Sample PDF Title...</h3>
+                              <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors truncate">April 2025 Description...</p>
                               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
@@ -389,7 +389,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                       <div className="flex justify-center">
                         <div className="group cursor-pointer w-48">
                           <div className="space-y-2">
-                            <div className="relative aspect-video bg-muted rounded-md overflow-hidden">
+                            <div className="relative aspect-video bg-muted overflow-hidden">
                               <img
                                 src={pdfPlaceholder}
                                 alt="Thumbnail preview"
@@ -404,11 +404,11 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                               </div>
                             </div>
                             <div>
-                              <h3 className="font-medium text-xs text-foreground relative inline-block">
-                                Sample PDF Title
+                              <h3 className="font-medium text-xs text-foreground relative inline-block truncate">
+                                Sample PDF Title...
                                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
                               </h3>
-                              <p className="text-xs text-muted-foreground mb-1">April 2025</p>
+                              <p className="text-xs text-muted-foreground mb-1 truncate">April 2025 Description...</p>
                             </div>
                           </div>
                         </div>
