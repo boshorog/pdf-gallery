@@ -86,7 +86,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
               <p className="text-sm text-muted-foreground">Configure the default image shown for documents without thumbnails</p>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-2">
                 <div className="space-y-3">
                   <Label>Current placeholder</Label>
                   <div className="flex justify-start">

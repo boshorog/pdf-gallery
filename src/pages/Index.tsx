@@ -307,11 +307,13 @@ const Index = () => {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="gallery">Gallery Management</TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger value="settings" className="flex items-center gap-1.5">
               Settings
-              <span className="px-2 py-0.5 text-[10px] font-medium bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full">
-                Pro
-              </span>
+              <sup className="ml-0.5">
+                <span className="inline-block px-1.5 py-[1px] text-[9px] font-medium bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full leading-none">
+                  Pro
+                </span>
+              </sup>
             </TabsTrigger>
             <TabsTrigger value="docs">Documentation</TabsTrigger>
           </TabsList>
