@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, ExternalLink, Upload, Image, Palette, Grid3X3, Settings2, ChevronRight, LayoutGrid } from 'lucide-react';
+import { FileText, ExternalLink, Upload, Image, Palette, Maximize2, Settings2, ChevronRight, LayoutGrid, Settings } from 'lucide-react';
 import pdfPlaceholder from '@/assets/pdf-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
 import ProBanner from '@/components/ProBanner';
@@ -69,7 +69,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
     { id: 'style', label: 'Thumbnail Style', icon: LayoutGrid },
     { id: 'placeholder', label: 'Placeholder Image', icon: Image },
     { id: 'color', label: 'Accent Color', icon: Palette },
-    { id: 'size', label: 'Grid Size', icon: Grid3X3 },
+    { id: 'size', label: 'Thumbnail Size', icon: Maximize2 },
+    { id: 'other', label: 'Other Settings', icon: Settings },
   ];
 
   const renderContent = () => {
@@ -92,7 +93,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                     <img 
                       src={localSettings.defaultPlaceholder === 'default' ? pdfPlaceholder : localSettings.defaultPlaceholder}
                       alt="Current placeholder" 
-                      className="w-48 h-40 object-cover rounded-lg border border-border shadow-sm"
+                      className="w-60 h-40 object-cover rounded-lg border border-border shadow-sm"
                     />
                   </div>
                 </div>
@@ -100,7 +101,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                   <Label>Upload new placeholder</Label>
                   <Label
                     htmlFor="placeholderFile2"
-                    className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors block h-40 flex flex-col justify-center w-full max-w-xs"
+                    className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors block h-40 flex flex-col justify-center w-full max-w-lg"
                   >
                     <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                     <span className="text-sm font-medium text-primary hover:underline block mb-1">
@@ -474,8 +475,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
           <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Grid3X3 className="w-5 h-5" />
-                Thumbnail Grid Size
+                <Maximize2 className="w-5 h-5" />
+                Thumbnail Size
               </CardTitle>
               <p className="text-sm text-muted-foreground">Set how many columns of thumbnails to display</p>
             </CardHeader>
@@ -551,6 +552,22 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
               <div className="text-xs text-muted-foreground p-3 bg-muted/30 rounded border-l-4 border-primary/50">
                 <strong>Mobile Note:</strong> On mobile devices, thumbnails automatically display in a single column for optimal viewing experience.
               </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 'other':
+        return (
+          <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Other Settings
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">Additional configuration options</p>
+            </CardHeader>
+            <CardContent>
+              {/* This section is intentionally left blank for now */}
             </CardContent>
           </Card>
         );

@@ -7,7 +7,7 @@ import PDFAdmin from '@/components/PDFAdmin';
 import PDFGallery from '@/components/PDFGallery';
 import PDFSettings from '@/components/PDFSettings';
 import SettingsProposal2 from '@/components/SettingsProposal2';
-import GridSizeIconOptions from '@/components/GridSizeIconOptions';
+
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pluginLogo from '@/assets/pdf-gallery-logo.png';
@@ -307,9 +307,9 @@ const Index = () => {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="gallery">Gallery Management</TabsTrigger>
-            <TabsTrigger value="settings" className="relative">
+            <TabsTrigger value="settings" className="flex items-center gap-2">
               Settings
-              <span className="ml-1 -mt-2 text-xs bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-medium">
+              <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[8px] px-1 py-0.5 rounded-full font-bold transform translate-y-[-2px]">
                 Pro
               </span>
             </TabsTrigger>
@@ -365,7 +365,6 @@ const Index = () => {
           </TabsContent>
           
           <TabsContent value="settings">
-            <GridSizeIconOptions />
             <SettingsProposal2 settings={settings} onSettingsChange={setSettings} />
           </TabsContent>
           
