@@ -304,7 +304,7 @@ const Index = () => {
         </div>
         
         <Tabs defaultValue="gallery" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="gallery">Gallery Management</TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-1">

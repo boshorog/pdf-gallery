@@ -81,7 +81,13 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
     switch (activeSection) {
       case 'placeholder':
         return (
-          <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
+          <Card className={!license.isPro ? 'opacity-50 cursor-not-allowed' : ''} onClick={!license.isPro ? () => {
+            toast({
+              title: "Upgrade Required",
+              description: "The settings are only available in the Pro version. Please upgrade to access all features.",
+              variant: "destructive"
+            });
+          } : undefined}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Image className="w-5 h-5" />
@@ -142,7 +148,13 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
 
       case 'style':
         return (
-          <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
+          <Card className={!license.isPro ? 'opacity-50 cursor-not-allowed' : ''} onClick={!license.isPro ? () => {
+            toast({
+              title: "Upgrade Required",
+              description: "The settings are only available in the Pro version. Please upgrade to access all features.",
+              variant: "destructive"
+            });
+          } : undefined}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <LayoutGrid className="w-5 h-5" />
@@ -428,7 +440,13 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
 
       case 'color':
         return (
-          <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
+          <Card className={!license.isPro ? 'opacity-50 cursor-not-allowed' : ''} onClick={!license.isPro ? () => {
+            toast({
+              title: "Upgrade Required",
+              description: "The settings are only available in the Pro version. Please upgrade to access all features.",
+              variant: "destructive"
+            });
+          } : undefined}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Palette className="w-5 h-5" />
@@ -476,7 +494,13 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
 
       case 'size':
         return (
-          <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
+          <Card className={!license.isPro ? 'opacity-50 cursor-not-allowed' : ''} onClick={!license.isPro ? () => {
+            toast({
+              title: "Upgrade Required",
+              description: "The settings are only available in the Pro version. Please upgrade to access all features.",
+              variant: "destructive"
+            });
+          } : undefined}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Maximize2 className="w-5 h-5" />
@@ -562,7 +586,13 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
 
       case 'other':
         return (
-          <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
+          <Card className={!license.isPro ? 'opacity-50 cursor-not-allowed' : ''} onClick={!license.isPro ? () => {
+            toast({
+              title: "Upgrade Required",
+              description: "The settings are only available in the Pro version. Please upgrade to access all features.",
+              variant: "destructive"
+            });
+          } : undefined}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="w-5 h-5" />
