@@ -101,7 +101,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                   <Label>Upload new placeholder</Label>
                   <Label
                     htmlFor="placeholderFile2"
-                    className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors block h-40 flex flex-col justify-center w-full max-w-2xl"
+                    className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors block h-40 flex flex-col justify-center w-full"
                   >
                     <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                     <span className="text-sm font-medium text-primary hover:underline block mb-1">
