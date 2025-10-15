@@ -525,6 +525,203 @@ The ProBanner uses a gradient design with orange/red colors. Modify the classNam
 
 ---
 
+---
+
+## Greying Out Pro-Only Settings (Free Version Pattern)
+
+To make settings sections unavailable in the Free version (greyed out with blocked interaction), follow this exact pattern:
+
+### 1. Import the License Hook
+
+```typescript
+import { useLicense } from '@/hooks/useLicense';
+```
+
+### 2. Use the Hook in Your Component
+
+```typescript
+const MySettingsComponent = () => {
+  const license = useLicense();
+  
+  // Your component code...
+};
+```
+
+### 3. Apply the Greyed Out Pattern to Card Sections
+
+For entire settings sections (Cards), use this className pattern:
+
+```typescript
+<Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
+  <CardHeader>
+    <CardTitle>Pro Feature Section</CardTitle>
+  </CardHeader>
+  <CardContent>
+    {/* Your settings content */}
+  </CardContent>
+</Card>
+```
+
+**Key classes explained:**
+- `opacity-50`: Makes the section appear greyed out
+- `pointer-events-none`: Disables all mouse interactions (clicks, hovers, etc.)
+
+### 4. Apply the Pattern to Save Buttons
+
+For save buttons, use this more comprehensive pattern:
+
+```typescript
+<Button 
+  onClick={() => { if (license.isPro) handleSave(); }}
+  className={!license.isPro ? "opacity-50 cursor-not-allowed pointer-events-none" : "bg-primary hover:bg-primary/90"}
+  disabled={!license.isPro}
+  aria-disabled={!license.isPro}
+>
+  Save Settings
+</Button>
+```
+
+**Additional classes for buttons:**
+- `cursor-not-allowed`: Shows the "not allowed" cursor on hover
+- `disabled={!license.isPro}`: HTML disabled attribute
+- `aria-disabled={!license.isPro}`: Accessibility attribute
+
+### 5. Complete Settings Page Example
+
+```typescript
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useLicense } from '@/hooks/useLicense';
+import { useToast } from '@/hooks/use-toast';
+import ProBanner from '@/components/ProBanner';
+
+const SettingsPage = () => {
+  const license = useLicense();
+  const { toast } = useToast();
+  
+  const handleSave = () => {
+    // Save logic here
+    toast({
+      title: "Settings Saved",
+      description: "Your settings have been updated successfully",
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Pro Banner at the top */}
+      <ProBanner className="mb-6" />
+      
+      {/* Header with Save button */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Settings</h2>
+        <Button 
+          onClick={() => { if (license.isPro) handleSave(); }}
+          className={!license.isPro ? "opacity-50 cursor-not-allowed pointer-events-none" : "bg-primary hover:bg-primary/90"}
+          disabled={!license.isPro}
+          aria-disabled={!license.isPro}
+        >
+          Save Settings
+        </Button>
+      </div>
+
+      {/* Pro-only Settings Section #1 */}
+      <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
+        <CardHeader>
+          <CardTitle>Advanced Options</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="option1">Option 1</Label>
+            <Input id="option1" placeholder="Enter value..." />
+          </div>
+          <div>
+            <Label htmlFor="option2">Option 2</Label>
+            <Input id="option2" placeholder="Enter value..." />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Pro-only Settings Section #2 */}
+      <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
+        <CardHeader>
+          <CardTitle>Custom Styling</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="color">Accent Color</Label>
+            <Input id="color" type="color" />
+          </div>
+          <div>
+            <Label htmlFor="size">Size</Label>
+            <Input id="size" placeholder="Enter size..." />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Another Save button at the bottom (optional) */}
+      <div className="flex justify-end">
+        <Button 
+          onClick={() => { if (license.isPro) handleSave(); }}
+          className={!license.isPro ? "opacity-50 cursor-not-allowed pointer-events-none" : "bg-primary hover:bg-primary/90"}
+          disabled={!license.isPro}
+          aria-disabled={!license.isPro}
+        >
+          Save Settings
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default SettingsPage;
+```
+
+### 6. Visual Behavior Summary
+
+**When Free Version (license.isPro = false):**
+- All settings sections are greyed out (50% opacity)
+- Mouse interactions are completely disabled
+- Users cannot click, type, or interact with any controls
+- Save buttons show "not allowed" cursor and are disabled
+- The Pro Banner is displayed prominently at the top
+
+**When Pro Version (license.isPro = true):**
+- All settings sections are fully visible and interactive
+- All controls work normally
+- Save buttons are fully functional
+- The Pro Banner shows "Pro is active" status with deactivate option
+
+### 7. Alternative Pattern: Show Upgrade Toast on Click
+
+If you want sections to respond when clicked (instead of being completely blocked), use this pattern:
+
+```typescript
+<Card 
+  className={!license.isPro ? 'opacity-50 cursor-not-allowed' : ''} 
+  onClick={!license.isPro ? () => {
+    toast({
+      title: "Upgrade Required",
+      description: "This feature is only available in the Pro version.",
+      variant: "destructive"
+    });
+  } : undefined}
+>
+  <CardHeader>
+    <CardTitle>Pro Feature</CardTitle>
+  </CardHeader>
+  <CardContent>
+    {/* Content */}
+  </CardContent>
+</Card>
+```
+
+This allows users to click and see a toast notification about upgrading, instead of having a completely blocked section.
+
+---
+
 ## Support
 
 If you have any issues implementing this, refer to the original project or check the component implementations for styling and behavior details.
