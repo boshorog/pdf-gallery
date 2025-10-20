@@ -9,6 +9,49 @@
  * Tested up to: 6.4
  * Network: false
  */
+// Freemius SDK Initialization
+if ( ! function_exists( 'pdfgallery_fs' ) ) {
+    // Create a helper function for easy SDK access.
+    function pdfgallery_fs() {
+        global $pdfgallery_fs;
+
+        if ( ! isset( $pdfgallery_fs ) ) {
+            // Include Freemius SDK.
+            require_once dirname( __FILE__ ) . '/vendor/freemius/start.php';
+
+            $pdfgallery_fs = fs_dynamic_init( array(
+                'id'                  => '20814',
+                'slug'                => 'pdf-gallery',
+                'premium_slug'        => 'pdf-gallery',
+                'type'                => 'plugin',
+                'public_key'          => 'pk_349523fbf9f410023e4e5a4faa9b8',
+                'is_premium'          => true,
+                'is_premium_only'     => true,
+                'has_addons'          => false,
+                'has_paid_plans'      => true,
+
+                // Skip Freemius opt-in/activation UI; use the banner from settings page for licensing.
+                'anonymous_mode'      => true,
+
+
+                // Automatically removed in the free version. If you're not using the
+                // auto-generated free version, delete this line before uploading to wp.org.
+                'wp_org_gatekeeper'   => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
+                'menu'                => array(
+                    'slug'           => 'pdf-gallery-manager',
+                    'support'        => false,
+                ),
+            ) );
+        }
+
+        return $pdfgallery_fs;
+    }
+
+    // Init Freemius.
+    pdfgallery_fs();
+    // Signal that SDK was initiated.
+    do_action( 'pdfgallery_fs_loaded' );
+}
 
 // Prevent direct access
 if (!defined('ABSPATH')) {
