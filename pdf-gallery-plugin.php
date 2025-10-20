@@ -113,15 +113,6 @@ class PDF_Gallery_Plugin {
             100                            // Position (high number = bottom of menu)
         );
 
-        // Add License submenu (works even without Freemius SDK)
-        add_submenu_page(
-            'pdf-gallery-manager',          // Parent slug
-            'License',                      // Page title
-            'License',                      // Menu title
-            'manage_options',               // Capability
-            'pdf-gallery-license',          // Menu slug
-            array($this, 'render_admin_page') // Reuse the same React app
-        );
     }
     
     /**
@@ -440,10 +431,7 @@ public function display_gallery_shortcode($atts) {
             'status' => 'free'
         );
 
-        // Check if license key was stored (fallback indicator)
-        $stored_key = get_option('pdf_gallery_license_key', '');
-        
-        // Check Freemius SDK for license state
+        // Check Freemius SDK for license state only (no local fallbacks)
         if ( function_exists( 'pdfgallery_fs' ) ) {
             $fs = pdfgallery_fs();
             if ( is_object( $fs ) ) {
@@ -459,17 +447,8 @@ public function display_gallery_shortcode($atts) {
                 } elseif ( method_exists( $fs, 'is_trial' ) && $fs->is_trial() ) {
                     $license_info['status'] = 'trial';
                     $license_info['isPro'] = true; // Trial counts as Pro
-                } elseif ( ! empty( $stored_key ) ) {
-                    // Fallback: if we have a stored key but SDK doesn't show active, mark as Pro anyway
-                    // (SDK might need time to sync)
-                    $license_info['isPro'] = true;
-                    $license_info['status'] = 'pro';
                 }
             }
-        } elseif ( ! empty( $stored_key ) ) {
-            // Freemius SDK not available but we have a stored key
-            $license_info['isPro'] = true;
-            $license_info['status'] = 'pro';
         }
 
         wp_send_json_success( array( 'license' => $license_info ) );
