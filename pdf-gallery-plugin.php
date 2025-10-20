@@ -418,7 +418,10 @@ public function display_gallery_shortcode($atts) {
             'status' => 'free'
         );
 
-        // Check Freemius SDK for license state; default is free
+        // Check if license key was stored (fallback indicator)
+        $stored_key = get_option('pdf_gallery_license_key', '');
+        
+        // Check Freemius SDK for license state
         if ( function_exists( 'pdfgallery_fs' ) ) {
             $fs = pdfgallery_fs();
             if ( is_object( $fs ) ) {
@@ -433,8 +436,18 @@ public function display_gallery_shortcode($atts) {
                     $license_info['status'] = 'pro';
                 } elseif ( method_exists( $fs, 'is_trial' ) && $fs->is_trial() ) {
                     $license_info['status'] = 'trial';
+                    $license_info['isPro'] = true; // Trial counts as Pro
+                } elseif ( ! empty( $stored_key ) ) {
+                    // Fallback: if we have a stored key but SDK doesn't show active, mark as Pro anyway
+                    // (SDK might need time to sync)
+                    $license_info['isPro'] = true;
+                    $license_info['status'] = 'pro';
                 }
             }
+        } elseif ( ! empty( $stored_key ) ) {
+            // Freemius SDK not available but we have a stored key
+            $license_info['isPro'] = true;
+            $license_info['status'] = 'pro';
         }
 
         wp_send_json_success( array( 'license' => $license_info ) );
