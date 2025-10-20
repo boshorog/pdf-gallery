@@ -221,10 +221,10 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
                 {/* Get Pro button first */}
                 <div className="w-full flex justify-center">
                   <div className="w-full max-w-md">
-                    <Button 
-                      className="w-full h-9 text-sm bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium"
-                      onClick={() => window.open('https://checkout.freemius.com/plugin/20814/plan/34946/?sandbox=true', '_blank')}
-                    >
+                      <Button 
+                        className="w-full h-9 text-sm bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium"
+                        onClick={() => window.open('https://checkout.freemius.com/plugin/20814/plan/34946/', '_blank')}
+                      >
                       Get PDF Gallery Pro
                       <ExternalLink className="w-4 h-4 ml-2" />
                     </Button>

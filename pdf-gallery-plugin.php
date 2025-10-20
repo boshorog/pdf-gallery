@@ -493,11 +493,15 @@ public function display_gallery_shortcode($atts) {
                     $result = $fs->activate_premium( $license_key );
                 }
 
-                if ( $result && ! is_wp_error( $result ) ) {
+                // Consider activation successful ONLY if Freemius reports Pro capability after the call
+                if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
                     $success = true;
-                } elseif ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
-                    // Some Freemius versions update state without returning a structured result
+                } elseif ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) {
                     $success = true;
+                } elseif ( method_exists( $fs, 'is_plan' ) && $fs->is_plan( 'professional', true ) ) {
+                    $success = true;
+                } else {
+                    $success = false;
                 }
 
                 if ( $success ) {
@@ -506,7 +510,7 @@ public function display_gallery_shortcode($atts) {
                     update_option( 'pdf_gallery_license_key', $license_key );
                     wp_send_json_success( array( 'message' => 'License activated successfully' ) );
                 } else {
-                    $error_msg = is_wp_error( $result ) ? $result->get_error_message() : 'Invalid or expired license key';
+                    $error_msg = is_wp_error( $result ) ? $result->get_error_message() : 'Activation did not enable Pro. Please verify the license environment (live vs sandbox) and try again.';
                     wp_send_json_error( array( 'message' => $error_msg ) );
                 }
             } catch ( Exception $e ) {
