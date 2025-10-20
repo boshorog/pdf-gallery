@@ -31,9 +31,9 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
                 'has_paid_plans'      => true,
                 'is_live'             => true,
 
-                // Allow license activation through SDK while skipping opt-in
-                'anonymous_mode'      => false,
-                'is_anonymous'        => false,
+                // Run in anonymous mode and skip Freemius connection/opt-in
+                'anonymous_mode'      => true,
+                'is_anonymous'        => true,
                 'enable_anonymous'    => true,
                 'skip_connection'     => true,
 
@@ -52,7 +52,30 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
     }
 
     // Init Freemius.
-    pdfgallery_fs();
+    $__fs = pdfgallery_fs();
+
+    // Best-effort: suppress Freemius opt-in/connect screens in admin
+    if ( is_object( $__fs ) ) {
+        // Methods availability depends on SDK version – guard each call
+        if ( method_exists( $__fs, 'skip_connection' ) ) {
+            $__fs->skip_connection();
+        }
+        if ( method_exists( $__fs, 'skip_site_connection' ) ) {
+            $__fs->skip_site_connection();
+        }
+        if ( method_exists( $__fs, 'set_is_anonymous' ) ) {
+            $__fs->set_is_anonymous( true );
+        }
+        if ( method_exists( $__fs, 'set_anonymous_mode' ) ) {
+            $__fs->set_anonymous_mode( true );
+        }
+        if ( method_exists( $__fs, 'add_filter' ) ) {
+            // Hide any connect prompts/notices if the SDK exposes these filters
+            $__fs->add_filter( 'connect/skip', '__return_true' );
+            $__fs->add_filter( 'show_admin_notice', '__return_false' );
+        }
+    }
+
     // Signal that SDK was initiated.
     do_action( 'pdfgallery_fs_loaded' );
 }
