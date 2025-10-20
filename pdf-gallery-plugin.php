@@ -390,20 +390,23 @@ public function display_gallery_shortcode($atts) {
             wp_die('Security check failed');
         }
 
-        global $pdf_gallery_freemius;
-        
         $license_info = array(
             'isValid' => true,
             'isPro' => false,
             'status' => 'free'
         );
 
-        if (isset($pdf_gallery_freemius) && method_exists($pdf_gallery_freemius, 'is_premium') && $pdf_gallery_freemius->is_premium()) {
-            $license_info['isPro'] = true;
-            $license_info['status'] = 'pro';
+        // Use the Freemius SDK initialized at the top of the file
+        if (function_exists('pdfgallery_fs')) {
+            $fs = pdfgallery_fs();
             
-            if (method_exists($pdf_gallery_freemius, 'is_trial') && $pdf_gallery_freemius->is_trial()) {
-                $license_info['status'] = 'trial';
+            if (method_exists($fs, 'is_premium') && $fs->is_premium()) {
+                $license_info['isPro'] = true;
+                $license_info['status'] = 'pro';
+                
+                if (method_exists($fs, 'is_trial') && $fs->is_trial()) {
+                    $license_info['status'] = 'trial';
+                }
             }
         }
 
@@ -424,29 +427,32 @@ public function display_gallery_shortcode($atts) {
         
         $license_key = isset($_POST['license_key']) ? sanitize_text_field($_POST['license_key']) : '';
         
-        global $pdf_gallery_freemius;
-        
-        if (isset($pdf_gallery_freemius) && method_exists($pdf_gallery_freemius, 'activate_license')) {
+        if (empty($license_key)) {
+            wp_send_json_error(array('message' => 'License key is required'));
+            return;
+        }
+
+        // Use the Freemius SDK initialized at the top of the file
+        if (function_exists('pdfgallery_fs')) {
             try {
-                // Use Freemius license activation
-                $result = $pdf_gallery_freemius->activate_license($license_key);
+                $fs = pdfgallery_fs();
+                
+                // Activate the license using Freemius SDK
+                $result = $fs->activate_license($license_key);
                 
                 if ($result && !is_wp_error($result)) {
+                    // License activated successfully
                     wp_send_json_success(array('message' => 'License activated successfully'));
                 } else {
-                    $error_msg = is_wp_error($result) ? $result->get_error_message() : 'Invalid license key';
+                    // Handle error
+                    $error_msg = is_wp_error($result) ? $result->get_error_message() : 'Invalid or expired license key';
                     wp_send_json_error(array('message' => $error_msg));
                 }
             } catch (Exception $e) {
-                wp_send_json_error(array('message' => $e->getMessage()));
+                wp_send_json_error(array('message' => 'Activation failed: ' . $e->getMessage()));
             }
         } else {
-            // Fallback for when Freemius is not available - basic validation
-            if (empty($license_key) || strlen($license_key) < 10) {
-                wp_send_json_error(array('message' => 'Invalid license key'));
-            }
-            
-            wp_send_json_success(array('message' => 'License activated successfully (fallback mode)'));
+            wp_send_json_error(array('message' => 'Licensing system not available'));
         }
     }
     
