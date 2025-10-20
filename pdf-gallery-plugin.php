@@ -31,6 +31,12 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
                         'is_premium'          => false,
                         'has_addons'          => false,
                         'has_paid_plans'      => true,
+                        'anonymous_mode'      => true,
+                        'opt_in_moderation'   => array(
+                            'new'      => 0,
+                            'updates'  => 0,
+                            'localhost'=> false,
+                        ),
                         'menu'                => array(
                             'slug'           => 'pdf-gallery-manager',
                             'support'        => false,
