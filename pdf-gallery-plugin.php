@@ -25,8 +25,8 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
                 'premium_slug'        => 'pdf-gallery',
                 'type'                => 'plugin',
                 'public_key'          => 'pk_349523fbf9f410023e4e5a4faa9b8',
-                'is_premium'          => true,
-                'is_premium_only'     => true,
+                'is_premium'          => false,
+                'is_premium_only'     => false,
                 'has_addons'          => false,
                 'has_paid_plans'      => true,
 
