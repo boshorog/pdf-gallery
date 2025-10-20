@@ -468,11 +468,24 @@ public function display_gallery_shortcode($atts) {
         if ( function_exists( 'pdfgallery_fs' ) ) {
             $fs = pdfgallery_fs();
             if ( is_object( $fs ) ) {
+                // Debug: Log all Freemius SDK methods and their return values
+                $debug_info = array(
+                    'can_use_premium_code' => method_exists( $fs, 'can_use_premium_code' ) ? $fs->can_use_premium_code() : 'method_missing',
+                    'is_premium' => method_exists( $fs, 'is_premium' ) ? $fs->is_premium() : 'method_missing',
+                    'is_plan_professional' => method_exists( $fs, 'is_plan' ) ? $fs->is_plan( 'professional', true ) : 'method_missing',
+                    'is_trial' => method_exists( $fs, 'is_trial' ) ? $fs->is_trial() : 'method_missing',
+                    'is_paying' => method_exists( $fs, 'is_paying' ) ? $fs->is_paying() : 'method_missing',
+                );
+                error_log('PDF Gallery Freemius Debug: ' . print_r($debug_info, true));
+                
                 // Check various Pro indicators
                 if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
                     $license_info['isPro'] = true;
                     $license_info['status'] = 'pro';
                 } elseif ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) {
+                    $license_info['isPro'] = true;
+                    $license_info['status'] = 'pro';
+                } elseif ( method_exists( $fs, 'is_paying' ) && $fs->is_paying() ) {
                     $license_info['isPro'] = true;
                     $license_info['status'] = 'pro';
                 } elseif ( method_exists( $fs, 'is_plan' ) && $fs->is_plan( 'professional', true ) ) {
@@ -482,6 +495,8 @@ public function display_gallery_shortcode($atts) {
                     $license_info['status'] = 'trial';
                     $license_info['isPro'] = true;
                 }
+                
+                error_log('PDF Gallery License Check Result: ' . print_r($license_info, true));
             }
         }
 
