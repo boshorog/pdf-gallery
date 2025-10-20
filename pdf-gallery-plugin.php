@@ -9,83 +9,84 @@
  * Tested up to: 6.4
  * Network: false
  */
-// Freemius SDK Initialization
+// Freemius SDK Initialization (optional - only if SDK is present)
 if ( ! function_exists( 'pdfgallery_fs' ) ) {
     // Create a helper function for easy SDK access.
     function pdfgallery_fs() {
         global $pdfgallery_fs;
 
         if ( ! isset( $pdfgallery_fs ) ) {
-            // Try to include Freemius SDK if available (optional)
-            $sdk_path = dirname(__FILE__) . '/vendor/freemius/start.php';
-            if ( file_exists( $sdk_path ) ) {
-                require_once $sdk_path;
-            }
-
-            if ( function_exists( 'fs_dynamic_init' ) ) {
-                $pdfgallery_fs = fs_dynamic_init( array(
-                    'id'                  => '20814',
-                    'slug'                => 'pdf-gallery',
-                    'premium_slug'        => 'pdf-gallery',
-                    'type'                => 'plugin',
-                    'public_key'          => 'pk_349523fbf9f410023e4e5a4faa9b8',
-                    'is_premium'          => false,
-                    'is_premium_only'     => false,
-                    'has_addons'          => false,
-                    'has_paid_plans'      => true,
-                    'is_live'             => true,
-
-                    // Run in anonymous mode and skip Freemius connection/opt-in
-                    'anonymous_mode'      => true,
-                    'is_anonymous'        => true,
-                    'enable_anonymous'    => true,
-                    'skip_connection'     => true,
-
-
-                    // Automatically removed in the free version. If you're not using the
-                    // auto-generated free version, delete this line before uploading to wp.org.
-                    'wp_org_gatekeeper'   => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
-                    'menu'                => array(
-                        'slug'           => 'pdf-gallery-manager',
-                        'support'        => false,
-                    ),
-                ) );
-            } else {
-                // SDK not present – return a harmless stub object so the plugin keeps working
-                $pdfgallery_fs = new stdClass();
+            // Always return a stub object to prevent errors
+            $pdfgallery_fs = new stdClass();
+            
+            // Only try Freemius if not during activation/deactivation
+            if ( ! ( defined('WP_UNINSTALL_PLUGIN') || ( isset($_GET['action']) && in_array($_GET['action'], array('activate', 'deactivate')) ) ) ) {
+                $sdk_path = dirname(__FILE__) . '/vendor/freemius/start.php';
+                if ( file_exists( $sdk_path ) ) {
+                    require_once $sdk_path;
+                    
+                    if ( function_exists( 'fs_dynamic_init' ) ) {
+                        try {
+                            $pdfgallery_fs = fs_dynamic_init( array(
+                                'id'                  => '20814',
+                                'slug'                => 'pdf-gallery',
+                                'premium_slug'        => 'pdf-gallery',
+                                'type'                => 'plugin',
+                                'public_key'          => 'pk_349523fbf9f410023e4e5a4faa9b8',
+                                'is_premium'          => false,
+                                'is_premium_only'     => false,
+                                'has_addons'          => false,
+                                'has_paid_plans'      => true,
+                                'is_live'             => true,
+                                'anonymous_mode'      => true,
+                                'is_anonymous'        => true,
+                                'enable_anonymous'    => true,
+                                'skip_connection'     => true,
+                                'wp_org_gatekeeper'   => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
+                                'menu'                => array(
+                                    'slug'           => 'pdf-gallery-manager',
+                                    'support'        => false,
+                                ),
+                            ) );
+                        } catch (Exception $e) {
+                            // If Freemius fails, keep the stub object
+                            $pdfgallery_fs = new stdClass();
+                        }
+                    }
+                }
             }
         }
 
         return $pdfgallery_fs;
     }
 
-    // Init Freemius.
-    $__fs = pdfgallery_fs();
-
-    // Best-effort: suppress Freemius opt-in/connect screens in admin
-    if ( is_object( $__fs ) ) {
-        // Methods availability depends on SDK version – guard each call
-        if ( method_exists( $__fs, 'skip_connection' ) ) {
-            $__fs->skip_connection();
+    // Only init Freemius after WordPress is fully loaded
+    add_action( 'init', function() {
+        $__fs = pdfgallery_fs();
+        
+        // Best-effort: suppress Freemius opt-in/connect screens in admin
+        if ( is_object( $__fs ) && ! ( $__fs instanceof stdClass ) ) {
+            if ( method_exists( $__fs, 'skip_connection' ) ) {
+                $__fs->skip_connection();
+            }
+            if ( method_exists( $__fs, 'skip_site_connection' ) ) {
+                $__fs->skip_site_connection();
+            }
+            if ( method_exists( $__fs, 'set_is_anonymous' ) ) {
+                $__fs->set_is_anonymous( true );
+            }
+            if ( method_exists( $__fs, 'set_anonymous_mode' ) ) {
+                $__fs->set_anonymous_mode( true );
+            }
+            if ( method_exists( $__fs, 'add_filter' ) ) {
+                $__fs->add_filter( 'connect/skip', '__return_true' );
+                $__fs->add_filter( 'show_admin_notice', '__return_false' );
+            }
         }
-        if ( method_exists( $__fs, 'skip_site_connection' ) ) {
-            $__fs->skip_site_connection();
-        }
-        if ( method_exists( $__fs, 'set_is_anonymous' ) ) {
-            $__fs->set_is_anonymous( true );
-        }
-        if ( method_exists( $__fs, 'set_anonymous_mode' ) ) {
-            $__fs->set_anonymous_mode( true );
-        }
-        if ( method_exists( $__fs, 'add_filter' ) ) {
-            // Hide any connect prompts/notices if the SDK exposes these filters
-            $__fs->add_filter( 'connect/skip', '__return_true' );
-            $__fs->add_filter( 'show_admin_notice', '__return_false' );
-        }
-    }
-
-    // Signal that SDK was initiated.
-    do_action( 'pdfgallery_fs_loaded' );
+        
+        // Signal that SDK was initiated.
+        do_action( 'pdfgallery_fs_loaded' );
+    }, 1 );
 }
 
 // Prevent direct access
