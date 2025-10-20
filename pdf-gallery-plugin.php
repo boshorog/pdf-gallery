@@ -197,9 +197,11 @@ class PDF_Gallery_Plugin {
         // Pass WordPress user info to React app
         $upload_dir = wp_upload_dir();
         
-        // Freemius helper URLs for account/pricing (if SDK is available)
+        // Freemius helper URLs and current license state (if SDK is available)
         $fs_account_url = '';
         $fs_pricing_url = '';
+        $fs_is_pro      = false;
+        $fs_status      = 'free';
         if ( function_exists('pdfgallery_fs') ) {
             $fs = pdfgallery_fs();
             if ( is_object( $fs ) ) {
@@ -208,6 +210,18 @@ class PDF_Gallery_Plugin {
                 }
                 if ( method_exists( $fs, 'get_upgrade_url' ) ) {
                     $fs_pricing_url = $fs->get_upgrade_url();
+                }
+                // Determine Pro status server-side for immediate UI correctness
+                if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
+                    $fs_is_pro = true; $fs_status = 'pro';
+                } elseif ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) {
+                    $fs_is_pro = true; $fs_status = 'pro';
+                } elseif ( method_exists( $fs, 'is_paying' ) && $fs->is_paying() ) {
+                    $fs_is_pro = true; $fs_status = 'pro';
+                } elseif ( method_exists( $fs, 'is_plan' ) && $fs->is_plan( 'professional', true ) ) {
+                    $fs_is_pro = true; $fs_status = 'pro';
+                } elseif ( method_exists( $fs, 'is_trial' ) && $fs->is_trial() ) {
+                    $fs_is_pro = true; $fs_status = 'trial';
                 }
             }
         }
@@ -219,6 +233,8 @@ class PDF_Gallery_Plugin {
             'uploadsUrl' => isset($upload_dir['baseurl']) ? $upload_dir['baseurl'] : '',
             'fsAccountUrl' => $fs_account_url,
             'fsPricingUrl' => $fs_pricing_url,
+            'fsIsPro' => $fs_is_pro,
+            'fsStatus' => $fs_status,
         ));
     }
     public function assets_not_found_notice() {
