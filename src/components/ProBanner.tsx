@@ -166,11 +166,16 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
                     variant="outline"
                     size="sm"
                     onClick={async () => {
+                      const wp = (window as any).wpPDFGallery;
+                      if (!wp?.isAdmin) {
+                        toast({ title: 'Permission denied', description: 'Only admins can deactivate the license.', variant: 'destructive' });
+                        return;
+                      }
+
                       // Clear master key
                       deactivateMasterPro();
                       
                       // Call WordPress deactivation endpoint
-                      const wp = (window as any).wpPDFGallery;
                       const urlParams = new URLSearchParams(window.location.search);
                       const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax') || '';
                       const nonce = wp?.nonce || urlParams.get('nonce') || '';
@@ -181,13 +186,22 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
                         form.append('nonce', nonce);
                         
                         try {
-                          await fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form });
+                          const res = await fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form });
+                          const data = await res.json().catch(() => ({ success: res.ok }));
+                          if (res.ok && data?.success) {
+                            toast({ title: 'License deactivated', description: 'Pro features disabled.' });
+                          } else {
+                            toast({ title: 'Deactivation failed', description: data?.data?.message || 'Could not deactivate license.', variant: 'destructive' });
+                          }
                         } catch (e) {
                           console.error('Deactivation error:', e);
+                          toast({ title: 'Network error', description: 'Could not reach WordPress AJAX.', variant: 'destructive' });
                         }
+                      } else {
+                        toast({ title: 'Setup error', description: 'Missing AJAX URL or nonce.', variant: 'destructive' });
                       }
                       
-                      window.location.reload();
+                      setTimeout(() => window.location.reload(), 500);
                     }}
                     className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50 ml-1"
                     aria-label="Deactivate license"
