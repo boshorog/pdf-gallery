@@ -40,9 +40,12 @@ export const useLicense = (): LicenseInfo => {
       })
         .then((res) => res.json())
         .then((data) => {
+          console.log('[PDF Gallery] License check response:', data);
           if (data?.success && data?.data?.license) {
+            console.log('[PDF Gallery] License info:', data.data.license);
             setLicense(data.data.license);
           } else {
+            console.log('[PDF Gallery] No valid license found, defaulting to free');
             // Default to free version
             setLicense({
               isValid: true,
