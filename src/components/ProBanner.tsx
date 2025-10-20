@@ -2,11 +2,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Crown, ExternalLink, Star, Zap, Unlock, Key, Check, X } from 'lucide-react';
+import { Crown, ExternalLink, Star, Zap, Unlock, Key, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useLicense } from '@/hooks/useLicense';
-import { verifyMasterKey, activateMasterPro, deactivateMasterPro, isMasterProActive } from '@/utils/licenseMaster';
+import { verifyMasterKey, activateMasterPro } from '@/utils/licenseMaster';
 
 interface ProBannerProps {
   className?: string;
@@ -17,11 +17,14 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   const [isActivating, setIsActivating] = useState(false);
   const { toast } = useToast();
   const license = useLicense();
-  const isPro = license.isPro;
-  const heading = isPro ? 'Welcome to PDF Gallery Pro' : 'Upgrade to PDF Gallery';
-  const description = isPro
-    ? 'You have access to advanced features to create stunning, unlimited PDF galleries with advanced settings and custom styling options.'
-    : 'Unlock advanced features to create stunning, unlimited PDF galleries with custom styling options.';
+  
+  // Don't show banner when Pro is active
+  if (license.isPro) {
+    return null;
+  }
+
+  const heading = 'Upgrade to PDF Gallery';
+  const description = 'Unlock advanced features to create stunning, unlimited PDF galleries with custom styling options.';
 
   const handleActivateLicense = async () => {
     if (!licenseKey.trim()) {
@@ -156,68 +159,8 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
               </div>
             </div>
 
-            {/* Licensed state */}
-            {license.isPro ? (
-              <div className="max-w-md mx-auto mt-4 space-y-1">
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <div className="text-sm font-medium text-foreground">PDF Gallery Pro is active</div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={async () => {
-                      const wp = (window as any).wpPDFGallery;
-                      if (!wp?.isAdmin) {
-                        toast({ title: 'Permission denied', description: 'Only admins can deactivate the license.', variant: 'destructive' });
-                        return;
-                      }
-
-                      // Clear master key
-                      deactivateMasterPro();
-                      
-                      // Call WordPress deactivation endpoint
-                      const urlParams = new URLSearchParams(window.location.search);
-                      const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax') || '';
-                      const nonce = wp?.nonce || urlParams.get('nonce') || '';
-                      
-                      if (ajaxUrl && nonce) {
-                        const form = new FormData();
-                        form.append('action', 'pdf_gallery_freemius_deactivate');
-                        form.append('nonce', nonce);
-                        
-                        try {
-                          const res = await fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form });
-                          const data = await res.json().catch(() => ({ success: res.ok }));
-                          if (res.ok && data?.success) {
-                            toast({ title: 'License deactivated', description: 'Pro features disabled.' });
-                          } else {
-                            toast({ title: 'Deactivation failed', description: data?.data?.message || 'Could not deactivate license.', variant: 'destructive' });
-                          }
-                        } catch (e) {
-                          console.error('Deactivation error:', e);
-                          toast({ title: 'Network error', description: 'Could not reach WordPress AJAX.', variant: 'destructive' });
-                        }
-                      } else {
-                        toast({ title: 'Setup error', description: 'Missing AJAX URL or nonce.', variant: 'destructive' });
-                      }
-                      
-                      setTimeout(() => window.location.reload(), 500);
-                    }}
-                    className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50 ml-1"
-                    aria-label="Deactivate license"
-                    title="Deactivate license"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-                {isMasterProActive() && (
-                  <div className="text-xs text-muted-foreground ml-6">
-                    Registered to: daniel@kindpixels.com
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-3">
+            {/* License activation section */}
+            <div className="space-y-3">
                 {/* Get Pro button first */}
                 <div className="w-full flex justify-center">
                   <div className="w-full max-w-md">
@@ -274,7 +217,6 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
                   </div>
                 </div>
               </div>
-            )}
           </div>
         </div>
       </CardContent>
