@@ -174,13 +174,30 @@ class PDF_Gallery_Plugin {
         
         // Pass WordPress user info to React app
         $upload_dir = wp_upload_dir();
+        
+        // Freemius helper URLs for account/pricing (if SDK is available)
+        $fs_account_url = '';
+        $fs_pricing_url = '';
+        if ( function_exists('pdfgallery_fs') ) {
+            $fs = pdfgallery_fs();
+            if ( is_object( $fs ) ) {
+                if ( method_exists( $fs, 'get_account_url' ) ) {
+                    $fs_account_url = $fs->get_account_url();
+                }
+                if ( method_exists( $fs, 'get_upgrade_url' ) ) {
+                    $fs_pricing_url = $fs->get_upgrade_url();
+                }
+            }
+        }
+        
         wp_localize_script('pdf-gallery-admin', 'wpPDFGallery', array(
             'isAdmin' => current_user_can('manage_options'),
             'nonce' => wp_create_nonce('pdf_gallery_nonce'),
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'uploadsUrl' => isset($upload_dir['baseurl']) ? $upload_dir['baseurl'] : ''
+            'uploadsUrl' => isset($upload_dir['baseurl']) ? $upload_dir['baseurl'] : '',
+            'fsAccountUrl' => $fs_account_url,
+            'fsPricingUrl' => $fs_pricing_url,
         ));
-    }
 
     public function assets_not_found_notice() {
         echo '<div class="notice notice-error"><p>PDF Gallery: Plugin assets not found. Please rebuild the plugin.</p></div>';
@@ -395,22 +412,26 @@ public function display_gallery_shortcode($atts) {
             'status' => 'free'
         );
 
-        // Rely on Freemius SDK only for license state; default is free
-        // Also check Freemius SDK if available
-        if (function_exists('pdfgallery_fs')) {
+        // Check Freemius SDK for license state; default is free
+        if ( function_exists( 'pdfgallery_fs' ) ) {
             $fs = pdfgallery_fs();
-            
-            if (method_exists($fs, 'is_premium') && $fs->is_premium()) {
-                $license_info['isPro'] = true;
-                $license_info['status'] = 'pro';
-                
-                if (method_exists($fs, 'is_trial') && $fs->is_trial()) {
+            if ( is_object( $fs ) ) {
+                if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
+                    $license_info['isPro'] = true;
+                    $license_info['status'] = 'pro';
+                } elseif ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) {
+                    $license_info['isPro'] = true;
+                    $license_info['status'] = 'pro';
+                } elseif ( method_exists( $fs, 'is_plan' ) && $fs->is_plan( 'professional', true ) ) {
+                    $license_info['isPro'] = true;
+                    $license_info['status'] = 'pro';
+                } elseif ( method_exists( $fs, 'is_trial' ) && $fs->is_trial() ) {
                     $license_info['status'] = 'trial';
                 }
             }
         }
 
-        wp_send_json_success(array('license' => $license_info));
+        wp_send_json_success( array( 'license' => $license_info ) );
     }
 
     /**
@@ -433,32 +454,45 @@ public function display_gallery_shortcode($atts) {
         }
 
         // Use the Freemius SDK initialized at the top of the file
-        if (function_exists('pdfgallery_fs')) {
+        if ( function_exists( 'pdfgallery_fs' ) ) {
             $fs = pdfgallery_fs();
-            // If SDK is missing or doesn't expose activation methods
-            if ( !is_object($fs) || (!method_exists($fs, 'activate_license') && !method_exists($fs, 'activate_premium')) ) {
-                wp_send_json_error(array('message' => 'Licensing system unavailable (Freemius SDK not installed).'));
+            
+            if ( ! is_object( $fs ) ) {
+                wp_send_json_error( array( 'message' => 'Licensing system unavailable (Freemius not initialized).' ) );
             }
+
             try {
-                $result = null;
-                if (method_exists($fs, 'activate_license')) {
-                    $result = $fs->activate_license($license_key);
-                } elseif (method_exists($fs, 'activate_premium')) {
-                    $result = $fs->activate_premium($license_key);
+                $result  = null;
+                $success = false;
+
+                if ( method_exists( $fs, 'activate_migrated_license' ) ) {
+                    $result = $fs->activate_migrated_license( $license_key );
+                } elseif ( method_exists( $fs, 'activate_license' ) ) {
+                    $result = $fs->activate_license( $license_key );
+                } elseif ( method_exists( $fs, 'activate_premium' ) ) {
+                    $result = $fs->activate_premium( $license_key );
                 }
-                if ($result && !is_wp_error($result)) {
-                    delete_option('pdf_gallery_license_data');
-                    update_option('pdf_gallery_license_key', $license_key);
-                    wp_send_json_success(array('message' => 'License activated successfully'));
+
+                if ( $result && ! is_wp_error( $result ) ) {
+                    $success = true;
+                } elseif ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
+                    // Some Freemius versions update state without returning a structured result
+                    $success = true;
+                }
+
+                if ( $success ) {
+                    delete_option( 'pdf_gallery_license_data' );
+                    update_option( 'pdf_gallery_license_key', $license_key );
+                    wp_send_json_success( array( 'message' => 'License activated successfully' ) );
                 } else {
-                    $error_msg = is_wp_error($result) ? $result->get_error_message() : 'Invalid or expired license key';
-                    wp_send_json_error(array('message' => $error_msg));
+                    $error_msg = is_wp_error( $result ) ? $result->get_error_message() : 'Invalid or expired license key';
+                    wp_send_json_error( array( 'message' => $error_msg ) );
                 }
-            } catch (Exception $e) {
-                wp_send_json_error(array('message' => 'Activation failed: ' . $e->getMessage()));
+            } catch ( Exception $e ) {
+                wp_send_json_error( array( 'message' => 'Activation failed: ' . $e->getMessage() ) );
             }
         } else {
-            wp_send_json_error(array('message' => 'Licensing system not available'));
+            wp_send_json_error( array( 'message' => 'Licensing system not available' ) );
         }
     }
     
