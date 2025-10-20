@@ -6,7 +6,7 @@ import { Crown, ExternalLink, Star, Zap, Unlock, Key, Check } from 'lucide-react
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useLicense } from '@/hooks/useLicense';
-import { verifyMasterKey, activateMasterPro } from '@/utils/licenseMaster';
+
 
 interface ProBannerProps {
   className?: string;
@@ -18,6 +18,10 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   const { toast } = useToast();
   const license = useLicense();
   
+  // Wait for license check to complete before deciding visibility
+  if (!license.isValid) {
+    return null;
+  }
   // Don't show banner when Pro is active
   if (license.isPro) {
     return null;
@@ -39,15 +43,6 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
     setIsActivating(true);
     
     try {
-      // 1) Temporary master key activation (frontend-only)
-      if (verifyMasterKey(licenseKey)) {
-        activateMasterPro();
-        toast({ title: 'Success!', description: 'Master license activated. Refreshing...' });
-        setTimeout(() => window.location.reload(), 800);
-        return;
-      }
-
-      // 2) Freemius integration - use their API
       const wp = (window as any).wpPDFGallery;
       const urlParams = new URLSearchParams(window.location.search);
       const ajaxUrl =

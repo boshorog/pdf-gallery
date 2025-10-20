@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { isMasterProActive } from '@/utils/licenseMaster';
+
 
 export interface LicenseInfo {
   isValid: boolean;
@@ -16,11 +16,6 @@ export const useLicense = (): LicenseInfo => {
   });
 
   useEffect(() => {
-    // 1) Temporary master key override (frontend-only)
-    if (isMasterProActive()) {
-      setLicense({ isValid: true, isPro: true, status: 'pro' });
-      return; // Skip remote check
-    }
 
     // 2) Check license from WordPress backend (Freemius)
     const wp = (window as any).wpPDFGallery;
