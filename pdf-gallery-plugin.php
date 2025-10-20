@@ -503,30 +503,29 @@ public function display_gallery_shortcode($atts) {
                     $result = $fs->activate_premium( $license_key );
                 }
 
-                $success = false;
-                if ( $result && ! is_wp_error( $result ) ) {
-                    $success = true;
-                }
-                if ( ! $success ) {
-                    if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
-                        $success = true;
-                    } elseif ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) {
-                        $success = true;
-                    } elseif ( method_exists( $fs, 'is_plan' ) && $fs->is_plan( 'professional', true ) ) {
-                        $success = true;
-                    } elseif ( method_exists( $fs, 'is_trial' ) && $fs->is_trial() ) {
-                        $success = true;
-                    }
+                // After attempting activation, trust only the SDK-reported state
+                $pro_now = false;
+                if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
+                    $pro_now = true;
+                } elseif ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) {
+                    $pro_now = true;
+                } elseif ( method_exists( $fs, 'is_plan' ) && $fs->is_plan( 'professional', true ) ) {
+                    $pro_now = true;
+                } elseif ( method_exists( $fs, 'is_trial' ) && $fs->is_trial() ) {
+                    $pro_now = true;
                 }
 
-                if ( $success ) {
+                if ( $pro_now ) {
                     delete_option( 'pdf_gallery_license_data' );
                     delete_option( 'pdf_gallery_pro_disabled' );
                     update_option( 'pdf_gallery_license_key', $license_key );
-                    wp_send_json_success( array( 'message' => 'License activated successfully' ) );
+                    wp_send_json_success( array( 
+                        'message' => 'License activated successfully',
+                        'pro' => true
+                    ) );
                 } else {
-                    $error_msg = is_wp_error( $result ) ? $result->get_error_message() : 'Activation did not enable Pro. Please verify the license environment (live vs sandbox) and try again.';
-                    wp_send_json_error( array( 'message' => $error_msg ) );
+                    $error_msg = is_wp_error( $result ) ? $result->get_error_message() : 'Activation reported success but Pro is not enabled by Freemius. Please ensure the key matches this plugin/product and try again.';
+                    wp_send_json_error( array( 'message' => $error_msg, 'pro' => false ) );
                 }
             } catch ( Exception $e ) {
                 wp_send_json_error( array( 'message' => 'Activation failed: ' . $e->getMessage() ) );
