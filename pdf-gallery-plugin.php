@@ -396,17 +396,7 @@ public function display_gallery_shortcode($atts) {
             'status' => 'free'
         );
 
-        // Check locally stored license data first
-        $stored_license = get_option('pdf_gallery_license_data', null);
-        $license_key = get_option('pdf_gallery_license_key', '');
-        
-        if ($stored_license && !empty($license_key)) {
-            // Verify the stored license is still valid
-            $license_info['isPro'] = true;
-            $license_info['status'] = 'pro';
-            $license_info['isValid'] = true;
-        }
-        
+        // Rely on Freemius SDK only for license state; default is free
         // Also check Freemius SDK if available
         if (function_exists('pdfgallery_fs')) {
             $fs = pdfgallery_fs();
@@ -446,41 +436,23 @@ public function display_gallery_shortcode($atts) {
         // Use the Freemius SDK initialized at the top of the file
         if (function_exists('pdfgallery_fs')) {
             $fs = pdfgallery_fs();
-            
-            // In anonymous mode, manually activate using Freemius API
-            $api_url = 'https://api.freemius.com/v1/plugins/20814/licenses/' . $license_key . '/activate.json';
-            
-            $response = wp_remote_post($api_url, array(
-                'timeout' => 15,
-                'body' => array(
-                    'license_key' => $license_key,
-                    'url' => home_url(),
-                )
-            ));
-            
-            if (is_wp_error($response)) {
-                wp_send_json_error(array('message' => 'Connection error: ' . $response->get_error_message()));
-                return;
-            }
-            
-            $response_code = wp_remote_retrieve_response_code($response);
-            $body = wp_remote_retrieve_body($response);
-            $data = json_decode($body, true);
-            
-            if ($response_code === 200 && isset($data['success']) && $data['success']) {
-                // Store the license key locally
-                update_option('pdf_gallery_license_key', $license_key);
-                update_option('pdf_gallery_license_data', $data);
-                
-                wp_send_json_success(array('message' => 'License activated successfully'));
-            } else {
-                $error_msg = 'Invalid or expired license key';
-                if (isset($data['error']['message'])) {
-                    $error_msg = $data['error']['message'];
-                } elseif (isset($data['message'])) {
-                    $error_msg = $data['message'];
+            try {
+                $result = null;
+                if (method_exists($fs, 'activate_license')) {
+                    $result = $fs->activate_license($license_key);
+                } elseif (method_exists($fs, 'activate_premium')) {
+                    $result = $fs->activate_premium($license_key);
                 }
-                wp_send_json_error(array('message' => $error_msg));
+                if ($result && !is_wp_error($result)) {
+                    delete_option('pdf_gallery_license_data');
+                    update_option('pdf_gallery_license_key', $license_key);
+                    wp_send_json_success(array('message' => 'License activated successfully'));
+                } else {
+                    $error_msg = is_wp_error($result) ? $result->get_error_message() : 'Invalid or expired license key';
+                    wp_send_json_error(array('message' => $error_msg));
+                }
+            } catch (Exception $e) {
+                wp_send_json_error(array('message' => 'Activation failed: ' . $e->getMessage()));
             }
         } else {
             wp_send_json_error(array('message' => 'Licensing system not available'));
