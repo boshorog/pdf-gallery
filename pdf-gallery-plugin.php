@@ -204,7 +204,7 @@ class PDF_Gallery_Plugin {
             'fsAccountUrl' => $fs_account_url,
             'fsPricingUrl' => $fs_pricing_url,
         ));
-
+    }
     public function assets_not_found_notice() {
         echo '<div class="notice notice-error"><p>PDF Gallery: Plugin assets not found. Please rebuild the plugin.</p></div>';
     }
