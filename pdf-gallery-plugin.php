@@ -15,40 +15,50 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
         global $pdfgallery_fs;
 
         if ( ! isset( $pdfgallery_fs ) ) {
-            $sdk_path = dirname(__FILE__) . '/vendor/freemius/start.php';
+            // Try multiple possible SDK locations
+            $paths = array(
+                dirname(__FILE__) . '/freemius/start.php',
+                dirname(__FILE__) . '/vendor/freemius/start.php',
+            );
+
+            $sdk_loaded = false;
+            foreach ( $paths as $sdk_path ) {
+                if ( file_exists( $sdk_path ) ) {
+                    require_once $sdk_path;
+                    $sdk_loaded = true;
+                    break;
+                }
+            }
             
-            // If SDK exists, initialize it
-            if ( file_exists( $sdk_path ) ) {
-                require_once $sdk_path;
-                
-                if ( function_exists( 'fs_dynamic_init' ) ) {
-                    $pdfgallery_fs = fs_dynamic_init( array(
-                        'id'                  => '20814',
-                        'slug'                => 'pdf-gallery',
-                        'premium_slug'        => 'pdf-gallery-pro',
-                        'type'                => 'plugin',
-                        'public_key'          => 'pk_349523fbf9f410023e4e5a4faa9b8',
-                        'is_premium'          => false,
-                        'has_addons'          => false,
-                        'has_paid_plans'      => true,
-                        'anonymous_mode'      => true,
-                        'opt_in_moderation'   => array(
-                            'new'      => 0,
-                            'updates'  => 0,
-                            'localhost'=> false,
-                        ),
-                        'menu'                => array(
-                            'slug'           => 'pdf-gallery-manager',
-                            'account'        => true,
-                            'support'        => false,
-                        ),
-                    ) );
-                } else {
-                    // SDK file exists but function not available
-                    $pdfgallery_fs = new stdClass();
+            if ( $sdk_loaded && function_exists( 'fs_dynamic_init' ) ) {
+                $pdfgallery_fs = fs_dynamic_init( array(
+                    'id'                  => '20814',
+                    'slug'                => 'pdf-gallery',
+                    'premium_slug'        => 'pdf-gallery-pro',
+                    'type'                => 'plugin',
+                    'public_key'          => 'pk_349523fbf9f410023e4e5a4faa9b8',
+                    'is_premium'          => false,
+                    'has_addons'          => false,
+                    'has_paid_plans'      => true,
+                    'anonymous_mode'      => true,
+                    'opt_in_moderation'   => array(
+                        'new'      => 0,
+                        'updates'  => 0,
+                        'localhost'=> false,
+                    ),
+                    'menu'                => array(
+                        'slug'           => 'pdf-gallery-manager',
+                        'account'        => true,
+                        'support'        => false,
+                    ),
+                ) );
+
+                // Ensure Freemius is aware of this plugin's basename for proper linkage
+                if ( is_object( $pdfgallery_fs ) && method_exists( $pdfgallery_fs, 'set_basename' ) ) {
+                    $pdfgallery_fs->set_basename( false, __FILE__ );
                 }
             } else {
-                // SDK not installed, return stub
+                // SDK not installed or failed to load
                 $pdfgallery_fs = new stdClass();
             }
         }
@@ -493,15 +503,20 @@ public function display_gallery_shortcode($atts) {
                     $result = $fs->activate_premium( $license_key );
                 }
 
-                // Consider activation successful ONLY if Freemius reports Pro capability after the call
-                if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
+                $success = false;
+                if ( $result && ! is_wp_error( $result ) ) {
                     $success = true;
-                } elseif ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) {
-                    $success = true;
-                } elseif ( method_exists( $fs, 'is_plan' ) && $fs->is_plan( 'professional', true ) ) {
-                    $success = true;
-                } else {
-                    $success = false;
+                }
+                if ( ! $success ) {
+                    if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
+                        $success = true;
+                    } elseif ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) {
+                        $success = true;
+                    } elseif ( method_exists( $fs, 'is_plan' ) && $fs->is_plan( 'professional', true ) ) {
+                        $success = true;
+                    } elseif ( method_exists( $fs, 'is_trial' ) && $fs->is_trial() ) {
+                        $success = true;
+                    }
                 }
 
                 if ( $success ) {
