@@ -47,8 +47,15 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
       // 2) Freemius integration - use their API
       const wp = (window as any).wpPDFGallery;
       const urlParams = new URLSearchParams(window.location.search);
-      const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
+      const ajaxUrl =
+        wp?.ajaxUrl ||
+        (window as any).ajaxurl ||
+        urlParams.get('ajax') ||
+        urlParams.get('ajaxurl') ||
+        urlParams.get('ajax_url') ||
+        '';
       const nonce = wp?.nonce || urlParams.get('nonce') || '';
+      console.debug('[PDF Gallery] License activation config', { hasAjaxUrl: !!ajaxUrl, hasNonce: !!nonce });
 
       if (ajaxUrl && nonce) {
         const form = new FormData();
@@ -93,11 +100,20 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
             variant: 'destructive'
           });
         }
+      } else {
+        console.error('Activation setup error: missing ajaxUrl or nonce', { hasAjaxUrl: !!ajaxUrl, hasNonce: !!nonce });
+        toast({
+          title: 'Setup error',
+          description: 'Activation endpoint not available (missing ajax URL or nonce). Please refresh the page or reinstall the plugin.',
+          variant: 'destructive'
+        });
+        return;
       }
     } catch (error) {
+      console.error('Activation request error:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to activate license. Please try again.',
+        title: 'Network error',
+        description: error instanceof Error ? error.message : 'Failed to activate license. Please try again.',
         variant: 'destructive'
       });
     } finally {
