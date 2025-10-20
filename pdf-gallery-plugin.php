@@ -16,38 +16,45 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
         global $pdfgallery_fs;
 
         if ( ! isset( $pdfgallery_fs ) ) {
-            // Include Freemius SDK.
-            require_once dirname( __FILE__ ) . '/vendor/freemius/start.php';
+            // Try to include Freemius SDK if available (optional)
+            $sdk_path = dirname(__FILE__) . '/vendor/freemius/start.php';
+            if ( file_exists( $sdk_path ) ) {
+                require_once $sdk_path;
+            }
 
-            $pdfgallery_fs = fs_dynamic_init( array(
-                'id'                  => '20814',
-                'slug'                => 'pdf-gallery',
-                'premium_slug'        => 'pdf-gallery',
-                'type'                => 'plugin',
-                'public_key'          => 'pk_349523fbf9f410023e4e5a4faa9b8',
-                'is_premium'          => false,
-                'is_premium_only'     => false,
-                'has_addons'          => false,
-                'has_paid_plans'      => true,
-                'is_live'             => true,
+            if ( function_exists( 'fs_dynamic_init' ) ) {
+                $pdfgallery_fs = fs_dynamic_init( array(
+                    'id'                  => '20814',
+                    'slug'                => 'pdf-gallery',
+                    'premium_slug'        => 'pdf-gallery',
+                    'type'                => 'plugin',
+                    'public_key'          => 'pk_349523fbf9f410023e4e5a4faa9b8',
+                    'is_premium'          => false,
+                    'is_premium_only'     => false,
+                    'has_addons'          => false,
+                    'has_paid_plans'      => true,
+                    'is_live'             => true,
 
-                // Run in anonymous mode and skip Freemius connection/opt-in
-                'anonymous_mode'      => true,
-                'is_anonymous'        => true,
-                'enable_anonymous'    => true,
-                'skip_connection'     => true,
+                    // Run in anonymous mode and skip Freemius connection/opt-in
+                    'anonymous_mode'      => true,
+                    'is_anonymous'        => true,
+                    'enable_anonymous'    => true,
+                    'skip_connection'     => true,
 
 
-                // Automatically removed in the free version. If you're not using the
-                // auto-generated free version, delete this line before uploading to wp.org.
-                'wp_org_gatekeeper'   => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
-                'menu'                => array(
-                    'slug'           => 'pdf-gallery-manager',
-                    'support'        => false,
-                ),
-            ) );
-        }
-
+                    // Automatically removed in the free version. If you're not using the
+                    // auto-generated free version, delete this line before uploading to wp.org.
+                    'wp_org_gatekeeper'   => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
+                    'menu'                => array(
+                        'slug'           => 'pdf-gallery-manager',
+                        'support'        => false,
+                    ),
+                ) );
+            } else {
+                // SDK not present – return a harmless stub object so the plugin keeps working
+                $pdfgallery_fs = new stdClass();
+            }
+        
         return $pdfgallery_fs;
     }
 
@@ -463,6 +470,10 @@ public function display_gallery_shortcode($atts) {
         // Use the Freemius SDK initialized at the top of the file
         if (function_exists('pdfgallery_fs')) {
             $fs = pdfgallery_fs();
+            // If SDK is missing or doesn't expose activation methods
+            if ( !is_object($fs) || (!method_exists($fs, 'activate_license') && !method_exists($fs, 'activate_premium')) ) {
+                wp_send_json_error(array('message' => 'Licensing system unavailable (Freemius SDK not installed).'));
+            }
             try {
                 $result = null;
                 if (method_exists($fs, 'activate_license')) {
