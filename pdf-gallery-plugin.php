@@ -54,7 +54,8 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
                 // SDK not present – return a harmless stub object so the plugin keeps working
                 $pdfgallery_fs = new stdClass();
             }
-        
+        }
+
         return $pdfgallery_fs;
     }
 
