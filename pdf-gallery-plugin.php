@@ -29,9 +29,11 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
                 'is_premium_only'     => false,
                 'has_addons'          => false,
                 'has_paid_plans'      => true,
+                'is_live'             => true,
 
-                // Skip Freemius opt-in/activation UI; use the banner from settings page for licensing.
-                'anonymous_mode'      => true,
+                // Allow license activation through SDK while skipping opt-in
+                'anonymous_mode'      => false,
+                'is_anonymous'        => false,
 
 
                 // Automatically removed in the free version. If you're not using the
