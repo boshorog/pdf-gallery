@@ -11,82 +11,14 @@
  */
 // Freemius SDK Initialization (optional - only if SDK is present)
 if ( ! function_exists( 'pdfgallery_fs' ) ) {
-    // Create a helper function for easy SDK access.
+    // Minimal stub to avoid any Freemius-related crashes during activation/runtime
     function pdfgallery_fs() {
-        global $pdfgallery_fs;
-
-        if ( ! isset( $pdfgallery_fs ) ) {
-            // Always return a stub object to prevent errors
-            $pdfgallery_fs = new stdClass();
-            
-            // Only try Freemius if not during activation/deactivation
-            if ( ! ( defined('WP_UNINSTALL_PLUGIN') || ( isset($_GET['action']) && in_array($_GET['action'], array('activate', 'deactivate')) ) ) ) {
-                $sdk_path = dirname(__FILE__) . '/vendor/freemius/start.php';
-                if ( file_exists( $sdk_path ) ) {
-                    require_once $sdk_path;
-                    
-                    if ( function_exists( 'fs_dynamic_init' ) ) {
-                        try {
-                            $pdfgallery_fs = fs_dynamic_init( array(
-                                'id'                  => '20814',
-                                'slug'                => 'pdf-gallery',
-                                'premium_slug'        => 'pdf-gallery',
-                                'type'                => 'plugin',
-                                'public_key'          => 'pk_349523fbf9f410023e4e5a4faa9b8',
-                                'is_premium'          => false,
-                                'is_premium_only'     => false,
-                                'has_addons'          => false,
-                                'has_paid_plans'      => true,
-                                'is_live'             => true,
-                                'anonymous_mode'      => true,
-                                'is_anonymous'        => true,
-                                'enable_anonymous'    => true,
-                                'skip_connection'     => true,
-                                'wp_org_gatekeeper'   => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
-                                'menu'                => array(
-                                    'slug'           => 'pdf-gallery-manager',
-                                    'support'        => false,
-                                ),
-                            ) );
-                        } catch (Exception $e) {
-                            // If Freemius fails, keep the stub object
-                            $pdfgallery_fs = new stdClass();
-                        }
-                    }
-                }
-            }
+        static $stub;
+        if (!isset($stub)) {
+            $stub = new stdClass();
         }
-
-        return $pdfgallery_fs;
+        return $stub;
     }
-
-    // Only init Freemius after WordPress is fully loaded
-    add_action( 'init', function() {
-        $__fs = pdfgallery_fs();
-        
-        // Best-effort: suppress Freemius opt-in/connect screens in admin
-        if ( is_object( $__fs ) && ! ( $__fs instanceof stdClass ) ) {
-            if ( method_exists( $__fs, 'skip_connection' ) ) {
-                $__fs->skip_connection();
-            }
-            if ( method_exists( $__fs, 'skip_site_connection' ) ) {
-                $__fs->skip_site_connection();
-            }
-            if ( method_exists( $__fs, 'set_is_anonymous' ) ) {
-                $__fs->set_is_anonymous( true );
-            }
-            if ( method_exists( $__fs, 'set_anonymous_mode' ) ) {
-                $__fs->set_anonymous_mode( true );
-            }
-            if ( method_exists( $__fs, 'add_filter' ) ) {
-                $__fs->add_filter( 'connect/skip', '__return_true' );
-                $__fs->add_filter( 'show_admin_notice', '__return_false' );
-            }
-        }
-        
-        // Signal that SDK was initiated.
-        do_action( 'pdfgallery_fs_loaded' );
-    }, 1 );
 }
 
 // Prevent direct access
@@ -117,9 +49,6 @@ class PDF_Gallery_Plugin {
         add_action('wp_ajax_pdf_gallery_upload_image', array($this, 'handle_pdf_gallery_upload_image'));
         add_action('wp_ajax_pdf_gallery_freemius_check', array($this, 'handle_freemius_check'));
         add_action('wp_ajax_pdf_gallery_freemius_activate', array($this, 'handle_freemius_activate'));
-        
-        // Initialize Freemius
-        add_action('plugins_loaded', array($this, 'init_freemius'));
         
         // Script filter
         add_filter('script_loader_tag', array($this, 'modify_script_tag'), 10, 3);
