@@ -62,18 +62,34 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
           body: form,
         });
 
-        const data = await response.json();
-        
-        if (data?.success) {
+        let data: any = null;
+        const contentType = response.headers.get('content-type') || '';
+        try {
+          if (contentType.includes('application/json')) {
+            data = await response.json();
+          } else {
+            const text = await response.text();
+            // Try to parse JSON from text, otherwise wrap as error
+            try { data = JSON.parse(text); }
+            catch { data = { success: false, data: { message: text || `HTTP ${response.status}` } }; }
+          }
+        } catch (e) {
+          // Parsing failed – read as text for better diagnostics
+          const text = await response.text().catch(() => '');
+          data = { success: false, data: { message: text || `HTTP ${response.status}` } };
+        }
+
+        if (response.ok && data?.success) {
           toast({
             title: 'Success!',
             description: 'Pro license activated successfully. Refreshing page...',
           });
           setTimeout(() => window.location.reload(), 1500);
         } else {
+          console.error('License activation failed:', { status: response.status, data });
           toast({
             title: 'Invalid License',
-            description: data?.data?.message || 'The license key is invalid or expired',
+            description: data?.data?.message || `Activation failed (HTTP ${response.status}).`,
             variant: 'destructive'
           });
         }
