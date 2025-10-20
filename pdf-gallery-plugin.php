@@ -34,6 +34,8 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
                 // Allow license activation through SDK while skipping opt-in
                 'anonymous_mode'      => false,
                 'is_anonymous'        => false,
+                'enable_anonymous'    => true,
+                'skip_connection'     => true,
 
 
                 // Automatically removed in the free version. If you're not using the
