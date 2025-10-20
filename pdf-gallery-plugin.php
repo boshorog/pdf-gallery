@@ -107,6 +107,9 @@ class PDF_Gallery_Plugin {
 
         // Plugin action links
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'plugin_action_links'));
+        
+        // Activation redirect for onboarding
+        add_action('admin_init', array($this, 'activation_redirect'));
     }
     
     /**
@@ -307,6 +310,9 @@ public function display_gallery_shortcode($atts) {
         
         // Set default options
         add_option('pdf_gallery_version', '1.6.3');
+        
+        // Set activation redirect transient for onboarding
+        set_transient('pdf_gallery_activation_redirect', true, 30);
     }
     
     /**
@@ -315,6 +321,33 @@ public function display_gallery_shortcode($atts) {
     public static function deactivate() {
         // Clean up if needed
         delete_option('pdf_gallery_version');
+    }
+    
+    /**
+     * Redirect to plugin page after activation
+     */
+    public function activation_redirect() {
+        // Check if this is an activation redirect
+        if (!get_transient('pdf_gallery_activation_redirect')) {
+            return;
+        }
+        
+        // Delete the transient so we don't redirect again
+        delete_transient('pdf_gallery_activation_redirect');
+        
+        // Don't redirect if activating multiple plugins at once
+        if (isset($_GET['activate-multi'])) {
+            return;
+        }
+        
+        // Don't redirect on network admin
+        if (is_network_admin()) {
+            return;
+        }
+        
+        // Redirect to plugin page
+        wp_safe_redirect(admin_url('admin.php?page=pdf-gallery-manager'));
+        exit;
     }
     
     /**
@@ -425,26 +458,17 @@ public function display_gallery_shortcode($atts) {
             wp_die('Security check failed');
         }
 
-        // Local override: if user explicitly disabled Pro, force Free state
-        $disabled = get_option('pdf_gallery_pro_disabled', '0');
-        if ($disabled === '1') {
-            wp_send_json_success( array( 'license' => array(
-                'isValid' => true,
-                'isPro' => false,
-                'status' => 'free',
-            ) ) );
-        }
-
         $license_info = array(
             'isValid' => true,
             'isPro' => false,
             'status' => 'free'
         );
 
-        // Check Freemius SDK for license state only (no local fallbacks)
+        // Check Freemius SDK for license state
         if ( function_exists( 'pdfgallery_fs' ) ) {
             $fs = pdfgallery_fs();
             if ( is_object( $fs ) ) {
+                // Check various Pro indicators
                 if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
                     $license_info['isPro'] = true;
                     $license_info['status'] = 'pro';
@@ -456,7 +480,7 @@ public function display_gallery_shortcode($atts) {
                     $license_info['status'] = 'pro';
                 } elseif ( method_exists( $fs, 'is_trial' ) && $fs->is_trial() ) {
                     $license_info['status'] = 'trial';
-                    $license_info['isPro'] = true; // Trial counts as Pro
+                    $license_info['isPro'] = true;
                 }
             }
         }
@@ -517,7 +541,6 @@ public function display_gallery_shortcode($atts) {
 
                 if ( $pro_now ) {
                     delete_option( 'pdf_gallery_license_data' );
-                    delete_option( 'pdf_gallery_pro_disabled' );
                     update_option( 'pdf_gallery_license_key', $license_key );
                     wp_send_json_success( array( 
                         'message' => 'License activated successfully',
@@ -547,8 +570,7 @@ public function display_gallery_shortcode($atts) {
             wp_send_json_error(array('message' => 'Insufficient permissions'));
         }
 
-        // Mark Pro as locally disabled and clear stored license
-        update_option('pdf_gallery_pro_disabled', '1');
+        // Clear stored license data
         delete_option('pdf_gallery_license_key');
         delete_option('pdf_gallery_license_data');
 
