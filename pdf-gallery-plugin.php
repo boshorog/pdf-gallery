@@ -9,16 +9,50 @@
  * Tested up to: 6.4
  * Network: false
  */
-// Freemius SDK Initialization (optional - only if SDK is present)
+// Freemius SDK Initialization
 if ( ! function_exists( 'pdfgallery_fs' ) ) {
-    // Minimal stub to avoid any Freemius-related crashes during activation/runtime
     function pdfgallery_fs() {
-        static $stub;
-        if (!isset($stub)) {
-            $stub = new stdClass();
+        global $pdfgallery_fs;
+
+        if ( ! isset( $pdfgallery_fs ) ) {
+            $sdk_path = dirname(__FILE__) . '/vendor/freemius/start.php';
+            
+            // If SDK exists, initialize it
+            if ( file_exists( $sdk_path ) ) {
+                require_once $sdk_path;
+                
+                if ( function_exists( 'fs_dynamic_init' ) ) {
+                    $pdfgallery_fs = fs_dynamic_init( array(
+                        'id'                  => '20814',
+                        'slug'                => 'pdf-gallery',
+                        'premium_slug'        => 'pdf-gallery-pro',
+                        'type'                => 'plugin',
+                        'public_key'          => 'pk_349523fbf9f410023e4e5a4faa9b8',
+                        'is_premium'          => false,
+                        'has_addons'          => false,
+                        'has_paid_plans'      => true,
+                        'menu'                => array(
+                            'slug'           => 'pdf-gallery-manager',
+                            'support'        => false,
+                        ),
+                    ) );
+                } else {
+                    // SDK file exists but function not available
+                    $pdfgallery_fs = new stdClass();
+                }
+            } else {
+                // SDK not installed, return stub
+                $pdfgallery_fs = new stdClass();
+            }
         }
-        return $stub;
+
+        return $pdfgallery_fs;
     }
+
+    // Init Freemius
+    pdfgallery_fs();
+    
+    do_action( 'pdfgallery_fs_loaded' );
 }
 
 // Prevent direct access
