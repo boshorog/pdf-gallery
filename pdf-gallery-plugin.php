@@ -39,6 +39,7 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
                         ),
                         'menu'                => array(
                             'slug'           => 'pdf-gallery-manager',
+                            'account'        => true,
                             'support'        => false,
                         ),
                     ) );
@@ -89,6 +90,7 @@ class PDF_Gallery_Plugin {
         add_action('wp_ajax_pdf_gallery_upload_image', array($this, 'handle_pdf_gallery_upload_image'));
         add_action('wp_ajax_pdf_gallery_freemius_check', array($this, 'handle_freemius_check'));
         add_action('wp_ajax_pdf_gallery_freemius_activate', array($this, 'handle_freemius_activate'));
+        add_action('wp_ajax_pdf_gallery_freemius_deactivate', array($this, 'handle_freemius_deactivate'));
         
         // Script filter
         add_filter('script_loader_tag', array($this, 'modify_script_tag'), 10, 3);
@@ -513,6 +515,38 @@ public function display_gallery_shortcode($atts) {
         } else {
             wp_send_json_error( array( 'message' => 'Licensing system not available' ) );
         }
+    }
+
+    /**
+     * Handle Freemius license deactivation
+     */
+    public function handle_freemius_deactivate() {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
+            wp_die('Security check failed');
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
+        }
+
+        // Clear stored license key
+        delete_option('pdf_gallery_license_key');
+        delete_option('pdf_gallery_license_data');
+
+        // Attempt to deactivate via Freemius SDK
+        if ( function_exists( 'pdfgallery_fs' ) ) {
+            $fs = pdfgallery_fs();
+            
+            if ( is_object( $fs ) && method_exists( $fs, 'deactivate_license' ) ) {
+                try {
+                    $fs->deactivate_license();
+                } catch ( Exception $e ) {
+                    // Continue even if SDK deactivation fails
+                }
+            }
+        }
+
+        wp_send_json_success( array( 'message' => 'License deactivated successfully' ) );
     }
     
     private function handle_save_items() {

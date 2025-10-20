@@ -165,7 +165,30 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => { deactivateMasterPro(); window.location.reload(); }}
+                    onClick={async () => {
+                      // Clear master key
+                      deactivateMasterPro();
+                      
+                      // Call WordPress deactivation endpoint
+                      const wp = (window as any).wpPDFGallery;
+                      const urlParams = new URLSearchParams(window.location.search);
+                      const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax') || '';
+                      const nonce = wp?.nonce || urlParams.get('nonce') || '';
+                      
+                      if (ajaxUrl && nonce) {
+                        const form = new FormData();
+                        form.append('action', 'pdf_gallery_freemius_deactivate');
+                        form.append('nonce', nonce);
+                        
+                        try {
+                          await fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form });
+                        } catch (e) {
+                          console.error('Deactivation error:', e);
+                        }
+                      }
+                      
+                      window.location.reload();
+                    }}
                     className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50 ml-1"
                     aria-label="Deactivate license"
                     title="Deactivate license"
