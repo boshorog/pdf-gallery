@@ -67,7 +67,7 @@ const SettingsProposal5 = ({ settings, onSettingsChange }: SettingsProposal5Prop
 
   return (
     <div className="space-y-8">
-      <ProBanner className="mb-6" />
+      {license.isValid && license.status === 'free' ? (<ProBanner className="mb-6" />) : null}
       
       {/* Dashboard Header */}
       <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 rounded-2xl p-8 border border-primary/20">
