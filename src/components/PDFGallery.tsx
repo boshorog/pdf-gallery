@@ -332,8 +332,8 @@ const PDFGallery = ({
                 </div>
               </div>
               <div className="mt-2 text-center">
-                <h3 className="font-semibold text-sm text-foreground group-hover:text-accent transition-colors">{pdf.title}</h3>
-                <p className="text-xs text-muted-foreground mt-1 group-hover:text-accent transition-colors">{pdf.date}</p>
+                <h3 className="font-semibold text-sm text-foreground transition-colors" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
+                <p className="text-xs text-muted-foreground mt-1 transition-colors" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.date}</p>
               </div>
             </div>
           </a>

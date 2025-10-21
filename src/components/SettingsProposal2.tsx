@@ -322,9 +322,9 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                               </div>
                             </div>
                           </div>
-                          <div className="mt-1 text-center">
-                            <h3 className="font-semibold text-xs text-foreground group-hover:text-accent transition-colors truncate">Sample PDF Title That Might Be Long</h3>
-                            <p className="text-xs text-muted-foreground mb-1 group-hover:text-accent transition-colors truncate">April 2025 Description...</p>
+                           <div className="mt-1 text-center" style={{ ['--accent-color' as any]: localSettings.accentColor }}>
+                            <h3 className="font-semibold text-xs text-foreground group-hover:text-[var(--accent-color)] transition-colors truncate">Sample PDF Title That Might Be Long</h3>
+                            <p className="text-xs text-muted-foreground mb-1 group-hover:text-[var(--accent-color)] transition-colors truncate">April 2025 Description...</p>
                           </div>
                         </div>
                       </div>
