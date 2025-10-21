@@ -302,7 +302,7 @@ const PDFGallery = ({
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black/95 via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-                <div className="absolute bottom-4 left-0 right-0 px-4 pb-2 text-white translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                <div className="absolute bottom-2 left-0 right-0 px-4 pb-3 text-white translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                   <h3 className="font-bold text-sm leading-tight truncate text-white">{pdf.title}</h3>
                   <p className="text-xs opacity-90 mt-1 truncate text-white">{pdf.date}</p>
                 </div>
@@ -320,7 +320,7 @@ const PDFGallery = ({
         return (
           <a key={pdf.id} {...baseProps}>
             <div className="group cursor-pointer">
-              <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-1 group-hover:from-primary/40 group-hover:via-secondary/40 group-hover:to-accent/40 transition-all duration-300">
+              <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[var(--accent-color)]/20 via-[var(--accent-color)]/10 to-[var(--accent-color)]/20 p-1 group-hover:from-[var(--accent-color)]/40 group-hover:via-[var(--accent-color)]/30 group-hover:to-[var(--accent-color)]/40 transition-all duration-300">
                 <div className="relative bg-card rounded-xl overflow-hidden">
                   <div className="aspect-video overflow-hidden bg-muted">
                     <img
@@ -330,7 +330,7 @@ const PDFGallery = ({
                       loading="lazy"
                       onError={(e) => { e.currentTarget.src = placeholderUrl; }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[var(--accent-color)]/30 via-transparent to-[var(--accent-color)]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
                 </div>
               </div>

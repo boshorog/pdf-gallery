@@ -155,7 +155,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
           <CardTitle>Thumbnail Style</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-6" style={{ ['--accent-color' as any]: localSettings.accentColor }}>
             {/* Default Style - Original frontend style */}
             <div className="space-y-3 relative">
               <div className="flex items-center space-x-2">
@@ -190,7 +190,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                     </div>
                     <div className="mt-3">
                       <p className="text-xs text-muted-foreground">April 2025</p>
-                      <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">Sample PDF Title</h3>
+                      <h3 className="font-semibold text-sm group-hover:text-[var(--accent-color)] transition-colors">Sample PDF Title</h3>
                     </div>
                   </div>
                 </div>
@@ -220,7 +220,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/40"></div>
                     </div>
                     <div className="absolute bottom-3 right-3">
-                      <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg group-hover:bg-[var(--accent-color)] group-hover:text-white transition-all duration-300">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
                         </svg>
@@ -228,7 +228,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                     </div>
                     <div className="p-3 bg-gradient-to-t from-card to-transparent">
                       <p className="text-xs text-muted-foreground mb-1">April 2025</p>
-                      <h3 className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors">Sample PDF Title</h3>
+                      <h3 className="font-semibold text-xs text-foreground group-hover:text-[var(--accent-color)] transition-colors">Sample PDF Title</h3>
                     </div>
                   </div>
                 </div>
@@ -291,16 +291,16 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                 <Label htmlFor="gradient-zoom">Gradient Zoom</Label>
               </div>
               <div className="flex justify-center">
-                <div className="group cursor-pointer w-48">
-                  <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-1 group-hover:from-primary/40 group-hover:via-secondary/40 group-hover:to-accent/40 transition-all duration-300">
-                    <div className="relative bg-card rounded-xl overflow-hidden">
-                      <div className="aspect-video overflow-hidden bg-muted">
-                        <img
-                          src={pdfPlaceholder}
-                          alt="Thumbnail preview"
-                          className="w-full h-full object-cover transition-all duration-500 group-hover:scale-125"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="group cursor-pointer w-48">
+                    <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[var(--accent-color)]/20 via-[var(--accent-color)]/10 to-[var(--accent-color)]/20 p-1 group-hover:from-[var(--accent-color)]/40 group-hover:via-[var(--accent-color)]/30 group-hover:to-[var(--accent-color)]/40 transition-all duration-300">
+                      <div className="relative bg-card rounded-xl overflow-hidden">
+                        <div className="aspect-video overflow-hidden bg-muted">
+                          <img
+                            src={pdfPlaceholder}
+                            alt="Thumbnail preview"
+                            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-125"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-tr from-[var(--accent-color)]/30 via-transparent to-[var(--accent-color)]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       </div>
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 animate-pulse">
@@ -312,8 +312,8 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                     </div>
                   </div>
                   <div className="mt-2 text-center">
-                    <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">April 2025</p>
-                    <h3 className="font-semibold text-xs text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all">Sample PDF Title</h3>
+                    <p className="text-xs text-muted-foreground mb-1 group-hover:text-[var(--accent-color)] transition-colors">April 2025</p>
+                    <h3 className="font-semibold text-xs text-foreground group-hover:text-[var(--accent-color)] transition-all">Sample PDF Title</h3>
                   </div>
                 </div>
               </div>
@@ -333,7 +333,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
               </div>
               <div className="flex justify-center">
                 <div className="group cursor-pointer">
-                  <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border group-hover:border-primary transition-all duration-300 group-hover:shadow-md w-56">
+                  <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border group-hover:border-[var(--accent-color)] transition-all duration-300 group-hover:shadow-md w-56">
                     <div className="flex-shrink-0">
                       <div className="w-12 h-16 rounded overflow-hidden bg-muted relative">
                         <img
@@ -342,13 +342,13 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
                         <div className="absolute top-1 right-1">
-                          <div className="w-2 h-2 bg-primary rounded-full"></div>
+                          <div className="w-2 h-2 bg-[var(--accent-color)] rounded-full"></div>
                         </div>
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">April 2025</p>
-                      <h3 className="font-semibold text-xs text-foreground mb-1 group-hover:text-primary transition-colors truncate">Sample PDF Title</h3>
+                      <p className="text-xs text-muted-foreground mb-1 group-hover:text-[var(--accent-color)] transition-colors">April 2025</p>
+                      <h3 className="font-semibold text-xs text-foreground mb-1 group-hover:text-[var(--accent-color)] transition-colors truncate">Sample PDF Title</h3>
                       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
@@ -395,7 +395,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                       <p className="text-xs text-muted-foreground mb-1">April 2025</p>
                       <h3 className="font-medium text-xs text-foreground relative inline-block">
                         Sample PDF Title
-                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                        <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--accent-color)] group-hover:w-full transition-all duration-300"></span>
                       </h3>
                     </div>
                   </div>

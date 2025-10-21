@@ -336,8 +336,34 @@ public function display_gallery_shortcode($atts) {
             }
         }
         
-        // Set default options
-        add_option('pdf_gallery_version', '1.6.3');
+        // Set default options and version
+        add_option('pdf_gallery_version', '1.7.3');
+
+        // Bundle a default "Test Gallery" on fresh installs (no existing galleries)
+        $existing_galleries = get_option('pdf_gallery_galleries', null);
+        if (!is_array($existing_galleries) || count($existing_galleries) === 0) {
+            $sample_items = array(
+                array('id' => 'div-1', 'type' => 'divider', 'text' => 'First Section'),
+                array('id' => 'pdf-1', 'title' => 'Sample Document 1', 'date' => 'January 2025', 'pdfUrl' => 'https://www.africau.edu/images/default/sample.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-2', 'title' => 'Sample Document 2', 'date' => 'February 2025', 'pdfUrl' => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-3', 'title' => 'Sample Document 3', 'date' => 'March 2025', 'pdfUrl' => 'https://www.orimi.com/pdf-test.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-4', 'title' => 'Sample Document 4', 'date' => 'April 2025', 'pdfUrl' => 'https://www.pdf995.com/samples/pdf.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-5', 'title' => 'Sample Document 5', 'date' => 'May 2025', 'pdfUrl' => 'https://file-examples.com/wp-content/uploads/2017/10/file-example_PDF_500_kB.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-6', 'title' => 'Sample Document 6', 'date' => 'June 2025', 'pdfUrl' => 'https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'div-2', 'type' => 'divider', 'text' => 'Second Section'),
+                array('id' => 'pdf-7', 'title' => 'Sample Document 7', 'date' => 'July 2025', 'pdfUrl' => 'https://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-8', 'title' => 'Sample Document 8', 'date' => 'August 2025', 'pdfUrl' => 'https://file-examples.com/wp-content/uploads/2017/10/file-sample_150kB.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-9', 'title' => 'Sample Document 9', 'date' => 'September 2025', 'pdfUrl' => 'https://www.adobe.com/support/acrobat/pdfs/pdfreference.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            );
+            $test_gallery = array(
+                'id' => 'test',
+                'name' => 'Test Gallery',
+                'items' => $sample_items,
+                'createdAt' => current_time('mysql'),
+            );
+            update_option('pdf_gallery_galleries', array($test_gallery));
+            update_option('pdf_gallery_current_gallery_id', 'test');
+        }
         
         // Set activation redirect transient for onboarding
         set_transient('pdf_gallery_activation_redirect', true, 30);
