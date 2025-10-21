@@ -84,7 +84,7 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
   // If Freemius is available, show for recognized free-like states
   if (fsAvailable) {
     const fsStatus = String(wpStatus).toLowerCase();
-    const proLike = new Set(['pro','paid','trial','premium','active_trial','trialing','active']);
+    const proLike = new Set(['pro','paid','trial','premium','active_trial','trialing']);
     if (proLike.has(fsStatus)) {
       console.debug('[PDF Gallery] ProBanner hidden: fsAvailable and status pro-like (' + fsStatus + ')');
       return null;

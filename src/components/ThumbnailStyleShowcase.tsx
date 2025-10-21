@@ -168,11 +168,12 @@ const ThumbnailStyleShowcase = () => {
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                <h3 className="font-semibold text-sm truncate">Sample PDF Title That Might Be Long</h3>
-                <p className="text-xs opacity-80 mt-1 truncate">April 2025 Description</p>
-              </div>
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </div>
+            <div className="absolute bottom-2 left-0 right-0 px-4 pb-3 text-white translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+              <h3 className="font-semibold text-sm leading-tight truncate">Sample PDF Title That Might Be Long</h3>
+              <p className="text-xs opacity-90 mt-1 truncate">April 2025 Description</p>
             </div>
             <div className="absolute top-3 left-3 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
               <div className="bg-white/90 rounded px-2 py-1">
@@ -201,8 +202,8 @@ const ThumbnailStyleShowcase = () => {
             </div>
           </div>
           <div className="mt-3 text-center">
-            <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors truncate">Sample PDF Title That Might Be Long</h3>
-            <p className="text-xs text-muted-foreground mt-1 group-hover:text-primary transition-colors truncate">April 2025 Description</p>
+            <h3 className="font-semibold text-sm text-foreground group-hover:text-accent transition-colors truncate">Sample PDF Title That Might Be Long</h3>
+            <p className="text-xs text-muted-foreground mt-1 group-hover:text-accent transition-colors truncate">April 2025 Description</p>
           </div>
         </div>
       )
