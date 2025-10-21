@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FileText, ExternalLink, FileType, Presentation, Image } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 import { generateThumbnail } from '@/utils/supabaseClient';
-import pdfPlaceholder from '@/assets/pdf-placeholder.png';
+import pdfPlaceholder from '@/assets/pdf-placeholder.svg';
 import { useLicense } from '@/hooks/useLicense';
 import { useIsMobile } from '@/hooks/use-mobile';
 

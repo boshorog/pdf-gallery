@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, ExternalLink, Upload, Image, Palette, Grid3X3, Settings2 } from 'lucide-react';
-import pdfPlaceholder from '@/assets/pdf-placeholder.png';
+import pdfPlaceholder from '@/assets/pdf-placeholder.svg';
 import { useLicense } from '@/hooks/useLicense';
 import ProBanner from '@/components/ProBanner';
 

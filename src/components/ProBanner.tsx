@@ -17,7 +17,12 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   const [isActivating, setIsActivating] = useState(false);
   const { toast } = useToast();
   const license = useLicense();
-  
+
+  // If our license hook confirms Pro, never render
+  if (license.checked && (license.isPro || (license.status && license.status !== 'free'))) {
+    return null;
+  }
+
   // Show banner only in explicit WordPress admin free state
   let wpGlobal: any = null;
   try { wpGlobal = (window as any).wpPDFGallery || null; } catch {}
@@ -25,8 +30,12 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
     try { wpGlobal = (window.parent && (window.parent as any).wpPDFGallery) || null; } catch {}
   }
   const urlParams = new URLSearchParams(window.location.search);
+  const hideParam = urlParams.get('hideProBanner') === 'true';
+  let lsSuppress = false;
+  try { lsSuppress = localStorage.getItem('wpPDFGallery_suppressProBanner') === '1'; } catch {}
   const isAdmin = !!wpGlobal?.isAdmin || urlParams.get('admin') === 'true';
   const fsAvailable = !!wpGlobal?.fsAvailable;
+  if (hideParam || lsSuppress) return null;
   if (!isAdmin) return null;
   if (!fsAvailable) return null; // Fail closed: don't show banner unless licensing system is available
   const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
@@ -103,6 +112,7 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
             title: 'Success!',
             description: 'Pro license activated successfully. Refreshing page...',
           });
+          try { localStorage.setItem('wpPDFGallery_suppressProBanner', '1'); } catch {}
           setTimeout(() => window.location.reload(), 1500);
         } else {
           console.error('License activation failed:', { status: response.status, data });
