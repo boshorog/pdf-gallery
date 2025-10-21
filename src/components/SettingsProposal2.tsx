@@ -234,7 +234,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                               <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/40"></div>
                             </div>
                             <div className="absolute bottom-3 right-3">
-                              <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                              <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg group-hover:bg-[var(--accent-color)] group-hover:text-white transition-all duration-300" style={{ ['--accent-color' as any]: localSettings.accentColor }}>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
                                 </svg>
@@ -242,7 +242,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                             </div>
                             <div className="p-3 bg-gradient-to-t from-card to-transparent">
                               <p className="text-xs text-muted-foreground mb-1 truncate">April 2025 Description</p>
-                              <h3 className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors truncate">Sample PDF Title That Might Be Long</h3>
+                              <h3 className="font-semibold text-xs text-foreground group-hover:text-[var(--accent-color)] transition-colors truncate" style={{ ['--accent-color' as any]: localSettings.accentColor }}>Sample PDF Title That Might Be Long</h3>
                             </div>
                           </div>
                         </div>
@@ -276,11 +276,11 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                               />
                             </div>
                             <div className="absolute inset-0 pointer-events-none">
-                              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black/95 via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             </div>
-                            <div className="absolute bottom-2 left-0 right-0 px-4 pb-3 text-white translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                              <h3 className="font-semibold text-sm leading-tight truncate">Sample PDF Title That Might Be Long</h3>
-                              <p className="text-xs opacity-90 mt-1 truncate">April 2025 Description</p>
+                            <div className="absolute bottom-4 left-0 right-0 px-4 pb-2 text-white translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                              <h3 className="font-bold text-sm leading-tight truncate text-white">Sample PDF Title That Might Be Long</h3>
+                              <p className="text-xs opacity-90 mt-1 truncate text-white">April 2025 Description</p>
                             </div>
                             <div className="absolute top-3 left-3 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
                               <div className="bg-white/90 rounded px-2 py-1">

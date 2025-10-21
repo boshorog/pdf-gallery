@@ -116,16 +116,28 @@ const Index = () => {
                 }
               } catch {}
 
-              // Create empty default gallery
-              const defaultGallery: Gallery = {
-                id: 'main',
-                name: 'Main Gallery',
-                items: [],
+              // Create test gallery with sample data
+              const testGallery: Gallery = {
+                id: 'test',
+                name: 'Test Gallery',
+                items: [
+                  { id: 'div-1', type: 'divider', text: 'First Section' },
+                  { id: 'pdf-1', title: 'Sample Document 1', date: 'January 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+                  { id: 'pdf-2', title: 'Sample Document 2', date: 'February 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-2.jpg', fileType: 'pdf' },
+                  { id: 'pdf-3', title: 'Sample Document 3', date: 'March 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-3.jpg', fileType: 'pdf' },
+                  { id: 'pdf-4', title: 'Sample Document 4', date: 'April 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-4.jpg', fileType: 'pdf' },
+                  { id: 'pdf-5', title: 'Sample Document 5', date: 'May 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+                  { id: 'pdf-6', title: 'Sample Document 6', date: 'June 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-2.jpg', fileType: 'pdf' },
+                  { id: 'div-2', type: 'divider', text: 'Second Section' },
+                  { id: 'pdf-7', title: 'Sample Document 7', date: 'July 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-3.jpg', fileType: 'pdf' },
+                  { id: 'pdf-8', title: 'Sample Document 8', date: 'August 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-4.jpg', fileType: 'pdf' },
+                  { id: 'pdf-9', title: 'Sample Document 9', date: 'September 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+                ] as GalleryItem[],
                 createdAt: new Date().toISOString(),
               };
               setGalleryState({
-                galleries: [defaultGallery],
-                currentGalleryId: 'main'
+                galleries: [testGallery],
+                currentGalleryId: 'test'
               });
             } else {
               // If no current gallery is set, use the first gallery
@@ -183,30 +195,54 @@ const Index = () => {
               });
             }
           } else {
-            // Create default gallery for development
-            const defaultGallery: Gallery = {
-              id: 'main',
-              name: 'Main Gallery',
-              items: [],
+            // Create test gallery for development
+            const testGallery: Gallery = {
+              id: 'test',
+              name: 'Test Gallery',
+              items: [
+                { id: 'div-1', type: 'divider', text: 'First Section' },
+                { id: 'pdf-1', title: 'Sample Document 1', date: 'January 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+                { id: 'pdf-2', title: 'Sample Document 2', date: 'February 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-2.jpg', fileType: 'pdf' },
+                { id: 'pdf-3', title: 'Sample Document 3', date: 'March 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-3.jpg', fileType: 'pdf' },
+                { id: 'pdf-4', title: 'Sample Document 4', date: 'April 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-4.jpg', fileType: 'pdf' },
+                { id: 'pdf-5', title: 'Sample Document 5', date: 'May 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+                { id: 'pdf-6', title: 'Sample Document 6', date: 'June 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-2.jpg', fileType: 'pdf' },
+                { id: 'div-2', type: 'divider', text: 'Second Section' },
+                { id: 'pdf-7', title: 'Sample Document 7', date: 'July 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-3.jpg', fileType: 'pdf' },
+                { id: 'pdf-8', title: 'Sample Document 8', date: 'August 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-4.jpg', fileType: 'pdf' },
+                { id: 'pdf-9', title: 'Sample Document 9', date: 'September 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+              ] as GalleryItem[],
               createdAt: new Date().toISOString(),
             };
             setGalleryState({
-              galleries: [defaultGallery],
-              currentGalleryId: 'main'
+              galleries: [testGallery],
+              currentGalleryId: 'test'
             });
           }
         })
         .catch(() => {
-          // Create default gallery for development
-            const defaultGallery: Gallery = {
-              id: 'main',
-              name: 'Main Gallery',
-              items: [],
-              createdAt: new Date().toISOString(),
+          // Create test gallery for development
+          const testGallery: Gallery = {
+            id: 'test',
+            name: 'Test Gallery',
+            items: [
+              { id: 'div-1', type: 'divider', text: 'First Section' },
+              { id: 'pdf-1', title: 'Sample Document 1', date: 'January 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+              { id: 'pdf-2', title: 'Sample Document 2', date: 'February 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-2.jpg', fileType: 'pdf' },
+              { id: 'pdf-3', title: 'Sample Document 3', date: 'March 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-3.jpg', fileType: 'pdf' },
+              { id: 'pdf-4', title: 'Sample Document 4', date: 'April 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-4.jpg', fileType: 'pdf' },
+              { id: 'pdf-5', title: 'Sample Document 5', date: 'May 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+              { id: 'pdf-6', title: 'Sample Document 6', date: 'June 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-2.jpg', fileType: 'pdf' },
+              { id: 'div-2', type: 'divider', text: 'Second Section' },
+              { id: 'pdf-7', title: 'Sample Document 7', date: 'July 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-3.jpg', fileType: 'pdf' },
+              { id: 'pdf-8', title: 'Sample Document 8', date: 'August 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-4.jpg', fileType: 'pdf' },
+              { id: 'pdf-9', title: 'Sample Document 9', date: 'September 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+            ] as GalleryItem[],
+            createdAt: new Date().toISOString(),
           };
           setGalleryState({
-            galleries: [defaultGallery],
-            currentGalleryId: 'main'
+            galleries: [testGallery],
+            currentGalleryId: 'test'
           });
         });
 
@@ -229,16 +265,28 @@ const Index = () => {
         })
         .catch(() => {});
     } else {
-      // Fallback for development or when no config is provided
-      const defaultGallery: Gallery = {
-        id: 'main',
-        name: 'Main Gallery',
-        items: [],
+      // Fallback test gallery for development or when no config is provided
+      const testGallery: Gallery = {
+        id: 'test',
+        name: 'Test Gallery',
+        items: [
+          { id: 'div-1', type: 'divider', text: 'First Section' },
+          { id: 'pdf-1', title: 'Sample Document 1', date: 'January 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+          { id: 'pdf-2', title: 'Sample Document 2', date: 'February 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-2.jpg', fileType: 'pdf' },
+          { id: 'pdf-3', title: 'Sample Document 3', date: 'March 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-3.jpg', fileType: 'pdf' },
+          { id: 'pdf-4', title: 'Sample Document 4', date: 'April 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-4.jpg', fileType: 'pdf' },
+          { id: 'pdf-5', title: 'Sample Document 5', date: 'May 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+          { id: 'pdf-6', title: 'Sample Document 6', date: 'June 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-2.jpg', fileType: 'pdf' },
+          { id: 'div-2', type: 'divider', text: 'Second Section' },
+          { id: 'pdf-7', title: 'Sample Document 7', date: 'July 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-3.jpg', fileType: 'pdf' },
+          { id: 'pdf-8', title: 'Sample Document 8', date: 'August 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-4.jpg', fileType: 'pdf' },
+          { id: 'pdf-9', title: 'Sample Document 9', date: 'September 2025', pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', thumbnail: '/src/assets/newsletter-thumbnail-1.jpg', fileType: 'pdf' },
+        ] as GalleryItem[],
         createdAt: new Date().toISOString(),
       };
       setGalleryState({
-        galleries: [defaultGallery],
-        currentGalleryId: 'main'
+        galleries: [testGallery],
+        currentGalleryId: 'test'
       });
     }
   }, []);
