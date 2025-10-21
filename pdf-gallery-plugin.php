@@ -390,15 +390,22 @@ public function display_gallery_shortcode($atts) {
      * Add links on the plugins page
      */
     public function plugin_action_links($links) {
-        // Remove Freemius links we don't want
+        // Remove Freemius "Opt Out" and "Upgrade" links from action links
         foreach ($links as $key => $link) {
-            // Remove "Opt Out" and "Upgrade" links added by Freemius
-            if (stripos($link, 'opt') !== false || 
-                (stripos($link, 'upgrade') !== false && stripos($link, 'freemius') !== false)) {
+            $plain = strtolower(wp_strip_all_tags($link));
+            if (strpos($plain, 'opt out') !== false || strpos($plain, 'opt-out') !== false) {
                 unset($links[$key]);
+                continue;
+            }
+            if ((strpos($plain, 'upgrade') !== false) && (stripos($link, 'freemius') !== false)) {
+                unset($links[$key]);
+                continue;
             }
         }
-        
+        // Do not add "Visit plugin site" here (it's already on the right)
+        // Add our styled Upgrade link
+        $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank" style="font-weight:600;color:#d97706;">Upgrade to Pro!</a>';
+        $links[] = $upgrade_link;
         return $links;
     }
     

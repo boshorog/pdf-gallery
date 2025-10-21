@@ -18,8 +18,8 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   const { toast } = useToast();
   const license = useLicense();
 
-  // If our license hook confirms Pro, never render
-  if (license.checked && (license.isPro || (license.status && license.status !== 'free'))) {
+  // If our license hook confirms Pro/Trial, never render
+  if (license.checked && (license.isPro || ['pro','trial','premium'].includes(String(license.status).toLowerCase()))) {
     return null;
   }
 
