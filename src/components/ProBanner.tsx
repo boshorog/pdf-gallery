@@ -19,6 +19,9 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   const license = useLicense();
   
   // Wait for license check to complete before deciding visibility
+  if (!license.checked) {
+    return null;
+  }
   if (!license.isValid) {
     return null;
   }
