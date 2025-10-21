@@ -18,18 +18,18 @@ export const useLicense = (): LicenseInfo => {
   useEffect(() => {
     const wp = (window as any).wpPDFGallery;
     const urlParams = new URLSearchParams(window.location.search);
-    const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
+    const ajaxUrl = wp?.ajaxUrl || (window as any).ajaxurl || urlParams.get('ajax') || urlParams.get('ajaxurl') || urlParams.get('ajax_url') || '';
     const nonce = wp?.nonce || urlParams.get('nonce') || '';
 
-    // 1) Immediate server-evaluated Pro state from localized data (most reliable)
-    if (wp && typeof wp.fsIsPro === 'boolean') {
-      if (wp.fsIsPro) {
-        setLicense({ isValid: true, isPro: true, status: (wp.fsStatus as any) || 'pro' });
-        // We can skip remote check for speed; the page will refresh after any license changes
-        return;
-      }
-      // If not pro, continue to remote check below
+    // 1) Server-evaluated Pro state from localized data (most reliable)
+    // Accept booleans, numeric strings, or truthy values provided by WordPress localization
+    const fsIsPro = !!(wp && (wp.fsIsPro === true || wp.fsIsPro === 'true' || wp.fsIsPro === '1' || wp.fsIsPro === 1));
+    if (fsIsPro) {
+      setLicense({ isValid: true, isPro: true, status: (wp?.fsStatus as any) || 'pro' });
+      // Skip remote check for speed; page will refresh after any license changes
+      return;
     }
+    // If not pro, continue to remote check below
 
     // 2) Check license from WordPress backend (Freemius)
     if (ajaxUrl && nonce) {

@@ -22,8 +22,11 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   if (!license.isValid) {
     return null;
   }
-  // Don't show banner when Pro is active
-  if (license.isPro) {
+  // Also respect server-localized Pro flag (handles values like true, 'true', '1', 1)
+  const wp = (window as any).wpPDFGallery;
+  const wpIsPro = !!(wp && (wp.fsIsPro === true || wp.fsIsPro === 'true' || wp.fsIsPro === '1' || wp.fsIsPro === 1));
+  // Don't show banner when Pro is active (either via hook or server flag)
+  if (license.isPro || wpIsPro) {
     return null;
   }
 
