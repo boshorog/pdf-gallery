@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, PPT/PPTX, DOC/DOCX, XLS/XLSX, and image files. Easily organize, sort, and showcase your documents in beautiful grid layouts.
- * Version: 1.7.0
+ * Version: 1.7.1
  * Author: KIND PIXELS
  * Requires at least: 5.0
  * Tested up to: 6.4
@@ -106,9 +106,9 @@ class PDF_Gallery_Plugin {
         add_filter('script_loader_tag', array($this, 'modify_script_tag'), 10, 3);
 
         // Plugin action links
-        add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'plugin_action_links'));
+        add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'plugin_action_links'), 99, 1);
         // Plugin row meta links (right side)
-        add_filter('plugin_row_meta', array($this, 'plugin_row_meta'), 10, 2);
+        add_filter('plugin_row_meta', array($this, 'plugin_row_meta'), 99, 2);
         
         // Activation redirect for onboarding
         add_action('admin_init', array($this, 'activation_redirect'));
@@ -392,19 +392,22 @@ public function display_gallery_shortcode($atts) {
      * Add links on the plugins page
      */
     public function plugin_action_links($links) {
-        // Remove Freemius "Opt Out" and "Upgrade" links from action links
+        // Remove Freemius and other unwanted links from action links
         foreach ($links as $key => $link) {
             $plain = strtolower(wp_strip_all_tags($link));
             if (strpos($plain, 'opt out') !== false || strpos($plain, 'opt-out') !== false) {
                 unset($links[$key]);
                 continue;
             }
-            if ((strpos($plain, 'upgrade') !== false) && (stripos($link, 'freemius') !== false)) {
+            if (strpos($plain, 'upgrade') !== false) {
+                unset($links[$key]);
+                continue;
+            }
+            if (strpos($plain, 'visit plugin site') !== false) {
                 unset($links[$key]);
                 continue;
             }
         }
-        // Do not add "Visit plugin site" here (it's already on the right)
         // Add our styled Upgrade link
         $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank" style="font-weight:600;color:#d97706;">Upgrade to Pro!</a>';
         $links[] = $upgrade_link;
@@ -424,7 +427,7 @@ public function display_gallery_shortcode($atts) {
                     unset($links[$key]);
                     continue;
                 }
-                if (strpos($plain, 'upgrade') !== false && (strpos($link, 'freemius') !== false || strpos($href, 'freemius') !== false)) {
+                if (strpos($plain, 'upgrade') !== false) {
                     unset($links[$key]);
                     continue;
                 }

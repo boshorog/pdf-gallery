@@ -296,15 +296,10 @@ const PDFGallery = ({
                     onError={(e) => { e.currentTarget.src = placeholderUrl; }}
                   />
                 </div>
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  <div className="p-3 pb-8 text-white">
-                    <h3 className="font-semibold text-sm">{pdf.title}</h3>
-                    <p className="text-xs opacity-80 mt-0.5">{pdf.date}</p>
-                  </div>
-                  <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13l-3 3m0 0l-3-3m3 3V8" />
-                    </svg>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                  <div className="absolute bottom-0 left-0 right-0 p-3 pb-3 text-white">
+                    <h3 className="font-semibold text-sm truncate">{pdf.title}</h3>
+                    <p className="text-xs opacity-80 mt-0.5 truncate">{pdf.date}</p>
                   </div>
                 </div>
                 <div className="absolute top-3 left-3 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
@@ -333,17 +328,10 @@ const PDFGallery = ({
                     />
                     <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 animate-pulse">
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                    </div>
-                  </div>
                 </div>
               </div>
               <div className="mt-2 text-center">
-                <h3 className="font-semibold text-sm text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all">{pdf.title}</h3>
+                <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">{pdf.title}</h3>
                 <p className="text-xs text-muted-foreground mt-1 group-hover:text-primary transition-colors">{pdf.date}</p>
               </div>
             </div>

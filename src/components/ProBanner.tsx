@@ -33,10 +33,21 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   const hideParam = urlParams.get('hideProBanner') === 'true';
   let lsSuppress = false;
   try { lsSuppress = localStorage.getItem('wpPDFGallery_suppressProBanner') === '1'; } catch {}
-  const isAdmin = !!wpGlobal?.isAdmin || urlParams.get('admin') === 'true';
-  const fsAvailable = !!wpGlobal?.fsAvailable;
-  const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
-  const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1));
+const isLikelyWpAdmin = (() => {
+  try {
+    const w = window as any;
+    const topPath = w.top?.location?.pathname || '';
+    const herePath = w.location?.pathname || '';
+    const hasWrap = document?.body?.id === 'wpwrap' || document?.body?.classList?.contains('wp-admin');
+    const parentDoc = w.parent?.document;
+    const parentHasWrap = !!parentDoc && (parentDoc.body?.id === 'wpwrap' || parentDoc.body?.classList?.contains('wp-admin'));
+    return topPath.includes('/wp-admin/') || herePath.includes('/wp-admin/') || hasWrap || parentHasWrap;
+  } catch { return false; }
+})();
+const isAdmin = !!wpGlobal?.isAdmin || urlParams.get('admin') === 'true' || isLikelyWpAdmin;
+const fsAvailable = !!wpGlobal?.fsAvailable;
+const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
+const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1));
   
   console.debug('[PDF Gallery] ProBanner check', { 
     isAdmin, 
@@ -73,9 +84,9 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   // If Freemius is available, show for recognized free-like states
   if (fsAvailable) {
     const fsStatus = String(wpStatus).toLowerCase();
-    const freeStates = new Set(['free', '', 'unknown', 'not_activated', 'not-activated', 'inactive', 'none']);
-    if (!freeStates.has(fsStatus)) {
-      console.debug('[PDF Gallery] ProBanner hidden: fsAvailable and status not free-like (' + fsStatus + ')');
+    const proLike = new Set(['pro','paid','trial','premium','active_trial','trialing','active']);
+    if (proLike.has(fsStatus)) {
+      console.debug('[PDF Gallery] ProBanner hidden: fsAvailable and status pro-like (' + fsStatus + ')');
       return null;
     }
   }
