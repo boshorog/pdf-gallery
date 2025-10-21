@@ -390,12 +390,14 @@ public function display_gallery_shortcode($atts) {
      * Add links on the plugins page
      */
     public function plugin_action_links($links) {
-        $site_link = '<a href="https://kindpixels.com" target="_blank" rel="noopener noreferrer">Visit plugin site</a>';
-        $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank" style="font-weight: bold;">Upgrade to Pro!</a>';
-        
-        // Add site link first, then upgrade link at the end
-        array_unshift($links, $site_link);
-        $links[] = $upgrade_link;
+        // Remove Freemius links we don't want
+        foreach ($links as $key => $link) {
+            // Remove "Opt Out" and "Upgrade" links added by Freemius
+            if (stripos($link, 'opt') !== false || 
+                (stripos($link, 'upgrade') !== false && stripos($link, 'freemius') !== false)) {
+                unset($links[$key]);
+            }
+        }
         
         return $links;
     }

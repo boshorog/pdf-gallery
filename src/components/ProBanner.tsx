@@ -35,20 +35,49 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   try { lsSuppress = localStorage.getItem('wpPDFGallery_suppressProBanner') === '1'; } catch {}
   const isAdmin = !!wpGlobal?.isAdmin || urlParams.get('admin') === 'true';
   const fsAvailable = !!wpGlobal?.fsAvailable;
-  if (hideParam || lsSuppress) return null;
-  if (!isAdmin) return null;
-  if (!fsAvailable) return null; // Fail closed: don't show banner unless licensing system is available
   const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
-  const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1 || (fsAvailable && wpStatus && wpStatus !== 'free')));
-  console.debug('[PDF Gallery] ProBanner gating', { isAdmin, wpStatus, wpIsPro });
-  // Hard kill-switch: never show for Pro/Trial or unknown
+  const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1));
+  
+  console.debug('[PDF Gallery] ProBanner check', { 
+    isAdmin, 
+    fsAvailable, 
+    wpStatus, 
+    wpIsPro,
+    hideParam,
+    lsSuppress,
+    licenseChecked: license.checked,
+    licensePro: license.isPro,
+    licenseStatus: license.status
+  });
+  
+  // Don't show if explicitly hidden
+  if (hideParam || lsSuppress) {
+    console.debug('[PDF Gallery] ProBanner hidden by param/localStorage');
+    return null;
+  }
+  
+  // Only show in admin
+  if (!isAdmin) {
+    console.debug('[PDF Gallery] ProBanner hidden: not admin');
+    return null;
+  }
+  
+  // Hard kill-switch: never show for Pro/Trial
   if (wpIsPro) {
+    console.debug('[PDF Gallery] ProBanner hidden: wpIsPro is true');
     return null;
   }
-  // Only show if server explicitly says "free"
-  if (wpStatus !== 'free') {
-    return null;
+  
+  // If licensing system is available, only show if explicitly "free"
+  if (fsAvailable) {
+    if (wpStatus !== 'free') {
+      console.debug('[PDF Gallery] ProBanner hidden: fsAvailable and status is not "free" (' + wpStatus + ')');
+      return null;
+    }
   }
+  
+  // Banner should show: we're admin, not Pro, and either no FS or FS says "free"
+  console.debug('[PDF Gallery] ProBanner SHOWING');
 
   const heading = 'Upgrade to PDF Gallery';
   const description = 'Unlock advanced features to create stunning, unlimited PDF galleries with custom styling options.';
