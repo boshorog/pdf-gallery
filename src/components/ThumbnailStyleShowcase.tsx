@@ -168,15 +168,10 @@ const ThumbnailStyleShowcase = () => {
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
             </div>
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-              <div className="p-4 text-white">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                 <h3 className="font-semibold text-sm truncate">Sample PDF Title That Might Be Long</h3>
                 <p className="text-xs opacity-80 mt-1 truncate">April 2025 Description</p>
-                <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13l-3 3m0 0l-3-3m3 3V8" />
-                  </svg>
-                </div>
               </div>
             </div>
             <div className="absolute top-3 left-3 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
@@ -203,17 +198,10 @@ const ThumbnailStyleShowcase = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
-              <div className="absolute center-0 w-full h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 animate-pulse">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                </div>
-              </div>
             </div>
           </div>
           <div className="mt-3 text-center">
-            <h3 className="font-semibold text-sm text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all truncate">Sample PDF Title That Might Be Long</h3>
+            <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors truncate">Sample PDF Title That Might Be Long</h3>
             <p className="text-xs text-muted-foreground mt-1 group-hover:text-primary transition-colors truncate">April 2025 Description</p>
           </div>
         </div>

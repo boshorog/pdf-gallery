@@ -107,6 +107,8 @@ class PDF_Gallery_Plugin {
 
         // Plugin action links
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'plugin_action_links'));
+        // Plugin row meta links (right side)
+        add_filter('plugin_row_meta', array($this, 'plugin_row_meta'), 10, 2);
         
         // Activation redirect for onboarding
         add_action('admin_init', array($this, 'activation_redirect'));
@@ -406,6 +408,28 @@ public function display_gallery_shortcode($atts) {
         // Add our styled Upgrade link
         $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank" style="font-weight:600;color:#d97706;">Upgrade to Pro!</a>';
         $links[] = $upgrade_link;
+        return $links;
+    }
+    
+    /**
+     * Filter row meta links on the plugins list (right side)
+     */
+    public function plugin_row_meta($links, $file) {
+        if ($file === plugin_basename(__FILE__)) {
+            foreach ($links as $key => $link) {
+                $plain = strtolower(wp_strip_all_tags($link));
+                $href = '';
+                if (preg_match('/href=\"([^\"]+)\"/i', $link, $m)) { $href = strtolower($m[1]); }
+                if (strpos($plain, 'opt out') !== false || strpos($plain, 'opt-out') !== false) {
+                    unset($links[$key]);
+                    continue;
+                }
+                if (strpos($plain, 'upgrade') !== false && (strpos($link, 'freemius') !== false || strpos($href, 'freemius') !== false)) {
+                    unset($links[$key]);
+                    continue;
+                }
+            }
+        }
         return $links;
     }
     

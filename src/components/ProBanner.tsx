@@ -50,9 +50,11 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
     licenseStatus: license.status
   });
   
-  // Don't show if explicitly hidden
-  if (hideParam || lsSuppress) {
-    console.debug('[PDF Gallery] ProBanner hidden by param/localStorage');
+  // Don't show if explicitly hidden (localStorage suppression only applies for Pro/Trial states)
+  const statusLower = String(license.status ?? '').toLowerCase();
+  const isProLike = wpIsPro || license.isPro || ['pro','trial','premium'].includes(statusLower);
+  if (hideParam || (lsSuppress && isProLike)) {
+    console.debug('[PDF Gallery] ProBanner hidden by param/localStorage (pro-like state)');
     return null;
   }
   
@@ -68,10 +70,12 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
     return null;
   }
   
-  // If licensing system is available, only show if explicitly "free"
+  // If Freemius is available, show for recognized free-like states
   if (fsAvailable) {
-    if (wpStatus !== 'free') {
-      console.debug('[PDF Gallery] ProBanner hidden: fsAvailable and status is not "free" (' + wpStatus + ')');
+    const fsStatus = String(wpStatus).toLowerCase();
+    const freeStates = new Set(['free', '', 'unknown', 'not_activated', 'not-activated', 'inactive', 'none']);
+    if (!freeStates.has(fsStatus)) {
+      console.debug('[PDF Gallery] ProBanner hidden: fsAvailable and status not free-like (' + fsStatus + ')');
       return null;
     }
   }
