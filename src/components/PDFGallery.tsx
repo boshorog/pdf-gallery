@@ -296,11 +296,12 @@ const PDFGallery = ({
                     onError={(e) => { e.currentTarget.src = placeholderUrl; }}
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  <div className="absolute bottom-0 left-0 right-0 p-3 pb-3 text-white">
-                    <h3 className="font-semibold text-sm truncate">{pdf.title}</h3>
-                    <p className="text-xs opacity-80 mt-0.5 truncate">{pdf.date}</p>
-                  </div>
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
+                <div className="absolute bottom-2 left-0 right-0 px-4 pb-3 text-white translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                  <h3 className="font-semibold text-sm leading-tight truncate">{pdf.title}</h3>
+                  <p className="text-xs opacity-90 mt-1 truncate">{pdf.date}</p>
                 </div>
                 <div className="absolute top-3 left-3 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
                   <div className="bg-white/90 rounded px-2 py-1">
@@ -331,8 +332,8 @@ const PDFGallery = ({
                 </div>
               </div>
               <div className="mt-2 text-center">
-                <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">{pdf.title}</h3>
-                <p className="text-xs text-muted-foreground mt-1 group-hover:text-primary transition-colors">{pdf.date}</p>
+                <h3 className="font-semibold text-sm text-foreground group-hover:text-accent transition-colors">{pdf.title}</h3>
+                <p className="text-xs text-muted-foreground mt-1 group-hover:text-accent transition-colors">{pdf.date}</p>
               </div>
             </div>
           </a>

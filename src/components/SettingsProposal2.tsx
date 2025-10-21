@@ -275,16 +275,12 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                               />
                             </div>
-                            <div className="absolute inset-x-0 bottom-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                              <div className="p-3 pb-6 text-white">
-                                <h3 className="font-bold text-base text-white truncate">Sample PDF Title That Might Be Long</h3>
-                                <p className="text-xs opacity-80 mb-0.5 truncate">April 2025 Description</p>
-                              </div>
-                              <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13l-3 3m0 0l-3-3m3 3V8" />
-                                </svg>
-                              </div>
+                            <div className="absolute inset-0 pointer-events-none">
+                              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            </div>
+                            <div className="absolute bottom-2 left-0 right-0 px-4 pb-3 text-white translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                              <h3 className="font-semibold text-sm leading-tight truncate">Sample PDF Title That Might Be Long</h3>
+                              <p className="text-xs opacity-90 mt-1 truncate">April 2025 Description</p>
                             </div>
                             <div className="absolute top-3 left-3 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
                               <div className="bg-white/90 rounded px-2 py-1">
@@ -324,18 +320,11 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                               </div>
-                              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 animate-pulse">
-                                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                  </svg>
-                                </div>
-                              </div>
                             </div>
                           </div>
                           <div className="mt-1 text-center">
-                            <h3 className="font-semibold text-xs text-foreground group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary group-hover:bg-clip-text group-hover:text-transparent transition-all truncate">Sample PDF Title That Might Be Long</h3>
-                            <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors truncate">April 2025 Description...</p>
+                            <h3 className="font-semibold text-xs text-foreground group-hover:text-accent transition-colors truncate">Sample PDF Title That Might Be Long</h3>
+                            <p className="text-xs text-muted-foreground mb-1 group-hover:text-accent transition-colors truncate">April 2025 Description...</p>
                           </div>
                         </div>
                       </div>
@@ -679,7 +668,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
 
   return (
     <div className="space-y-6">
-      {license.checked && license.status === 'free' ? (<ProBanner className="mb-6" />) : null}
+      <ProBanner className="mb-6" />
       
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
