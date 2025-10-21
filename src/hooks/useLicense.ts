@@ -16,11 +16,14 @@ export const useLicense = (): LicenseInfo => {
   });
 
   useEffect(() => {
-    const wpGlobal = (window as any).wpPDFGallery || ((window.parent && (window.parent as any).wpPDFGallery) || null);
+    let wpGlobal: any = null;
+    try { wpGlobal = (window as any).wpPDFGallery || null; } catch {}
+    if (!wpGlobal) {
+      try { wpGlobal = (window.parent && (window.parent as any).wpPDFGallery) || null; } catch {}
+    }
     const urlParams = new URLSearchParams(window.location.search);
     const ajaxUrl = wpGlobal?.ajaxUrl || (window as any).ajaxurl || urlParams.get('ajax') || urlParams.get('ajaxurl') || urlParams.get('ajax_url') || '';
     const nonce = wpGlobal?.nonce || urlParams.get('nonce') || '';
-
     // 1) Server-evaluated Pro state from localized data (most reliable)
     // Accept booleans, numeric strings, or truthy values provided by WordPress localization
     const status = String(wpGlobal?.fsStatus ?? '').toLowerCase();

@@ -23,7 +23,11 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
     return null;
   }
   // Check server/localized Pro flags (window or parent) including fsStatus
-  const wpGlobal = (window as any).wpPDFGallery || ((window.parent && (window.parent as any).wpPDFGallery) || null);
+  let wpGlobal: any = null;
+  try { wpGlobal = (window as any).wpPDFGallery || null; } catch {}
+  if (!wpGlobal) {
+    try { wpGlobal = (window.parent && (window.parent as any).wpPDFGallery) || null; } catch {}
+  }
   const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
   const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1 || (wpStatus && wpStatus !== 'free')));
   // Don't show banner when Pro is active (either via hook or server flag)
