@@ -18,27 +18,26 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   const { toast } = useToast();
   const license = useLicense();
   
-  // Wait for license check to complete before deciding visibility
-  if (!license.checked) {
-    return null;
-  }
-  if (!license.isValid) {
-    return null;
-  }
-  // Check server/localized Pro flags (window or parent) including fsStatus
+  // Show banner only in explicit WordPress admin free state
   let wpGlobal: any = null;
   try { wpGlobal = (window as any).wpPDFGallery || null; } catch {}
   if (!wpGlobal) {
     try { wpGlobal = (window.parent && (window.parent as any).wpPDFGallery) || null; } catch {}
   }
-  const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
-  const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1 || (wpStatus && wpStatus !== 'free')));
-  // Don't show banner when Pro is active (either via hook or server flag)
-  if (license.isPro || wpIsPro) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const isAdmin = !!wpGlobal?.isAdmin || urlParams.get('admin') === 'true';
+  if (!isAdmin) {
     return null;
   }
-  // Only show for confirmed free state
-  if (license.status !== 'free') {
+  const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
+  const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1 || (wpStatus && wpStatus !== 'free')));
+  console.debug('[PDF Gallery] ProBanner gating', { isAdmin, wpStatus, wpIsPro });
+  // Hard kill-switch: never show for Pro/Trial or unknown
+  if (wpIsPro) {
+    return null;
+  }
+  // Only show if server explicitly says "free"
+  if (wpStatus !== 'free') {
     return null;
   }
 
