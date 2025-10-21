@@ -64,7 +64,12 @@ export const useLicense = (): LicenseInfo => {
           if (cancelled) return;
           const lic = data?.data?.license;
           if (data?.success && lic) {
-            // Trust backend: only show banner when it explicitly says free
+            const wpGlobal = getWPGlobal();
+            const fsAvailable = !!(wpGlobal && wpGlobal.fsAvailable === true);
+            // Only mark as definitively free if licensing system is available
+            if (lic.status === 'free' && !fsAvailable) {
+              return; // keep hidden; avoid false-positive free when FS SDK missing
+            }
             commit({ ...lic, checked: true });
           } else {
             // Not confirmed free; keep hidden (checked remains false)

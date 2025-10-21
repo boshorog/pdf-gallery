@@ -202,6 +202,7 @@ class PDF_Gallery_Plugin {
         $fs_pricing_url = '';
         $fs_is_pro      = false;
         $fs_status      = 'free';
+        $fs_available   = false;
         if ( function_exists('pdfgallery_fs') ) {
             $fs = pdfgallery_fs();
             if ( is_object( $fs ) ) {
@@ -211,6 +212,14 @@ class PDF_Gallery_Plugin {
                 if ( method_exists( $fs, 'get_upgrade_url' ) ) {
                     $fs_pricing_url = $fs->get_upgrade_url();
                 }
+                // Detect if Freemius SDK methods are actually available
+                $fs_available = (
+                    method_exists( $fs, 'can_use_premium_code' ) ||
+                    method_exists( $fs, 'is_premium' ) ||
+                    method_exists( $fs, 'is_paying' ) ||
+                    method_exists( $fs, 'is_plan' ) ||
+                    method_exists( $fs, 'is_trial' )
+                );
                 // Determine Pro status server-side for immediate UI correctness
                 if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
                     $fs_is_pro = true; $fs_status = 'pro';
@@ -235,6 +244,7 @@ class PDF_Gallery_Plugin {
             'fsPricingUrl' => $fs_pricing_url,
             'fsIsPro' => $fs_is_pro,
             'fsStatus' => $fs_status,
+            'fsAvailable' => $fs_available,
         ));
     }
     public function assets_not_found_notice() {

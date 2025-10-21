@@ -26,11 +26,11 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   }
   const urlParams = new URLSearchParams(window.location.search);
   const isAdmin = !!wpGlobal?.isAdmin || urlParams.get('admin') === 'true';
-  if (!isAdmin) {
-    return null;
-  }
+  const fsAvailable = !!wpGlobal?.fsAvailable;
+  if (!isAdmin) return null;
+  if (!fsAvailable) return null; // Fail closed: don't show banner unless licensing system is available
   const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
-  const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1 || (wpStatus && wpStatus !== 'free')));
+  const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1 || (fsAvailable && wpStatus && wpStatus !== 'free')));
   console.debug('[PDF Gallery] ProBanner gating', { isAdmin, wpStatus, wpIsPro });
   // Hard kill-switch: never show for Pro/Trial or unknown
   if (wpIsPro) {
