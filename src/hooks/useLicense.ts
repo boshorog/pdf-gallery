@@ -52,18 +52,16 @@ export const useLicense = (): LicenseInfo => {
           if (data?.success && data?.data?.license) {
             setLicense(data.data.license);
           } else {
-            // Default to free version
-            setLicense({ isValid: true, isPro: false, status: 'free' });
+            // Keep hidden until explicit free is confirmed
+            // No state change to avoid flashing banner for Pro users
           }
         })
         .catch(() => {
-          // Fallback to free version
-          setLicense({ isValid: true, isPro: false, status: 'free' });
+          // Network error - keep hidden until status is known
         });
-    } else {
-      // Development mode - default to free
-      setLicense({ isValid: true, isPro: false, status: 'free' });
-    }
+      } else {
+        // Missing AJAX context - keep hidden until status is known
+      }
   }, []);
 
   return license;
