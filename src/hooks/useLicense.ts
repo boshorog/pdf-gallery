@@ -16,16 +16,18 @@ export const useLicense = (): LicenseInfo => {
   });
 
   useEffect(() => {
-    const wp = (window as any).wpPDFGallery;
+    const wpGlobal = (window as any).wpPDFGallery || ((window.parent && (window.parent as any).wpPDFGallery) || null);
     const urlParams = new URLSearchParams(window.location.search);
-    const ajaxUrl = wp?.ajaxUrl || (window as any).ajaxurl || urlParams.get('ajax') || urlParams.get('ajaxurl') || urlParams.get('ajax_url') || '';
-    const nonce = wp?.nonce || urlParams.get('nonce') || '';
+    const ajaxUrl = wpGlobal?.ajaxUrl || (window as any).ajaxurl || urlParams.get('ajax') || urlParams.get('ajaxurl') || urlParams.get('ajax_url') || '';
+    const nonce = wpGlobal?.nonce || urlParams.get('nonce') || '';
 
     // 1) Server-evaluated Pro state from localized data (most reliable)
     // Accept booleans, numeric strings, or truthy values provided by WordPress localization
-    const fsIsPro = !!(wp && (wp.fsIsPro === true || wp.fsIsPro === 'true' || wp.fsIsPro === '1' || wp.fsIsPro === 1));
-    if (fsIsPro) {
-      setLicense({ isValid: true, isPro: true, status: (wp?.fsStatus as any) || 'pro' });
+    const status = String(wpGlobal?.fsStatus ?? '').toLowerCase();
+    const fsIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1));
+    const proFlag = fsIsPro || (!!status && status !== 'free');
+    if (proFlag) {
+      setLicense({ isValid: true, isPro: true, status: (status || 'pro') as any });
       // Skip remote check for speed; page will refresh after any license changes
       return;
     }

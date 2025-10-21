@@ -22,11 +22,16 @@ const ProBanner = ({ className = '' }: ProBannerProps) => {
   if (!license.isValid) {
     return null;
   }
-  // Also respect server-localized Pro flag (handles values like true, 'true', '1', 1)
-  const wp = (window as any).wpPDFGallery;
-  const wpIsPro = !!(wp && (wp.fsIsPro === true || wp.fsIsPro === 'true' || wp.fsIsPro === '1' || wp.fsIsPro === 1));
+  // Check server/localized Pro flags (window or parent) including fsStatus
+  const wpGlobal = (window as any).wpPDFGallery || ((window.parent && (window.parent as any).wpPDFGallery) || null);
+  const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
+  const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1 || (wpStatus && wpStatus !== 'free')));
   // Don't show banner when Pro is active (either via hook or server flag)
   if (license.isPro || wpIsPro) {
+    return null;
+  }
+  // Only show for confirmed free state
+  if (license.status !== 'free') {
     return null;
   }
 
