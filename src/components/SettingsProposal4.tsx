@@ -380,7 +380,7 @@ const SettingsProposal4 = ({ settings, onSettingsChange }: SettingsProposal4Prop
 
   return (
     <div className="space-y-6">
-      {license.isValid && license.status === 'free' ? (<ProBanner className="mb-6" />) : null}
+      {license.checked && license.status === 'free' ? (<ProBanner className="mb-6" />) : null}
       
       {/* Header */}
       <div className="text-center">

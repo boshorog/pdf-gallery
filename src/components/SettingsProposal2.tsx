@@ -679,7 +679,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
 
   return (
     <div className="space-y-6">
-      {license.isValid && license.status === 'free' ? (<ProBanner className="mb-6" />) : null}
+      {license.checked && license.status === 'free' ? (<ProBanner className="mb-6" />) : null}
       
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
