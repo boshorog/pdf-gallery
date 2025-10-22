@@ -834,8 +834,10 @@ public function display_gallery_shortcode($atts) {
             wp_send_json_error('Insufficient permissions');
         }
 
-        $galleries_json = isset($_POST['galleries']) ? stripslashes($_POST['galleries']) : '';
-        $current_id = isset($_POST['current_gallery_id']) ? sanitize_text_field($_POST['current_gallery_id']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        $galleries_json = isset($_POST['galleries']) ? wp_unslash($_POST['galleries']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        $current_id = isset($_POST['current_gallery_id']) ? sanitize_text_field(wp_unslash($_POST['current_gallery_id'])) : '';
         $galleries = json_decode($galleries_json, true);
 
         if (json_last_error() === JSON_ERROR_NONE && is_array($galleries)) {
@@ -863,10 +865,12 @@ public function display_gallery_shortcode($atts) {
             wp_send_json_error('Insufficient permissions');
         }
         
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
         if (!isset($_FILES['pdf_file'])) {
             wp_send_json_error('No file uploaded');
         }
         
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File validation handled by wp_handle_upload()
         $file = $_FILES['pdf_file'];
         
         $allowed_types = array(
@@ -929,7 +933,7 @@ public function display_gallery_shortcode($atts) {
      * Handle image upload
      */
     public function handle_pdf_gallery_upload_image() {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'pdf_gallery_nonce')) {
             wp_die('Security check failed');
         }
         if (!current_user_can('manage_options')) {
@@ -939,6 +943,7 @@ public function display_gallery_shortcode($atts) {
             wp_send_json_error('No file uploaded');
         }
         
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File validation handled by wp_handle_upload()
         $file = $_FILES['image_file'];
         $allowed = array('image/jpeg','image/png','image/gif','image/webp','image/svg+xml');
         if (!in_array($file['type'], $allowed, true)) {

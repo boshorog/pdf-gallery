@@ -282,6 +282,77 @@ if (isset($_POST['requested_gallery_name'])) {
 
 ---
 
+### Warning 14-15: $_POST['galleries'] and $_POST['current_gallery_id'] Not Unslashed (Lines 837-838)
+**File**: `pdf-gallery-plugin.php` (Lines 837-838)
+**Warning**: `WordPress.Security.ValidatedSanitizedInput.MissingUnslash` and `WordPress.Security.NonceVerification.Missing`
+
+**Fix Applied**:
+```php
+private function handle_save_galleries() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Insufficient permissions');
+    }
+
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+    $galleries_json = isset($_POST['galleries']) ? wp_unslash($_POST['galleries']) : '';
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+    $current_id = isset($_POST['current_gallery_id']) ? sanitize_text_field(wp_unslash($_POST['current_gallery_id'])) : '';
+    $galleries = json_decode($galleries_json, true);
+```
+
+**Explanation**: Applied `wp_unslash()` to both JSON strings and text fields. Added phpcs:ignore comments since nonce is verified in parent handler. Changed from `stripslashes()` to `wp_unslash()` for WordPress standards.
+
+---
+
+### Warning 16-17: $_FILES['pdf_file'] Not Sanitized (Lines 866-870)
+**File**: `pdf-gallery-plugin.php` (Lines 866-870)
+**Warning**: `WordPress.Security.ValidatedSanitizedInput.InputNotSanitized` and `WordPress.Security.NonceVerification.Missing`
+
+**Fix Applied**:
+```php
+private function handle_upload_pdf() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Insufficient permissions');
+    }
+    
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+    if (!isset($_FILES['pdf_file'])) {
+        wp_send_json_error('No file uploaded');
+    }
+    
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File validation handled by wp_handle_upload()
+    $file = $_FILES['pdf_file'];
+```
+
+**Explanation**: Added phpcs:ignore comments. File validation and sanitization is properly handled by WordPress core function `wp_handle_upload()` which is called immediately after. The function validates file type, size, and handles secure upload.
+
+---
+
+### Warning 18-19: $_POST['nonce'] and $_FILES['image_file'] Issues (Lines 932, 942)
+**File**: `pdf-gallery-plugin.php` (Lines 932, 942)
+**Warning**: Multiple nonce and file validation warnings
+
+**Fix Applied**:
+```php
+public function handle_pdf_gallery_upload_image() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'pdf_gallery_nonce')) {
+        wp_die('Security check failed');
+    }
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Insufficient permissions');
+    }
+    if (!isset($_FILES['image_file'])) {
+        wp_send_json_error('No file uploaded');
+    }
+    
+    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File validation handled by wp_handle_upload()
+    $file = $_FILES['image_file'];
+```
+
+**Explanation**: Applied `wp_unslash()` and `sanitize_text_field()` to nonce before verification. Added phpcs:ignore for $_FILES since validation is handled by `wp_handle_upload()`.
+
+---
+
 ### 1. Consistent Text Domain
 All translatable strings throughout the plugin now use the same text domain: `pdf-gallery`
 
@@ -392,13 +463,14 @@ All WordPress Plugin Check (PCP) errors and warnings have been resolved:
 
 ### Warnings Fixed ✅
 - Added nonce verification documentation for WordPress core parameters
-- Implemented wp_unslash() for all $_POST variables (nonce, action_type, license_key, items, settings, requested_gallery_name)
+- Implemented wp_unslash() for all $_POST variables (nonce, action_type, license_key, items, settings, requested_gallery_name, galleries, current_gallery_id)
 - Properly sanitized all nonce values before verification
 - Properly sanitized all user input variables
 - Wrapped ALL debug logging (error_log/print_r) with WP_DEBUG checks
 - Added phpcs:ignore comments for functions called from nonce-verified parent handlers
 - Replaced stripslashes() with wp_unslash() for WordPress standards compliance
 - Added phpcs:ignore for script_loader_tag filter modification
+- Documented that $_FILES validation is handled by wp_handle_upload() for all file uploads
 
 ### Security Enhancements
 - All user inputs are now properly validated and sanitized
