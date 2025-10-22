@@ -251,8 +251,8 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     // Only allow multi-file upload for Pro users
     if (newFiles.length > 1 && !license.isPro) {
       toast({
-        title: "Pro Feature",
-        description: "Bulk upload is available only with the Pro version. Please select one file at a time.",
+        title: "Pro Feature Required",
+        description: "Multiple file uploads require a Pro license. Please upload one file at a time, or upgrade to Pro for bulk uploads.",
         variant: "destructive",
       });
       return;

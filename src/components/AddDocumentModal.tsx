@@ -45,8 +45,8 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
   const handleFiles = useCallback((fileList: FileList) => {
     if (!license.isPro && fileList.length > 1) {
       toast({
-        title: 'Upgrade required',
-        description: 'Bulk upload is a Pro feature. Please select a single file or upgrade to Pro.',
+        title: 'Pro Feature Required',
+        description: 'Multiple file uploads require a Pro license. Please upload one file at a time, or upgrade to Pro for bulk uploads.',
         variant: 'destructive',
       });
       return;

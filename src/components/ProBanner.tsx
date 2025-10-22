@@ -100,8 +100,8 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
   const handleActivateLicense = async () => {
     if (!licenseKey.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a license key",
+        title: "License Key Required",
+        description: "Please enter your license key to activate Pro features",
         variant: "destructive"
       });
       return;
@@ -153,24 +153,24 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
 
         if (response.ok && data?.success) {
           toast({
-            title: 'Success!',
-            description: 'Pro license activated successfully. Refreshing page...',
+            title: 'Pro Activated!',
+            description: 'Your Pro license is now active. Reloading...',
           });
           try { localStorage.setItem('wpPDFGallery_suppressProBanner', '1'); } catch {}
           setTimeout(() => window.location.reload(), 1500);
         } else {
           console.error('License activation failed:', { status: response.status, data });
           toast({
-            title: 'Invalid License',
-            description: data?.data?.message || `Activation failed (HTTP ${response.status}).`,
+            title: 'License Activation Failed',
+            description: data?.data?.message || 'The license key you entered is invalid or has already been used. Please check your key and try again.',
             variant: 'destructive'
           });
         }
       } else {
         console.error('Activation setup error: missing ajaxUrl or nonce', { hasAjaxUrl: !!ajaxUrl, hasNonce: !!nonce });
         toast({
-          title: 'Setup error',
-          description: 'Activation endpoint not available (missing ajax URL or nonce). Please refresh the page or reinstall the plugin.',
+          title: 'Connection Error',
+          description: 'Unable to connect to the licensing server. Please refresh the page and try again.',
           variant: 'destructive'
         });
         return;
@@ -178,8 +178,8 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
     } catch (error) {
       console.error('Activation request error:', error);
       toast({
-        title: 'Network error',
-        description: error instanceof Error ? error.message : 'Failed to activate license. Please try again.',
+        title: 'Connection Failed',
+        description: error instanceof Error ? error.message : 'Unable to reach the licensing server. Please check your internet connection and try again.',
         variant: 'destructive'
       });
     } finally {
