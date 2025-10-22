@@ -115,6 +115,9 @@ class PDF_Gallery_Plugin {
         
         // Activation redirect for onboarding
         add_action('admin_init', array($this, 'activation_redirect'));
+        
+        // Hide other plugins' notices on our admin page
+        add_action('admin_print_styles', array($this, 'hide_other_plugin_notices'));
     }
     
     /**
@@ -131,6 +134,24 @@ class PDF_Gallery_Plugin {
             100                            // Position (high number = bottom of menu)
         );
 
+    }
+    
+    /**
+     * Hide admin notices from other plugins on PDF Gallery pages
+     */
+    public function hide_other_plugin_notices() {
+        // Check if we're on the PDF Gallery admin page
+        $screen = get_current_screen();
+        if (!$screen || strpos($screen->id, 'pdf-gallery') === false) {
+            return;
+        }
+        
+        // Remove all admin notices on our page
+        remove_all_actions('admin_notices');
+        remove_all_actions('all_admin_notices');
+        
+        // Only keep WordPress core update notices
+        add_action('admin_notices', 'update_nag', 3);
     }
     
     /**
