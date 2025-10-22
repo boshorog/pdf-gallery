@@ -5,9 +5,12 @@
  * Description: Create visually stunning galleries from PDF, PPT/PPTX, DOC/DOCX, XLS/XLSX, and image files. Easily organize, sort, and showcase your documents in beautiful grid layouts.
  * Version: 1.7.4
  * Author: KIND PIXELS
+ * Author URI: https://kindpixels.com
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: pdf-gallery
  * Requires at least: 5.0
  * Tested up to: 6.4
- * Network: false
  */
 // Freemius SDK Initialization
 if ( ! function_exists( 'pdfgallery_fs' ) ) {
@@ -258,7 +261,7 @@ class PDF_Gallery_Plugin {
      */
     public function render_admin_page() {
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'pdf-gallery'));
         }
         
         echo '<div class="wrap">';

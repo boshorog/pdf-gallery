@@ -34,8 +34,7 @@ export default defineConfig(({ mode }) => ({
         }
       }
     },
-    // Copy public files to dist
-    copyPublicDir: true
-  },
-  publicDir: 'public'
+    // Copy public files to dist, but hidden files will be excluded by WordPress plugin check
+    copyPublicDir: false
+  }
 }));
