@@ -168,9 +168,9 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                 />
                 <Label htmlFor="default">Default Style</Label>
               </div>
-                <div className="flex justify-center">
+                 <div className="flex justify-center">
                   <div className="group cursor-pointer w-48">
-                    <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border">
+                    <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border hover:border-[var(--accent-color)]/50">
                       <div className="aspect-video overflow-hidden bg-muted relative">
                         <img
                           src={pdfPlaceholder}

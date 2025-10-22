@@ -163,9 +163,9 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
               <p className="text-sm text-muted-foreground">Choose how your document thumbnails appear in the gallery</p>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
+              <div className="space-y-6" style={{ ['--accent-color' as any]: localSettings.accentColor }}>
                 {/* Default Style */}
-                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                <div className="border border-border rounded-lg p-4 hover:border-[var(--accent-color)]/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <Checkbox 
                       id="default2" 
@@ -199,7 +199,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                             </div>
                           </div>
                           <div className="mt-3">
-                            <h3 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">Sample PDF Title That Might Be Long</h3>
+                            <h3 className="font-semibold text-sm group-hover:text-[var(--accent-color)] transition-colors truncate">Sample PDF Title That Might Be Long</h3>
                             <p className="text-xs text-muted-foreground truncate">April 2025 Description</p>
                           </div>
                         </div>
@@ -310,7 +310,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                       <p className="text-sm text-muted-foreground mt-1 mb-3">Colorful gradient borders with zoom effects</p>
                       <div className="flex justify-center">
                         <div className="group cursor-pointer w-48">
-                          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-1 group-hover:from-primary/40 group-hover:via-secondary/40 group-hover:to-accent/40 transition-all duration-300">
+                          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[var(--accent-color)]/20 via-[var(--accent-color)]/10 to-[var(--accent-color)]/20 p-1 group-hover:from-[var(--accent-color)]/40 group-hover:via-[var(--accent-color)]/30 group-hover:to-[var(--accent-color)]/40 transition-all duration-300">
                             <div className="relative bg-card rounded-xl overflow-hidden">
                               <div className="aspect-video overflow-hidden bg-muted">
                                 <img
@@ -318,7 +318,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                                   alt="Thumbnail preview"
                                   className="w-full h-full object-cover transition-all duration-500 group-hover:scale-125"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div className="absolute inset-0 bg-gradient-to-tr from-[var(--accent-color)]/30 via-transparent to-[var(--accent-color)]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                               </div>
                             </div>
                           </div>
@@ -333,7 +333,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                 </div>
 
                 {/* Split Layout Style */}
-                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                <div className="border border-border rounded-lg p-4 hover:border-[var(--accent-color)]/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <Checkbox 
                       id="split-layout2" 
@@ -348,7 +348,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                       <p className="text-sm text-muted-foreground mt-1 mb-3">Horizontal layout with small thumbnail and text side by side</p>
                       <div className="flex justify-center">
                         <div className="group cursor-pointer">
-                          <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border group-hover:border-primary transition-all duration-300 group-hover:shadow-md w-56">
+                          <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border group-hover:border-[var(--accent-color)] transition-all duration-300 group-hover:shadow-md w-56">
                             <div className="flex-shrink-0">
                               <div className="w-12 h-16 rounded overflow-hidden bg-muted relative">
                                 <img
@@ -357,13 +357,13 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                 />
                                 <div className="absolute top-1 right-1">
-                                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                                  <div className="w-2 h-2 bg-[var(--accent-color)] rounded-full"></div>
                                 </div>
                               </div>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-xs text-foreground mb-1 group-hover:text-primary transition-colors truncate">Sample PDF Title...</h3>
-                              <p className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors truncate">April 2025 Description...</p>
+                              <h3 className="font-semibold text-xs text-foreground mb-1 group-hover:text-[var(--accent-color)] transition-colors truncate">Sample PDF Title...</h3>
+                              <p className="text-xs text-muted-foreground mb-1 group-hover:text-[var(--accent-color)] transition-colors truncate">April 2025 Description...</p>
                               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
@@ -379,7 +379,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                 </div>
 
                 {/* Minimal Underline Style */}
-                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                <div className="border border-border rounded-lg p-4 hover:border-[var(--accent-color)]/50 transition-colors">
                   <div className="flex items-start gap-4">
                     <Checkbox 
                       id="minimal-underline2" 
@@ -412,7 +412,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                             <div>
                               <h3 className="font-medium text-xs text-foreground relative inline-block truncate">
                                 Sample PDF Title...
-                                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--accent-color)] group-hover:w-full transition-all duration-300"></span>
                               </h3>
                               <p className="text-xs text-muted-foreground mb-1 truncate">April 2025 Description...</p>
                             </div>
