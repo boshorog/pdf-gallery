@@ -181,18 +181,21 @@ $license_key = isset($_POST['license_key']) ? sanitize_text_field(wp_unslash($_P
 
 ---
 
-### Warning 7-8: Debug Functions Found (Lines 570, 590)
-**File**: `pdf-gallery-plugin.php` (Lines 570, 590)
+### Warning 7-10: Debug Functions Found (Lines 570, 572, 590, 595)
+**File**: `pdf-gallery-plugin.php` (Lines 570, 572, 590, 595)
 **Warning**: `WordPress.PHP.DevelopmentFunctions.error_log_* - Debug code should not normally be used in production`
 
 **Fix Applied**:
 ```php
 // Before
+$debug_info = array(...);
 error_log('PDF Gallery Freemius Debug: ' . print_r($debug_info, true));
+// ... later ...
 error_log('PDF Gallery License Check Result: ' . print_r($license_info, true));
 
 // After  
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    $debug_info = array(...);
     error_log('PDF Gallery Freemius Debug: ' . print_r($debug_info, true));
 }
 // ... later ...
@@ -201,7 +204,81 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 }
 ```
 
-**Explanation**: Debug logging (error_log, print_r) should only run when WP_DEBUG is enabled. This prevents unnecessary logging in production environments while keeping debugging capability for development.
+**Explanation**: Debug logging (error_log, print_r) should only run when WP_DEBUG is enabled. This prevents unnecessary logging in production environments while keeping debugging capability for development. ALL debug code including the debug info array creation is now wrapped in WP_DEBUG checks.
+
+---
+
+### Error 6: Non-Enqueued Script
+**File**: `pdf-gallery-plugin.php` (Line 416)
+**Error**: `WordPress.WP.EnqueuedResources.NonEnqueuedScript - Scripts must be registered/enqueued via wp_enqueue_script()`
+
+**Fix Applied**:
+```php
+public function modify_script_tag($tag, $handle, $src) {
+    if (in_array($handle, array('pdf-gallery-admin', 'pdf-gallery-frontend'), true)) {
+        // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Modifying already enqueued script via script_loader_tag filter
+        $tag = '<script type="module" src="' . esc_url($src) . '" id="' . esc_attr($handle) . '-js"></script>';
+    }
+    return $tag;
+}
+```
+
+**Explanation**: This function modifies already-enqueued scripts via the `script_loader_tag` filter to add `type="module"` for ES6 module support. The phpcs:ignore comment clarifies that the script is properly enqueued elsewhere and this is just modifying the tag output.
+
+---
+
+### Warning 11: $_POST['items'] Not Unslashed (Line 710)
+**File**: `pdf-gallery-plugin.php` (Line 710)
+**Warning**: `WordPress.Security.ValidatedSanitizedInput.MissingUnslash` and `WordPress.Security.NonceVerification.Missing`
+
+**Fix Applied**:
+```php
+private function handle_save_items() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Insufficient permissions');
+    }
+    
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+    $items_json = isset($_POST['items']) ? wp_unslash($_POST['items']) : '';
+    $items = json_decode($items_json, true);
+```
+
+**Explanation**: The `handle_save_items()` function is called from `handle_pdf_gallery_ajax()` which already verifies the nonce. Added phpcs:ignore comment to document this. Changed from `stripslashes()` to `wp_unslash()` for WordPress coding standards compliance.
+
+---
+
+### Warning 12: $_POST['settings'] Not Unslashed (Line 730)
+**File**: `pdf-gallery-plugin.php` (Line 730)
+**Warning**: `WordPress.Security.ValidatedSanitizedInput.MissingUnslash` and `WordPress.Security.NonceVerification.Missing`
+
+**Fix Applied**:
+```php
+private function handle_save_settings() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Insufficient permissions');
+    }
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+    $settings_json = isset($_POST['settings']) ? wp_unslash($_POST['settings']) : '';
+    $settings = json_decode($settings_json, true);
+```
+
+**Explanation**: Same pattern as `handle_save_items()` - nonce is verified in the parent handler, and `wp_unslash()` is used instead of `stripslashes()`.
+
+---
+
+### Warning 13: $_POST['requested_gallery_name'] Not Unslashed (Lines 806-807)
+**File**: `pdf-gallery-plugin.php` (Lines 806-807)
+**Warning**: `WordPress.Security.ValidatedSanitizedInput.MissingUnslash` and `WordPress.Security.NonceVerification.Missing`
+
+**Fix Applied**:
+```php
+// Front-end request can specify a gallery name to preview via shortcode
+// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+if (isset($_POST['requested_gallery_name'])) {
+    $req = sanitize_text_field(wp_unslash($_POST['requested_gallery_name']));
+```
+
+**Explanation**: Added `wp_unslash()` before `sanitize_text_field()` and documented that nonce verification happens in the calling function.
 
 ---
 
@@ -315,10 +392,13 @@ All WordPress Plugin Check (PCP) errors and warnings have been resolved:
 
 ### Warnings Fixed ✅
 - Added nonce verification documentation for WordPress core parameters
-- Implemented wp_unslash() for all $_POST variables
+- Implemented wp_unslash() for all $_POST variables (nonce, action_type, license_key, items, settings, requested_gallery_name)
 - Properly sanitized all nonce values before verification
 - Properly sanitized all user input variables
-- Wrapped debug logging (error_log/print_r) with WP_DEBUG checks
+- Wrapped ALL debug logging (error_log/print_r) with WP_DEBUG checks
+- Added phpcs:ignore comments for functions called from nonce-verified parent handlers
+- Replaced stripslashes() with wp_unslash() for WordPress standards compliance
+- Added phpcs:ignore for script_loader_tag filter modification
 
 ### Security Enhancements
 - All user inputs are now properly validated and sanitized

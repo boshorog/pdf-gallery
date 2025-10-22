@@ -413,6 +413,7 @@ public function display_gallery_shortcode($atts) {
      */
     public function modify_script_tag($tag, $handle, $src) {
         if (in_array($handle, array('pdf-gallery-admin', 'pdf-gallery-frontend'), true)) {
+            // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Modifying already enqueued script via script_loader_tag filter
             $tag = '<script type="module" src="' . esc_url($src) . '" id="' . esc_attr($handle) . '-js"></script>';
         }
         return $tag;
@@ -562,6 +563,7 @@ public function display_gallery_shortcode($atts) {
             if ( is_object( $fs ) ) {
                 // Debug: Log Freemius SDK information (only in debug mode)
                 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
                     $debug_info = array(
                         'can_use_premium_code' => method_exists( $fs, 'can_use_premium_code' ) ? $fs->can_use_premium_code() : 'method_missing',
                         'is_premium' => method_exists( $fs, 'is_premium' ) ? $fs->is_premium() : 'method_missing',
@@ -571,6 +573,7 @@ public function display_gallery_shortcode($atts) {
                     );
                     error_log('PDF Gallery Freemius Debug: ' . print_r($debug_info, true));
                 }
+            }
                 
                 // Check various Pro indicators
                 if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
@@ -707,7 +710,8 @@ public function display_gallery_shortcode($atts) {
             wp_send_json_error('Insufficient permissions');
         }
         
-        $items_json = isset($_POST['items']) ? stripslashes($_POST['items']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        $items_json = isset($_POST['items']) ? wp_unslash($_POST['items']) : '';
         $items = json_decode($items_json, true);
         
         if (json_last_error() === JSON_ERROR_NONE && is_array($items)) {
@@ -727,7 +731,8 @@ public function display_gallery_shortcode($atts) {
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Insufficient permissions');
         }
-        $settings_json = isset($_POST['settings']) ? stripslashes($_POST['settings']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        $settings_json = isset($_POST['settings']) ? wp_unslash($_POST['settings']) : '';
         $settings = json_decode($settings_json, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($settings)) {
             update_option('pdf_gallery_settings', $settings);
@@ -803,8 +808,9 @@ public function display_gallery_shortcode($atts) {
         }
 
         // Front-end request can specify a gallery name to preview via shortcode
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
         if (isset($_POST['requested_gallery_name'])) {
-            $req = sanitize_text_field($_POST['requested_gallery_name']);
+            $req = sanitize_text_field(wp_unslash($_POST['requested_gallery_name']));
             if (!empty($req) && is_array($galleries)) {
                 $slug = sanitize_title($req);
                 foreach ($galleries as $g) {
