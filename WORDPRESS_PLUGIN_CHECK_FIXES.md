@@ -108,9 +108,102 @@ wp_die(esc_html__('...', 'pdf-gallery'));
 
 **Explanation**: WordPress requires all plugins to declare GPL-compatible licensing. GPL v2 or later is the standard choice for WordPress plugins.
 
+### Warning 1: Processing Form Data Without Nonce Verification (Line 393)
+**File**: `pdf-gallery-plugin.php` (Line 393)
+**Warning**: `WordPress.Security.NonceVerification.Recommended - Processing form data without nonce verification`
+
+**Fix Applied**:
+```php
+// Added phpcs:ignore comment with explanation
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WordPress core sets this during activation
+if (isset($_GET['activate-multi'])) {
+```
+
+**Explanation**: The `activate-multi` parameter is set by WordPress core during plugin activation and doesn't require nonce verification in this context. Added a PHPCS ignore comment with a clear explanation.
+
 ---
 
-## Additional Best Practices Implemented
+### Warning 2-4: $_POST['nonce'] Not Unslashed and Not Sanitized (Lines 473, 548, 601, 671)
+**Files**: Multiple AJAX handler functions
+
+**Fix Applied**:
+```php
+// Before
+if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
+
+// After
+if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'pdf_gallery_nonce')) {
+```
+
+**Explanation**: All nonce values from $_POST must be:
+1. Unslashed using `wp_unslash()` to remove WordPress magic quotes
+2. Sanitized using `sanitize_text_field()` before verification
+
+**Applied to functions**:
+- `handle_pdf_gallery_ajax()` (line 473)
+- `handle_freemius_check()` (line 548)
+- `handle_freemius_activate()` (line 601)
+- `handle_freemius_deactivate()` (line 671)
+
+---
+
+### Warning 5: $_POST['action_type'] Not Unslashed (Line 478)
+**File**: `pdf-gallery-plugin.php` (Line 478)
+**Warning**: `WordPress.Security.ValidatedSanitizedInput.MissingUnslash`
+
+**Fix Applied**:
+```php
+// Before
+$action_type = isset($_POST['action_type']) ? sanitize_text_field($_POST['action_type']) : '';
+
+// After
+$action_type = isset($_POST['action_type']) ? sanitize_text_field(wp_unslash($_POST['action_type'])) : '';
+```
+
+**Explanation**: All $_POST data must be unslashed before sanitization to properly handle WordPress magic quotes.
+
+---
+
+### Warning 6: $_POST['license_key'] Not Unslashed (Line 609)
+**File**: `pdf-gallery-plugin.php` (Line 609)
+**Warning**: `WordPress.Security.ValidatedSanitizedInput.MissingUnslash`
+
+**Fix Applied**:
+```php
+// Before
+$license_key = isset($_POST['license_key']) ? sanitize_text_field($_POST['license_key']) : '';
+
+// After
+$license_key = isset($_POST['license_key']) ? sanitize_text_field(wp_unslash($_POST['license_key'])) : '';
+```
+
+**Explanation**: License key input must be unslashed before sanitization.
+
+---
+
+### Warning 7-8: Debug Functions Found (Lines 570, 590)
+**File**: `pdf-gallery-plugin.php` (Lines 570, 590)
+**Warning**: `WordPress.PHP.DevelopmentFunctions.error_log_* - Debug code should not normally be used in production`
+
+**Fix Applied**:
+```php
+// Before
+error_log('PDF Gallery Freemius Debug: ' . print_r($debug_info, true));
+error_log('PDF Gallery License Check Result: ' . print_r($license_info, true));
+
+// After  
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    error_log('PDF Gallery Freemius Debug: ' . print_r($debug_info, true));
+}
+// ... later ...
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    error_log('PDF Gallery License Check Result: ' . print_r($license_info, true));
+}
+```
+
+**Explanation**: Debug logging (error_log, print_r) should only run when WP_DEBUG is enabled. This prevents unnecessary logging in production environments while keeping debugging capability for development.
+
+---
 
 ### 1. Consistent Text Domain
 All translatable strings throughout the plugin now use the same text domain: `pdf-gallery`
@@ -211,12 +304,27 @@ echo '<input value="' . esc_attr($value) . '">';
 
 ## Summary
 
-All WordPress Plugin Check (PCP) errors have been resolved:
+All WordPress Plugin Check (PCP) errors and warnings have been resolved:
 
-✅ Added text domain to all i18n functions
-✅ Implemented proper output escaping
-✅ Excluded hidden files from distribution
-✅ Removed invalid Network header
-✅ Added proper License headers
+### Errors Fixed ✅
+- Added text domain to all i18n functions
+- Implemented proper output escaping
+- Excluded hidden files from distribution
+- Removed invalid Network header
+- Added proper License headers
 
-The plugin now complies with WordPress.org plugin directory requirements and is ready for submission.
+### Warnings Fixed ✅
+- Added nonce verification documentation for WordPress core parameters
+- Implemented wp_unslash() for all $_POST variables
+- Properly sanitized all nonce values before verification
+- Properly sanitized all user input variables
+- Wrapped debug logging (error_log/print_r) with WP_DEBUG checks
+
+### Security Enhancements
+- All user inputs are now properly validated and sanitized
+- All $_POST data is unslashed before processing
+- All nonces are sanitized before verification
+- Debug code only runs in development mode (WP_DEBUG enabled)
+- Follows WordPress security best practices
+
+The plugin now fully complies with WordPress.org plugin directory requirements and security standards, and is ready for submission.

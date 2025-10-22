@@ -393,6 +393,7 @@ public function display_gallery_shortcode($atts) {
         delete_transient('pdf_gallery_activation_redirect');
         
         // Don't redirect if activating multiple plugins at once
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WordPress core sets this during activation
         if (isset($_GET['activate-multi'])) {
             return;
         }
@@ -470,12 +471,12 @@ public function display_gallery_shortcode($atts) {
      */
     public function handle_pdf_gallery_ajax() {
         // Verify nonce for security
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'pdf_gallery_nonce')) {
             wp_die('Security check failed');
         }
         
         // Handle different AJAX actions here
-        $action_type = isset($_POST['action_type']) ? sanitize_text_field($_POST['action_type']) : '';
+        $action_type = isset($_POST['action_type']) ? sanitize_text_field(wp_unslash($_POST['action_type'])) : '';
         
         switch ($action_type) {
             case 'save_items':
@@ -545,7 +546,7 @@ public function display_gallery_shortcode($atts) {
      * Handle Freemius license check
      */
     public function handle_freemius_check() {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'pdf_gallery_nonce')) {
             wp_die('Security check failed');
         }
 
@@ -559,15 +560,17 @@ public function display_gallery_shortcode($atts) {
         if ( function_exists( 'pdfgallery_fs' ) ) {
             $fs = pdfgallery_fs();
             if ( is_object( $fs ) ) {
-                // Debug: Log all Freemius SDK methods and their return values
-                $debug_info = array(
-                    'can_use_premium_code' => method_exists( $fs, 'can_use_premium_code' ) ? $fs->can_use_premium_code() : 'method_missing',
-                    'is_premium' => method_exists( $fs, 'is_premium' ) ? $fs->is_premium() : 'method_missing',
-                    'is_plan_professional' => method_exists( $fs, 'is_plan' ) ? $fs->is_plan( 'professional', true ) : 'method_missing',
-                    'is_trial' => method_exists( $fs, 'is_trial' ) ? $fs->is_trial() : 'method_missing',
-                    'is_paying' => method_exists( $fs, 'is_paying' ) ? $fs->is_paying() : 'method_missing',
-                );
-                error_log('PDF Gallery Freemius Debug: ' . print_r($debug_info, true));
+                // Debug: Log Freemius SDK information (only in debug mode)
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                    $debug_info = array(
+                        'can_use_premium_code' => method_exists( $fs, 'can_use_premium_code' ) ? $fs->can_use_premium_code() : 'method_missing',
+                        'is_premium' => method_exists( $fs, 'is_premium' ) ? $fs->is_premium() : 'method_missing',
+                        'is_plan_professional' => method_exists( $fs, 'is_plan' ) ? $fs->is_plan( 'professional', true ) : 'method_missing',
+                        'is_trial' => method_exists( $fs, 'is_trial' ) ? $fs->is_trial() : 'method_missing',
+                        'is_paying' => method_exists( $fs, 'is_paying' ) ? $fs->is_paying() : 'method_missing',
+                    );
+                    error_log('PDF Gallery Freemius Debug: ' . print_r($debug_info, true));
+                }
                 
                 // Check various Pro indicators
                 if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
@@ -587,7 +590,10 @@ public function display_gallery_shortcode($atts) {
                     $license_info['isPro'] = true;
                 }
                 
-                error_log('PDF Gallery License Check Result: ' . print_r($license_info, true));
+                // Log result only in debug mode
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                    error_log('PDF Gallery License Check Result: ' . print_r($license_info, true));
+                }
             }
         }
 
@@ -598,7 +604,7 @@ public function display_gallery_shortcode($atts) {
      * Handle Freemius license activation
      */
     public function handle_freemius_activate() {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'pdf_gallery_nonce')) {
             wp_die('Security check failed');
         }
 
@@ -606,7 +612,7 @@ public function display_gallery_shortcode($atts) {
             wp_send_json_error(array('message' => 'Insufficient permissions'));
         }
         
-        $license_key = isset($_POST['license_key']) ? sanitize_text_field($_POST['license_key']) : '';
+        $license_key = isset($_POST['license_key']) ? sanitize_text_field(wp_unslash($_POST['license_key'])) : '';
         
         if (empty($license_key)) {
             wp_send_json_error(array('message' => 'License key is required'));
@@ -668,7 +674,7 @@ public function display_gallery_shortcode($atts) {
      * Handle Freemius license deactivation
      */
     public function handle_freemius_deactivate() {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'pdf_gallery_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'pdf_gallery_nonce')) {
             wp_die('Security check failed');
         }
 
