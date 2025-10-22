@@ -746,71 +746,46 @@ public function display_gallery_shortcode($atts) {
         $galleries = get_option('pdf_gallery_galleries', null);
         $current_id = get_option('pdf_gallery_current_gallery_id', '');
 
-        if (!is_array($galleries)) {
-            $legacy_items = get_option('pdf_gallery_data', array());
-            if (is_array($legacy_items) && count($legacy_items) > 0) {
-                $galleries = array(
-                    array(
-                        'id' => 'main',
-                        'name' => 'Main Gallery',
-                        'items' => $legacy_items,
-                        'createdAt' => current_time('mysql'),
-                    )
-                );
-                $current_id = 'main';
-                update_option('pdf_gallery_galleries', $galleries);
-                update_option('pdf_gallery_current_gallery_id', $current_id);
-            } else {
-                $galleries = array(
-                    array(
-                        'id' => 'main',
-                        'name' => 'Main Gallery',
-                        'items' => array(),
-                        'createdAt' => current_time('mysql'),
-                    )
-                );
-                $current_id = 'main';
-                update_option('pdf_gallery_galleries', $galleries);
-                update_option('pdf_gallery_current_gallery_id', $current_id);
+        // Determine if we need to seed a Test Gallery
+        $needs_seed = false;
+        if (!is_array($galleries) || count($galleries) === 0) {
+            $needs_seed = true;
+        } elseif (is_array($galleries) && count($galleries) === 1) {
+            // Check if it's just an empty Main Gallery
+            $g0 = $galleries[0];
+            $name = isset($g0['name']) ? $g0['name'] : '';
+            $items = (isset($g0['items']) && is_array($g0['items'])) ? $g0['items'] : array();
+            if (count($items) === 0 && (empty($name) || strtolower($name) === 'main gallery')) {
+                $needs_seed = true;
             }
         }
 
-        // If galleries option exists but is empty, try to restore from backup or legacy
-        if (is_array($galleries) && count($galleries) === 0) {
-            $backup = get_option('pdf_gallery_galleries_backup', null);
-            if (is_array($backup) && count($backup) > 0) {
-                $galleries = $backup;
-                $current_id = isset($galleries[0]['id']) ? $galleries[0]['id'] : 'main';
-                update_option('pdf_gallery_galleries', $galleries);
-                update_option('pdf_gallery_current_gallery_id', $current_id);
-            } else {
-                $legacy_items = get_option('pdf_gallery_data', array());
-                if (is_array($legacy_items) && count($legacy_items) > 0) {
-                    $galleries = array(
-                        array(
-                            'id' => 'main',
-                            'name' => 'Main Gallery',
-                            'items' => $legacy_items,
-                            'createdAt' => current_time('mysql'),
-                        )
-                    );
-                    $current_id = 'main';
-                    update_option('pdf_gallery_galleries', $galleries);
-                    update_option('pdf_gallery_current_gallery_id', $current_id);
-                } else {
-                    $galleries = array(
-                        array(
-                            'id' => 'main',
-                            'name' => 'Main Gallery',
-                            'items' => array(),
-                            'createdAt' => current_time('mysql'),
-                        )
-                    );
-                    $current_id = 'main';
-                    update_option('pdf_gallery_galleries', $galleries);
-                    update_option('pdf_gallery_current_gallery_id', $current_id);
-                }
-            }
+        if ($needs_seed) {
+            // Seed with Test Gallery containing sample PDFs
+            $sample_items = array(
+                array('id' => 'div-1', 'type' => 'divider', 'text' => 'First Section'),
+                array('id' => 'pdf-1', 'title' => 'Sample Document 1', 'date' => 'January 2025', 'pdfUrl' => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-2', 'title' => 'Sample Document 2', 'date' => 'February 2025', 'pdfUrl' => 'https://file-examples.com/wp-content/uploads/2017/10/file-example_PDF_500_kB.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-3', 'title' => 'Sample Document 3', 'date' => 'March 2025', 'pdfUrl' => 'https://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-4', 'title' => 'Sample Document 4', 'date' => 'April 2025', 'pdfUrl' => 'https://www.africau.edu/images/default/sample.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-5', 'title' => 'Sample Document 5', 'date' => 'May 2025', 'pdfUrl' => 'https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-6', 'title' => 'Sample Document 6', 'date' => 'June 2025', 'pdfUrl' => 'https://file-examples.com/wp-content/uploads/2017/10/file-sample_150kB.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'div-2', 'type' => 'divider', 'text' => 'Second Section'),
+                array('id' => 'pdf-7', 'title' => 'Sample Document 7', 'date' => 'July 2025', 'pdfUrl' => 'https://www.orimi.com/pdf-test.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-8', 'title' => 'Sample Document 8', 'date' => 'August 2025', 'pdfUrl' => 'https://www.pdf995.com/samples/pdf.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-9', 'title' => 'Sample Document 9', 'date' => 'September 2025', 'pdfUrl' => 'https://filesamples.com/samples/document/pdf/sample3.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            );
+            $galleries = array(
+                array(
+                    'id' => 'test',
+                    'name' => 'Test Gallery',
+                    'items' => $sample_items,
+                    'createdAt' => current_time('mysql'),
+                )
+            );
+            $current_id = 'test';
+            update_option('pdf_gallery_galleries', $galleries);
+            update_option('pdf_gallery_current_gallery_id', $current_id);
         }
 
         if (empty($current_id) && is_array($galleries) && count($galleries) > 0) {
