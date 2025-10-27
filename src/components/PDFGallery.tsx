@@ -320,7 +320,18 @@ const PDFGallery = ({
         return (
           <a key={pdf.id} {...baseProps}>
             <div className="group cursor-pointer">
-              <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[var(--accent-color)]/20 via-[var(--accent-color)]/10 to-[var(--accent-color)]/20 p-1 group-hover:from-[var(--accent-color)]/40 group-hover:via-[var(--accent-color)]/30 group-hover:to-[var(--accent-color)]/40 transition-all duration-300">
+              <div 
+                className="relative rounded-2xl overflow-hidden p-1 transition-all duration-300"
+                style={{
+                  background: `linear-gradient(135deg, ${settings.accentColor}33, ${settings.accentColor}1a, ${settings.accentColor}33)`,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `linear-gradient(135deg, ${settings.accentColor}66, ${settings.accentColor}4d, ${settings.accentColor}66)`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = `linear-gradient(135deg, ${settings.accentColor}33, ${settings.accentColor}1a, ${settings.accentColor}33)`;
+                }}
+              >
                 <div className="relative bg-card rounded-xl overflow-hidden">
                   <div className="aspect-video overflow-hidden bg-muted">
                     <img
@@ -330,7 +341,12 @@ const PDFGallery = ({
                       loading="lazy"
                       onError={(e) => { e.currentTarget.src = placeholderUrl; }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[var(--accent-color)]/30 via-transparent to-[var(--accent-color)]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{
+                        background: `linear-gradient(135deg, ${settings.accentColor}4d 0%, transparent 50%, ${settings.accentColor}4d 100%)`
+                      }}
+                    ></div>
                   </div>
                 </div>
               </div>
