@@ -83,7 +83,7 @@ const Index = () => {
         .then((res) => res.json())
         .then((data) => {
           if (data?.success && data?.data) {
-            const galleries = data.data.galleries || [];
+            let galleries = data.data.galleries || [];
             let currentGalleryId = data.data.current_gallery_id || '';
             
             if (galleries.length === 0) {
@@ -141,6 +141,17 @@ const Index = () => {
                 galleries: [testGallery],
                 currentGalleryId: 'test'
               });
+              // Persist default test gallery on fresh install
+              try { localStorage.setItem('pdf_gallery_backup', JSON.stringify([testGallery])); } catch {}
+              if (ajaxUrl && nonce) {
+                const saveForm = new FormData();
+                saveForm.append('action', 'pdf_gallery_action');
+                saveForm.append('action_type', 'save_galleries');
+                saveForm.append('nonce', nonce);
+                saveForm.append('galleries', JSON.stringify([testGallery]));
+                saveForm.append('current_gallery_id', 'test');
+                fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: saveForm }).catch(() => {});
+              }
             } else {
               // If no current gallery is set, use the first gallery
               if (requestedGalleryName) {
@@ -151,6 +162,48 @@ const Index = () => {
               if (!currentGalleryId && galleries.length > 0) {
                 currentGalleryId = galleries[0].id;
               }
+
+              // Ensure a default "Test Gallery" exists and is selected when existing galleries are empty
+              try {
+                const missingTest = !galleries.some((g: Gallery) => (g.name === 'Test Gallery' || g.id === 'test'));
+                const allEmpty = galleries.length > 0 && galleries.every((g: Gallery) => !Array.isArray(g.items) || g.items.length === 0);
+                if (missingTest && (galleries.length === 0 || allEmpty)) {
+                  const testGallery: Gallery = {
+                    id: 'test',
+                    name: 'Test Gallery',
+                    items: [
+                      { id: 'div-1', type: 'divider', text: 'First Section' },
+                      { id: 'pdf-1', title: 'Sample Document 1', date: 'January 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf', thumbnail: '', fileType: 'pdf' },
+                      { id: 'pdf-2', title: 'Sample Document 2', date: 'February 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2502_De-La-Februs-La-Hristos.pdf', thumbnail: '', fileType: 'pdf' },
+                      { id: 'pdf-3', title: 'Sample Document 3', date: 'March 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2503_De-la-Moarte-la-Viata.pdf', thumbnail: '', fileType: 'pdf' },
+                      { id: 'pdf-4', title: 'Sample Document 4', date: 'April 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2504_Cand-Isus-Ne-Cheama-Pe-Nume.pdf', thumbnail: '', fileType: 'pdf' },
+                      { id: 'pdf-5', title: 'Sample Document 5', date: 'May 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2505_Inaltarea-Mantuitorului.pdf', thumbnail: '', fileType: 'pdf' },
+                      { id: 'pdf-6', title: 'Sample Document 6', date: 'June 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2506_Putere-Pentru-O-Viata-Transformata.pdf', thumbnail: '', fileType: 'pdf' },
+                      { id: 'pdf-7', title: 'Sample Document 7', date: 'July 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2507_Va-Gasi-Rod.pdf', thumbnail: '', fileType: 'pdf' },
+                      { id: 'div-2', type: 'divider', text: 'Second Section' },
+                      { id: 'pdf-8', title: 'Sample Document 1', date: 'January 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2401_Un-Gand-Pentru-Anul-Nou.pdf', thumbnail: '', fileType: 'pdf' },
+                      { id: 'pdf-9', title: 'Sample Document 2', date: 'February 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2402_Risipa-De-Iubire.pdf', thumbnail: '', fileType: 'pdf' },
+                      { id: 'pdf-10', title: 'Sample Document 3', date: 'March 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2403_Lucruri-Noi.pdf', thumbnail: '', fileType: 'pdf' },
+                      { id: 'pdf-11', title: 'Sample Document 4', date: 'April 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2404_O-Sarbatoare-Dulce-Amaruie.pdf', thumbnail: '', fileType: 'pdf' },
+                    ] as GalleryItem[],
+                    createdAt: new Date().toISOString(),
+                  };
+                  galleries = [...galleries, testGallery];
+                  currentGalleryId = 'test';
+
+                  // Persist to server and local backup
+                  if (ajaxUrl && nonce) {
+                    const saveForm = new FormData();
+                    saveForm.append('action', 'pdf_gallery_action');
+                    saveForm.append('action_type', 'save_galleries');
+                    saveForm.append('nonce', nonce);
+                    saveForm.append('galleries', JSON.stringify(galleries));
+                    saveForm.append('current_gallery_id', currentGalleryId);
+                    fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: saveForm }).catch(() => {});
+                  }
+                  try { localStorage.setItem('pdf_gallery_backup', JSON.stringify(galleries)); } catch {}
+                }
+              } catch {}
 
               // Attempt smart restore if local backup has more/better data
               try {
