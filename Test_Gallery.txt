@@ -1,0 +1,63 @@
+Divider: First Section
+Section divider
+
+Document
+Title: Sample Document 1
+Subtitle: January 2025
+Document URL: https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf
+
+Document
+Title: Sample Document 2
+Subtitle: February 2025
+Document URL: https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2502_De-La-Februs-La-Hristos.pdf
+
+Document
+Title: Sample Document 3
+Subtitle: March 2025
+Document URL: https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2503_De-la-Moarte-la-Viata.pdf
+
+Document
+Title: Sample Document 4
+Subtitle: April 2025
+Document URL: https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2504_Cand-Isus-Ne-Cheama-Pe-Nume.pdf
+
+Document
+Title: Sample Document 5
+Subtitle: May 2025
+Document URL: https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2505_Inaltarea-Mantuitorului.pdf
+
+Document
+Title: Sample Document 6
+Subtitle: June 2025
+Document URL: https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2506_Putere-Pentru-O-Viata-Transformata.pdf
+
+Document
+Title: Sample Document 7
+Subtitle: July 2025
+Document URL: https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2507_Va-Gasi-Rod.pdf
+
+Document
+Divider: Second Section
+Section divider
+
+Document
+Title: Sample Document 1
+Subtitle: January 2024
+Document URL: https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2401_Un-Gand-Pentru-Anul-Nou.pdf
+
+Document
+Title: Sample Document 2
+Subtitle: February 2024
+Document URL: https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2402_Risipa-De-Iubire.pdf
+
+Document
+Title: Sample Document 3
+Subtitle: March 2024
+Document URL: https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2403_Lucruri-Noi.pdf
+
+Document
+Title: Sample Document 4
+Subtitle: April 2024
+Document URL: https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2404_O-Sarbatoare-Dulce-Amaruie.pdf
+
+

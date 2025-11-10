@@ -80,99 +80,106 @@ const PDFGallery = ({
     
     if (items.length === 0) {
       setItemsWithThumbnails([]);
+      setIsGeneratingThumbnails(false);
       return;
     }
 
+    console.log('PDFGallery: Received', items.length, 'items');
     setIsGeneratingThumbnails(true);
     
-    // Extract PDFs that need thumbnail generation (excluding images which use themselves as thumbnails)
-    const pdfsNeedingThumbnails = items.filter((item): item is PDF => 
+    // Initialize all items with placeholders or existing thumbnails first
+    const initialItems = items.map(item => {
+      if ('pdfUrl' in item) {
+        const fileType = getItemFileType(item);
+        // For image files, use the original URL as thumbnail
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType)) {
+          return { ...item, thumbnail: (item as PDF).pdfUrl };
+        }
+        // For PDFs with existing thumbnails, keep them
+        if (item.thumbnail && item.thumbnail !== placeholderUrl && !(item as any).thumbnail?.includes('placeholder')) {
+          return item;
+        }
+        // Check cache
+        const cacheKey = `pdf_thumbnail_${(item as PDF).pdfUrl}`;
+        const cachedThumbnail = localStorage.getItem(cacheKey);
+        if (cachedThumbnail) {
+          return { ...item, thumbnail: cachedThumbnail };
+        }
+        // Default to placeholder
+        return { ...item, thumbnail: placeholderUrl };
+      }
+      return item;
+    });
+    
+    // Set initial items immediately so gallery shows even before thumbnails generate
+    setItemsWithThumbnails(initialItems);
+    console.log('PDFGallery: Initial items set with placeholders');
+    
+    // Extract PDFs that need thumbnail generation
+    const pdfsNeedingGeneration = initialItems.filter((item): item is PDF => 
       'pdfUrl' in item && 
-      (!item.thumbnail || item.thumbnail === placeholderUrl || (item as any).thumbnail?.includes('placeholder')) &&
+      item.thumbnail === placeholderUrl &&
       !['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(getItemFileType(item))
     );
     
-    if (pdfsNeedingThumbnails.length > 0) {
-      console.log('Starting thumbnail generation...');
+    if (pdfsNeedingGeneration.length > 0) {
+      console.log('PDFGallery: Need to generate', pdfsNeedingGeneration.length, 'thumbnails');
       
-      // Check cached thumbnails first and set image files to use themselves as thumbnails
-      const itemsWithCached = items.map(item => {
-        if ('pdfUrl' in item) {
-          // For image files, use the original URL as thumbnail
-          if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(getItemFileType(item))) {
-            return { ...item, thumbnail: (item as PDF).pdfUrl };
-          }
-          
-          const cacheKey = `pdf_thumbnail_${(item as PDF).pdfUrl}`;
-          const cachedThumbnail = localStorage.getItem(cacheKey);
-          if (cachedThumbnail) {
-            return { ...item, thumbnail: cachedThumbnail };
-          }
-          return { ...item, thumbnail: placeholderUrl };
-        }
-        return item;
-      });
-      setItemsWithThumbnails(itemsWithCached);
-      
-      // Filter PDFs that still need generation (not cached)
-      const pdfsNeedingGeneration = pdfsNeedingThumbnails.filter(pdf => {
-        const cacheKey = `pdf_thumbnail_${pdf.pdfUrl}`;
-        return !localStorage.getItem(cacheKey);
-      });
-      
-      if (pdfsNeedingGeneration.length > 0) {
-        const generateThumbnails = async () => {
-          try {
-            const thumbnailPromises = pdfsNeedingGeneration.map(async (pdf) => {
-              try {
-                const result = await PDFThumbnailGenerator.generateThumbnail(pdf.pdfUrl);
-                if (result.success && result.dataUrl) {
-                  // Cache the thumbnail
-                  const cacheKey = `pdf_thumbnail_${pdf.pdfUrl}`;
+      const generateThumbnails = async () => {
+        try {
+          const thumbnailPromises = pdfsNeedingGeneration.map(async (pdf) => {
+            try {
+              console.log('PDFGallery: Generating thumbnail for', pdf.title);
+              const result = await PDFThumbnailGenerator.generateThumbnail(pdf.pdfUrl);
+              if (result.success && result.dataUrl) {
+                console.log('PDFGallery: Successfully generated thumbnail for', pdf.title);
+                // Cache the thumbnail
+                const cacheKey = `pdf_thumbnail_${pdf.pdfUrl}`;
+                try {
                   localStorage.setItem(cacheKey, result.dataUrl);
-                  setThumbnails(prev => ({
-                    ...prev,
-                    [pdf.pdfUrl]: result.dataUrl!
-                  }));
-                  return { url: pdf.pdfUrl, dataUrl: result.dataUrl, success: true };
+                } catch (storageError) {
+                  console.warn('Could not cache thumbnail:', storageError);
                 }
-                return { url: pdf.pdfUrl, success: false };
-              } catch (error) {
-                console.error('Error generating thumbnail for', pdf.pdfUrl, error);
+                return { url: pdf.pdfUrl, dataUrl: result.dataUrl, success: true };
+              } else {
+                console.warn('PDFGallery: Failed to generate thumbnail for', pdf.title, result.error);
                 return { url: pdf.pdfUrl, success: false };
               }
-            });
-            
-            const results = await Promise.all(thumbnailPromises);
-            
-            const updatedItems = itemsWithCached.map((item) => {
-              if ('pdfUrl' in item) {
-                const result = results.find(r => r.url === item.pdfUrl);
-                if (result?.success && result.dataUrl) {
-                  return { ...item, thumbnail: result.dataUrl };
-                }
+            } catch (error) {
+              console.error('PDFGallery: Error generating thumbnail for', pdf.title, error);
+              return { url: pdf.pdfUrl, success: false };
+            }
+          });
+          
+          const results = await Promise.all(thumbnailPromises);
+          console.log('PDFGallery: Thumbnail generation complete', results.filter(r => r.success).length, 'succeeded');
+          
+          // Update items with generated thumbnails
+          const updatedItems = initialItems.map((item) => {
+            if ('pdfUrl' in item) {
+              const result = results.find(r => r.url === item.pdfUrl);
+              if (result?.success && result.dataUrl) {
+                return { ...item, thumbnail: result.dataUrl };
               }
-              return item;
-            });
-            
-            setItemsWithThumbnails(updatedItems);
-          } catch (error) {
-            console.error('Error during thumbnail generation:', error);
-          } finally {
-            setIsGeneratingThumbnails(false);
-          }
-        };
-        
-        generateThumbnails();
-      } else {
-        setIsGeneratingThumbnails(false);
-      }
+            }
+            return item;
+          });
+          
+          setItemsWithThumbnails(updatedItems);
+        } catch (error) {
+          console.error('PDFGallery: Error during thumbnail generation batch:', error);
+        } finally {
+          setIsGeneratingThumbnails(false);
+        }
+      };
+      
+      // Small delay to ensure DOM is ready
+      setTimeout(generateThumbnails, 100);
     } else {
-      console.log('No thumbnails to generate, using existing items');
-      setItemsWithThumbnails(items);
+      console.log('PDFGallery: No thumbnails to generate, all items ready');
       setIsGeneratingThumbnails(false);
     }
-  }, [items]);
+  }, [items, placeholderUrl]);
 
 
   const baseItems = itemsWithThumbnails.length > 0 ? itemsWithThumbnails : items;
