@@ -328,15 +328,10 @@ const PDFGallery = ({
           <a key={pdf.id} {...baseProps}>
             <div className="group cursor-pointer">
               <div 
-                className="relative rounded-2xl overflow-hidden p-1 transition-all duration-300"
+                className="relative rounded-2xl overflow-hidden transition-all duration-300"
                 style={{
-                  background: `linear-gradient(135deg, ${settings.accentColor}33, ${settings.accentColor}1a, ${settings.accentColor}33)`,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = `linear-gradient(135deg, ${settings.accentColor}66, ${settings.accentColor}4d, ${settings.accentColor}66)`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = `linear-gradient(135deg, ${settings.accentColor}33, ${settings.accentColor}1a, ${settings.accentColor}33)`;
+                  padding: '3px',
+                  background: `linear-gradient(135deg, ${settings.accentColor}, transparent, ${settings.accentColor})`,
                 }}
               >
                 <div className="relative bg-card rounded-xl overflow-hidden">
@@ -351,7 +346,7 @@ const PDFGallery = ({
                     <div 
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{
-                        background: `linear-gradient(135deg, ${settings.accentColor}4d 0%, transparent 50%, ${settings.accentColor}4d 100%)`
+                        background: `linear-gradient(135deg, ${settings.accentColor}cc 0%, transparent 50%, ${settings.accentColor}cc 100%)`
                       }}
                     ></div>
                   </div>
