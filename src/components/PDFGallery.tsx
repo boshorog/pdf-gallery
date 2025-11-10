@@ -472,9 +472,11 @@ const PDFGallery = ({
   return (
     <div className="w-full max-w-7xl mx-auto px-2" style={{ ['--accent-color' as any]: settings.accentColor }}>
       {isGeneratingThumbnails && (
-        <div className="text-center mb-6 flex items-center justify-center gap-2">
-          <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm text-muted-foreground">Generating thumbnails...</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="bg-card border border-border rounded-lg shadow-lg px-6 py-4 flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-sm font-medium text-foreground">Generating thumbnails...</p>
+          </div>
         </div>
       )}
 
