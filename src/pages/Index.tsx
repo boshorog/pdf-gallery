@@ -163,11 +163,10 @@ const Index = () => {
                 currentGalleryId = galleries[0].id;
               }
 
-              // Ensure a default "Test Gallery" exists and is selected when existing galleries are empty
+              // Ensure a default "Test Gallery" exists, add it on top, and select it by default
               try {
                 const missingTest = !galleries.some((g: Gallery) => (g.name === 'Test Gallery' || g.id === 'test'));
-                const allEmpty = galleries.length > 0 && galleries.every((g: Gallery) => !Array.isArray(g.items) || g.items.length === 0);
-                if (missingTest && (galleries.length === 0 || allEmpty)) {
+                if (missingTest) {
                   const testGallery: Gallery = {
                     id: 'test',
                     name: 'Test Gallery',
@@ -188,7 +187,7 @@ const Index = () => {
                     ] as GalleryItem[],
                     createdAt: new Date().toISOString(),
                   };
-                  galleries = [...galleries, testGallery];
+                  galleries = [testGallery, ...galleries];
                   currentGalleryId = 'test';
 
                   // Persist to server and local backup
