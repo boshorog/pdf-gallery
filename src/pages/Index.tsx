@@ -163,86 +163,11 @@ const Index = () => {
                 currentGalleryId = galleries[0].id;
               }
 
-              // Ensure a default "Test Gallery" exists, add it on top, and select it by default
+              // Server data is the source of truth - save to local backup
               try {
-                const missingTest = !galleries.some((g: Gallery) => (g.name === 'Test Gallery' || g.id === 'test'));
-                if (missingTest) {
-                  const testGallery: Gallery = {
-                    id: 'test',
-                    name: 'Test Gallery',
-                    items: [
-                      { id: 'div-1', type: 'divider', text: 'First Section' },
-                      { id: 'pdf-1', title: 'Sample Document 1', date: 'January 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf', thumbnail: '', fileType: 'pdf' },
-                      { id: 'pdf-2', title: 'Sample Document 2', date: 'February 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2502_De-La-Februs-La-Hristos.pdf', thumbnail: '', fileType: 'pdf' },
-                      { id: 'pdf-3', title: 'Sample Document 3', date: 'March 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2503_De-la-Moarte-la-Viata.pdf', thumbnail: '', fileType: 'pdf' },
-                      { id: 'pdf-4', title: 'Sample Document 4', date: 'April 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2504_Cand-Isus-Ne-Cheama-Pe-Nume.pdf', thumbnail: '', fileType: 'pdf' },
-                      { id: 'pdf-5', title: 'Sample Document 5', date: 'May 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2505_Inaltarea-Mantuitorului.pdf', thumbnail: '', fileType: 'pdf' },
-                      { id: 'pdf-6', title: 'Sample Document 6', date: 'June 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2506_Putere-Pentru-O-Viata-Transformata.pdf', thumbnail: '', fileType: 'pdf' },
-                      { id: 'pdf-7', title: 'Sample Document 7', date: 'July 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2507_Va-Gasi-Rod.pdf', thumbnail: '', fileType: 'pdf' },
-                      { id: 'div-2', type: 'divider', text: 'Second Section' },
-                      { id: 'pdf-8', title: 'Sample Document 1', date: 'January 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2401_Un-Gand-Pentru-Anul-Nou.pdf', thumbnail: '', fileType: 'pdf' },
-                      { id: 'pdf-9', title: 'Sample Document 2', date: 'February 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2402_Risipa-De-Iubire.pdf', thumbnail: '', fileType: 'pdf' },
-                      { id: 'pdf-10', title: 'Sample Document 3', date: 'March 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2403_Lucruri-Noi.pdf', thumbnail: '', fileType: 'pdf' },
-                      { id: 'pdf-11', title: 'Sample Document 4', date: 'April 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2404_O-Sarbatoare-Dulce-Amaruie.pdf', thumbnail: '', fileType: 'pdf' },
-                    ] as GalleryItem[],
-                    createdAt: new Date().toISOString(),
-                  };
-                  galleries = [testGallery, ...galleries];
-                  currentGalleryId = 'test';
-
-                  // Persist to server and local backup
-                  if (ajaxUrl && nonce) {
-                    const saveForm = new FormData();
-                    saveForm.append('action', 'pdf_gallery_action');
-                    saveForm.append('action_type', 'save_galleries');
-                    saveForm.append('nonce', nonce);
-                    saveForm.append('galleries', JSON.stringify(galleries));
-                    saveForm.append('current_gallery_id', currentGalleryId);
-                    fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: saveForm }).catch(() => {});
-                  }
-                  try { localStorage.setItem('pdf_gallery_backup', JSON.stringify(galleries)); } catch {}
-                }
+                localStorage.setItem('pdf_gallery_backup', JSON.stringify(galleries));
               } catch {}
-
-              // Attempt smart restore if local backup has more/better data
-              try {
-                const backupRaw = localStorage.getItem('pdf_gallery_backup');
-                const backup = backupRaw ? JSON.parse(backupRaw) : null;
-                const backupIsBetter = Array.isArray(backup) && (
-                  backup.length > galleries.length ||
-                  (galleries.length === 1 && galleries[0]?.name === 'Main Gallery' && backup.length >= 1)
-                );
-                if (backupIsBetter) {
-                  const restoredGalleries = backup.map((gallery: any) => ({
-                    id: gallery.id || 'main',
-                    name: gallery.name || (gallery.id === 'main' ? 'Main Gallery' : `Gallery ${gallery.id}`),
-                    items: Array.isArray(gallery.items) ? gallery.items : [],
-                    createdAt: gallery.createdAt || new Date().toISOString(),
-                  }));
-
-                  // Persist restore to server
-                  if (ajaxUrl && nonce) {
-                    const restoreForm = new FormData();
-                    restoreForm.append('action', 'pdf_gallery_action');
-                    restoreForm.append('action_type', 'save_galleries');
-                    restoreForm.append('nonce', nonce);
-                    restoreForm.append('galleries', JSON.stringify(restoredGalleries));
-                    restoreForm.append('current_gallery_id', restoredGalleries[0]?.id || 'main');
-                    fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: restoreForm }).catch(() => {});
-                  }
-
-                  setGalleryState({
-                    galleries: restoredGalleries,
-                    currentGalleryId: restoredGalleries[0]?.id || 'main',
-                  });
-                  // Save a local backup as well
-                  try { localStorage.setItem('pdf_gallery_backup', JSON.stringify(restoredGalleries)); } catch {}
-                  return;
-                }
-              } catch {}
-
-              // Save a local backup to help recover from accidental overwrites
-              try { localStorage.setItem('pdf_gallery_backup', JSON.stringify(galleries)); } catch {}
+              
               setGalleryState({
                 galleries,
                 currentGalleryId: currentGalleryId
