@@ -368,16 +368,18 @@ public function display_gallery_shortcode($atts) {
         if (!is_array($existing_galleries) || count($existing_galleries) === 0) {
             $sample_items = array(
                 array('id' => 'div-1', 'type' => 'divider', 'text' => 'First Section'),
-                array('id' => 'pdf-1', 'title' => 'Sample Document 1', 'date' => 'January 2025', 'pdfUrl' => 'https://www.africau.edu/images/default/sample.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-2', 'title' => 'Sample Document 2', 'date' => 'February 2025', 'pdfUrl' => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-3', 'title' => 'Sample Document 3', 'date' => 'March 2025', 'pdfUrl' => 'https://www.orimi.com/pdf-test.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-4', 'title' => 'Sample Document 4', 'date' => 'April 2025', 'pdfUrl' => 'https://www.pdf995.com/samples/pdf.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-5', 'title' => 'Sample Document 5', 'date' => 'May 2025', 'pdfUrl' => 'https://file-examples.com/wp-content/uploads/2017/10/file-example_PDF_500_kB.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-6', 'title' => 'Sample Document 6', 'date' => 'June 2025', 'pdfUrl' => 'https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-1', 'title' => 'Sample Document 1', 'date' => 'January 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-2', 'title' => 'Sample Document 2', 'date' => 'February 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2502_De-La-Februs-La-Hristos.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-3', 'title' => 'Sample Document 3', 'date' => 'March 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2503_De-la-Moarte-la-Viata.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-4', 'title' => 'Sample Document 4', 'date' => 'April 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2504_Cand-Isus-Ne-Cheama-Pe-Nume.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-5', 'title' => 'Sample Document 5', 'date' => 'May 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2505_Inaltarea-Mantuitorului.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-6', 'title' => 'Sample Document 6', 'date' => 'June 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2506_Putere-Pentru-O-Viata-Transformata.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-7', 'title' => 'Sample Document 7', 'date' => 'July 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2507_Va-Gasi-Rod.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
                 array('id' => 'div-2', 'type' => 'divider', 'text' => 'Second Section'),
-                array('id' => 'pdf-7', 'title' => 'Sample Document 7', 'date' => 'July 2025', 'pdfUrl' => 'https://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-8', 'title' => 'Sample Document 8', 'date' => 'August 2025', 'pdfUrl' => 'https://file-examples.com/wp-content/uploads/2017/10/file-sample_150kB.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-9', 'title' => 'Sample Document 9', 'date' => 'September 2025', 'pdfUrl' => 'https://www.adobe.com/support/acrobat/pdfs/pdfreference.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-8', 'title' => 'Sample Document 1', 'date' => 'January 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2401_Un-Gand-Pentru-Anul-Nou.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-9', 'title' => 'Sample Document 2', 'date' => 'February 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2402_Risipa-De-Iubire.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-10', 'title' => 'Sample Document 3', 'date' => 'March 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2403_Lucruri-Noi.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+                array('id' => 'pdf-11', 'title' => 'Sample Document 4', 'date' => 'April 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2404_O-Sarbatoare-Dulce-Amaruie.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
             );
             $test_gallery = array(
                 'id' => 'test',
