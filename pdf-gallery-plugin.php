@@ -779,39 +779,31 @@ public function display_gallery_shortcode($atts) {
     }
     
     private function handle_get_galleries() {
-        // Fetch galleries and current selection. If not present, migrate from legacy items
+        // Fetch galleries and current selection. If not present, migrate/seed and always ensure the Test Gallery exists on top
         $galleries = get_option('pdf_gallery_galleries', null);
         $current_id = get_option('pdf_gallery_current_gallery_id', '');
 
-        // Determine if we need to seed a Test Gallery
-        $needs_seed = false;
-        if (!is_array($galleries) || count($galleries) === 0) {
-            $needs_seed = true;
-        } elseif (is_array($galleries) && count($galleries) === 1) {
-            // Check if it's just an empty Main Gallery
-            $g0 = $galleries[0];
-            $name = isset($g0['name']) ? $g0['name'] : '';
-            $items = (isset($g0['items']) && is_array($g0['items'])) ? $g0['items'] : array();
-            if (count($items) === 0 && (empty($name) || strtolower($name) === 'main gallery')) {
-                $needs_seed = true;
-            }
-        }
+        // Unified sample items for the Test Gallery (matches Lovable preview)
+        $sample_items = array(
+            array('id' => 'div-1', 'type' => 'divider', 'text' => 'First Section'),
+            array('id' => 'pdf-1', 'title' => 'Sample Document 1', 'date' => 'January 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-2', 'title' => 'Sample Document 2', 'date' => 'February 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2502_De-La-Februs-La-Hristos.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-3', 'title' => 'Sample Document 3', 'date' => 'March 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2503_De-la-Moarte-la-Viata.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-4', 'title' => 'Sample Document 4', 'date' => 'April 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2504_Cand-Isus-Ne-Cheama-Pe-Nume.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-5', 'title' => 'Sample Document 5', 'date' => 'May 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2505_Inaltarea-Mantuitorului.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-6', 'title' => 'Sample Document 6', 'date' => 'June 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2506_Putere-Pentru-O-Viata-Transformata.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-7', 'title' => 'Sample Document 7', 'date' => 'July 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2507_Va-Gasi-Rod.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'div-2', 'type' => 'divider', 'text' => 'Second Section'),
+            array('id' => 'pdf-8', 'title' => 'Sample Document 1', 'date' => 'January 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2401_Un-Gand-Pentru-Anul-Nou.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-9', 'title' => 'Sample Document 2', 'date' => 'February 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2402_Risipa-De-Iubire.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-10', 'title' => 'Sample Document 3', 'date' => 'March 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2403_Lucruri-Noi.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-11', 'title' => 'Sample Document 4', 'date' => 'April 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2404_O-Sarbatoare-Dulce-Amaruie.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+        );
 
-        if ($needs_seed) {
-            // Seed with Test Gallery containing sample PDFs
-            $sample_items = array(
-                array('id' => 'div-1', 'type' => 'divider', 'text' => 'First Section'),
-                array('id' => 'pdf-1', 'title' => 'Sample Document 1', 'date' => 'January 2025', 'pdfUrl' => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-2', 'title' => 'Sample Document 2', 'date' => 'February 2025', 'pdfUrl' => 'https://file-examples.com/wp-content/uploads/2017/10/file-example_PDF_500_kB.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-3', 'title' => 'Sample Document 3', 'date' => 'March 2025', 'pdfUrl' => 'https://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-4', 'title' => 'Sample Document 4', 'date' => 'April 2025', 'pdfUrl' => 'https://www.africau.edu/images/default/sample.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-5', 'title' => 'Sample Document 5', 'date' => 'May 2025', 'pdfUrl' => 'https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-6', 'title' => 'Sample Document 6', 'date' => 'June 2025', 'pdfUrl' => 'https://file-examples.com/wp-content/uploads/2017/10/file-sample_150kB.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'div-2', 'type' => 'divider', 'text' => 'Second Section'),
-                array('id' => 'pdf-7', 'title' => 'Sample Document 7', 'date' => 'July 2025', 'pdfUrl' => 'https://www.orimi.com/pdf-test.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-8', 'title' => 'Sample Document 8', 'date' => 'August 2025', 'pdfUrl' => 'https://www.pdf995.com/samples/pdf.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-9', 'title' => 'Sample Document 9', 'date' => 'September 2025', 'pdfUrl' => 'https://filesamples.com/samples/document/pdf/sample3.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-            );
+        $modified = false;
+
+        // If no galleries at all, seed with Test Gallery
+        if (!is_array($galleries) || count($galleries) === 0) {
             $galleries = array(
                 array(
                     'id' => 'test',
@@ -821,13 +813,54 @@ public function display_gallery_shortcode($atts) {
                 )
             );
             $current_id = 'test';
-            update_option('pdf_gallery_galleries', $galleries);
-            update_option('pdf_gallery_current_gallery_id', $current_id);
+            $modified = true;
+        } else {
+            // Ensure Test Gallery exists and is first
+            $has_test = false;
+            $test_index = null;
+            foreach ($galleries as $idx => $g) {
+                $gid = isset($g['id']) ? $g['id'] : '';
+                $gname = isset($g['name']) ? $g['name'] : '';
+                if ($gid === 'test' || strtolower($gname) === 'test gallery') {
+                    $has_test = true;
+                    $test_index = $idx;
+                    break;
+                }
+            }
+
+            if (!$has_test) {
+                $test_gallery = array(
+                    'id' => 'test',
+                    'name' => 'Test Gallery',
+                    'items' => $sample_items,
+                    'createdAt' => current_time('mysql'),
+                );
+                array_unshift($galleries, $test_gallery);
+                $current_id = 'test';
+                $modified = true;
+            } else {
+                // Normalize and update existing Test Gallery content, then move to top
+                $test = $galleries[$test_index];
+                $test['id'] = 'test';
+                $test['name'] = 'Test Gallery';
+                $test['items'] = $sample_items; // Always refresh to the latest demo content
+                if ($test_index !== 0) {
+                    array_splice($galleries, $test_index, 1);
+                    array_unshift($galleries, $test);
+                } else {
+                    $galleries[0] = $test;
+                }
+                if (empty($current_id)) {
+                    $current_id = 'test';
+                }
+                $modified = true;
+            }
         }
 
+        // If still no current selected, default to first (Test Gallery)
         if (empty($current_id) && is_array($galleries) && count($galleries) > 0) {
-            $current_id = isset($galleries[0]['id']) ? $galleries[0]['id'] : 'main';
-            update_option('pdf_gallery_current_gallery_id', $current_id);
+            $current_id = isset($galleries[0]['id']) ? $galleries[0]['id'] : 'test';
+            $modified = true;
         }
 
         // Front-end request can specify a gallery name to preview via shortcode
@@ -844,6 +877,12 @@ public function display_gallery_shortcode($atts) {
                     }
                 }
             }
+        }
+
+        // Persist only if we actually changed something
+        if ($modified) {
+            update_option('pdf_gallery_galleries', $galleries);
+            update_option('pdf_gallery_current_gallery_id', $current_id);
         }
 
         wp_send_json_success(array(
