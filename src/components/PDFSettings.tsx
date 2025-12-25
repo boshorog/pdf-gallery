@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, ExternalLink, Upload } from 'lucide-react';
+import { FileText, ExternalLink, Upload, Key, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import pdfPlaceholder from '@/assets/pdf-placeholder.svg';
 import { useLicense } from '@/hooks/useLicense';
 import ProBanner from '@/components/ProBanner';
@@ -19,6 +19,9 @@ interface PDFSettingsProps {
     pdfIconPosition: string;
     defaultPlaceholder: string;
     thumbnailSize?: string;
+    officeApiProvider?: 'cloudconvert' | 'convertapi' | 'none';
+    cloudConvertApiKey?: string;
+    convertApiKey?: string;
   };
   onSettingsChange: (settings: any) => void;
 }
@@ -26,8 +29,13 @@ interface PDFSettingsProps {
 const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
   const [localSettings, setLocalSettings] = useState({
     ...settings,
-    thumbnailSize: settings.thumbnailSize || 'four-rows'
+    thumbnailSize: settings.thumbnailSize || 'four-rows',
+    officeApiProvider: settings.officeApiProvider || 'none',
+    cloudConvertApiKey: settings.cloudConvertApiKey || '',
+    convertApiKey: settings.convertApiKey || ''
   });
+  const [showCloudConvertKey, setShowCloudConvertKey] = useState(false);
+  const [showConvertApiKey, setShowConvertApiKey] = useState(false);
   const { toast } = useToast();
   const license = useLicense();
 
@@ -37,7 +45,10 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
   useEffect(() => {
     setLocalSettings({
       ...settings,
-      thumbnailSize: settings.thumbnailSize || 'four-rows'
+      thumbnailSize: settings.thumbnailSize || 'four-rows',
+      officeApiProvider: settings.officeApiProvider || 'none',
+      cloudConvertApiKey: settings.cloudConvertApiKey || '',
+      convertApiKey: settings.convertApiKey || ''
     });
   }, [settings]);
 
@@ -522,6 +533,168 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
           </RadioGroup>
           <div className="text-xs text-muted-foreground mt-4 p-3 bg-muted/50 rounded">
             <strong>Note:</strong> On mobile devices, thumbnails will always be displayed one by one for optimal viewing experience.
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Office Document Thumbnails API */}
+      <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="w-5 h-5" />
+            Office Document Thumbnails
+          </CardTitle>
+          <CardDescription>
+            Configure an API to generate thumbnails for Office documents (DOC, DOCX, XLS, XLSX, PPT, PPTX).
+            Without an API key, Office documents will use a placeholder image.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* API Provider Selection */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Select API Provider</Label>
+            <RadioGroup 
+              value={localSettings.officeApiProvider || 'none'}
+              onValueChange={(value) => setLocalSettings(prev => ({ 
+                ...prev, 
+                officeApiProvider: value as 'cloudconvert' | 'convertapi' | 'none' 
+              }))}
+              className="space-y-3"
+            >
+              <div className="flex items-start space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
+                <RadioGroupItem value="none" id="office-none" className="mt-1" />
+                <div className="flex-1">
+                  <Label htmlFor="office-none" className="text-sm font-medium cursor-pointer">
+                    None (Use Placeholder)
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Office documents will display a generic placeholder instead of a real thumbnail.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
+                <RadioGroupItem value="cloudconvert" id="office-cloudconvert" className="mt-1" />
+                <div className="flex-1">
+                  <Label htmlFor="office-cloudconvert" className="text-sm font-medium cursor-pointer">
+                    CloudConvert
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    High-quality conversions. Free tier: 25 conversions/day. 
+                    <a 
+                      href="https://cloudconvert.com/api/v2" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline ml-1"
+                    >
+                      Get API Key →
+                    </a>
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
+                <RadioGroupItem value="convertapi" id="office-convertapi" className="mt-1" />
+                <div className="flex-1">
+                  <Label htmlFor="office-convertapi" className="text-sm font-medium cursor-pointer">
+                    ConvertAPI
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Fast and reliable. Free tier: 250 seconds/month. 
+                    <a 
+                      href="https://www.convertapi.com/a" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline ml-1"
+                    >
+                      Get API Key →
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* CloudConvert API Key Input */}
+          {localSettings.officeApiProvider === 'cloudconvert' && (
+            <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border">
+              <Label htmlFor="cloudconvert-key" className="text-sm font-medium">CloudConvert API Key</Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="cloudconvert-key"
+                    type={showCloudConvertKey ? 'text' : 'password'}
+                    value={localSettings.cloudConvertApiKey || ''}
+                    onChange={(e) => setLocalSettings(prev => ({ ...prev, cloudConvertApiKey: e.target.value }))}
+                    placeholder="Enter your CloudConvert API key..."
+                    className="pr-10 font-mono text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCloudConvertKey(!showCloudConvertKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showCloudConvertKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              {localSettings.cloudConvertApiKey ? (
+                <div className="flex items-center gap-2 text-xs text-green-600">
+                  <CheckCircle2 className="w-3 h-3" />
+                  API key configured
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-xs text-amber-600">
+                  <AlertCircle className="w-3 h-3" />
+                  API key required for thumbnail generation
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ConvertAPI Key Input */}
+          {localSettings.officeApiProvider === 'convertapi' && (
+            <div className="space-y-2 p-4 rounded-lg bg-muted/30 border border-border">
+              <Label htmlFor="convertapi-key" className="text-sm font-medium">ConvertAPI Secret Key</Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="convertapi-key"
+                    type={showConvertApiKey ? 'text' : 'password'}
+                    value={localSettings.convertApiKey || ''}
+                    onChange={(e) => setLocalSettings(prev => ({ ...prev, convertApiKey: e.target.value }))}
+                    placeholder="Enter your ConvertAPI secret key..."
+                    className="pr-10 font-mono text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConvertApiKey(!showConvertApiKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showConvertApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              {localSettings.convertApiKey ? (
+                <div className="flex items-center gap-2 text-xs text-green-600">
+                  <CheckCircle2 className="w-3 h-3" />
+                  API key configured
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-xs text-amber-600">
+                  <AlertCircle className="w-3 h-3" />
+                  API key required for thumbnail generation
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="text-xs text-muted-foreground p-3 bg-muted/50 rounded flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <div>
+              <strong>Note:</strong> API keys are stored securely in your WordPress database and are only used server-side to generate thumbnails. 
+              Both services offer free tiers suitable for small galleries.
+            </div>
           </div>
         </CardContent>
       </Card>
