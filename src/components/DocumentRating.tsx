@@ -47,15 +47,7 @@ export const DocumentRating: React.FC<DocumentRatingProps> = ({
   const fetchRatings = async () => {
     try {
       const visitorId = getVisitorId();
-      const { data, error } = await supabase.functions.invoke('document-rating', {
-        method: 'GET',
-        body: null,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      // Since we can't use query params with invoke, we'll fetch directly
+      
       const response = await fetch(
         `https://eumfdxgcqenpptjytqmc.supabase.co/functions/v1/document-rating?documentId=${encodeURIComponent(documentId)}&visitorId=${encodeURIComponent(visitorId)}`,
         {
