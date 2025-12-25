@@ -2,3 +2,6 @@ project_id = "eumfdxgcqenpptjytqmc"
 
 [functions.keep-alive]
 verify_jwt = false
+
+[functions.document-rating]
+verify_jwt = false
