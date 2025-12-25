@@ -289,7 +289,12 @@ const PDFGallery = ({
                   </div>
                 </div>
                 <div className="p-3 bg-gradient-to-t from-card to-transparent">
-                  <h3 className="font-semibold text-sm text-foreground transition-colors" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-semibold text-sm text-foreground transition-colors truncate flex-1 min-w-0" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
+                    {showRatings && (
+                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} />
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground mt-1">{pdf.date}</p>
                 </div>
               </div>
@@ -315,7 +320,12 @@ const PDFGallery = ({
                   <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black/95 via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 <div className="absolute bottom-2 left-0 right-0 px-4 pb-3 text-white translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                  <h3 className="font-bold text-sm leading-tight truncate text-white">{pdf.title}</h3>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-bold text-sm leading-tight truncate text-white flex-1 min-w-0">{pdf.title}</h3>
+                    {showRatings && (
+                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} className="[&_button]:text-white [&_svg]:text-white" />
+                    )}
+                  </div>
                   <p className="text-xs opacity-90 mt-1 truncate text-white">{pdf.date}</p>
                 </div>
                 <div className="absolute top-3 left-3 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
@@ -357,9 +367,14 @@ const PDFGallery = ({
                   </div>
                 </div>
               </div>
-              <div className="mt-2 text-center">
-                <h3 className="font-semibold text-sm text-foreground transition-colors" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
-                <p className="text-xs text-muted-foreground mt-1 transition-colors" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.date}</p>
+              <div className="mt-2">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-semibold text-sm text-foreground transition-colors truncate flex-1 min-w-0" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
+                  {showRatings && (
+                    <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} />
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 transition-colors text-center" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.date}</p>
               </div>
             </div>
           </a>
@@ -385,7 +400,12 @@ const PDFGallery = ({
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm text-foreground mb-1 transition-colors truncate" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-semibold text-sm text-foreground mb-1 transition-colors truncate flex-1 min-w-0" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
+                    {showRatings && (
+                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} />
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground transition-colors" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.date}</p>
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -420,13 +440,18 @@ const PDFGallery = ({
                     </div>
                   </div>
                 </div>
-            <div>
-              <h3 className="font-medium text-sm text-foreground relative inline-block">
-                {pdf.title}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style={{ backgroundColor: settings.accentColor }}></span>
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1">{pdf.date}</p>
-            </div>
+                <div className="mt-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-medium text-sm text-foreground relative truncate flex-1 min-w-0">
+                      {pdf.title}
+                      <span className="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style={{ backgroundColor: settings.accentColor }}></span>
+                    </h3>
+                    {showRatings && (
+                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{pdf.date}</p>
+                </div>
               </div>
             </div>
           </a>
@@ -463,13 +488,10 @@ const PDFGallery = ({
               
               {/* Clickable text outside the thumbnail frame */}
               <div className="mt-3 transition-colors duration-200">
-                <h3 className="font-semibold text-sm leading-tight text-foreground group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)] transition-colors duration-200 truncate">
-                  {pdf.title}
-                </h3>
-                <div className="flex items-center justify-between mt-1">
-                  <p className="text-xs text-muted-foreground leading-tight group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)]">
-                    {pdf.date}
-                  </p>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-semibold text-sm leading-tight text-foreground group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)] transition-colors duration-200 truncate flex-1 min-w-0">
+                    {pdf.title}
+                  </h3>
                   {showRatings && (
                     <DocumentRating 
                       documentId={pdf.id} 
@@ -479,6 +501,9 @@ const PDFGallery = ({
                     />
                   )}
                 </div>
+                <p className="text-xs text-muted-foreground leading-tight mt-1 group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)]">
+                  {pdf.date}
+                </p>
               </div>
             </div>
           </a>
