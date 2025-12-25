@@ -292,7 +292,7 @@ const PDFGallery = ({
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="font-semibold text-sm text-foreground transition-colors truncate flex-1 min-w-0" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
                     {showRatings && (
-                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} />
+                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} className="mr-2" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">{pdf.date}</p>
@@ -323,7 +323,7 @@ const PDFGallery = ({
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="font-bold text-sm leading-tight truncate text-white flex-1 min-w-0">{pdf.title}</h3>
                     {showRatings && (
-                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} className="[&_button]:text-white [&_svg]:text-white" />
+                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} className="mr-2 [&_button]:text-white [&_svg]:text-white" />
                     )}
                   </div>
                   <p className="text-xs opacity-90 mt-1 truncate text-white">{pdf.date}</p>
@@ -371,7 +371,7 @@ const PDFGallery = ({
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="font-semibold text-sm text-foreground transition-colors truncate flex-1 min-w-0" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
                   {showRatings && (
-                    <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} />
+                    <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} className="mr-2" />
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 transition-colors text-center" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.date}</p>
@@ -403,7 +403,7 @@ const PDFGallery = ({
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="font-semibold text-sm text-foreground mb-1 transition-colors truncate flex-1 min-w-0" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
                     {showRatings && (
-                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} />
+                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} className="mr-2" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground transition-colors" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.date}</p>
@@ -447,7 +447,7 @@ const PDFGallery = ({
                       <span className="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style={{ backgroundColor: settings.accentColor }}></span>
                     </h3>
                     {showRatings && (
-                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} />
+                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} className="mr-2" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">{pdf.date}</p>
@@ -498,6 +498,7 @@ const PDFGallery = ({
                       galleryId={galleryId} 
                       size="sm" 
                       showCount={false}
+                      className="mr-2"
                     />
                   )}
                 </div>

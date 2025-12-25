@@ -19,6 +19,7 @@ interface PDFSettingsProps {
     pdfIconPosition: string;
     defaultPlaceholder: string;
     thumbnailSize?: string;
+    showRatings?: boolean;
     officeApiProvider?: 'cloudconvert' | 'convertapi' | 'none';
     cloudConvertApiKey?: string;
     convertApiKey?: string;
@@ -30,6 +31,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
   const [localSettings, setLocalSettings] = useState({
     ...settings,
     thumbnailSize: settings.thumbnailSize || 'four-rows',
+    showRatings: settings.showRatings !== false,
     officeApiProvider: settings.officeApiProvider || 'none',
     cloudConvertApiKey: settings.cloudConvertApiKey || '',
     convertApiKey: settings.convertApiKey || ''
@@ -46,6 +48,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
     setLocalSettings({
       ...settings,
       thumbnailSize: settings.thumbnailSize || 'four-rows',
+      showRatings: settings.showRatings !== false,
       officeApiProvider: settings.officeApiProvider || 'none',
       cloudConvertApiKey: settings.cloudConvertApiKey || '',
       convertApiKey: settings.convertApiKey || ''
@@ -533,6 +536,30 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
           </RadioGroup>
           <div className="text-xs text-muted-foreground mt-4 p-3 bg-muted/50 rounded">
             <strong>Note:</strong> On mobile devices, thumbnails will always be displayed one by one for optimal viewing experience.
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Document Ratings */}
+      <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
+        <CardHeader>
+          <CardTitle>Document Ratings</CardTitle>
+          <CardDescription>
+            Allow visitors to rate documents with a 5-star system.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-3">
+            <Checkbox
+              id="showRatings"
+              checked={localSettings.showRatings !== false}
+              onCheckedChange={(checked) =>
+                setLocalSettings(prev => ({ ...prev, showRatings: !!checked }))
+              }
+            />
+            <Label htmlFor="showRatings" className="cursor-pointer">
+              Enable star ratings on thumbnails
+            </Label>
           </div>
         </CardContent>
       </Card>
