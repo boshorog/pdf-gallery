@@ -5,6 +5,7 @@ import { generateThumbnail } from '@/utils/supabaseClient';
 import pdfPlaceholder from '@/assets/pdf-placeholder.svg';
 import { useLicense } from '@/hooks/useLicense';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { DocumentRating } from '@/components/DocumentRating';
 
 interface PDF {
   id: string;
@@ -27,6 +28,8 @@ interface PDFGalleryProps {
   items?: GalleryItem[];
   title?: string;
   description?: string;
+  galleryId?: string;
+  showRatings?: boolean;
   settings?: {
     thumbnailStyle: string;
     accentColor: string;
@@ -41,6 +44,8 @@ const PDFGallery = ({
   items = [], 
   title = "PDF Gallery",
   description = "Browse our collection of PDF documents",
+  galleryId = "default",
+  showRatings = true,
   settings = {
     thumbnailStyle: 'default',
     accentColor: '#7FB3DC',
@@ -461,9 +466,19 @@ const PDFGallery = ({
                 <h3 className="font-semibold text-sm leading-tight text-foreground group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)] transition-colors duration-200 truncate">
                   {pdf.title}
                 </h3>
-                <p className="text-xs text-muted-foreground leading-tight mt-1 group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)]">
-                  {pdf.date}
-                </p>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-xs text-muted-foreground leading-tight group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)]">
+                    {pdf.date}
+                  </p>
+                  {showRatings && (
+                    <DocumentRating 
+                      documentId={pdf.id} 
+                      galleryId={galleryId} 
+                      size="sm" 
+                      showCount={false}
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </a>
