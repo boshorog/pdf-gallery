@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation, Image, X } from 'lucide-react';
+import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation, Image, X, Star, Maximize2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -916,6 +916,83 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
               </Button>
             </div>
           </div>
+
+          {/* Floating Action Bar - Gallery Stats & Options */}
+          {(() => {
+            const documentCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
+            const dividerCount = items.filter(item => 'type' in item && item.type === 'divider').length;
+            
+            // Get per-gallery settings from gallery object or use defaults
+            const gallerySettings = (currentGallery as any)?.settings || {};
+            const ratingsEnabled = gallerySettings.ratingsEnabled ?? true;
+            const lightboxEnabled = gallerySettings.lightboxEnabled ?? true;
+            
+            const updateGallerySettings = (key: string, value: boolean) => {
+              if (!currentGallery) return;
+              const updatedGalleries = galleries.map(gallery => 
+                gallery.id === currentGalleryId 
+                  ? { ...gallery, settings: { ...((gallery as any).settings || {}), [key]: value } }
+                  : gallery
+              );
+              onGalleriesChange(updatedGalleries);
+              saveGalleriesToWP(updatedGalleries);
+            };
+            
+            return (
+              <div className="flex items-center justify-between bg-background/95 backdrop-blur-sm rounded-xl shadow-lg border p-3">
+                {/* Stats */}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <FileText className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <div className="font-semibold">{documentCount}</div>
+                      <div className="text-xs text-muted-foreground">files</div>
+                    </div>
+                  </div>
+                  {dividerCount > 0 && (
+                    <>
+                      <div className="w-px h-8 bg-border" />
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                          <Minus className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <div className="font-semibold">{dividerCount}</div>
+                          <div className="text-xs text-muted-foreground">dividers</div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                {/* Toggle Options */}
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant={ratingsEnabled ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
+                    className="gap-1.5"
+                    title="Toggle star ratings on thumbnails"
+                  >
+                    <Star className={`h-4 w-4 ${ratingsEnabled ? 'fill-current' : ''}`} />
+                    <span className="hidden sm:inline">Ratings</span>
+                  </Button>
+                  <Button
+                    variant={lightboxEnabled ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
+                    className="gap-1.5"
+                    title="Toggle lightbox preview"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                    <span className="hidden sm:inline">Lightbox</span>
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Multi-File Upload Form */}
           {isAddingDocument && !editingId && (
