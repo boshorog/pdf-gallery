@@ -270,17 +270,8 @@ const Index = () => {
         ] as GalleryItem[],
         createdAt: new Date().toISOString(),
       };
-      const demoGallery: Gallery = {
-        id: 'demo',
-        name: 'Demo Gallery',
-        items: [
-          { id: 'demo-pdf-1', title: 'Demo Document 1', date: 'Demo 2025', pdfUrl: 'https://example.com/demo1.pdf', thumbnail: '', fileType: 'pdf' },
-          { id: 'demo-pdf-2', title: 'Demo Document 2', date: 'Demo 2025', pdfUrl: 'https://example.com/demo2.pdf', thumbnail: '', fileType: 'pdf' },
-        ] as GalleryItem[],
-        createdAt: new Date().toISOString(),
-      };
       setGalleryState({
-        galleries: [testGallery, demoGallery],
+        galleries: [testGallery],
         currentGalleryId: 'test'
       });
     }
