@@ -110,20 +110,19 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                 const label = isImage ? 'IMG' : fileType === 'pdf' ? 'PDF' : ['doc','docx'].includes(fileType || '') ? 'DOC' : ['ppt','pptx'].includes(fileType || '') ? 'PPT' : ['xls','xlsx'].includes(fileType || '') ? 'XLS' : 'PDF';
                 
                 return (
-                  <div className="relative w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    {isImage ? (
-                      <img 
-                        src={pdfItem.pdfUrl} 
-                        alt={pdfItem.title} 
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.parentElement?.querySelector('.fallback-icon')?.classList.remove('hidden');
-                        }}
-                      />
-                    ) : null}
-                    <FileText className={`w-6 h-6 text-muted-foreground fallback-icon ${isImage ? 'hidden absolute' : ''}`} />
-                    <div className="absolute -top-1 -right-1 min-w-[24px] px-1 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground text-center">
+                  <div className="relative">
+                    <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {isImage ? (
+                        <img 
+                          src={pdfItem.pdfUrl} 
+                          alt={pdfItem.title} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <FileText className="w-6 h-6 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="absolute -top-1 -right-1 min-w-[24px] px-1 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground text-center z-10">
                       {label}
                     </div>
                   </div>
