@@ -1212,7 +1212,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
             const documentCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
             const dividerCount = items.filter(item => 'type' in item && item.type === 'divider').length;
             return (
-              <div className="flex items-center gap-3 text-xs text-muted-foreground pt-2 border-t border-dashed">
+              <div className="flex items-center gap-3 text-xs text-muted-foreground pt-2 ml-6">
                 <div className="flex items-center gap-1">
                   <FileText className="h-3.5 w-3.5" />
                   <span>{documentCount} document{documentCount !== 1 ? 's' : ''}</span>
@@ -1229,7 +1229,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
 
           {/* Duplicate Action Buttons at Bottom */}
           {items.length > 0 && (
-            <div className="flex gap-2 pt-4 justify-end">
+            <div className="flex gap-2 pt-2 justify-end">
               <Button 
                 onClick={() => {
                   setIsAddingDocument(true);
