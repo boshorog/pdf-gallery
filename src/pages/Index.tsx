@@ -308,7 +308,7 @@ const Index = () => {
   const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
   const isWordPressAdmin = !!wp?.isAdmin || urlParams.get('admin') === 'true';
   const hostname = window.location.hostname;
-  const isLovablePreview = hostname.includes('lovable.app') || hostname === 'localhost';
+  const isLovablePreview = hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
 
   // Show admin interface only in WordPress admin area or Lovable preview
   const showAdmin = isLovablePreview || isWordPressAdmin;
