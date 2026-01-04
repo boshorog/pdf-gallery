@@ -94,30 +94,41 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
             </div>
           ) : (
             <div className="flex items-center space-x-3">
-              <div className="relative w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
-                <FileText className="w-6 h-6 text-muted-foreground" />
-                <div className="absolute -top-1 -right-1 min-w-[24px] px-1 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground text-center">
-                  {(() => {
-                    const pdfItem = item as PDF;
-                    let fileType = pdfItem.fileType?.toLowerCase();
-                    if (!fileType) {
-                      const url = pdfItem.pdfUrl || '';
-                      const title = pdfItem.title || '';
-                      let extension = url.split('.').pop()?.toLowerCase();
-                      if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp'].includes(extension)) {
-                        extension = title.split('.').pop()?.toLowerCase();
-                      }
-                      fileType = extension || 'pdf';
-                    }
-                    if (['img','jpg','jpeg','png','gif','webp'].includes(fileType || '')) return 'IMG';
-                    if (fileType === 'pdf') return 'PDF';
-                    if (['doc','docx'].includes(fileType || '')) return 'DOC';
-                    if (['ppt','pptx'].includes(fileType || '')) return 'PPT';
-                    if (['xls','xlsx'].includes(fileType || '')) return 'XLS';
-                    return 'PDF';
-                  })()}
-                </div>
-              </div>
+              {(() => {
+                const pdfItem = item as PDF;
+                let fileType = pdfItem.fileType?.toLowerCase();
+                if (!fileType) {
+                  const url = pdfItem.pdfUrl || '';
+                  const title = pdfItem.title || '';
+                  let extension = url.split('.').pop()?.toLowerCase();
+                  if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp'].includes(extension)) {
+                    extension = title.split('.').pop()?.toLowerCase();
+                  }
+                  fileType = extension || 'pdf';
+                }
+                const isImage = ['img','jpg','jpeg','png','gif','webp'].includes(fileType || '');
+                const label = isImage ? 'IMG' : fileType === 'pdf' ? 'PDF' : ['doc','docx'].includes(fileType || '') ? 'DOC' : ['ppt','pptx'].includes(fileType || '') ? 'PPT' : ['xls','xlsx'].includes(fileType || '') ? 'XLS' : 'PDF';
+                
+                return (
+                  <div className="relative w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {isImage ? (
+                      <img 
+                        src={pdfItem.pdfUrl} 
+                        alt={pdfItem.title} 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement?.querySelector('.fallback-icon')?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <FileText className={`w-6 h-6 text-muted-foreground fallback-icon ${isImage ? 'hidden absolute' : ''}`} />
+                    <div className="absolute -top-1 -right-1 min-w-[24px] px-1 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground text-center">
+                      {label}
+                    </div>
+                  </div>
+                );
+              })()}
               <div className="ml-2.5">
                 <h3 className="text-sm font-semibold">{(item as PDF).title}</h3>
                 <p className="text-xs text-muted-foreground">{(item as PDF).date}</p>
