@@ -192,6 +192,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   }, [currentGalleryId, galleries, onCurrentGalleryChange]);
   
   const [activeTab, setActiveTab] = useState<'management' | 'preview'>('management');
+  const [toolbarVariant, setToolbarVariant] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [isAddingDocument, setIsAddingDocument] = useState(false);
   const [isAddingDivider, setIsAddingDivider] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -917,12 +918,11 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
             </div>
           </div>
 
-          {/* Floating Action Bar - Gallery Stats & Options */}
+          {/* Gallery Toolbar - Multiple Variants for Comparison */}
           {(() => {
             const documentCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
             const dividerCount = items.filter(item => 'type' in item && item.type === 'divider').length;
             
-            // Get per-gallery settings from gallery object or use defaults
             const gallerySettings = (currentGallery as any)?.settings || {};
             const ratingsEnabled = gallerySettings.ratingsEnabled ?? true;
             const lightboxEnabled = gallerySettings.lightboxEnabled ?? true;
@@ -937,58 +937,204 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
               onGalleriesChange(updatedGalleries);
               saveGalleriesToWP(updatedGalleries);
             };
-            
-            return (
-              <div className="flex items-center justify-between bg-background/95 backdrop-blur-sm rounded-xl shadow-lg border p-3">
-                {/* Stats */}
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <FileText className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <div className="font-semibold">{documentCount}</div>
-                      <div className="text-xs text-muted-foreground">files</div>
+
+            // Variant selector
+            const VariantSelector = () => (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                <span>Style:</span>
+                {[1, 2, 3, 4, 5].map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setToolbarVariant(v as 1 | 2 | 3 | 4 | 5)}
+                    className={`w-6 h-6 rounded text-xs font-medium transition-colors ${
+                      toolbarVariant === v 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'bg-muted hover:bg-muted/80'
+                    }`}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+            );
+
+            // Variant 1: Ultra Minimal - Just text inline
+            if (toolbarVariant === 1) {
+              return (
+                <div>
+                  <VariantSelector />
+                  <div className="flex items-center justify-between text-sm text-muted-foreground py-1">
+                    <span>{documentCount} files{dividerCount > 0 ? ` · ${dividerCount} dividers` : ''}</span>
+                    <div className="flex items-center gap-3">
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <Checkbox 
+                          checked={ratingsEnabled} 
+                          onCheckedChange={(c) => updateGallerySettings('ratingsEnabled', !!c)}
+                          className="h-3.5 w-3.5"
+                        />
+                        <span className="text-xs">Ratings</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <Checkbox 
+                          checked={lightboxEnabled} 
+                          onCheckedChange={(c) => updateGallerySettings('lightboxEnabled', !!c)}
+                          className="h-3.5 w-3.5"
+                        />
+                        <span className="text-xs">Lightbox</span>
+                      </label>
                     </div>
                   </div>
-                  {dividerCount > 0 && (
-                    <>
-                      <div className="w-px h-8 bg-border" />
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                          <Minus className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <div className="font-semibold">{dividerCount}</div>
-                          <div className="text-xs text-muted-foreground">dividers</div>
-                        </div>
-                      </div>
-                    </>
-                  )}
                 </div>
-                
-                {/* Toggle Options */}
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant={ratingsEnabled ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
-                    className="gap-1.5"
-                    title="Toggle star ratings on thumbnails"
-                  >
-                    <Star className={`h-4 w-4 ${ratingsEnabled ? 'fill-current' : ''}`} />
-                    <span className="hidden sm:inline">Ratings</span>
-                  </Button>
-                  <Button
-                    variant={lightboxEnabled ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
-                    className="gap-1.5"
-                    title="Toggle lightbox preview"
-                  >
-                    <Maximize2 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Lightbox</span>
-                  </Button>
+              );
+            }
+
+            // Variant 2: Compact Pills
+            if (toolbarVariant === 2) {
+              return (
+                <div>
+                  <VariantSelector />
+                  <div className="flex items-center justify-between py-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs px-2 py-1 bg-muted rounded-full">{documentCount} files</span>
+                      {dividerCount > 0 && (
+                        <span className="text-xs px-2 py-1 bg-muted/50 rounded-full">{dividerCount} dividers</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-all ${
+                          ratingsEnabled 
+                            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' 
+                            : 'bg-muted/50 text-muted-foreground'
+                        }`}
+                      >
+                        <Star className={`h-3 w-3 ${ratingsEnabled ? 'fill-current' : ''}`} />
+                        Ratings
+                      </button>
+                      <button
+                        onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-all ${
+                          lightboxEnabled 
+                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' 
+                            : 'bg-muted/50 text-muted-foreground'
+                        }`}
+                      >
+                        <Maximize2 className="h-3 w-3" />
+                        Lightbox
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            // Variant 3: Subtle Border Bar
+            if (toolbarVariant === 3) {
+              return (
+                <div>
+                  <VariantSelector />
+                  <div className="flex items-center justify-between border-b border-dashed pb-2">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <FileText className="h-3.5 w-3.5" />
+                        <span>{documentCount}</span>
+                      </div>
+                      {dividerCount > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Minus className="h-3.5 w-3.5" />
+                          <span>{dividerCount}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
+                        className={`p-1.5 rounded transition-colors ${ratingsEnabled ? 'text-yellow-500' : 'text-muted-foreground/40'}`}
+                        title="Toggle Ratings"
+                      >
+                        <Star className={`h-4 w-4 ${ratingsEnabled ? 'fill-current' : ''}`} />
+                      </button>
+                      <button
+                        onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
+                        className={`p-1.5 rounded transition-colors ${lightboxEnabled ? 'text-blue-500' : 'text-muted-foreground/40'}`}
+                        title="Toggle Lightbox"
+                      >
+                        <Maximize2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            // Variant 4: Right-aligned Minimal
+            if (toolbarVariant === 4) {
+              return (
+                <div>
+                  <VariantSelector />
+                  <div className="flex items-center justify-end gap-4 text-xs">
+                    <span className="text-muted-foreground">
+                      {documentCount} files{dividerCount > 0 ? `, ${dividerCount} div` : ''}
+                    </span>
+                    <div className="flex items-center gap-0.5 border rounded-md p-0.5">
+                      <button
+                        onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-all ${
+                          ratingsEnabled ? 'bg-muted' : ''
+                        }`}
+                        title="Ratings"
+                      >
+                        <Star className={`h-3 w-3 ${ratingsEnabled ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'}`} />
+                      </button>
+                      <button
+                        onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-all ${
+                          lightboxEnabled ? 'bg-muted' : ''
+                        }`}
+                        title="Lightbox"
+                      >
+                        <Maximize2 className={`h-3 w-3 ${lightboxEnabled ? 'text-blue-500' : 'text-muted-foreground'}`} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            // Variant 5: Icon-only with tooltip look
+            return (
+              <div>
+                <VariantSelector />
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                    <span className="font-medium">{documentCount}</span> files
+                    {dividerCount > 0 && <span className="opacity-50">• {dividerCount} div</span>}
+                  </div>
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
+                      className={`w-7 h-7 flex items-center justify-center rounded-l border transition-colors ${
+                        ratingsEnabled 
+                          ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800' 
+                          : 'bg-background border-border'
+                      }`}
+                      title="Toggle Ratings"
+                    >
+                      <Star className={`h-3.5 w-3.5 ${ratingsEnabled ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'}`} />
+                    </button>
+                    <button
+                      onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
+                      className={`w-7 h-7 flex items-center justify-center rounded-r border-t border-r border-b -ml-px transition-colors ${
+                        lightboxEnabled 
+                          ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' 
+                          : 'bg-background border-border'
+                      }`}
+                      title="Toggle Lightbox"
+                    >
+                      <Maximize2 className={`h-3.5 w-3.5 ${lightboxEnabled ? 'text-blue-500' : 'text-muted-foreground'}`} />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
