@@ -972,14 +972,14 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   <button
                     onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
                     className={`p-1.5 rounded transition-colors ${ratingsEnabled ? 'text-yellow-500' : 'text-muted-foreground/40'}`}
-                    title="Toggle Ratings"
+                    title={ratingsEnabled ? "Disable Ratings" : "Enable Ratings"}
                   >
                     <Star className={`h-4 w-4 ${ratingsEnabled ? 'fill-current' : ''}`} />
                   </button>
                   <button
                     onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
                     className={`p-1.5 rounded transition-colors ${lightboxEnabled ? 'text-blue-500' : 'text-muted-foreground/40'}`}
-                    title="Toggle Lightbox"
+                    title={lightboxEnabled ? "Disable Lightbox" : "Enable Lightbox"}
                   >
                     <Maximize2 className="h-4 w-4" />
                   </button>
