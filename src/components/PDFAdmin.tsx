@@ -859,22 +859,8 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       {/* Navigation removed: top-level tabs now control sections */}
 
       <>
-          {/* Top Row: Gallery + Action Buttons */}
-          <div className="flex justify-between items-center">
-            {/* Left: Gallery Management */}
-            <div className="flex items-center gap-4">
-              <span className="font-bold text-foreground">Gallery:</span>
-              <GallerySelector
-                galleries={galleries}
-                currentGalleryId={currentGalleryId}
-                onGalleryChange={onCurrentGalleryChange}
-                onGalleryCreate={handleGalleryCreate}
-                onGalleryRename={handleGalleryRename}
-                onGalleryDelete={handleGalleryDelete}
-              />
-            </div>
-
-            {/* Right: Action Buttons */}
+          {/* Top Row: Action Buttons only */}
+          <div className="flex justify-end items-center">
             <div className="flex gap-2">
               {selectedItems.size > 0 && (
                 <Button 
@@ -902,7 +888,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
             </div>
           </div>
 
-          {/* Select All Row + Toggles - above dotted line */}
+          {/* Second Row: Select All | Gallery Selector | Toggles - above dotted line */}
           {items.length > 0 && (() => {
             const gallerySettings = (currentGallery as any)?.settings || {};
             const ratingsEnabled = gallerySettings.ratingsEnabled ?? true;
@@ -937,6 +923,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
 
             return (
               <div className="flex items-center justify-between border-b border-dashed pb-2">
+                {/* Left: Select All */}
                 <div className="flex items-center space-x-3 ml-[22px]">
                   <Checkbox 
                     checked={selectedItems.size === items.length && items.length > 0}
@@ -947,6 +934,21 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                     {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select all'}
                   </span>
                 </div>
+                
+                {/* Center: Gallery Selector */}
+                <div className="flex items-center gap-4">
+                  <span className="font-bold text-foreground">Gallery:</span>
+                  <GallerySelector
+                    galleries={galleries}
+                    currentGalleryId={currentGalleryId}
+                    onGalleryChange={onCurrentGalleryChange}
+                    onGalleryCreate={handleGalleryCreate}
+                    onGalleryRename={handleGalleryRename}
+                    onGalleryDelete={handleGalleryDelete}
+                  />
+                </div>
+                
+                {/* Right: Toggles */}
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
