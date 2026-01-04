@@ -249,7 +249,7 @@ const Index = () => {
         })
         .catch(() => {});
     } else {
-      // Fallback test gallery for development or when no config is provided
+      // Fallback test galleries for development or when no config is provided
       const testGallery: Gallery = {
         id: 'test',
         name: 'Test Gallery',
@@ -270,8 +270,17 @@ const Index = () => {
         ] as GalleryItem[],
         createdAt: new Date().toISOString(),
       };
+      const demoGallery: Gallery = {
+        id: 'demo',
+        name: 'Demo Gallery',
+        items: [
+          { id: 'demo-pdf-1', title: 'Demo Document 1', date: 'Demo 2025', pdfUrl: 'https://example.com/demo1.pdf', thumbnail: '', fileType: 'pdf' },
+          { id: 'demo-pdf-2', title: 'Demo Document 2', date: 'Demo 2025', pdfUrl: 'https://example.com/demo2.pdf', thumbnail: '', fileType: 'pdf' },
+        ] as GalleryItem[],
+        createdAt: new Date().toISOString(),
+      };
       setGalleryState({
-        galleries: [testGallery],
+        galleries: [testGallery, demoGallery],
         currentGalleryId: 'test'
       });
     }
