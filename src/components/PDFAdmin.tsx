@@ -1095,14 +1095,14 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                           Supports PDF, PPT/PPTX, DOC/DOCX, XLS/XLSX, and image files
                         </p>
                       </div>
-                      <div className="flex gap-3 mt-4">
+                      <div className="flex justify-center gap-3 mt-4">
                         <Button
                           type="button"
                           variant="outline"
                           onClick={() => fileInputRef.current?.click()}
                         >
                           <Upload className="w-4 h-4 mr-2" />
-                          Browse Files
+                          Upload Files
                         </Button>
                         <Button
                           type="button"
@@ -1110,7 +1110,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                           onClick={openWordPressMediaLibrary}
                         >
                           <FolderOpen className="w-4 h-4 mr-2" />
-                          Media Library
+                          WordPress Media Library
                         </Button>
                       </div>
                     </>
