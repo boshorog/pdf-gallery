@@ -955,7 +955,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
             };
 
             return (
-              <div className="flex items-center justify-between border-b border-dashed pb-2">
+              <div className="flex items-center justify-between border-t border-dashed pt-2">
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <FileText className="h-3.5 w-3.5" />
