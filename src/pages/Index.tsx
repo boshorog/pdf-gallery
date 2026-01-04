@@ -7,6 +7,7 @@ import PDFAdmin from '@/components/PDFAdmin';
 import PDFGallery from '@/components/PDFGallery';
 import PDFSettings from '@/components/PDFSettings';
 import SettingsProposal2 from '@/components/SettingsProposal2';
+import GalleryToolbarShowcase from '@/components/GalleryToolbarShowcase';
 
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
@@ -336,10 +337,11 @@ const Index = () => {
             />
         </div>
         
-        <Tabs defaultValue="gallery" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+        <Tabs defaultValue="toolbar-showcase" className="w-full">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="gallery">Gallery Management</TabsTrigger>
+            <TabsTrigger value="toolbar-showcase">Toolbar Showcase</TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-1">
               Settings
               <sup className="ml-0">
@@ -397,6 +399,10 @@ const Index = () => {
               onGalleriesChange={(galleries) => setGalleryState(prev => ({ ...prev, galleries }))}
               onCurrentGalleryChange={(galleryId) => setGalleryState(prev => ({ ...prev, currentGalleryId: galleryId }))}
             />
+          </TabsContent>
+          
+          <TabsContent value="toolbar-showcase">
+            <GalleryToolbarShowcase />
           </TabsContent>
           
           <TabsContent value="settings">
