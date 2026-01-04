@@ -859,7 +859,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       {/* Navigation removed: top-level tabs now control sections */}
 
       <>
-          {/* Top Row: Gallery + Action Buttons + Ratings/Lightbox toggles */}
+          {/* Top Row: Gallery + Action Buttons */}
           <div className="flex justify-between items-center">
             {/* Left: Gallery Management */}
             <div className="flex items-center gap-4">
@@ -874,101 +874,98 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
               />
             </div>
 
-            {/* Right: Action Buttons + Toggle buttons */}
-            <div className="flex items-center gap-4">
-              {(() => {
-                const gallerySettings = (currentGallery as any)?.settings || {};
-                const ratingsEnabled = gallerySettings.ratingsEnabled ?? true;
-                const lightboxEnabled = gallerySettings.lightboxEnabled ?? true;
-                
-                const updateGallerySettings = (key: string, value: boolean) => {
-                  if (!currentGallery) return;
-                  const updatedGalleries = galleries.map(gallery => 
-                    gallery.id === currentGalleryId 
-                      ? { ...gallery, settings: { ...((gallery as any).settings || {}), [key]: value } }
-                      : gallery
-                  );
-                  onGalleriesChange(updatedGalleries);
-                  saveGalleriesToWP(updatedGalleries);
-                  
-                  if (key === 'ratingsEnabled') {
-                    toast({
-                      title: value ? "Ratings Enabled" : "Ratings Disabled",
-                      description: value 
-                        ? "Users can now rate documents in this gallery" 
-                        : "Ratings are hidden for this gallery",
-                    });
-                  } else if (key === 'lightboxEnabled') {
-                    toast({
-                      title: value ? "Lightbox Enabled" : "Lightbox Disabled",
-                      description: value 
-                        ? "Documents will open in fullscreen lightbox" 
-                        : "Documents will open in a new tab",
-                    });
-                  }
-                };
-
-                return (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
-                      className={`p-1.5 rounded transition-colors ${ratingsEnabled ? 'text-yellow-500' : 'text-muted-foreground/40'}`}
-                      title={ratingsEnabled ? "Disable Ratings" : "Enable Ratings"}
-                    >
-                      <Star className={`h-4 w-4 ${ratingsEnabled ? 'fill-current' : ''}`} />
-                    </button>
-                    <button
-                      onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
-                      className={`p-1.5 rounded transition-colors ${lightboxEnabled ? 'text-blue-500' : 'text-muted-foreground/40'}`}
-                      title={lightboxEnabled ? "Disable Lightbox" : "Enable Lightbox"}
-                    >
-                      <Maximize2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                );
-              })()}
-              
-              <div className="flex gap-2">
-                {selectedItems.size > 0 && (
-                  <Button 
-                    onClick={handleDeleteSelected}
-                    variant="destructive"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete {selectedItems.size} item{selectedItems.size > 1 ? 's' : ''}
-                  </Button>
-                )}
+            {/* Right: Action Buttons */}
+            <div className="flex gap-2">
+              {selectedItems.size > 0 && (
                 <Button 
-                  onClick={() => setIsAddingDocument(true)}
-                  className="bg-primary hover:bg-primary/90"
+                  onClick={handleDeleteSelected}
+                  variant="destructive"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add File(s)
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete {selectedItems.size} item{selectedItems.size > 1 ? 's' : ''}
                 </Button>
-                <Button 
-                  onClick={() => setIsAddingDivider(true)}
-                  variant="outline"
-                >
-                  <Separator className="w-4 h-0.5" />
-                  Add Divider
-                </Button>
-              </div>
+              )}
+              <Button 
+                onClick={() => setIsAddingDocument(true)}
+                className="bg-primary hover:bg-primary/90"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add File(s)
+              </Button>
+              <Button 
+                onClick={() => setIsAddingDivider(true)}
+                variant="outline"
+              >
+                <Separator className="w-4 h-0.5" />
+                Add Divider
+              </Button>
             </div>
           </div>
 
-          {/* Select All Row - aligned with gallery checkboxes */}
-          {items.length > 0 && (
-            <div className="flex items-center space-x-3 ml-[22px] border-b border-dashed pb-2">
-              <Checkbox 
-                checked={selectedItems.size === items.length && items.length > 0}
-                onCheckedChange={handleSelectAll}
-                aria-label="Select all"
-              />
-              <span className="text-sm text-muted-foreground">
-                {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select all'}
-              </span>
-            </div>
-          )}
+          {/* Select All Row + Toggles - above dotted line */}
+          {items.length > 0 && (() => {
+            const gallerySettings = (currentGallery as any)?.settings || {};
+            const ratingsEnabled = gallerySettings.ratingsEnabled ?? true;
+            const lightboxEnabled = gallerySettings.lightboxEnabled ?? true;
+            
+            const updateGallerySettings = (key: string, value: boolean) => {
+              if (!currentGallery) return;
+              const updatedGalleries = galleries.map(gallery => 
+                gallery.id === currentGalleryId 
+                  ? { ...gallery, settings: { ...((gallery as any).settings || {}), [key]: value } }
+                  : gallery
+              );
+              onGalleriesChange(updatedGalleries);
+              saveGalleriesToWP(updatedGalleries);
+              
+              if (key === 'ratingsEnabled') {
+                toast({
+                  title: value ? "Ratings Enabled" : "Ratings Disabled",
+                  description: value 
+                    ? "Users can now rate documents in this gallery" 
+                    : "Ratings are hidden for this gallery",
+                });
+              } else if (key === 'lightboxEnabled') {
+                toast({
+                  title: value ? "Lightbox Enabled" : "Lightbox Disabled",
+                  description: value 
+                    ? "Documents will open in fullscreen lightbox" 
+                    : "Documents will open in a new tab",
+                });
+              }
+            };
+
+            return (
+              <div className="flex items-center justify-between border-b border-dashed pb-2">
+                <div className="flex items-center space-x-3 ml-[22px]">
+                  <Checkbox 
+                    checked={selectedItems.size === items.length && items.length > 0}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select all'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
+                    className={`p-1.5 rounded transition-colors ${ratingsEnabled ? 'text-yellow-500' : 'text-muted-foreground/40'}`}
+                    title={ratingsEnabled ? "Disable Ratings" : "Enable Ratings"}
+                  >
+                    <Star className={`h-4 w-4 ${ratingsEnabled ? 'fill-current' : ''}`} />
+                  </button>
+                  <button
+                    onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
+                    className={`p-1.5 rounded transition-colors ${lightboxEnabled ? 'text-blue-500' : 'text-muted-foreground/40'}`}
+                    title={lightboxEnabled ? "Disable Lightbox" : "Enable Lightbox"}
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Multi-File Upload Form */}
           {isAddingDocument && !editingId && (
