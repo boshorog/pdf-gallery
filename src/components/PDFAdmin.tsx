@@ -811,6 +811,79 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     }
   };
 
+  const openWordPressMediaLibrary = () => {
+    const wp = (window as any).wp;
+    const wpPDFGallery = (window as any).wpPDFGallery;
+    
+    // Check if WordPress media library is available
+    if (!wp?.media) {
+      toast({
+        title: "Not Available",
+        description: "WordPress Media Library is only available in WordPress admin",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const frame = wp.media({
+      title: 'Select File from Media Library',
+      button: { text: 'Select File' },
+      multiple: license.isPro, // Allow multiple selection for Pro users
+      library: {
+        type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'image']
+      }
+    });
+
+    frame.on('select', async () => {
+      const selection = frame.state().get('selection');
+      const attachments = selection.map((attachment: any) => attachment.toJSON());
+      
+      if (attachments.length === 0) return;
+
+      // Prevent actions before galleries are loaded
+      if (galleries.length === 0 || !currentGalleryId) {
+        toast({ title: 'Please wait', description: 'Galleries are loading. Try again in a moment.' });
+        return;
+      }
+
+      let accItems = items.slice();
+      
+      for (const attachment of attachments) {
+        const url = attachment.url;
+        const filename = attachment.filename || attachment.title || 'Document';
+        const title = filename.replace(/\.[^/.]+$/, '');
+        const extension = (filename.split('.').pop() || '').toLowerCase();
+        
+        let fileType: PDF['fileType'] = 'pdf';
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) fileType = extension as PDF['fileType'];
+        else if (['doc', 'docx'].includes(extension)) fileType = extension as PDF['fileType'];
+        else if (['ppt', 'pptx'].includes(extension)) fileType = extension as PDF['fileType'];
+        else if (['xls', 'xlsx'].includes(extension)) fileType = extension as PDF['fileType'];
+        
+        const newPDF: PDF = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          title,
+          date: '',
+          pdfUrl: url,
+          thumbnail: '',
+          fileType
+        };
+        accItems = [newPDF, ...accItems];
+      }
+
+      const updatedGalleries = updateCurrentGalleryItems(accItems);
+      await saveGalleriesToWP(updatedGalleries);
+      setIsAddingDocument(false);
+      
+      toast({
+        title: 'Added',
+        description: `${attachments.length} file${attachments.length !== 1 ? 's' : ''} added from Media Library`,
+      });
+    });
+
+    frame.open();
+  };
+
   const copyShortcode = async () => {
     const galleryName = currentGallery?.name || 'main';
     const shortcode = `[pdf_gallery name="${galleryName.toLowerCase().replace(/[^a-z0-9-_]/g, '-')}"]`;
@@ -1022,14 +1095,24 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                           Supports PDF, PPT/PPTX, DOC/DOCX, XLS/XLSX, and image files
                         </p>
                       </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="mt-4"
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        Browse Files
-                      </Button>
+                      <div className="flex gap-3 mt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          Browse Files
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={openWordPressMediaLibrary}
+                        >
+                          <FolderOpen className="w-4 h-4 mr-2" />
+                          Media Library
+                        </Button>
+                      </div>
                     </>
                   )}
                   <input
