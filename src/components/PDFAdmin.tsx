@@ -331,7 +331,9 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
           setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress } : f));
           if (progress >= 100) {
             clearInterval(interval);
-            resolve(`https://example.com/uploads/${file.file.name}`);
+            // Use object URL for local preview of images
+            const localUrl = URL.createObjectURL(file.file);
+            resolve(localUrl);
           }
         }, 50);
         return;
