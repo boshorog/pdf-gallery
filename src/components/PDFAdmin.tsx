@@ -1207,52 +1207,50 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
             </DndContext>
           </div>
 
-          {/* Stats Row - below gallery */}
+          {/* Stats Row + Action Buttons - below gallery */}
           {items.length > 0 && (() => {
             const documentCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
             const dividerCount = items.filter(item => 'type' in item && item.type === 'divider').length;
             return (
-              <div className="flex items-center gap-3 text-xs text-muted-foreground pt-2 ml-6">
-                <div className="flex items-center gap-1">
-                  <FileText className="h-3.5 w-3.5" />
-                  <span>{documentCount} document{documentCount !== 1 ? 's' : ''}</span>
-                </div>
-                {dividerCount > 0 && (
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center gap-3 text-xs text-muted-foreground ml-6">
                   <div className="flex items-center gap-1">
-                    <Minus className="h-3.5 w-3.5" />
-                    <span>{dividerCount} divider{dividerCount !== 1 ? 's' : ''}</span>
+                    <FileText className="h-3.5 w-3.5" />
+                    <span>{documentCount} document{documentCount !== 1 ? 's' : ''}</span>
                   </div>
-                )}
+                  {dividerCount > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Minus className="h-3.5 w-3.5" />
+                      <span>{dividerCount} divider{dividerCount !== 1 ? 's' : ''}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => {
+                      setIsAddingDocument(true);
+                      setTimeout(() => {
+                        const editSection = document.querySelector('.edit-section');
+                        if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        else window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }, 50);
+                    }}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add File(s)
+                  </Button>
+                  <Button 
+                    onClick={() => { setIsAddingDivider(true); setTimeout(() => { const editSection = document.querySelector('.edit-section'); if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); else window.scrollTo({ top: 0, behavior: 'smooth' }); }, 50); }}
+                    variant="outline"
+                  >
+                    <Separator className="w-4 h-0.5" />
+                    Add Divider
+                  </Button>
+                </div>
               </div>
             );
           })()}
-
-          {/* Duplicate Action Buttons at Bottom */}
-          {items.length > 0 && (
-            <div className="flex gap-2 pt-2 justify-end">
-              <Button 
-                onClick={() => {
-                  setIsAddingDocument(true);
-                  setTimeout(() => {
-                    const editSection = document.querySelector('.edit-section');
-                    if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    else window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }, 50);
-                }}
-                className="bg-primary hover:bg-primary/90"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add File(s)
-              </Button>
-              <Button 
-                onClick={() => { setIsAddingDivider(true); setTimeout(() => { const editSection = document.querySelector('.edit-section'); if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); else window.scrollTo({ top: 0, behavior: 'smooth' }); }, 50); }}
-                variant="outline"
-              >
-                <Separator className="w-4 h-0.5" />
-                Add Divider
-              </Button>
-            </div>
-          )}
 
           {items.length === 0 && !isAddingDocument && !isAddingDivider && (
             <Card>
