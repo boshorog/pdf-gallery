@@ -225,7 +225,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     pdfIconPosition: 'top-right',
     defaultPlaceholder: 'default'
   });
-  const [gallerySelectorVariant, setGallerySelectorVariant] = useState<1 | 2 | 3 | 4 | 5>(1);
+  
   const { toast } = useToast();
   const license = useLicense();
 
@@ -860,24 +860,6 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       {/* Navigation removed: top-level tabs now control sections */}
 
       <>
-          {/* Variant Selector for testing */}
-          <div className="flex items-center gap-2 mb-4 p-2 bg-muted/50 rounded-lg">
-            <span className="text-xs font-medium text-muted-foreground">Gallery Selector Style:</span>
-            {[1, 2, 3, 4, 5].map((v) => (
-              <button
-                key={v}
-                onClick={() => setGallerySelectorVariant(v as 1 | 2 | 3 | 4 | 5)}
-                className={`w-7 h-7 rounded text-xs font-bold transition-colors ${
-                  gallerySelectorVariant === v 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-background border hover:bg-muted'
-                }`}
-              >
-                {v}
-              </button>
-            ))}
-          </div>
-
           {/* Top Row: Action Buttons only */}
           <div className="flex justify-end items-center">
             <div className="flex gap-2">
@@ -940,102 +922,21 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
               }
             };
 
-            // Gallery Selector Variants
-            const renderGallerySelectorVariant = () => {
-              const galleryName = currentGallery?.name || 'Main Gallery';
-              
-              switch (gallerySelectorVariant) {
-                case 1:
-                  // Original: Label + Component inline
-                  return (
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-muted-foreground">Gallery:</span>
-                      <GallerySelector
-                        galleries={galleries}
-                        currentGalleryId={currentGalleryId}
-                        onGalleryChange={onCurrentGalleryChange}
-                        onGalleryCreate={handleGalleryCreate}
-                        onGalleryRename={handleGalleryRename}
-                        onGalleryDelete={handleGalleryDelete}
-                      />
-                    </div>
-                  );
-                
-                case 2:
-                  // Pill style with folder icon
-                  return (
-                    <div className="flex items-center gap-2 bg-muted/60 rounded-full px-3 py-1.5">
-                      <FolderOpen className="h-4 w-4 text-primary" />
-                      <GallerySelector
-                        galleries={galleries}
-                        currentGalleryId={currentGalleryId}
-                        onGalleryChange={onCurrentGalleryChange}
-                        onGalleryCreate={handleGalleryCreate}
-                        onGalleryRename={handleGalleryRename}
-                        onGalleryDelete={handleGalleryDelete}
-                      />
-                    </div>
-                  );
-                
-                case 3:
-                  // Card-like with subtle border
-                  return (
-                    <div className="flex items-center gap-3 border rounded-lg px-3 py-1.5 bg-background shadow-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center">
-                          <FolderOpen className="h-3.5 w-3.5 text-primary" />
-                        </div>
-                        <span className="text-xs text-muted-foreground uppercase tracking-wide">Gallery</span>
-                      </div>
-                      <div className="w-px h-5 bg-border" />
-                      <GallerySelector
-                        galleries={galleries}
-                        currentGalleryId={currentGalleryId}
-                        onGalleryChange={onCurrentGalleryChange}
-                        onGalleryCreate={handleGalleryCreate}
-                        onGalleryRename={handleGalleryRename}
-                        onGalleryDelete={handleGalleryDelete}
-                      />
-                    </div>
-                  );
-                
-                case 4:
-                  // Minimal - just name with hover actions
-                  return (
-                    <div className="group flex items-center gap-1">
-                      <span className="text-sm text-muted-foreground">Viewing:</span>
-                      <GallerySelector
-                        galleries={galleries}
-                        currentGalleryId={currentGalleryId}
-                        onGalleryChange={onCurrentGalleryChange}
-                        onGalleryCreate={handleGalleryCreate}
-                        onGalleryRename={handleGalleryRename}
-                        onGalleryDelete={handleGalleryDelete}
-                      />
-                    </div>
-                  );
-                
-                case 5:
-                  // Breadcrumb style
-                  return (
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <span className="text-muted-foreground">Galleries</span>
-                      <ChevronDown className="h-3 w-3 text-muted-foreground/60 rotate-[-90deg]" />
-                      <GallerySelector
-                        galleries={galleries}
-                        currentGalleryId={currentGalleryId}
-                        onGalleryChange={onCurrentGalleryChange}
-                        onGalleryCreate={handleGalleryCreate}
-                        onGalleryRename={handleGalleryRename}
-                        onGalleryDelete={handleGalleryDelete}
-                      />
-                    </div>
-                  );
-                
-                default:
-                  return null;
-              }
-            };
+            // Gallery Selector - Breadcrumb style
+            const renderGallerySelector = () => (
+              <div className="flex items-center gap-1.5 text-sm">
+                <span className="text-muted-foreground">Galleries</span>
+                <ChevronDown className="h-3 w-3 text-muted-foreground/60 rotate-[-90deg]" />
+                <GallerySelector
+                  galleries={galleries}
+                  currentGalleryId={currentGalleryId}
+                  onGalleryChange={onCurrentGalleryChange}
+                  onGalleryCreate={handleGalleryCreate}
+                  onGalleryRename={handleGalleryRename}
+                  onGalleryDelete={handleGalleryDelete}
+                />
+              </div>
+            );
 
             return (
               <div className="flex items-center justify-between border-b border-dashed pb-2">
@@ -1051,8 +952,8 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   </span>
                 </div>
                 
-                {/* Center: Gallery Selector - Dynamic Variant */}
-                {renderGallerySelectorVariant()}
+                {/* Center: Gallery Selector */}
+                {renderGallerySelector()}
                 
                 {/* Right: Toggles */}
                 <div className="flex items-center gap-2">
