@@ -85,10 +85,12 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
   };
 
   const thumbnailShapes = [
-    { value: 'landscape-16-9', label: 'Landscape 16:9', aspect: 'aspect-video' },
-    { value: 'landscape-3-2', label: 'Landscape 3:2', aspect: 'aspect-[3/2]' },
-    { value: 'square', label: 'Square 1:1', aspect: 'aspect-square' },
-    { value: 'portrait-2-3', label: 'Portrait 2:3', aspect: 'aspect-[2/3]' },
+    { value: '3-2', label: '3:2', sublabel: 'Default', aspect: 'aspect-[3/2]' },
+    { value: '1-1', label: '1:1', sublabel: 'Square', aspect: 'aspect-square' },
+    { value: '16-9', label: '16:9', sublabel: 'Wide', aspect: 'aspect-video' },
+    { value: '2-3', label: '2:3', sublabel: 'Portrait', aspect: 'aspect-[2/3]' },
+    { value: '9-16', label: '9:16', sublabel: 'Tall', aspect: 'aspect-[9/16]' },
+    { value: 'auto', label: 'Auto', sublabel: 'Masonry', aspect: 'aspect-auto' },
   ];
 
   // Note: positions arranged via layout, no need for array order
@@ -459,81 +461,121 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
         </CardContent>
       </Card>
 
-      {/* Thumbnail Size */}
+      {/* Thumbnail Shape & Size */}
       <Card className={!license.isPro ? 'opacity-50 pointer-events-none' : ''}>
         <CardHeader>
-          <CardTitle>Thumbnail Size</CardTitle>
+          <CardTitle>Thumbnail Shape & Size</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <RadioGroup 
-            value={localSettings.thumbnailSize || 'four-rows'}
-            onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailSize: value }))}
-          >
-            <div className="grid grid-cols-3 gap-6">
-              {/* 3 Columns */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-center">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="three-rows" id="three-rows" />
-                    <Label htmlFor="three-rows" className="text-sm font-medium cursor-pointer">3 columns</Label>
+          {/* Thumbnail Shape */}
+          <div className="space-y-4">
+            <Label className="text-sm font-medium">Thumbnail Shape</Label>
+            <RadioGroup 
+              value={localSettings.thumbnailShape || '3-2'}
+              onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailShape: value }))}
+            >
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+                {thumbnailShapes.map((shape) => (
+                  <div key={shape.value} className="space-y-2">
+                    <div className="flex items-center justify-center">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value={shape.value} id={`shape-${shape.value}`} />
+                        <Label htmlFor={`shape-${shape.value}`} className="text-sm font-medium cursor-pointer">
+                          {shape.label}
+                        </Label>
+                      </div>
+                    </div>
+                    <div className="flex justify-center">
+                      <div className={`bg-muted border border-border rounded ${
+                        shape.value === '3-2' ? 'w-12 h-8' :
+                        shape.value === '1-1' ? 'w-10 h-10' :
+                        shape.value === '16-9' ? 'w-16 h-9' :
+                        shape.value === '2-3' ? 'w-8 h-12' :
+                        shape.value === '9-16' ? 'w-6 h-10' :
+                        'w-10 h-12'
+                      }`}></div>
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center">{shape.sublabel}</p>
                   </div>
-                </div>
-                <div className="flex justify-center">
-                  <div className="grid grid-cols-3 gap-1 w-20">
-                    <div className="w-6 h-8 bg-muted"></div>
-                    <div className="w-6 h-8 bg-muted"></div>
-                    <div className="w-6 h-8 bg-muted"></div>
-                    <div className="w-6 h-8 bg-muted"></div>
-                    <div className="w-6 h-8 bg-muted"></div>
-                  </div>
-                </div>
+                ))}
               </div>
+            </RadioGroup>
+          </div>
 
-              {/* 4 Columns */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-center">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="four-rows" id="four-rows" />
-                    <Label htmlFor="four-rows" className="text-sm font-medium cursor-pointer">4 columns</Label>
+          {/* Thumbnail Size (Columns) */}
+          <div className="space-y-4 pt-4 border-t border-border">
+            <Label className="text-sm font-medium">Grid Columns</Label>
+            <RadioGroup 
+              value={localSettings.thumbnailSize || 'four-rows'}
+              onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailSize: value }))}
+            >
+              <div className="grid grid-cols-3 gap-6">
+                {/* 3 Columns */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="three-rows" id="three-rows" />
+                      <Label htmlFor="three-rows" className="text-sm font-medium cursor-pointer">3 columns</Label>
+                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="grid grid-cols-3 gap-1 w-20">
+                      <div className="w-6 h-8 bg-muted"></div>
+                      <div className="w-6 h-8 bg-muted"></div>
+                      <div className="w-6 h-8 bg-muted"></div>
+                      <div className="w-6 h-8 bg-muted"></div>
+                      <div className="w-6 h-8 bg-muted"></div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-center">
-                  <div className="grid grid-cols-4 gap-1 w-20">
-                    <div className="w-4 h-6 bg-muted"></div>
-                    <div className="w-4 h-6 bg-muted"></div>
-                    <div className="w-4 h-6 bg-muted"></div>
-                    <div className="w-4 h-6 bg-muted"></div>
-                    <div className="w-4 h-6 bg-muted"></div>
-                    <div className="w-4 h-6 bg-muted"></div>
-                    <div className="w-4 h-6 bg-muted"></div>
-                  </div>
-                </div>
-              </div>
 
-              {/* 5 Columns */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-center">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="five-rows" id="five-rows" />
-                    <Label htmlFor="five-rows" className="text-sm font-medium cursor-pointer">5 columns</Label>
+                {/* 4 Columns */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="four-rows" id="four-rows" />
+                      <Label htmlFor="four-rows" className="text-sm font-medium cursor-pointer">4 columns</Label>
+                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="grid grid-cols-4 gap-1 w-20">
+                      <div className="w-4 h-6 bg-muted"></div>
+                      <div className="w-4 h-6 bg-muted"></div>
+                      <div className="w-4 h-6 bg-muted"></div>
+                      <div className="w-4 h-6 bg-muted"></div>
+                      <div className="w-4 h-6 bg-muted"></div>
+                      <div className="w-4 h-6 bg-muted"></div>
+                      <div className="w-4 h-6 bg-muted"></div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-center">
-                  <div className="grid grid-cols-5 gap-1 w-20">
-                    <div className="w-3 h-4 bg-muted"></div>
-                    <div className="w-3 h-4 bg-muted"></div>
-                    <div className="w-3 h-4 bg-muted"></div>
-                    <div className="w-3 h-4 bg-muted"></div>
-                    <div className="w-3 h-4 bg-muted"></div>
-                    <div className="w-3 h-4 bg-muted"></div>
-                    <div className="w-3 h-4 bg-muted"></div>
-                    <div className="w-3 h-4 bg-muted"></div>
-                    <div className="w-3 h-4 bg-muted"></div>
+
+                {/* 5 Columns */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="five-rows" id="five-rows" />
+                      <Label htmlFor="five-rows" className="text-sm font-medium cursor-pointer">5 columns</Label>
+                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="grid grid-cols-5 gap-1 w-20">
+                      <div className="w-3 h-4 bg-muted"></div>
+                      <div className="w-3 h-4 bg-muted"></div>
+                      <div className="w-3 h-4 bg-muted"></div>
+                      <div className="w-3 h-4 bg-muted"></div>
+                      <div className="w-3 h-4 bg-muted"></div>
+                      <div className="w-3 h-4 bg-muted"></div>
+                      <div className="w-3 h-4 bg-muted"></div>
+                      <div className="w-3 h-4 bg-muted"></div>
+                      <div className="w-3 h-4 bg-muted"></div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </RadioGroup>
+            </RadioGroup>
+          </div>
+
           <div className="text-xs text-muted-foreground mt-4 p-3 bg-muted/50 rounded">
             <strong>Note:</strong> On mobile devices, thumbnails will always be displayed one by one for optimal viewing experience.
           </div>
