@@ -73,7 +73,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
     { id: 'style', label: 'Thumbnail Style', icon: LayoutGrid },
     { id: 'placeholder', label: 'Placeholder Image', icon: Image },
     { id: 'color', label: 'Accent Color', icon: Palette },
-    { id: 'size', label: 'Thumbnail Size', icon: Maximize2 },
+    { id: 'size', label: 'Thumbnail Shape & Size', icon: Maximize2 },
     { id: 'other', label: 'Other Settings', icon: Settings },
   ];
 
@@ -493,16 +493,99 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Maximize2 className="w-5 h-5" />
-                Thumbnail Size
+                Thumbnail Shape & Size
               </CardTitle>
-              <p className="text-sm text-muted-foreground">Set how many columns of thumbnails to display</p>
+              <p className="text-sm text-muted-foreground">Configure the aspect ratio and column layout of your thumbnails</p>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <RadioGroup 
-                value={localSettings.thumbnailSize || 'four-rows'}
-                onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailSize: value }))}
-                className="space-y-4"
-              >
+            <CardContent className="space-y-8">
+              {/* Thumbnail Shape Section */}
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-base font-medium">Thumbnail Shape</Label>
+                  <p className="text-sm text-muted-foreground">Choose the aspect ratio for your thumbnails</p>
+                </div>
+                <RadioGroup 
+                  value={localSettings.thumbnailShape || '3:2'}
+                  onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailShape: value }))}
+                  className="grid grid-cols-2 md:grid-cols-3 gap-3"
+                >
+                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '3:2' || !localSettings.thumbnailShape ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem value="3:2" id="shape-3-2" />
+                      <div className="flex-1">
+                        <Label htmlFor="shape-3-2" className="text-sm font-medium cursor-pointer">3:2 (Default)</Label>
+                        <div className="mt-2 mx-auto w-12 h-8 bg-muted rounded border border-border"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '1:1' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem value="1:1" id="shape-1-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="shape-1-1" className="text-sm font-medium cursor-pointer">1:1</Label>
+                        <div className="mt-2 mx-auto w-10 h-10 bg-muted rounded border border-border"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '16:9' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem value="16:9" id="shape-16-9" />
+                      <div className="flex-1">
+                        <Label htmlFor="shape-16-9" className="text-sm font-medium cursor-pointer">16:9</Label>
+                        <div className="mt-2 mx-auto w-16 h-9 bg-muted rounded border border-border"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '2:3' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem value="2:3" id="shape-2-3" />
+                      <div className="flex-1">
+                        <Label htmlFor="shape-2-3" className="text-sm font-medium cursor-pointer">2:3</Label>
+                        <div className="mt-2 mx-auto w-8 h-12 bg-muted rounded border border-border"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '9:16' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem value="9:16" id="shape-9-16" />
+                      <div className="flex-1">
+                        <Label htmlFor="shape-9-16" className="text-sm font-medium cursor-pointer">9:16</Label>
+                        <div className="mt-2 mx-auto w-6 h-11 bg-muted rounded border border-border"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === 'auto' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem value="auto" id="shape-auto" />
+                      <div className="flex-1">
+                        <Label htmlFor="shape-auto" className="text-sm font-medium cursor-pointer">Auto (Masonry)</Label>
+                        <div className="mt-2 mx-auto flex gap-1 justify-center">
+                          <div className="w-3 h-8 bg-muted rounded border border-border"></div>
+                          <div className="w-3 h-5 bg-muted rounded border border-border"></div>
+                          <div className="w-3 h-10 bg-muted rounded border border-border"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Thumbnail Size Section */}
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-base font-medium">Thumbnail Size</Label>
+                  <p className="text-sm text-muted-foreground">Set how many columns of thumbnails to display</p>
+                </div>
+                <RadioGroup 
+                  value={localSettings.thumbnailSize || 'four-rows'}
+                  onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailSize: value }))}
+                  className="space-y-4"
+                >
                 <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -566,6 +649,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                   </div>
                 </div>
               </RadioGroup>
+              </div>
               <div className="text-xs text-muted-foreground p-3 bg-muted/30 rounded border-l-4 border-primary/50">
                 <strong>Mobile Note:</strong> On mobile devices, thumbnails automatically display in a single column for optimal viewing experience.
               </div>
