@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, ChevronDown } from 'lucide-react';
+import { Plus, Edit2, Trash2, ChevronDown, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -53,6 +53,7 @@ export const GallerySelector = ({
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [newGalleryName, setNewGalleryName] = useState('');
   const [renameGalleryName, setRenameGalleryName] = useState('');
+  const [shortcodeCopied, setShortcodeCopied] = useState(false);
   const { toast } = useToast();
   const license = useLicense();
 
@@ -147,6 +148,26 @@ export const GallerySelector = ({
     });
   };
 
+  const handleCopyShortcode = async () => {
+    const galleryName = currentGallery?.name || 'main';
+    const shortcode = `[pdf_gallery name="${galleryName.toLowerCase().replace(/[^a-z0-9-_]/g, '-')}"]`;
+    try {
+      await navigator.clipboard.writeText(shortcode);
+      setShortcodeCopied(true);
+      toast({
+        title: "Shortcode Copied",
+        description: shortcode,
+      });
+      setTimeout(() => setShortcodeCopied(false), 2000);
+    } catch (err) {
+      toast({
+        title: "Copy Failed",
+        description: "Could not copy shortcode to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
+
   // If only one gallery exists, show just the name with management buttons
   if (galleries.length === 1) {
     return (
@@ -192,6 +213,17 @@ export const GallerySelector = ({
               </div>
             </DialogContent>
           </Dialog>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0"
+            aria-label="Copy Shortcode"
+            title="Copy Shortcode"
+            onClick={handleCopyShortcode}
+          >
+            {shortcodeCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+          </Button>
 
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
@@ -320,6 +352,17 @@ export const GallerySelector = ({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0"
+          aria-label="Copy Shortcode"
+          title="Copy Shortcode"
+          onClick={handleCopyShortcode}
+        >
+          {shortcodeCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+        </Button>
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
