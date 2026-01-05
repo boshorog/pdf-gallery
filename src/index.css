@@ -194,3 +194,22 @@ All colors MUST be HSL.
     }
   }
 }
+
+/* WordPress-specific overrides for footer logo */
+@supports (-webkit-appearance: none) {
+  .kp-footer-logo,
+  .kp-footer-logo:hover,
+  .kp-footer-logo:focus,
+  .kp-footer-logo:active,
+  .kp-footer-logo svg,
+  .kp-footer-logo:hover svg,
+  a.kp-footer-logo,
+  a.kp-footer-logo:hover {
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    color: rgb(71 85 105) !important; /* text-slate-600 */
+    fill: currentColor !important;
+    transition: none !important;
+  }
+}

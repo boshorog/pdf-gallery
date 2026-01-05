@@ -1,7 +1,7 @@
 # PDF Gallery Plugin - Knowledge Base
 
 ## Overview
-The PDF Gallery Plugin is a comprehensive WordPress solution for creating beautiful, interactive galleries from various document types and images. Version 1.7.5 supports PDF, PPT/PPTX, DOC/DOCX, XLS/XLSX, and image files (JPG, JPEG, PNG, GIF, WEBP).
+The PDF Gallery Plugin is a comprehensive WordPress solution for creating beautiful, interactive galleries from various document types and images. Version 1.8.0 supports PDF, PPT/PPTX, DOC/DOCX, XLS/XLSX, and image files (JPG, JPEG, PNG, GIF, WEBP).
 
 ## Core Features
 
