@@ -69,8 +69,12 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
     return null;
   }
   
-  // Only show in admin
-  if (!isAdmin) {
+  // Check if in Lovable preview environment
+  const hostname = window.location.hostname;
+  const isLovablePreview = hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
+  
+  // Only show in admin or Lovable preview
+  if (!isAdmin && !isLovablePreview) {
     console.debug('[PDF Gallery] ProBanner hidden: not admin');
     return null;
   }
