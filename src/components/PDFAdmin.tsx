@@ -985,7 +985,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
           </div>
 
           {/* Second Row: Select All | Gallery Selector | Toggles - above dotted line */}
-          {items.length > 0 && (() => {
+          {(() => {
             const gallerySettings = (currentGallery as any)?.settings || {};
             const ratingsEnabled = gallerySettings.ratingsEnabled ?? true;
             const lightboxEnabled = gallerySettings.lightboxEnabled ?? true;
@@ -1035,38 +1035,47 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
 
             return (
               <div className="flex items-center justify-between border-b border-dashed pb-2">
-                {/* Left: Select All */}
+                {/* Left: Select All (only show if there are items) */}
                 <div className="flex items-center space-x-3 ml-[22px]">
-                  <Checkbox 
-                    checked={selectedItems.size === items.length && items.length > 0}
-                    onCheckedChange={handleSelectAll}
-                    aria-label="Select all"
-                  />
-                  <span className="text-sm text-muted-foreground">
-                    {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select all'}
-                  </span>
+                  {items.length > 0 ? (
+                    <>
+                      <Checkbox 
+                        checked={selectedItems.size === items.length && items.length > 0}
+                        onCheckedChange={handleSelectAll}
+                        aria-label="Select all"
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select all'}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">No documents yet</span>
+                  )}
                 </div>
                 
                 {/* Center: Gallery Selector */}
                 {renderGallerySelector()}
                 
-                {/* Right: Toggles */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
-                    className={`p-1.5 rounded transition-colors ${ratingsEnabled ? 'text-yellow-500' : 'text-muted-foreground/40'}`}
-                    title={ratingsEnabled ? "Disable Ratings" : "Enable Ratings"}
-                  >
-                    <Star className={`h-4 w-4 ${ratingsEnabled ? 'fill-current' : ''}`} />
-                  </button>
-                  <button
-                    onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
-                    className={`p-1.5 rounded transition-colors ${lightboxEnabled ? 'text-blue-500' : 'text-muted-foreground/40'}`}
-                    title={lightboxEnabled ? "Disable Lightbox" : "Enable Lightbox"}
-                  >
-                    <Maximize2 className="h-4 w-4" />
-                  </button>
-                </div>
+                {/* Right: Toggles (only show if there are items) */}
+                {items.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
+                      className={`p-1.5 rounded transition-colors ${ratingsEnabled ? 'text-yellow-500' : 'text-muted-foreground/40'}`}
+                      title={ratingsEnabled ? "Disable Ratings" : "Enable Ratings"}
+                    >
+                      <Star className={`h-4 w-4 ${ratingsEnabled ? 'fill-current' : ''}`} />
+                    </button>
+                    <button
+                      onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
+                      className={`p-1.5 rounded transition-colors ${lightboxEnabled ? 'text-blue-500' : 'text-muted-foreground/40'}`}
+                      title={lightboxEnabled ? "Disable Lightbox" : "Enable Lightbox"}
+                    >
+                      <Maximize2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+                {items.length === 0 && <div />}
               </div>
             );
           })()}
