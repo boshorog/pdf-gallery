@@ -12,7 +12,7 @@ import { useLicense } from '@/hooks/useLicense';
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 
-const PLUGIN_VERSION = '1.8.0';
+const PLUGIN_VERSION = '1.8.1';
 
 // Kind Pixels Logo SVG Component
 const KindPixelsLogo = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (

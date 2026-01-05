@@ -492,10 +492,11 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   };
 
   const handleSubmitDocument = async () => {
-    if (!documentFormData.title || !documentFormData.pdfUrl) {
+    // Only URL is required, title is optional
+    if (!documentFormData.pdfUrl) {
       toast({
         title: "Error",
-        description: "Title and URL are required",
+        description: "Document URL is required",
         variant: "destructive",
       });
       return;
