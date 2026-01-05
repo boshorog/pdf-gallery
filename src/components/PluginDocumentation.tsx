@@ -6,9 +6,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Crown, Check, X, Shield, Trash2, BookOpen, FileText, Settings, Upload, Layout, Palette, HelpCircle, Zap } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
-const PLUGIN_VERSION = '1.8.0';
+const PLUGIN_VERSION = '1.8.1';
 
 interface PluginDocumentationProps {
   className?: string;
@@ -17,6 +17,7 @@ interface PluginDocumentationProps {
 const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className }) => {
   const license = useLicense();
   const [isRemovingLicense, setIsRemovingLicense] = useState(false);
+  const { toast } = useToast();
 
   // Get license owner info from WordPress global
   const getLicenseOwner = () => {
@@ -36,7 +37,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className }) 
       const nonce = wpGlobal?.nonce;
 
       if (!ajaxUrl || !nonce) {
-        toast.error('Unable to remove license', { description: 'WordPress AJAX not available' });
+        toast({ title: 'Unable to remove license', description: 'WordPress AJAX not available', variant: 'destructive' });
         return;
       }
 
@@ -53,13 +54,13 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className }) 
       const data = await response.json();
 
       if (data?.success) {
-        toast.success('License removed', { description: 'Your license has been deactivated. Reloading...' });
+        toast({ title: 'License removed', description: 'Your license has been deactivated. Reloading...' });
         setTimeout(() => window.location.reload(), 1500);
       } else {
-        toast.error('Failed to remove license', { description: data?.data?.message || 'Unknown error' });
+        toast({ title: 'Failed to remove license', description: data?.data?.message || 'Unknown error', variant: 'destructive' });
       }
     } catch (error) {
-      toast.error('Error removing license', { description: 'Please try again' });
+      toast({ title: 'Error removing license', description: 'Please try again', variant: 'destructive' });
     } finally {
       setIsRemovingLicense(false);
     }

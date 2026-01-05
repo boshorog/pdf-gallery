@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, PPT/PPTX, DOC/DOCX, XLS/XLSX, and image files. Easily organize, sort, and showcase your documents in beautiful grid layouts.
- * Version: 1.8.0
+ * Version: 1.8.1
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
@@ -85,7 +85,7 @@ if (defined('PDF_GALLERY_PLUGIN_LOADED')) {
     return;
 }
 define('PDF_GALLERY_PLUGIN_LOADED', true);
-define('PDF_GALLERY_VERSION', '1.8.0');
+define('PDF_GALLERY_VERSION', '1.8.1');
 class PDF_Gallery_Plugin {
     
     public function __construct() {
@@ -301,9 +301,10 @@ class PDF_Gallery_Plugin {
             wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'pdf-gallery'));
         }
         
+        // Hide the WordPress admin page title using CSS since we have our own header
+        echo '<style>.wrap > h1:first-child { display: none !important; }</style>';
         echo '<div class="wrap">';
-        echo '<h1>PDF Gallery</h1>';
-        echo '<div id="pdf-gallery-root" style="margin-top: 20px;"></div>';
+        echo '<div id="pdf-gallery-root" style="margin-top: 0;"></div>';
         echo '</div>';
     }
     
@@ -728,15 +729,36 @@ public function display_gallery_shortcode($atts) {
         delete_option('pdf_gallery_license_key');
         delete_option('pdf_gallery_license_data');
 
-        // Attempt to deactivate via Freemius SDK
+        // Attempt to deactivate via Freemius SDK using the exact same method as the Account page
         if ( function_exists( 'pdfgallery_fs' ) ) {
             $fs = pdfgallery_fs();
             
-            if ( is_object( $fs ) && method_exists( $fs, 'deactivate_license' ) ) {
+            if ( is_object( $fs ) ) {
                 try {
-                    $fs->deactivate_license();
+                    // First try delete_account which fully removes the license association
+                    if ( method_exists( $fs, 'delete_account_event' ) ) {
+                        $fs->delete_account_event();
+                    }
+                    
+                    // Then explicitly deactivate the license
+                    if ( method_exists( $fs, 'deactivate_license' ) ) {
+                        $fs->deactivate_license();
+                    }
+                    
+                    // Clear the Freemius stored data
+                    if ( method_exists( $fs, 'clear_all_data' ) ) {
+                        $fs->clear_all_data();
+                    }
+                    
+                    // Alternative: try to skip connection which resets the license state
+                    if ( method_exists( $fs, 'skip_connection' ) ) {
+                        $fs->skip_connection();
+                    }
                 } catch ( Exception $e ) {
-                    // Continue even if SDK deactivation fails
+                    // Log error but continue
+                    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                        error_log('PDF Gallery: Freemius deactivation error: ' . $e->getMessage());
+                    }
                 }
             }
         }
@@ -882,7 +904,8 @@ public function display_gallery_shortcode($atts) {
         // Front-end request can specify a gallery name to preview via shortcode
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
         $frontend_gallery_override = null;
-        if (isset($_POST['requested_gallery_name'])) {
+        $is_frontend_request = isset($_POST['requested_gallery_name']);
+        if ($is_frontend_request) {
             $req = sanitize_text_field(wp_unslash($_POST['requested_gallery_name']));
             if (!empty($req) && is_array($galleries)) {
                 $slug = sanitize_title($req);
@@ -895,6 +918,10 @@ public function display_gallery_shortcode($atts) {
                     }
                 }
             }
+            // If no match found for the requested name, default to first gallery (not admin's last selection)
+            if ($frontend_gallery_override === null && is_array($galleries) && count($galleries) > 0) {
+                $frontend_gallery_override = isset($galleries[0]['id']) ? $galleries[0]['id'] : 'test';
+            }
         }
 
         // Persist only if we actually changed something (but never persist frontend gallery overrides)
@@ -903,8 +930,8 @@ public function display_gallery_shortcode($atts) {
             update_option('pdf_gallery_current_gallery_id', $current_id);
         }
         
-        // Use frontend override if specified, otherwise use stored current_id
-        $response_current_id = $frontend_gallery_override !== null ? $frontend_gallery_override : $current_id;
+        // For frontend requests, always use the frontend override; for admin requests, use stored current_id
+        $response_current_id = $is_frontend_request ? $frontend_gallery_override : $current_id;
 
         wp_send_json_success(array(
             'galleries' => $galleries,
