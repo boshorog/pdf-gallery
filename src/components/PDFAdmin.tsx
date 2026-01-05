@@ -816,12 +816,22 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     const wpPDFGallery = (window as any).wpPDFGallery;
     
     // Check if WordPress media library is available
-    if (!wp?.media) {
-      toast({
-        title: "Not Available",
-        description: "WordPress Media Library is only available in WordPress admin",
-        variant: "destructive",
-      });
+    // wp.media is a function that needs to exist, not just wp object
+    if (typeof wp?.media !== 'function') {
+      // Try to check if we're in WordPress but media isn't loaded
+      if (typeof (window as any).ajaxurl !== 'undefined' || wpPDFGallery) {
+        toast({
+          title: "Media Library Not Loaded",
+          description: "Please ensure WordPress media scripts are loaded. Try refreshing the page.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Not Available",
+          description: "WordPress Media Library is only available in WordPress admin",
+          variant: "destructive",
+        });
+      }
       return;
     }
 

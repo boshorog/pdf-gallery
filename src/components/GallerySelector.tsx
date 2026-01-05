@@ -60,11 +60,12 @@ export const GallerySelector = ({
   const currentGallery = galleries.find(g => g.id === currentGalleryId);
 
   // Ensure a default gallery is selected when none is set
+  // Only run when there's no valid selection (not when galleries change during create)
   useEffect(() => {
-    if ((!currentGalleryId || !galleries.some(g => g.id === currentGalleryId)) && galleries.length > 0) {
+    if (galleries.length > 0 && (!currentGalleryId || !galleries.some(g => g.id === currentGalleryId))) {
       onGalleryChange(galleries[0].id);
     }
-  }, [currentGalleryId, galleries, onGalleryChange]);
+  }, [galleries.length, currentGalleryId]); // Removed galleries and onGalleryChange from deps to prevent loops
 
   const handleCreateGallery = () => {
     if (!license.isPro && galleries.length >= 1) {
