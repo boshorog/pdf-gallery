@@ -865,6 +865,7 @@ public function display_gallery_shortcode($atts) {
 
         // Front-end request can specify a gallery name to preview via shortcode
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        $frontend_gallery_override = null;
         if (isset($_POST['requested_gallery_name'])) {
             $req = sanitize_text_field(wp_unslash($_POST['requested_gallery_name']));
             if (!empty($req) && is_array($galleries)) {
@@ -872,22 +873,26 @@ public function display_gallery_shortcode($atts) {
                 foreach ($galleries as $g) {
                     $gname = isset($g['name']) ? $g['name'] : '';
                     if (sanitize_title($gname) === $slug) {
-                        $current_id = $g['id'];
+                        // Set the gallery ID for this request only, don't persist it
+                        $frontend_gallery_override = $g['id'];
                         break;
                     }
                 }
             }
         }
 
-        // Persist only if we actually changed something
+        // Persist only if we actually changed something (but never persist frontend gallery overrides)
         if ($modified) {
             update_option('pdf_gallery_galleries', $galleries);
             update_option('pdf_gallery_current_gallery_id', $current_id);
         }
+        
+        // Use frontend override if specified, otherwise use stored current_id
+        $response_current_id = $frontend_gallery_override !== null ? $frontend_gallery_override : $current_id;
 
         wp_send_json_success(array(
             'galleries' => $galleries,
-            'current_gallery_id' => $current_id,
+            'current_gallery_id' => $response_current_id,
         ));
     }
 
