@@ -75,14 +75,35 @@ serve(async (req) => {
       );
     }
 
-    // POST - Submit or update a rating
+    // POST - Submit, update, or remove a rating
     if (method === 'POST') {
       const { documentId, galleryId, rating, visitorId } = await req.json();
 
-      if (!documentId || !galleryId || !rating || !visitorId) {
+      if (!documentId || !galleryId || rating === undefined || !visitorId) {
         return new Response(
           JSON.stringify({ error: 'documentId, galleryId, rating, and visitorId are required' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Rating of 0 means remove the rating
+      if (rating === 0) {
+        const { error } = await supabase
+          .from('document_ratings')
+          .delete()
+          .eq('document_id', documentId)
+          .eq('visitor_id', visitorId);
+
+        if (error) {
+          console.error('Error deleting rating:', error);
+          throw error;
+        }
+
+        console.log(`[document-rating] DELETE documentId=${documentId} visitorId=${visitorId.substring(0, 8)}...`);
+
+        return new Response(
+          JSON.stringify({ success: true, removed: true }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 

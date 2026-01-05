@@ -73,6 +73,10 @@ export const DocumentRating: React.FC<DocumentRatingProps> = ({
   const submitRating = async (rating: number) => {
     if (isSubmitting) return;
     
+    // Toggle off if clicking the same rating
+    const isRemovingRating = userRating === rating;
+    const newRating = isRemovingRating ? 0 : rating;
+    
     setIsSubmitting(true);
     try {
       const visitorId = getVisitorId();
@@ -88,14 +92,14 @@ export const DocumentRating: React.FC<DocumentRatingProps> = ({
           body: JSON.stringify({
             documentId,
             galleryId,
-            rating,
+            rating: newRating,
             visitorId
           })
         }
       );
 
       if (response.ok) {
-        setUserRating(rating);
+        setUserRating(isRemovingRating ? null : rating);
         // Refetch to get updated average
         await fetchRatings();
       }
@@ -112,8 +116,21 @@ export const DocumentRating: React.FC<DocumentRatingProps> = ({
 
   const displayRating = hoverRating || userRating || averageRating;
 
+  // Stop click propagation to prevent opening the file link
+  const handleClick = (e: React.MouseEvent, star: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    submitRating(star);
+  };
+
   return (
-    <div className={cn('flex items-center gap-1', className)}>
+    <div 
+      className={cn('flex items-center gap-1', className)}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
       <div className="flex items-center">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
@@ -126,7 +143,7 @@ export const DocumentRating: React.FC<DocumentRatingProps> = ({
             )}
             onMouseEnter={() => setHoverRating(star)}
             onMouseLeave={() => setHoverRating(0)}
-            onClick={() => submitRating(star)}
+            onClick={(e) => handleClick(e, star)}
           >
             <Star
               className={cn(
@@ -144,12 +161,6 @@ export const DocumentRating: React.FC<DocumentRatingProps> = ({
       {showCount && !isLoading && totalRatings > 0 && (
         <span className="text-xs text-muted-foreground ml-1">
           ({totalRatings})
-        </span>
-      )}
-      
-      {userRating && (
-        <span className="text-xs text-primary ml-1">
-          ✓
         </span>
       )}
     </div>
