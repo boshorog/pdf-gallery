@@ -424,7 +424,7 @@ const PDFGallery = ({
           <a key={pdf.id} {...baseProps}>
             <div className="group cursor-pointer">
               <div className="space-y-2">
-                <div className="relative aspect-video bg-muted rounded-md overflow-hidden">
+                <div className="relative aspect-video bg-muted overflow-hidden">
                   <img
                     src={pdf.thumbnail}
                     alt={pdf.title}
