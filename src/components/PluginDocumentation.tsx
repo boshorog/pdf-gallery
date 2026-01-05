@@ -1,0 +1,494 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Crown, Check, X, Shield, Trash2, BookOpen, FileText, Settings, Upload, Layout, Palette, HelpCircle, Zap } from 'lucide-react';
+import { useLicense } from '@/hooks/useLicense';
+import { toast } from 'sonner';
+
+const PLUGIN_VERSION = '1.7.5';
+
+interface PluginDocumentationProps {
+  className?: string;
+}
+
+const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className }) => {
+  const license = useLicense();
+  const [isRemovingLicense, setIsRemovingLicense] = useState(false);
+
+  // Get license owner info from WordPress global
+  const getLicenseOwner = () => {
+    try {
+      const wpGlobal = (window as any).wpPDFGallery || (window.parent as any)?.wpPDFGallery;
+      return wpGlobal?.licensedTo || 'Pro User';
+    } catch {
+      return 'Pro User';
+    }
+  };
+
+  const handleRemoveLicense = async () => {
+    setIsRemovingLicense(true);
+    try {
+      const wpGlobal = (window as any).wpPDFGallery || (window.parent as any)?.wpPDFGallery;
+      const ajaxUrl = wpGlobal?.ajaxUrl || (window as any).ajaxurl;
+      const nonce = wpGlobal?.nonce;
+
+      if (!ajaxUrl || !nonce) {
+        toast.error('Unable to remove license', { description: 'WordPress AJAX not available' });
+        return;
+      }
+
+      const form = new FormData();
+      form.append('action', 'pdf_gallery_freemius_deactivate');
+      form.append('nonce', nonce);
+
+      const response = await fetch(ajaxUrl, {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: form
+      });
+
+      const data = await response.json();
+
+      if (data?.success) {
+        toast.success('License removed', { description: 'Your license has been deactivated. Reloading...' });
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        toast.error('Failed to remove license', { description: data?.data?.message || 'Unknown error' });
+      }
+    } catch (error) {
+      toast.error('Error removing license', { description: 'Please try again' });
+    } finally {
+      setIsRemovingLicense(false);
+    }
+  };
+
+  const FeatureRow = ({ feature, free, pro }: { feature: string; free: boolean | string; pro: boolean | string }) => (
+    <tr className="border-b border-border/50">
+      <td className="py-3 px-4 text-sm">{feature}</td>
+      <td className="py-3 px-4 text-center">
+        {typeof free === 'boolean' ? (
+          free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/50 mx-auto" />
+        ) : (
+          <span className="text-sm text-muted-foreground">{free}</span>
+        )}
+      </td>
+      <td className="py-3 px-4 text-center">
+        {typeof pro === 'boolean' ? (
+          pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <X className="w-5 h-5 text-muted-foreground/50 mx-auto" />
+        ) : (
+          <span className="text-sm font-medium text-primary">{pro}</span>
+        )}
+      </td>
+    </tr>
+  );
+
+  return (
+    <div className={className}>
+      {/* Pro License Info */}
+      {license.isPro && license.checked && (
+        <Card className="mb-6 border-primary/30 bg-gradient-to-r from-primary/5 to-transparent">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-primary/10">
+                  <Crown className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">
+                    Licensed to: <span className="text-primary">{getLicenseOwner()}</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">PDF Gallery Pro v{PLUGIN_VERSION}</p>
+                </div>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Remove License
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Remove Pro License?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will deactivate your Pro license and revert to the Free version. You can reactivate it later using your license key.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleRemoveLicense}
+                      disabled={isRemovingLicense}
+                      className="bg-destructive hover:bg-destructive/90"
+                    >
+                      {isRemovingLicense ? 'Removing...' : 'Remove License'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="w-5 h-5" />
+            PDF Gallery Documentation
+            <Badge variant="secondary" className="ml-2">v{PLUGIN_VERSION}</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Accordion type="single" collapsible className="w-full">
+            {/* Free vs Pro Comparison */}
+            <AccordionItem value="comparison">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <Crown className="w-4 h-4 text-amber-500" />
+                  Free vs Pro Comparison
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-muted/50">
+                        <th className="py-3 px-4 text-left text-sm font-semibold">Feature</th>
+                        <th className="py-3 px-4 text-center text-sm font-semibold">Free</th>
+                        <th className="py-3 px-4 text-center text-sm font-semibold">
+                          <span className="inline-flex items-center gap-1">
+                            <Crown className="w-4 h-4 text-amber-500" />
+                            Pro
+                          </span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <FeatureRow feature="Number of Galleries" free="1" pro="Unlimited" />
+                      <FeatureRow feature="Documents per Gallery" free="Unlimited" pro="Unlimited" />
+                      <FeatureRow feature="PDF Support" free={true} pro={true} />
+                      <FeatureRow feature="Office Files (DOC, PPT, XLS)" free={true} pro={true} />
+                      <FeatureRow feature="Image Files" free={true} pro={true} />
+                      <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />
+                      <FeatureRow feature="Section Dividers" free={true} pro={true} />
+                      <FeatureRow feature="Multi-File Upload" free={false} pro={true} />
+                      <FeatureRow feature="Thumbnail Styles" free="2 styles" pro="All styles" />
+                      <FeatureRow feature="Hover Animations" free="Basic" pro="All animations" />
+                      <FeatureRow feature="Custom Accent Colors" free={false} pro={true} />
+                      <FeatureRow feature="Advanced Layout Options" free={false} pro={true} />
+                      <FeatureRow feature="Document Ratings" free={true} pro={true} />
+                      <FeatureRow feature="Priority Support" free={false} pro={true} />
+                    </tbody>
+                  </table>
+                </div>
+                {!license.isPro && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-lg border border-amber-500/20">
+                    <p className="text-sm text-center">
+                      <a 
+                        href="https://kindpixels.com/pdf-gallery-pro" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline font-medium"
+                      >
+                        Upgrade to Pro →
+                      </a>
+                    </p>
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Getting Started */}
+            <AccordionItem value="getting-started">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-blue-500" />
+                  Getting Started
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <h4 className="font-medium mb-2">Quick Start Guide</h4>
+                    <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
+                      <li>Go to the <strong>Gallery Management</strong> tab</li>
+                      <li>Click <strong>"Add File(s)"</strong> to upload documents</li>
+                      <li>Arrange your documents using drag & drop</li>
+                      <li>Copy the shortcode from the <strong>Preview</strong> tab</li>
+                      <li>Paste the shortcode into any page or post</li>
+                    </ol>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Supported File Types</h4>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">PDF</Badge>
+                      <Badge variant="outline">DOC/DOCX</Badge>
+                      <Badge variant="outline">PPT/PPTX</Badge>
+                      <Badge variant="outline">XLS/XLSX</Badge>
+                      <Badge variant="outline">JPG/JPEG</Badge>
+                      <Badge variant="outline">PNG</Badge>
+                      <Badge variant="outline">GIF</Badge>
+                      <Badge variant="outline">WEBP</Badge>
+                    </div>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Uploading Files */}
+            <AccordionItem value="uploading">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <Upload className="w-4 h-4 text-green-500" />
+                  Uploading Files
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <h4 className="font-medium mb-2">Upload Methods</h4>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li><strong>Computer Upload:</strong> Select files from your device</li>
+                      <li><strong>WordPress Media Library:</strong> Choose existing media files</li>
+                      <li><strong>URL Input:</strong> Enter a direct link to a file</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Thumbnails</h4>
+                    <p className="text-muted-foreground">
+                      Thumbnails are automatically generated for PDF files. For other file types, a placeholder icon is displayed. 
+                      You can also upload custom thumbnails for any document.
+                    </p>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Gallery Management */}
+            <AccordionItem value="management">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <Layout className="w-4 h-4 text-purple-500" />
+                  Gallery Management
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <h4 className="font-medium mb-2">Organizing Documents</h4>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li><strong>Drag & Drop:</strong> Reorder documents by dragging them</li>
+                      <li><strong>Section Dividers:</strong> Add headers to group related documents</li>
+                      <li><strong>Bulk Selection:</strong> Select multiple items for batch operations</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Editing Documents</h4>
+                    <p className="text-muted-foreground">
+                      Click the edit icon on any document to modify its title, subtitle, or thumbnail. 
+                      Changes are saved automatically.
+                    </p>
+                  </div>
+                  {license.isPro && (
+                    <div>
+                      <h4 className="font-medium mb-2">Multiple Galleries (Pro)</h4>
+                      <p className="text-muted-foreground">
+                        Create unlimited galleries for different purposes. Use the gallery selector dropdown 
+                        to switch between galleries or create new ones.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Shortcodes */}
+            <AccordionItem value="shortcodes">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-orange-500" />
+                  Shortcodes
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <h4 className="font-medium mb-2">Basic Usage</h4>
+                    <code className="block bg-muted p-3 rounded text-xs">
+                      [pdf_gallery]
+                    </code>
+                    <p className="text-muted-foreground mt-2">Displays the default gallery.</p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Specific Gallery</h4>
+                    <code className="block bg-muted p-3 rounded text-xs">
+                      [pdf_gallery name="my-gallery-name"]
+                    </code>
+                    <p className="text-muted-foreground mt-2">Displays a specific gallery by name (use lowercase with hyphens).</p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Available Parameters</h4>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li><code className="bg-muted px-1 rounded">name</code> - Gallery name (slug format)</li>
+                      <li><code className="bg-muted px-1 rounded">columns</code> - Number of columns (1-6)</li>
+                      <li><code className="bg-muted px-1 rounded">style</code> - Thumbnail style override</li>
+                    </ul>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Display Settings */}
+            <AccordionItem value="settings">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <Settings className="w-4 h-4 text-slate-500" />
+                  Display Settings
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <h4 className="font-medium mb-2">Layout Options</h4>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li><strong>Columns:</strong> Choose 1-6 columns for the grid layout</li>
+                      <li><strong>Thumbnail Shape:</strong> Square, landscape, or portrait aspect ratios</li>
+                      <li><strong>Gap Size:</strong> Spacing between gallery items</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Thumbnail Styles</h4>
+                    <p className="text-muted-foreground">
+                      Choose from various thumbnail styles including bordered, shadowed, rounded corners, 
+                      and more. Pro users have access to all available styles.
+                    </p>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Styling */}
+            <AccordionItem value="styling">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <Palette className="w-4 h-4 text-pink-500" />
+                  Styling & Customization
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <h4 className="font-medium mb-2">Accent Colors (Pro)</h4>
+                    <p className="text-muted-foreground">
+                      Customize the accent color to match your website's branding. This affects buttons, 
+                      links, and interactive elements.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Hover Animations</h4>
+                    <p className="text-muted-foreground">
+                      Add visual feedback when users hover over gallery items. Choose from fade, slide, 
+                      zoom, and other animation effects.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Custom CSS</h4>
+                    <p className="text-muted-foreground">
+                      Advanced users can add custom CSS through WordPress Customizer to further 
+                      style the gallery output.
+                    </p>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Troubleshooting */}
+            <AccordionItem value="troubleshooting">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4 text-red-500" />
+                  Troubleshooting
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <h4 className="font-medium mb-2">Thumbnails Not Generating</h4>
+                    <p className="text-muted-foreground">
+                      Ensure your server has sufficient memory and the file size is within limits. 
+                      For large PDFs, thumbnail generation may take a few moments.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Upload Errors</h4>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li>Check your PHP <code className="bg-muted px-1 rounded">upload_max_filesize</code> setting</li>
+                      <li>Verify the file type is supported</li>
+                      <li>Ensure file permissions are correct</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Gallery Not Displaying</h4>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li>Verify the shortcode is correct</li>
+                      <li>Check for JavaScript errors in the browser console</li>
+                      <li>Ensure no theme/plugin conflicts</li>
+                    </ul>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Support */}
+            <AccordionItem value="support">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-teal-500" />
+                  Support & Resources
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 text-sm">
+                  <div>
+                    <h4 className="font-medium mb-2">Getting Help</h4>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li><strong>Documentation:</strong> You're reading it!</li>
+                      <li><strong>WordPress Forums:</strong> Community support for free users</li>
+                      <li><strong>Priority Support:</strong> Email support for Pro users</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Useful Links</h4>
+                    <ul className="space-y-2">
+                      <li>
+                        <a href="https://kindpixels.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                          Plugin Website →
+                        </a>
+                      </li>
+                      <li>
+                        <a href="https://kindpixels.com/pdf-gallery-pro" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                          Upgrade to Pro →
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-muted-foreground">
+                      PDF Gallery v{PLUGIN_VERSION} • Made with ❤️ by Kind Pixels
+                    </p>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default PluginDocumentation;

@@ -7,6 +7,7 @@ import PDFAdmin from '@/components/PDFAdmin';
 import PDFGallery from '@/components/PDFGallery';
 import PDFSettings from '@/components/PDFSettings';
 import SettingsProposal2 from '@/components/SettingsProposal2';
+import PluginDocumentation from '@/components/PluginDocumentation';
 
 
 
@@ -349,7 +350,7 @@ const Index = () => {
                 </span>
               </sup>
             </TabsTrigger>
-            <TabsTrigger value="docs">Documentation</TabsTrigger>
+            <TabsTrigger value="docs">Info & Documentation</TabsTrigger>
           </TabsList>
           
           <TabsContent value="preview" className="space-y-6">
@@ -406,20 +407,7 @@ const Index = () => {
           </TabsContent>
           
           <TabsContent value="docs">
-            <Card>
-              <CardHeader>
-                <CardTitle>Plugin Documentation</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="w-full h-[600px] border rounded-lg overflow-hidden">
-                  <iframe 
-                    src="https://kindpixels.com/pdf-gallery-plugin-docs/" 
-                    className="w-full h-full"
-                    title="PDF Gallery Plugin Documentation"
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <PluginDocumentation />
           </TabsContent>
         </Tabs>
       </div>

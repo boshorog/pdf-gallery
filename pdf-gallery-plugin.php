@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, PPT/PPTX, DOC/DOCX, XLS/XLSX, and image files. Easily organize, sort, and showcase your documents in beautiful grid layouts.
- * Version: 1.7.4
+ * Version: 1.7.5
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
@@ -232,6 +232,7 @@ class PDF_Gallery_Plugin {
         $fs_is_pro      = false;
         $fs_status      = 'free';
         $fs_available   = false;
+        $fs_licensed_to = '';
         if ( function_exists('pdfgallery_fs') ) {
             $fs = pdfgallery_fs();
             if ( is_object( $fs ) ) {
@@ -261,6 +262,17 @@ class PDF_Gallery_Plugin {
                 } elseif ( method_exists( $fs, 'is_trial' ) && $fs->is_trial() ) {
                     $fs_is_pro = true; $fs_status = 'trial';
                 }
+                // Get licensed user info
+                if ( $fs_is_pro && method_exists( $fs, 'get_user' ) ) {
+                    $user = $fs->get_user();
+                    if ( is_object( $user ) ) {
+                        if ( isset( $user->email ) ) {
+                            $fs_licensed_to = $user->email;
+                        } elseif ( isset( $user->first ) || isset( $user->last ) ) {
+                            $fs_licensed_to = trim( ( isset( $user->first ) ? $user->first : '' ) . ' ' . ( isset( $user->last ) ? $user->last : '' ) );
+                        }
+                    }
+                }
             }
         }
         
@@ -274,6 +286,7 @@ class PDF_Gallery_Plugin {
             'fsIsPro' => $fs_is_pro,
             'fsStatus' => $fs_status,
             'fsAvailable' => $fs_available,
+            'licensedTo' => $fs_licensed_to,
         ));
     }
     public function assets_not_found_notice() {
