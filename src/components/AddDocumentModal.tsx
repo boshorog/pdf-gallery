@@ -162,7 +162,6 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     try {
       for (let i = 0; i < filesToUpload.length; i++) {
         const file = filesToUpload[i];
-        if (!file.title.trim()) continue;
         const url = await uploadFileToWP(file, i);
         onAdd({ 
           title: file.title, 

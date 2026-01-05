@@ -38,7 +38,7 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title && date && pdfUrl) {
+    if (pdfUrl) {
       onEdit(pdf.id, { title, date, pdfUrl, fileType });
       onClose();
     }
@@ -57,8 +57,7 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter document title"
-              required
+              placeholder="Enter document title (optional)"
             />
           </div>
           <div>

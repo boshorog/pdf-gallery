@@ -125,7 +125,7 @@ class PDF_Gallery_Plugin {
      */
     public function add_admin_menu() {
         add_menu_page(
-            'PDF Gallery',                  // Page title
+            '',                             // Empty page title (we use our own header)
             'PDF Gallery',                  // Menu title
             'manage_options',               // Capability required
             'pdf-gallery-manager',          // Menu slug
