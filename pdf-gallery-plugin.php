@@ -193,6 +193,9 @@ class PDF_Gallery_Plugin {
             return;
         }
         
+        // Enqueue WordPress media library scripts (required for media library button)
+        wp_enqueue_media();
+        
         // Get asset files dynamically
         $js_file = $this->get_asset_url('js');
         $css_file = $this->get_asset_url('css');
