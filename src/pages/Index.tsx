@@ -380,7 +380,7 @@ const Index = () => {
                 value="gallery"
                 className="flex-1 px-6 py-4 text-sm font-medium border-b-2 -mb-px flex items-center justify-center gap-2 transition-colors rounded-none data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=inactive]:border-transparent data-[state=inactive]:text-slate-500 hover:text-slate-700 hover:bg-slate-50 data-[state=active]:shadow-none"
               >
-                <LayoutGrid className="w-4 h-4" />
+                <Layers className="w-4 h-4" />
                 Gallery Management
               </TabsTrigger>
               <TabsTrigger 
