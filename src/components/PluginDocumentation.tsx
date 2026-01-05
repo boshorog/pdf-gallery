@@ -8,7 +8,7 @@ import { Crown, Check, X, Shield, Trash2, BookOpen, FileText, Settings, Upload, 
 import { useLicense } from '@/hooks/useLicense';
 import { toast } from 'sonner';
 
-const PLUGIN_VERSION = '1.7.5';
+const PLUGIN_VERSION = '1.8.0';
 
 interface PluginDocumentationProps {
   className?: string;
@@ -136,7 +136,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className }) 
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center justify-center gap-2">
             <BookOpen className="w-5 h-5" />
             PDF Gallery Documentation
             <Badge variant="secondary" className="ml-2">v{PLUGIN_VERSION}</Badge>

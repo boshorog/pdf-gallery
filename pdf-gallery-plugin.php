@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, PPT/PPTX, DOC/DOCX, XLS/XLSX, and image files. Easily organize, sort, and showcase your documents in beautiful grid layouts.
- * Version: 1.7.5
+ * Version: 1.8.0
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
@@ -85,7 +85,7 @@ if (defined('PDF_GALLERY_PLUGIN_LOADED')) {
     return;
 }
 define('PDF_GALLERY_PLUGIN_LOADED', true);
-
+define('PDF_GALLERY_VERSION', '1.8.0');
 class PDF_Gallery_Plugin {
     
     public function __construct() {
@@ -206,12 +206,12 @@ class PDF_Gallery_Plugin {
             return;
         }
         
-        // Enqueue the React app's JS and CSS
+        // Enqueue the React app's JS and CSS with version for cache busting
         wp_enqueue_script(
             'pdf-gallery-admin', 
             $js_file, 
             array(), 
-            '1.3.2', 
+            PDF_GALLERY_VERSION,
             true
         );
         wp_script_add_data('pdf-gallery-admin', 'type', 'module');
@@ -220,7 +220,7 @@ class PDF_Gallery_Plugin {
             'pdf-gallery-admin', 
             $css_file, 
             array(), 
-            '1.3.2'
+            PDF_GALLERY_VERSION
         );
         
         // Pass WordPress user info to React app
