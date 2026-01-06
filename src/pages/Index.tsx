@@ -8,6 +8,7 @@ import PDFGallery from '@/components/PDFGallery';
 import PDFSettings from '@/components/PDFSettings';
 import SettingsProposal2 from '@/components/SettingsProposal2';
 import PluginDocumentation from '@/components/PluginDocumentation';
+import GalleryNotFoundShowcase from '@/components/GalleryNotFoundShowcase';
 import { useLicense } from '@/hooks/useLicense';
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
@@ -338,6 +339,12 @@ const Index = () => {
 
   // Show admin interface only in WordPress admin area or Lovable preview
   const showAdmin = isLovablePreview || isWordPressAdmin;
+
+  // DEV: Show showcase for gallery not found designs
+  const showShowcase = urlParams.get('showcase') === 'gallery-not-found';
+  if (showShowcase) {
+    return <GalleryNotFoundShowcase />;
+  }
 
   if (!showAdmin) {
     // Show only the frontend gallery for regular WordPress visitors
