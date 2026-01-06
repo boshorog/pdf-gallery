@@ -9,6 +9,7 @@ import PDFSettings from '@/components/PDFSettings';
 import SettingsProposal2 from '@/components/SettingsProposal2';
 import PluginDocumentation from '@/components/PluginDocumentation';
 import GalleryNotFoundShowcase from '@/components/GalleryNotFoundShowcase';
+import GalleryNotFound from '@/components/GalleryNotFound';
 import { useLicense } from '@/hooks/useLicense';
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
@@ -88,6 +89,7 @@ const Index = () => {
     defaultPlaceholder: 'default'
   });
   const [shortcodeCopied, setShortcodeCopied] = useState(false);
+  const [galleryNotFound, setGalleryNotFound] = useState(false);
 
   useEffect(() => {
     const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
@@ -184,9 +186,14 @@ const Index = () => {
               if (requestedGalleryName) {
                 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9-_]/g, '-');
                 const match = galleries.find((g: Gallery) => slug(g.name) === slug(requestedGalleryName));
-                if (match) { currentGalleryId = match.id; }
+                if (match) { 
+                  currentGalleryId = match.id; 
+                } else {
+                  // Requested gallery name doesn't match any gallery
+                  setGalleryNotFound(true);
+                }
               }
-              if (!currentGalleryId && galleries.length > 0) {
+              if (!currentGalleryId && galleries.length > 0 && !requestedGalleryName) {
                 currentGalleryId = galleries[0].id;
               }
 
@@ -347,6 +354,14 @@ const Index = () => {
   }
 
   if (!showAdmin) {
+    // Show gallery not found state if requested gallery doesn't exist
+    if (galleryNotFound) {
+      return (
+        <div className="w-full">
+          <GalleryNotFound />
+        </div>
+      );
+    }
     // Show only the frontend gallery for regular WordPress visitors
     return (
       <div className="w-full">
