@@ -5,9 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
-import { Upload, X, FileText } from 'lucide-react';
+import { Upload, X, FileText, Pause, Play, RotateCcw } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
 import { useToast } from '@/hooks/use-toast';
+
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB max
 
 interface FileUpload {
   file: File;
@@ -16,6 +19,11 @@ interface FileUpload {
   fileType: string;
   progress: number;
   url?: string;
+  uploadId?: string;
+  currentChunk?: number;
+  totalChunks?: number;
+  status: 'pending' | 'uploading' | 'paused' | 'complete' | 'error';
+  error?: string;
 }
 
 interface AddDocumentModalProps {
@@ -28,6 +36,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
   const [files, setFiles] = useState<FileUpload[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [pausedUploads, setPausedUploads] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const license = useLicense();
@@ -46,6 +55,10 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     return extension || 'file';
   };
 
+  const generateUploadId = (): string => {
+    return `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
+
   const handleFiles = useCallback((fileList: FileList) => {
     if (!license.isPro && fileList.length > 1) {
       toast({
@@ -55,19 +68,37 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
       });
       return;
     }
-    const newFiles: FileUpload[] = Array.from(fileList).map(file => ({
-      file,
-      title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
-      subtitle: '',
-      fileType: getFileType(file),
-      progress: 0
-    }));
+
+    const oversizedFiles = Array.from(fileList).filter(f => f.size > MAX_FILE_SIZE);
+    if (oversizedFiles.length > 0) {
+      toast({
+        title: 'File Too Large',
+        description: `Maximum file size is 1GB. ${oversizedFiles.map(f => f.name).join(', ')} exceeded the limit.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const newFiles: FileUpload[] = Array.from(fileList)
+      .filter(f => f.size <= MAX_FILE_SIZE)
+      .map(file => ({
+        file,
+        title: file.name.replace(/\.[^/.]+$/, ""),
+        subtitle: '',
+        fileType: getFileType(file),
+        progress: 0,
+        uploadId: generateUploadId(),
+        currentChunk: 0,
+        totalChunks: Math.ceil(file.size / CHUNK_SIZE),
+        status: 'pending' as const
+      }));
+    
     setFiles(prev => [...prev, ...newFiles]);
     
     // Auto-start upload immediately
     setTimeout(() => {
       if (newFiles.length > 0) {
-        processAutoUploads(newFiles);
+        processChunkedUploads(newFiles);
       }
     }, 100);
   }, [license.isPro, toast]);
@@ -102,87 +133,180 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const updateFileData = (index: number, field: keyof FileUpload, value: string) => {
-    setFiles(prev => prev.map((file, i) => 
-      i === index ? { ...file, [field]: value } : file
+  const updateFileStatus = (uploadId: string, updates: Partial<FileUpload>) => {
+    setFiles(prev => prev.map(f => 
+      f.uploadId === uploadId ? { ...f, ...updates } : f
     ));
   };
 
-  const uploadFileToWP = (file: FileUpload, index: number): Promise<string> => {
+  const uploadChunk = async (
+    file: File, 
+    chunkIndex: number, 
+    uploadId: string, 
+    totalChunks: number
+  ): Promise<{ success: boolean; complete?: boolean; url?: string; error?: string }> => {
     const wp = (window as any).wpPDFGallery;
-    return new Promise((resolve, reject) => {
-      // Fallback: simulate in non-WordPress environments
-      if (!wp?.ajaxUrl || !wp?.nonce) {
-        let progress = 0;
-        const interval = setInterval(() => {
-          progress = Math.min(100, progress + 10);
-          setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress } : f));
-          if (progress >= 100) {
-            clearInterval(interval);
-            resolve(`https://example.com/uploads/${file.file.name}`);
-          }
-        }, 50);
-        return;
+    
+    const start = chunkIndex * CHUNK_SIZE;
+    const end = Math.min(start + CHUNK_SIZE, file.size);
+    const chunk = file.slice(start, end);
+    
+    // Fallback for non-WordPress environments
+    if (!wp?.ajaxUrl || !wp?.nonce) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      if (chunkIndex === totalChunks - 1) {
+        return { 
+          success: true, 
+          complete: true, 
+          url: `https://example.com/uploads/${file.name}` 
+        };
       }
+      return { success: true, complete: false };
+    }
 
+    return new Promise((resolve) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', wp.ajaxUrl, true);
       xhr.withCredentials = true;
 
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const percent = Math.round((e.loaded / e.total) * 100);
-          setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress: percent } : f));
-        }
-      };
-
       xhr.onload = () => {
         try {
           const res = JSON.parse(xhr.responseText || '{}');
-          if (res?.success && res?.data?.url) {
-            setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress: 100 } : f));
-            resolve(res.data.url as string);
+          if (res?.success) {
+            resolve({ 
+              success: true, 
+              complete: res.data?.complete || false,
+              url: res.data?.url 
+            });
           } else {
-            reject(res?.data || res || 'Upload failed');
+            resolve({ success: false, error: res?.data || 'Upload failed' });
           }
         } catch (err) {
-          reject(err);
+          resolve({ success: false, error: 'Parse error' });
         }
       };
 
-      xhr.onerror = () => reject('Network error');
+      xhr.onerror = () => resolve({ success: false, error: 'Network error' });
 
       const form = new FormData();
       form.append('action', 'pdf_gallery_action');
-      form.append('action_type', 'upload_pdf');
+      form.append('action_type', 'upload_chunk');
       form.append('nonce', wp.nonce);
-      form.append('pdf_file', file.file);
+      form.append('chunk', chunk, file.name);
+      form.append('upload_id', uploadId);
+      form.append('chunk_index', chunkIndex.toString());
+      form.append('total_chunks', totalChunks.toString());
+      form.append('filename', file.name);
+      
       xhr.send(form);
     });
   };
 
-  const processAutoUploads = async (filesToUpload: FileUpload[]) => {
+  const processChunkedUploads = async (filesToUpload: FileUpload[]) => {
     setIsUploading(true);
-    try {
-      for (let i = 0; i < filesToUpload.length; i++) {
-        const file = filesToUpload[i];
-        const url = await uploadFileToWP(file, i);
-        onAdd({ 
-          title: file.title, 
-          date: file.subtitle || '', 
-          pdfUrl: url, 
-          fileType: file.fileType 
+    
+    for (const fileUpload of filesToUpload) {
+      const { file, uploadId, totalChunks } = fileUpload;
+      
+      if (!uploadId || !totalChunks) continue;
+      
+      updateFileStatus(uploadId, { status: 'uploading' });
+      
+      let currentChunk = fileUpload.currentChunk || 0;
+      
+      while (currentChunk < totalChunks) {
+        // Check if paused
+        if (pausedUploads.has(uploadId)) {
+          updateFileStatus(uploadId, { 
+            status: 'paused', 
+            currentChunk 
+          });
+          break;
+        }
+        
+        const result = await uploadChunk(file, currentChunk, uploadId, totalChunks);
+        
+        if (!result.success) {
+          updateFileStatus(uploadId, { 
+            status: 'error', 
+            error: result.error,
+            currentChunk 
+          });
+          toast({
+            title: 'Upload Failed',
+            description: `${file.name}: ${result.error}`,
+            variant: 'destructive',
+          });
+          break;
+        }
+        
+        currentChunk++;
+        const progress = Math.round((currentChunk / totalChunks) * 100);
+        
+        updateFileStatus(uploadId, { 
+          progress, 
+          currentChunk,
+          status: result.complete ? 'complete' : 'uploading'
         });
+        
+        if (result.complete && result.url) {
+          // File upload complete
+          onAdd({
+            title: fileUpload.title,
+            date: fileUpload.subtitle || '',
+            pdfUrl: result.url,
+            fileType: fileUpload.fileType
+          });
+        }
       }
-      setFiles([]);
-      onClose();
-    } catch (error) {
-      console.error('Upload error:', error);
-    } finally {
-      setIsUploading(false);
+    }
+    
+    // Check if all files are complete
+    setTimeout(() => {
+      setFiles(prev => {
+        const allComplete = prev.every(f => f.status === 'complete');
+        if (allComplete && prev.length > 0) {
+          setIsUploading(false);
+          onClose();
+          return [];
+        }
+        setIsUploading(false);
+        return prev;
+      });
+    }, 500);
+  };
+
+  const togglePause = (uploadId: string) => {
+    setPausedUploads(prev => {
+      const next = new Set(prev);
+      if (next.has(uploadId)) {
+        next.delete(uploadId);
+        // Resume upload
+        const fileToResume = files.find(f => f.uploadId === uploadId);
+        if (fileToResume) {
+          processChunkedUploads([fileToResume]);
+        }
+      } else {
+        next.add(uploadId);
+      }
+      return next;
+    });
+  };
+
+  const retryUpload = (uploadId: string) => {
+    const fileToRetry = files.find(f => f.uploadId === uploadId);
+    if (fileToRetry) {
+      updateFileStatus(uploadId, { status: 'pending', error: undefined });
+      processChunkedUploads([fileToRetry]);
     }
   };
 
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+    return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -217,6 +341,9 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
                   <p className="text-sm text-muted-foreground">
                     Supports PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, ODT, ODS, ODP, RTF, TXT, CSV, images, audio, video, archives, and eBooks
                   </p>
+                  <p className="text-xs text-muted-foreground">
+                    Max file size: 1GB (chunked upload)
+                  </p>
                 </div>
                 <Button
                   type="button"
@@ -246,51 +373,102 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
             )}
           </div>
 
-          {/* File List - Only show during upload process */}
-          {(files.length > 0 || isUploading) && (
+          {/* File List */}
+          {files.length > 0 && (
             <div className="space-y-4">
               <Label className="text-base font-medium">
                 {isUploading ? 'Uploading Files...' : `Selected Files (${files.length})`}
               </Label>
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {files.map((file, index) => (
-                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                  <div key={file.uploadId || index} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
                         <div className="relative w-10 h-10 bg-muted rounded flex items-center justify-center flex-shrink-0">
                           <FileText className="w-5 h-5 text-muted-foreground" />
                           <div className="absolute -top-1 -right-1 text-xs px-1 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">
-                            {file.fileType.toUpperCase()}
+                            {file.fileType.toUpperCase().slice(0, 3)}
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium truncate">{file.file.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {(file.file.size / 1024 / 1024).toFixed(2)} MB
+                            {formatFileSize(file.file.size)}
+                            {file.totalChunks && file.totalChunks > 1 && (
+                              <span className="ml-2 text-xs">
+                                ({file.currentChunk || 0}/{file.totalChunks} chunks)
+                              </span>
+                            )}
                           </p>
                         </div>
                       </div>
-                      {!isUploading && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFile(index)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {file.status === 'uploading' && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => togglePause(file.uploadId!)}
+                            title="Pause"
+                          >
+                            <Pause className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {file.status === 'paused' && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => togglePause(file.uploadId!)}
+                            title="Resume"
+                          >
+                            <Play className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {file.status === 'error' && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => retryUpload(file.uploadId!)}
+                            title="Retry"
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {!isUploading && file.status !== 'complete' && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeFile(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Progress bar during upload */}
-                    {isUploading && (
+                    {/* Progress bar */}
+                    {(file.status === 'uploading' || file.status === 'paused' || file.status === 'complete') && (
                       <div className="space-y-1">
                         <div className="flex justify-between text-sm">
-                          <span>Uploading...</span>
+                          <span>
+                            {file.status === 'complete' ? 'Complete' : 
+                             file.status === 'paused' ? 'Paused' : 'Uploading...'}
+                          </span>
                           <span>{file.progress}%</span>
                         </div>
-                        <Progress value={file.progress} className="h-2" />
+                        <Progress 
+                          value={file.progress} 
+                          className={`h-2 ${file.status === 'paused' ? 'opacity-50' : ''}`} 
+                        />
                       </div>
+                    )}
+
+                    {/* Error message */}
+                    {file.status === 'error' && file.error && (
+                      <p className="text-sm text-destructive">{file.error}</p>
                     )}
                   </div>
                 ))}
