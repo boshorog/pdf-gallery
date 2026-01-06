@@ -107,11 +107,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                   fileType = extension || 'pdf';
                 }
                 const isImage = ['img','jpg','jpeg','png','gif','webp','svg','ico'].includes(fileType || '');
-                const isVideo = ['mp4','mov','webm'].includes(fileType || '');
-                const isAudio = ['mp3','wav','ogg'].includes(fileType || '');
-                const isArchive = ['zip','rar','7z'].includes(fileType || '');
-                const isEbook = ['epub','mobi'].includes(fileType || '');
-                const label = isImage ? 'IMG' : isVideo ? 'VID' : isAudio ? 'AUD' : isArchive ? 'ZIP' : isEbook ? 'BOOK' : fileType === 'pdf' ? 'PDF' : ['doc','docx','odt','rtf','txt'].includes(fileType || '') ? 'DOC' : ['ppt','pptx','odp'].includes(fileType || '') ? 'PPT' : ['xls','xlsx','ods','csv'].includes(fileType || '') ? 'XLS' : 'FILE';
+                const label = (fileType || 'pdf').toUpperCase().slice(0, 3);
                 
                 return (
                   <div className="relative">
