@@ -1,4 +1,4 @@
-import pdfPlaceholder from '@/assets/pdf-placeholder.svg';
+import pdfPlaceholder from '@/assets/thumbnail-placeholder.png';
 
 const ThumbnailStyleShowcase = () => {
   const styles = [

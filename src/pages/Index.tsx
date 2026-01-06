@@ -358,7 +358,7 @@ const Index = () => {
         {/* Logo Header */}
         <div className="px-6 pt-6 pb-4">
           <div className="flex items-center gap-3">
-            <img src={pdfGalleryLogo} alt="PDF Gallery" className="w-10 h-10" />
+            <img src={pdfGalleryLogo} alt="PDF Gallery" className="w-7 h-7" />
             <div className="flex items-baseline gap-2">
               <h1 className="text-2xl text-slate-800"><span className="font-bold">PDF Gallery</span></h1>
               <span className="text-xs text-slate-400">v{PLUGIN_VERSION}</span>
