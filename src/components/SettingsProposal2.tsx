@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, ExternalLink, Upload, Image, Palette, Maximize2, Settings2, ChevronRight, LayoutGrid, Settings, ChevronDown, Check } from 'lucide-react';
+import { FileText, ExternalLink, Upload, Image, Palette, Maximize2, Settings2, ChevronRight, LayoutGrid, Settings, ChevronDown, Check, Star } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,6 +66,8 @@ interface SettingsProposal2Props {
     enableThumbnailCache?: boolean;
     autoRefreshCache?: boolean;
     cacheDuration?: string;
+    ratingsEnabled?: boolean;
+    lightboxEnabled?: boolean;
   };
   onSettingsChange: (settings: any) => void;
 }
@@ -718,6 +720,42 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
               <p className="text-sm text-muted-foreground">Additional configuration options</p>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Gallery Display Options */}
+              <div className="space-y-3">
+                <Label className="text-base font-medium">Gallery Display Options</Label>
+                <p className="text-sm text-muted-foreground">Configure how documents are displayed in galleries</p>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Star className="w-4 h-4 text-yellow-500" />
+                      <div className="space-y-0.5">
+                        <Label className="text-sm font-medium">Enable Ratings</Label>
+                        <p className="text-xs text-muted-foreground">Allow visitors to rate documents in the gallery</p>
+                      </div>
+                    </div>
+                    <Checkbox 
+                      checked={localSettings.ratingsEnabled !== false}
+                      onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, ratingsEnabled: checked === true }))}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Maximize2 className="w-4 h-4 text-blue-500" />
+                      <div className="space-y-0.5">
+                        <Label className="text-sm font-medium">Enable Lightbox</Label>
+                        <p className="text-xs text-muted-foreground">Open documents in fullscreen lightbox instead of new tab</p>
+                      </div>
+                    </div>
+                    <Checkbox 
+                      checked={localSettings.lightboxEnabled !== false}
+                      onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, lightboxEnabled: checked === true }))}
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Thumbnail Caching Section */}
               <div className="space-y-3">
                 <Label className="text-base font-medium">Thumbnail Caching</Label>
