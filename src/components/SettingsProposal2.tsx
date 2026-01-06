@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
@@ -784,17 +785,20 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Cache duration (hours)</Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="168"
-                      value={localSettings.cacheDuration || '24'}
-                      onChange={(e) => setLocalSettings(prev => ({ ...prev, cacheDuration: e.target.value }))}
-                      className="w-24"
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium">Cache duration</Label>
+                      <span className="text-sm font-medium text-primary">{localSettings.cacheDuration || '30'} days</span>
+                    </div>
+                    <Slider
+                      value={[parseInt(localSettings.cacheDuration || '30')]}
+                      onValueChange={(value) => setLocalSettings(prev => ({ ...prev, cacheDuration: value[0].toString() }))}
+                      min={1}
+                      max={365}
+                      step={1}
+                      className="w-full"
                     />
-                    <p className="text-xs text-muted-foreground">How long to keep cached thumbnails (1-168 hours)</p>
+                    <p className="text-xs text-muted-foreground">How long to keep cached thumbnails (1-365 days)</p>
                   </div>
                 </div>
               </div>
