@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation, Image, X, Star, Maximize2, FolderOpen, ChevronDown } from 'lucide-react';
+import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation, Image, X, Star, Maximize2, FolderOpen, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -998,37 +1004,29 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
             </div>
           </div>
 
-          {/* Second Row: Select All | Gallery Selector | Toggles - above dotted line */}
+          {/* Second Row: Select All | Gallery Selector | Sorting - above dotted line */}
           {(() => {
             const gallerySettings = (currentGallery as any)?.settings || {};
-            const ratingsEnabled = gallerySettings.ratingsEnabled ?? true;
-            const lightboxEnabled = gallerySettings.lightboxEnabled ?? true;
+            const sortOrder = gallerySettings.sortOrder || 'newest';
             
-            const updateGallerySettings = (key: string, value: boolean) => {
+            const updateSortOrder = (value: string) => {
               if (!currentGallery) return;
               const updatedGalleries = galleries.map(gallery => 
                 gallery.id === currentGalleryId 
-                  ? { ...gallery, settings: { ...((gallery as any).settings || {}), [key]: value } }
+                  ? { ...gallery, settings: { ...((gallery as any).settings || {}), sortOrder: value } }
                   : gallery
               );
               onGalleriesChange(updatedGalleries);
               saveGalleriesToWP(updatedGalleries);
               
-              if (key === 'ratingsEnabled') {
-                toast({
-                  title: value ? "Ratings Enabled" : "Ratings Disabled",
-                  description: value 
-                    ? "Users can now rate documents in this gallery" 
-                    : "Ratings are hidden for this gallery",
-                });
-              } else if (key === 'lightboxEnabled') {
-                toast({
-                  title: value ? "Lightbox Enabled" : "Lightbox Disabled",
-                  description: value 
-                    ? "Documents will open in fullscreen lightbox" 
-                    : "Documents will open in a new tab",
-                });
-              }
+              toast({
+                title: "Sort Order Updated",
+                description: value === 'newest' 
+                  ? "Showing newest documents first" 
+                  : value === 'oldest'
+                  ? "Showing oldest documents first"
+                  : "Sorting alphabetically A-Z",
+              });
             };
 
             // Gallery Selector - Breadcrumb style
@@ -1070,24 +1068,49 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 {/* Center: Gallery Selector */}
                 {renderGallerySelector()}
                 
-                {/* Right: Toggles (only show if there are items) */}
+                {/* Right: Sorting Dropdown (only show if there are items) */}
                 {items.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => updateGallerySettings('ratingsEnabled', !ratingsEnabled)}
-                      className={`p-1.5 rounded transition-colors ${ratingsEnabled ? 'text-yellow-500' : 'text-muted-foreground/40'}`}
-                      title={ratingsEnabled ? "Disable Ratings" : "Enable Ratings"}
-                    >
-                      <Star className={`h-4 w-4 ${ratingsEnabled ? 'fill-current' : ''}`} />
-                    </button>
-                    <button
-                      onClick={() => updateGallerySettings('lightboxEnabled', !lightboxEnabled)}
-                      className={`p-1.5 rounded transition-colors ${lightboxEnabled ? 'text-blue-500' : 'text-muted-foreground/40'}`}
-                      title={lightboxEnabled ? "Disable Lightbox" : "Enable Lightbox"}
-                    >
-                      <Maximize2 className="h-4 w-4" />
-                    </button>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        <ArrowUpDown className="h-3.5 w-3.5" />
+                        <span>{sortOrder === 'newest' ? 'Newest first' : sortOrder === 'oldest' ? 'Oldest first' : 'A-Z'}</span>
+                        <ChevronDown className="h-3 w-3" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem 
+                        onClick={() => updateSortOrder('newest')}
+                        className="flex items-center justify-between gap-4 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2">
+                          <ArrowDown className="h-4 w-4" />
+                          <span>Newest first</span>
+                        </div>
+                        {sortOrder === 'newest' && <Check className="h-4 w-4 text-primary" />}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => updateSortOrder('oldest')}
+                        className="flex items-center justify-between gap-4 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2">
+                          <ArrowUp className="h-4 w-4" />
+                          <span>Oldest first</span>
+                        </div>
+                        {sortOrder === 'oldest' && <Check className="h-4 w-4 text-primary" />}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => updateSortOrder('alphabetical')}
+                        className="flex items-center justify-between gap-4 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2">
+                          <ArrowUpDown className="h-4 w-4" />
+                          <span>Alphabetical (A-Z)</span>
+                        </div>
+                        {sortOrder === 'alphabetical' && <Check className="h-4 w-4 text-primary" />}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
                 {items.length === 0 && <div />}
               </div>
