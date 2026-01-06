@@ -101,13 +101,17 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
                   const url = pdfItem.pdfUrl || '';
                   const title = pdfItem.title || '';
                   let extension = url.split('.').pop()?.toLowerCase();
-                  if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp'].includes(extension)) {
+                  if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm'].includes(extension)) {
                     extension = title.split('.').pop()?.toLowerCase();
                   }
                   fileType = extension || 'pdf';
                 }
-                const isImage = ['img','jpg','jpeg','png','gif','webp'].includes(fileType || '');
-                const label = isImage ? 'IMG' : fileType === 'pdf' ? 'PDF' : ['doc','docx'].includes(fileType || '') ? 'DOC' : ['ppt','pptx'].includes(fileType || '') ? 'PPT' : ['xls','xlsx'].includes(fileType || '') ? 'XLS' : 'PDF';
+                const isImage = ['img','jpg','jpeg','png','gif','webp','svg','ico'].includes(fileType || '');
+                const isVideo = ['mp4','mov','webm'].includes(fileType || '');
+                const isAudio = ['mp3','wav','ogg'].includes(fileType || '');
+                const isArchive = ['zip','rar','7z'].includes(fileType || '');
+                const isEbook = ['epub','mobi'].includes(fileType || '');
+                const label = isImage ? 'IMG' : isVideo ? 'VID' : isAudio ? 'AUD' : isArchive ? 'ZIP' : isEbook ? 'BOOK' : fileType === 'pdf' ? 'PDF' : ['doc','docx','odt','rtf','txt'].includes(fileType || '') ? 'DOC' : ['ppt','pptx','odp'].includes(fileType || '') ? 'PPT' : ['xls','xlsx','ods','csv'].includes(fileType || '') ? 'XLS' : 'FILE';
                 
                 return (
                   <div className="relative">

@@ -34,12 +34,16 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
 
   const getFileType = (file: File): string => {
     const extension = file.name.split('.').pop()?.toLowerCase();
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '')) return 'img';
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico'].includes(extension || '')) return 'img';
     if (extension === 'pdf') return 'pdf';
-    if (['doc', 'docx'].includes(extension || '')) return 'doc';
-    if (['ppt', 'pptx'].includes(extension || '')) return 'ppt';
-    if (['xls', 'xlsx'].includes(extension || '')) return 'xls';
-    return 'pdf';
+    if (['doc', 'docx', 'odt', 'rtf', 'txt'].includes(extension || '')) return 'doc';
+    if (['ppt', 'pptx', 'odp'].includes(extension || '')) return 'ppt';
+    if (['xls', 'xlsx', 'ods', 'csv'].includes(extension || '')) return 'xls';
+    if (['zip', 'rar', '7z'].includes(extension || '')) return 'zip';
+    if (['epub', 'mobi'].includes(extension || '')) return 'epub';
+    if (['mp3', 'wav', 'ogg'].includes(extension || '')) return 'audio';
+    if (['mp4', 'mov', 'webm'].includes(extension || '')) return 'video';
+    return extension || 'file';
   };
 
   const handleFiles = useCallback((fileList: FileList) => {
@@ -211,7 +215,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
                 <div className="space-y-2">
                   <p className="text-lg font-medium">Drop files here or click to browse</p>
                   <p className="text-sm text-muted-foreground">
-                    Supports PDF, DOC, DOCX, PPT, PPTX, and image files
+                    Supports PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, ODT, ODS, ODP, RTF, TXT, CSV, images, audio, video, archives, and eBooks
                   </p>
                 </div>
                 <Button
@@ -228,7 +232,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
               ref={fileInputRef}
               type="file"
               multiple={license.isPro}
-              accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,.odt,.ods,.odp,.rtf,.txt,.csv,.svg,.ico,.zip,.rar,.7z,.epub,.mobi,.mp3,.wav,.ogg,.mp4,.mov,.webm"
               onChange={handleFileInput}
               className="hidden"
             />

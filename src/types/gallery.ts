@@ -6,7 +6,7 @@ export interface PDF {
   date: string;
   pdfUrl: string;
   thumbnail: string;
-  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp';
+  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp' | 'odt' | 'ods' | 'odp' | 'rtf' | 'txt' | 'csv' | 'svg' | 'ico' | 'zip' | 'rar' | '7z' | 'epub' | 'mobi' | 'mp3' | 'wav' | 'ogg' | 'mp4' | 'mov' | 'webm';
 }
 
 export interface Divider {
