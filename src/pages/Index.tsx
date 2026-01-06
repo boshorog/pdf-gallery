@@ -398,7 +398,7 @@ const Index = () => {
           </div>
         </div>
         
-        <Tabs defaultValue="gallery" className="w-full">
+        <Tabs defaultValue={new URLSearchParams(window.location.search).get('tab') || "gallery"} className="w-full">
           {/* Tab Navigation with Underline Style */}
           <div className="px-6">
             <TabsList className="flex border-b border-slate-200 bg-transparent p-0 h-auto">
