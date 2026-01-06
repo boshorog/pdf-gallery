@@ -326,6 +326,7 @@ const Index = () => {
 
   const currentGallery = galleryState.galleries.find(g => g.id === galleryState.currentGalleryId);
   const currentItems = currentGallery?.items || [];
+  const galleryRatingsEnabled = (currentGallery as any)?.settings?.ratingsEnabled ?? true;
 
 
   // Check if we should show admin interface (Lovable preview or WordPress admin)
@@ -344,7 +345,9 @@ const Index = () => {
       <div className="w-full">
         <PDFGallery 
           items={currentItems} 
-          settings={settings} 
+          settings={settings}
+          showRatings={galleryRatingsEnabled}
+          galleryId={currentGallery?.id || 'default'}
         />
       </div>
     );
@@ -438,7 +441,9 @@ const Index = () => {
               </div>
               <PDFGallery 
                 items={currentItems} 
-                settings={settings} 
+                settings={settings}
+                showRatings={galleryRatingsEnabled}
+                galleryId={currentGallery?.id || 'default'}
               />
             </TabsContent>
             
