@@ -779,22 +779,21 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
           <h2 className="text-2xl font-bold">Gallery Settings</h2>
         </div>
         <div className={`flex items-center ${!license.isPro ? "opacity-50 pointer-events-none" : ""}`}>
-          <Button 
-            onClick={() => { if (license.isPro) handleSave(); }}
-            className="rounded-r-none bg-primary hover:bg-primary/90"
-            disabled={!license.isPro}
-            size="lg"
-          >
-            Save Settings
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="default" 
-                className="rounded-l-none border-l border-primary-foreground/20 px-2 bg-primary hover:bg-primary/90 h-11"
-                disabled={!license.isPro}
-              >
-                <ChevronDown className="h-4 w-4" />
+              <Button variant="outline" className="rounded-r-none border-r-0" size="lg" disabled={!license.isPro}>
+                {saveScope === 'current' ? (
+                  <>
+                    <LayersIcon firstLayerGreen className="mr-2" />
+                    Current Gallery
+                  </>
+                ) : (
+                  <>
+                    <LayersIcon allLayersGreen className="mr-2" />
+                    All Galleries
+                  </>
+                )}
+                <ChevronDown className="w-4 h-4 ml-2" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -820,6 +819,14 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button 
+            onClick={() => { if (license.isPro) handleSave(); }}
+            className="rounded-l-none bg-primary hover:bg-primary/90"
+            disabled={!license.isPro}
+            size="lg"
+          >
+            Save Settings
+          </Button>
         </div>
       </div>
 
