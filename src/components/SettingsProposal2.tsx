@@ -6,10 +6,53 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, ExternalLink, Upload, Image, Palette, Maximize2, Settings2, ChevronRight, LayoutGrid, Settings } from 'lucide-react';
+import { FileText, ExternalLink, Upload, Image, Palette, Maximize2, Settings2, ChevronRight, LayoutGrid, Settings, ChevronDown, Check } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import pdfPlaceholder from '@/assets/thumbnail-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
 import ProBanner from '@/components/ProBanner';
+
+// Custom Layers icon component with customizable layer colors
+const LayersIcon = ({ firstLayerGreen = false, allLayersGreen = false, className = "" }: { 
+  firstLayerGreen?: boolean; 
+  allLayersGreen?: boolean; 
+  className?: string;
+}) => {
+  const greenColor = "hsl(142, 76%, 36%)";
+  const grayColor = "currentColor";
+  
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="16" 
+      height="16" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path 
+        d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" 
+        stroke={allLayersGreen || firstLayerGreen ? greenColor : grayColor}
+      />
+      <path 
+        d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" 
+        stroke={allLayersGreen ? greenColor : grayColor}
+      />
+      <path 
+        d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" 
+        stroke={allLayersGreen ? greenColor : grayColor}
+      />
+    </svg>
+  );
+};
 
 interface SettingsProposal2Props {
   settings: {
@@ -33,6 +76,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
     thumbnailSize: settings.thumbnailSize || 'four-rows'
   });
   const [activeSection, setActiveSection] = useState('style');
+  const [saveScope, setSaveScope] = useState<'current' | 'all'>('current');
   const { toast } = useToast();
   const license = useLicense();
 
@@ -674,31 +718,6 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
               <p className="text-sm text-muted-foreground">Additional configuration options</p>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Settings Scope Section */}
-              <div className="space-y-3">
-                <Label className="text-base font-medium">Settings Scope</Label>
-                <RadioGroup 
-                  value={localSettings.settingsScope || 'all'} 
-                  onValueChange={(value) => setLocalSettings(prev => ({ ...prev, settingsScope: value }))}
-                  className="space-y-3"
-                >
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="all" id="scope-all" />
-                    <div>
-                      <Label htmlFor="scope-all" className="cursor-pointer font-medium">Apply to all galleries</Label>
-                      <p className="text-sm text-muted-foreground">Use these settings as defaults for all PDF galleries</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="current" id="scope-current" />
-                    <div>
-                      <Label htmlFor="scope-current" className="cursor-pointer font-medium">Current gallery only</Label>
-                      <p className="text-sm text-muted-foreground">Apply settings only to the currently selected gallery</p>
-                    </div>
-                  </div>
-                </RadioGroup>
-              </div>
-
               {/* Thumbnail Caching Section */}
               <div className="space-y-3">
                 <Label className="text-base font-medium">Thumbnail Caching</Label>
@@ -759,14 +778,49 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
           <Settings2 className="w-6 h-6 text-primary" />
           <h2 className="text-2xl font-bold">Gallery Settings</h2>
         </div>
-        <Button 
-          onClick={() => { if (license.isPro) handleSave(); }}
-          className={!license.isPro ? "opacity-50 cursor-not-allowed pointer-events-none" : "bg-primary hover:bg-primary/90"}
-          disabled={!license.isPro}
-          size="lg"
-        >
-          Save Settings
-        </Button>
+        <div className={`flex items-center ${!license.isPro ? "opacity-50 pointer-events-none" : ""}`}>
+          <Button 
+            onClick={() => { if (license.isPro) handleSave(); }}
+            className="rounded-r-none bg-primary hover:bg-primary/90"
+            disabled={!license.isPro}
+            size="lg"
+          >
+            Save Settings
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="default" 
+                className="rounded-l-none border-l border-primary-foreground/20 px-2 bg-primary hover:bg-primary/90 h-11"
+                disabled={!license.isPro}
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem 
+                onClick={() => setSaveScope('current')}
+                className="flex items-center justify-between gap-6 cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <LayersIcon firstLayerGreen className="flex-shrink-0" />
+                  <span>Current Gallery</span>
+                </div>
+                {saveScope === 'current' && <Check className="h-4 w-4 text-primary flex-shrink-0" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setSaveScope('all')}
+                className="flex items-center justify-between gap-6 cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <LayersIcon allLayersGreen className="flex-shrink-0" />
+                  <span>All Galleries</span>
+                </div>
+                {saveScope === 'all' && <Check className="h-4 w-4 text-primary flex-shrink-0" />}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <div className="grid grid-cols-12 gap-6">
