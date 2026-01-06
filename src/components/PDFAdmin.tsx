@@ -228,6 +228,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   const [dividerFormData, setDividerFormData] = useState({
     text: ''
   });
+  const [showRenameWarning, setShowRenameWarning] = useState(false);
   const [settings, setSettings] = useState({
     thumbnailStyle: 'default',
     accentColor: '#7FB3DC',
@@ -937,6 +938,18 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     );
     onGalleriesChange(updatedGalleries);
     saveGalleriesToWP(updatedGalleries);
+    
+    // Show rename warning if user hasn't dismissed it 3 times yet
+    const dismissCount = parseInt(localStorage.getItem('pdf_gallery_rename_warning_dismissed') || '0', 10);
+    if (dismissCount < 3) {
+      setShowRenameWarning(true);
+    }
+  };
+
+  const handleDismissRenameWarning = () => {
+    setShowRenameWarning(false);
+    const currentCount = parseInt(localStorage.getItem('pdf_gallery_rename_warning_dismissed') || '0', 10);
+    localStorage.setItem('pdf_gallery_rename_warning_dismissed', String(currentCount + 1));
   };
 
   const handleGalleryDelete = (galleryId: string) => {
@@ -1080,6 +1093,24 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
               </div>
             );
           })()}
+
+          {/* Rename Warning Message */}
+          {showRenameWarning && (
+            <div className="flex items-center justify-between gap-3 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-lg">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                <span className="font-medium">Gallery renamed.</span> If you already embedded this gallery, remember to update the shortcode in your page or post.
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 flex-shrink-0"
+                onClick={handleDismissRenameWarning}
+                aria-label="Dismiss"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
 
           {/* Multi-File Upload Form */}
           {isAddingDocument && !editingId && (
