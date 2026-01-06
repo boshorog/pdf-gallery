@@ -10,6 +10,7 @@ import SettingsProposal2 from '@/components/SettingsProposal2';
 import PluginDocumentation from '@/components/PluginDocumentation';
 import GalleryNotFoundShowcase from '@/components/GalleryNotFoundShowcase';
 import GalleryNotFound from '@/components/GalleryNotFound';
+import SettingsScopeSelectorShowcase from '@/components/SettingsScopeSelectorShowcase';
 import { useLicense } from '@/hooks/useLicense';
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
@@ -348,9 +349,15 @@ const Index = () => {
   const showAdmin = isLovablePreview || isWordPressAdmin;
 
   // DEV: Show showcase for gallery not found designs
-  const showShowcase = urlParams.get('showcase') === 'gallery-not-found';
-  if (showShowcase) {
+  const showGalleryNotFoundShowcase = urlParams.get('showcase') === 'gallery-not-found';
+  if (showGalleryNotFoundShowcase) {
     return <GalleryNotFoundShowcase />;
+  }
+
+  // DEV: Show showcase for settings scope selector
+  const showSettingsScopeShowcase = urlParams.get('showcase') === 'settings-scope';
+  if (showSettingsScopeShowcase) {
+    return <SettingsScopeSelectorShowcase />;
   }
 
   if (!showAdmin) {
