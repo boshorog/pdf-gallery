@@ -6,10 +6,56 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, ExternalLink, Upload, Key, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { FileText, ExternalLink, Upload, Key, Eye, EyeOff, AlertCircle, CheckCircle2, ChevronDown, Check } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import pdfPlaceholder from '@/assets/thumbnail-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
 import ProBanner from '@/components/ProBanner';
+
+// Custom Layers icon component with customizable layer colors
+const LayersIcon = ({ firstLayerGreen = false, allLayersGreen = false, className = "" }: { 
+  firstLayerGreen?: boolean; 
+  allLayersGreen?: boolean; 
+  className?: string;
+}) => {
+  const greenColor = "hsl(142, 76%, 36%)"; // green-600 equivalent
+  const grayColor = "currentColor";
+  
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="16" 
+      height="16" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      className={className}
+    >
+      {/* Bottom layer */}
+      <path 
+        d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" 
+        stroke={allLayersGreen || firstLayerGreen ? greenColor : grayColor}
+      />
+      {/* Middle layer */}
+      <path 
+        d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" 
+        stroke={allLayersGreen ? greenColor : grayColor}
+      />
+      {/* Top layer */}
+      <path 
+        d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" 
+        stroke={allLayersGreen ? greenColor : grayColor}
+      />
+    </svg>
+  );
+};
 
 interface PDFSettingsProps {
   settings: {
@@ -38,6 +84,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
   });
   const [showCloudConvertKey, setShowCloudConvertKey] = useState(false);
   const [showConvertApiKey, setShowConvertApiKey] = useState(false);
+  const [saveScope, setSaveScope] = useState<'current' | 'all'>('current');
   const { toast } = useToast();
   const license = useLicense();
 
@@ -101,14 +148,49 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
       
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Settings</h2>
-        <Button 
-          onClick={() => { if (license.isPro) handleSave(); }}
-          className={!license.isPro ? "opacity-50 cursor-not-allowed pointer-events-none" : "bg-primary hover:bg-primary/90"}
-          disabled={!license.isPro}
-          aria-disabled={!license.isPro}
-        >
-          Save Settings
-        </Button>
+        <div className={`flex items-center ${!license.isPro ? "opacity-50 pointer-events-none" : ""}`}>
+          <Button 
+            onClick={() => { if (license.isPro) handleSave(); }}
+            className="rounded-r-none bg-primary hover:bg-primary/90"
+            disabled={!license.isPro}
+            aria-disabled={!license.isPro}
+          >
+            Save Settings
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="default" 
+                className="rounded-l-none border-l border-primary-foreground/20 px-2 bg-primary hover:bg-primary/90"
+                disabled={!license.isPro}
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem 
+                onClick={() => setSaveScope('current')}
+                className="flex items-center justify-between gap-6 cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <LayersIcon firstLayerGreen className="flex-shrink-0" />
+                  <span>Current Gallery</span>
+                </div>
+                {saveScope === 'current' && <Check className="h-4 w-4 text-primary flex-shrink-0" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setSaveScope('all')}
+                className="flex items-center justify-between gap-6 cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <LayersIcon allLayersGreen className="flex-shrink-0" />
+                  <span>All Galleries</span>
+                </div>
+                {saveScope === 'all' && <Check className="h-4 w-4 text-primary flex-shrink-0" />}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Default Placeholder */}
