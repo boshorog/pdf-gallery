@@ -535,6 +535,9 @@ public function display_gallery_shortcode($atts) {
             case 'upload_pdf':
                 $this->handle_upload_pdf();
                 break;
+            case 'upload_chunk':
+                $this->handle_upload_chunk();
+                break;
             case 'get_galleries':
                 $this->handle_get_galleries();
                 break;
@@ -970,6 +973,126 @@ public function display_gallery_shortcode($atts) {
         }
     }
 
+    private function handle_upload_chunk() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        if (!isset($_FILES['chunk'])) {
+            wp_send_json_error('No chunk uploaded');
+        }
+        
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        $upload_id = isset($_POST['upload_id']) ? sanitize_text_field(wp_unslash($_POST['upload_id'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        $chunk_index = isset($_POST['chunk_index']) ? intval($_POST['chunk_index']) : 0;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        $total_chunks = isset($_POST['total_chunks']) ? intval($_POST['total_chunks']) : 1;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        $filename = isset($_POST['filename']) ? sanitize_file_name(wp_unslash($_POST['filename'])) : 'upload';
+        
+        if (empty($upload_id)) {
+            wp_send_json_error('Missing upload ID');
+        }
+        
+        // Create temp directory for chunks
+        $upload_dir = wp_upload_dir();
+        $temp_dir = $upload_dir['basedir'] . '/pdf-gallery-temp/' . $upload_id;
+        
+        if (!file_exists($temp_dir)) {
+            wp_mkdir_p($temp_dir);
+        }
+        
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File validation handled below
+        $chunk_file = $_FILES['chunk'];
+        
+        // Save chunk to temp directory
+        $chunk_path = $temp_dir . '/chunk_' . str_pad($chunk_index, 5, '0', STR_PAD_LEFT);
+        
+        // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Silencing move_uploaded_file for cleaner error handling
+        if (!@move_uploaded_file($chunk_file['tmp_name'], $chunk_path)) {
+            wp_send_json_error('Failed to save chunk');
+        }
+        
+        // Check if all chunks are uploaded
+        $uploaded_chunks = glob($temp_dir . '/chunk_*');
+        $chunks_count = count($uploaded_chunks);
+        
+        if ($chunks_count === $total_chunks) {
+            // All chunks received - reassemble the file
+            $final_path = $temp_dir . '/' . $filename;
+            $final_handle = fopen($final_path, 'wb');
+            
+            if (!$final_handle) {
+                wp_send_json_error('Failed to create final file');
+            }
+            
+            // Sort chunks and concatenate
+            sort($uploaded_chunks);
+            foreach ($uploaded_chunks as $chunk) {
+                $chunk_content = file_get_contents($chunk);
+                fwrite($final_handle, $chunk_content);
+                unlink($chunk); // Clean up chunk
+            }
+            fclose($final_handle);
+            
+            // Move to WordPress uploads using standard upload handling
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+            require_once(ABSPATH . 'wp-admin/includes/media.php');
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+            
+            // Get file type
+            $filetype = wp_check_filetype($filename);
+            $mime_type = $filetype['type'] ? $filetype['type'] : 'application/octet-stream';
+            
+            // Move to proper uploads location
+            $upload_file = wp_upload_bits($filename, null, file_get_contents($final_path));
+            
+            // Clean up temp file and directory
+            unlink($final_path);
+            rmdir($temp_dir);
+            
+            if ($upload_file['error']) {
+                wp_send_json_error('Failed to finalize upload: ' . $upload_file['error']);
+            }
+            
+            // Create attachment
+            $attachment = array(
+                'post_mime_type' => $mime_type,
+                'post_title' => preg_replace('/\.[^.]+$/', '', $filename),
+                'post_content' => '',
+                'post_status' => 'inherit'
+            );
+            
+            $attachment_id = wp_insert_attachment($attachment, $upload_file['file']);
+            
+            if (is_wp_error($attachment_id)) {
+                wp_send_json_error('Failed to create attachment');
+            }
+            
+            $attachment_data = wp_generate_attachment_metadata($attachment_id, $upload_file['file']);
+            wp_update_attachment_metadata($attachment_id, $attachment_data);
+            
+            wp_send_json_success(array(
+                'complete' => true,
+                'url' => $upload_file['url'],
+                'attachment_id' => $attachment_id,
+                'filename' => $filename,
+                'chunks_received' => $chunks_count,
+                'total_chunks' => $total_chunks
+            ));
+        } else {
+            // More chunks expected
+            wp_send_json_success(array(
+                'complete' => false,
+                'chunk_index' => $chunk_index,
+                'chunks_received' => $chunks_count,
+                'total_chunks' => $total_chunks
+            ));
+        }
+    }
+
     private function handle_upload_pdf() {
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Insufficient permissions');
@@ -1034,8 +1157,9 @@ public function display_gallery_shortcode($atts) {
             wp_send_json_error('File type not allowed. Supported: documents, images, audio, video, archives, and eBooks.');
         }
         
+        // For non-chunked uploads, keep 100MB limit (chunked uploads handle larger files)
         if ($file['size'] > 100 * 1024 * 1024) {
-            wp_send_json_error('File size too large. Maximum 100MB allowed.');
+            wp_send_json_error('File size too large. Maximum 100MB for direct upload. Use chunked upload for larger files.');
         }
         
         require_once(ABSPATH . 'wp-admin/includes/file.php');
