@@ -984,6 +984,7 @@ public function display_gallery_shortcode($atts) {
         $file = $_FILES['pdf_file'];
         
         $allowed_types = array(
+            // Documents
             'application/pdf',
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -991,18 +992,50 @@ public function display_gallery_shortcode($atts) {
             'application/vnd.openxmlformats-officedocument.presentationml.presentation',
             'application/vnd.ms-excel',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            // OpenDocument formats
+            'application/vnd.oasis.opendocument.text',
+            'application/vnd.oasis.opendocument.spreadsheet',
+            'application/vnd.oasis.opendocument.presentation',
+            // Text formats
+            'application/rtf',
+            'text/rtf',
+            'text/plain',
+            'text/csv',
+            // Images
             'image/jpeg',
             'image/jpg',
             'image/png',
             'image/gif',
-            'image/webp'
+            'image/webp',
+            'image/svg+xml',
+            'image/x-icon',
+            'image/vnd.microsoft.icon',
+            // Archives
+            'application/zip',
+            'application/x-zip-compressed',
+            'application/x-rar-compressed',
+            'application/vnd.rar',
+            'application/x-7z-compressed',
+            // eBooks
+            'application/epub+zip',
+            'application/x-mobipocket-ebook',
+            // Audio
+            'audio/mpeg',
+            'audio/mp3',
+            'audio/wav',
+            'audio/x-wav',
+            'audio/ogg',
+            // Video
+            'video/mp4',
+            'video/quicktime',
+            'video/webm'
         );
         if (!in_array($file['type'], $allowed_types, true)) {
-            wp_send_json_error('Only PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, and image files are allowed');
+            wp_send_json_error('File type not allowed. Supported: documents, images, audio, video, archives, and eBooks.');
         }
         
-        if ($file['size'] > 10 * 1024 * 1024) {
-            wp_send_json_error('File size too large. Maximum 10MB allowed.');
+        if ($file['size'] > 100 * 1024 * 1024) {
+            wp_send_json_error('File size too large. Maximum 100MB allowed.');
         }
         
         require_once(ABSPATH . 'wp-admin/includes/file.php');
