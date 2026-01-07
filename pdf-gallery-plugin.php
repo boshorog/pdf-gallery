@@ -124,13 +124,18 @@ class PDF_Gallery_Plugin {
      * Add admin menu page
      */
     public function add_admin_menu() {
+        // Custom SVG icon for the menu (grid pattern matching our logo)
+        // WordPress expects a base64 data URI for custom SVG icons
+        $icon_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="7.5" y="1" width="5" height="5" rx="1"/><rect x="14" y="1" width="5" height="5" rx="1"/><rect x="1" y="7.5" width="5" height="5" rx="1"/><rect x="7.5" y="7.5" width="5" height="5" rx="1"/><rect x="14" y="7.5" width="5" height="5" rx="1"/><rect x="1" y="14" width="5" height="5" rx="1"/><rect x="7.5" y="14" width="5" height="5" rx="1"/></svg>';
+        $icon_base64 = 'data:image/svg+xml;base64,' . base64_encode($icon_svg);
+        
         add_menu_page(
             '',                             // Empty page title (we use our own header)
             'PDF Gallery',                  // Menu title
             'manage_options',               // Capability required
             'pdf-gallery-manager',          // Menu slug
             array($this, 'render_admin_page'), // Callback function
-            'dashicons-media-document',     // Icon
+            $icon_base64,                   // Custom SVG icon
             100                            // Position (high number = bottom of menu)
         );
 
