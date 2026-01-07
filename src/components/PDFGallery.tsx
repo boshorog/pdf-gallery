@@ -196,14 +196,29 @@ const PDFGallery = ({
     return item;
   });
 
-  // Map settings to classes
-  const aspectClass = settings.thumbnailShape === 'square'
-    ? 'aspect-square'
-    : settings.thumbnailShape === 'landscape-3-2'
-      ? 'aspect-[3/2]'
-      : settings.thumbnailShape === 'portrait-2-3'
-        ? 'aspect-[2/3]'
-        : 'aspect-video';
+  // Map settings to classes - support both old and new shape value names
+  const getAspectClass = () => {
+    switch (settings.thumbnailShape) {
+      case '1:1':
+      case 'square':
+        return 'aspect-square';
+      case '3:2':
+      case 'landscape-3-2':
+        return 'aspect-[3/2]';
+      case '2:3':
+      case 'portrait-2-3':
+        return 'aspect-[2/3]';
+      case '16:9':
+        return 'aspect-video';
+      case '9:16':
+        return 'aspect-[9/16]';
+      case 'auto':
+        return ''; // No fixed aspect for masonry
+      default:
+        return 'aspect-[3/2]'; // Default to 3:2
+    }
+  };
+  const aspectClass = getAspectClass();
 
   const iconPosClass = settings.pdfIconPosition === 'top-left'
     ? 'top-3 left-3'
