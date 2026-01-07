@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FileText, ExternalLink, FileType, Presentation, Image } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 import { generateThumbnail } from '@/utils/supabaseClient';
@@ -6,6 +6,7 @@ import pdfPlaceholder from '@/assets/thumbnail-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DocumentRating } from '@/components/DocumentRating';
+import DocumentLightbox from '@/components/DocumentLightbox';
 
 interface PDF {
   id: string;
@@ -59,12 +60,30 @@ const PDFGallery = ({
   const [itemsWithThumbnails, setItemsWithThumbnails] = useState<GalleryItem[]>([]);
   const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
   const [thumbnails, setThumbnails] = useState<{ [key: string]: string }>({});
+  
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  
   const isMobile = useIsMobile();
   const isAndroid = /Android/i.test(navigator.userAgent || '');
   const license = useLicense();
   const placeholderUrl = (settings?.defaultPlaceholder && settings.defaultPlaceholder !== 'default')
     ? settings.defaultPlaceholder
     : pdfPlaceholder;
+
+  // Get only PDF items (not dividers) for lightbox navigation
+  const pdfItems = (itemsWithThumbnails.length > 0 ? itemsWithThumbnails : items).filter(
+    (item): item is PDF => 'pdfUrl' in item
+  );
+
+  const openLightbox = useCallback((pdfId: string) => {
+    const index = pdfItems.findIndex(p => p.id === pdfId);
+    if (index !== -1) {
+      setLightboxIndex(index);
+      setLightboxOpen(true);
+    }
+  }, [pdfItems]);
 
   const getItemFileType = (it: any): string => {
     try {
@@ -248,26 +267,14 @@ const PDFGallery = ({
   const renderThumbnail = (pdf: PDF) => {
     const httpsUrl = PDFThumbnailGenerator.toHttps(pdf.pdfUrl);
     const baseProps = {
-      href: httpsUrl,
-      target: isAndroid ? '_self' : (isMobile ? '_top' : '_blank'),
-      rel: isAndroid || isMobile ? undefined : 'noopener noreferrer',
-      className: "block",
+      className: "block cursor-pointer",
       onMouseEnter: () => setHoveredId(pdf.id),
       onMouseLeave: () => setHoveredId(null),
       onClick: (e: React.MouseEvent) => {
-        if (isAndroid) {
-          e.preventDefault();
-          // Use Google Docs viewer for Android compatibility
-          const encodedUrl = encodeURIComponent(httpsUrl);
-          const googleViewerUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
-          try { 
-            (window.top || window).open(googleViewerUrl, '_blank');
-          } catch { 
-            window.open(googleViewerUrl, '_blank');
-          }
-        }
+        e.preventDefault();
+        openLightbox(pdf.id);
       }
-    } as const;
+    };
 
     // Force default style for free version
     const effectiveStyle = license.isPro ? settings.thumbnailStyle : 'default';
@@ -277,7 +284,7 @@ const PDFGallery = ({
     switch (effectiveStyle) {
       case 'elevated-card':
         return (
-            <a key={pdf.id} {...baseProps}>
+            <div key={pdf.id} {...baseProps}>
              <div className="group cursor-pointer">
                <div className="relative bg-card rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2 border border-border">
                  <div className={`${aspectClass || 'aspect-[4/3]'} overflow-hidden bg-muted`}>
@@ -311,12 +318,12 @@ const PDFGallery = ({
                 </div>
               </div>
             </div>
-          </a>
+          </div>
         );
 
       case 'slide-up-text':
         return (
-            <a key={pdf.id} {...baseProps}>
+            <div key={pdf.id} {...baseProps}>
              <div className="group cursor-pointer overflow-hidden rounded-xl">
                <div className="relative bg-card border border-border rounded-xl overflow-hidden">
                  <div className={`${aspectClass || 'aspect-video'} overflow-hidden bg-muted`}>
@@ -347,12 +354,12 @@ const PDFGallery = ({
                 </div>
               </div>
             </div>
-          </a>
+          </div>
         );
 
       case 'gradient-zoom':
         return (
-          <a key={pdf.id} {...baseProps}>
+          <div key={pdf.id} {...baseProps}>
             <div className="group cursor-pointer">
               <div 
                 className="relative rounded-2xl overflow-hidden transition-all duration-300"
@@ -389,12 +396,12 @@ const PDFGallery = ({
                 <p className="text-xs text-muted-foreground mt-1 transition-colors text-center" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.date}</p>
               </div>
             </div>
-          </a>
+          </div>
         );
 
       case 'split-layout':
         return (
-          <a key={pdf.id} {...baseProps}>
+          <div key={pdf.id} {...baseProps}>
               <div className="group cursor-pointer">
                <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border transition-all duration-300 group-hover:shadow-md" style={{ borderColor: hoveredId === pdf.id ? settings.accentColor : undefined }}>
                  <div className="flex-shrink-0">
@@ -423,17 +430,17 @@ const PDFGallery = ({
                     <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
                     </svg>
-                    <span className="text-xs text-muted-foreground">Download PDF</span>
+                    <span className="text-xs text-muted-foreground">View Document</span>
                   </div>
                 </div>
               </div>
             </div>
-          </a>
+          </div>
         );
 
       case 'minimal-underline':
         return (
-            <a key={pdf.id} {...baseProps}>
+            <div key={pdf.id} {...baseProps}>
              <div className="group cursor-pointer">
                <div className="space-y-2">
                  <div className={`relative ${aspectClass || 'aspect-video'} bg-muted overflow-hidden`}>
@@ -468,12 +475,12 @@ const PDFGallery = ({
                 </div>
               </div>
             </div>
-          </a>
+          </div>
         );
 
       default: // 'default' style
         return (
-          <a key={pdf.id} {...baseProps}>
+          <div key={pdf.id} {...baseProps}>
             <div className="group">
               <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border">
                 <div className={`${aspectClass} overflow-hidden bg-muted`}>
@@ -521,7 +528,7 @@ const PDFGallery = ({
                 </p>
               </div>
             </div>
-          </a>
+          </div>
         );
     }
   };
@@ -601,6 +608,16 @@ const PDFGallery = ({
           })()}
         </div>
       )}
+
+      {/* Full Screen Immersive Lightbox */}
+      <DocumentLightbox
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        documents={pdfItems}
+        currentIndex={lightboxIndex}
+        onNavigate={setLightboxIndex}
+        accentColor={settings.accentColor}
+      />
     </div>
   );
 };
