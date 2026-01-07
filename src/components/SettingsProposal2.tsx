@@ -790,7 +790,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                       </div>
                     </div>
                     <Checkbox 
-                      checked={localSettings.ratingsEnabled !== false}
+                      checked={localSettings.ratingsEnabled === true}
                       onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, ratingsEnabled: checked === true }))}
                     />
                   </div>
@@ -804,7 +804,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                       </div>
                     </div>
                     <Checkbox 
-                      checked={localSettings.lightboxEnabled !== false}
+                      checked={localSettings.lightboxEnabled === true}
                       onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, lightboxEnabled: checked === true }))}
                     />
                   </div>
