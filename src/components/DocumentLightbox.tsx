@@ -84,16 +84,19 @@ const DocumentLightbox = ({
   // the iframe to full viewport while the lightbox is open.
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (!window.parent || window.parent === window) return;
+
+    const target = (window.top && window.top !== window ? window.top : window.parent);
+    if (!target || target === window) return;
+
+    const token = new URLSearchParams(window.location.search).get('frameToken') || undefined;
+    const post = (type: string) => target.postMessage({ type, token }, '*');
 
     if (isOpen) {
-      window.parent.postMessage({ type: 'pdf-gallery:lightbox-open' }, '*');
-      return () => {
-        window.parent.postMessage({ type: 'pdf-gallery:lightbox-close' }, '*');
-      };
+      post('pdf-gallery:lightbox-open');
+      return () => post('pdf-gallery:lightbox-close');
     }
 
-    window.parent.postMessage({ type: 'pdf-gallery:lightbox-close' }, '*');
+    post('pdf-gallery:lightbox-close');
   }, [isOpen]);
 
   // Reset loading state when document changes
@@ -177,7 +180,7 @@ const DocumentLightbox = ({
 
   return (
     <div 
-      className="fixed inset-0 z-[9999] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
+      className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -221,7 +224,7 @@ const DocumentLightbox = ({
       {/* Content - Maximum size */}
       <div className="h-full flex items-center justify-center pt-14 sm:pt-20 pb-20 sm:pb-24 px-2 sm:px-4 md:px-16">
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center z-20">
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="w-10 h-10 text-white animate-spin" />
               <p className="text-white/70 text-sm">Loading document...</p>
@@ -239,7 +242,7 @@ const DocumentLightbox = ({
           />
         ) : isPdf ? (
           <iframe
-            src={getViewerUrl()}
+            src={`${httpsUrl}#toolbar=0&navpanes=0&scrollbar=0`}
             title={doc.title}
             className={`w-full h-full rounded-lg sm:rounded-xl shadow-2xl bg-white transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
             onLoad={() => setIsLoading(false)}

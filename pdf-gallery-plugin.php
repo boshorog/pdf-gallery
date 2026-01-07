@@ -326,6 +326,7 @@ public function display_gallery_shortcode($atts) {
     // Build iframe URL to isolate styles from the host theme
     $index_url = plugins_url('dist/index.html', __FILE__);
     $nonce = wp_create_nonce('pdf_gallery_nonce');
+    $frame_token = function_exists('wp_generate_uuid4') ? wp_generate_uuid4() : uniqid('pdfg_', true);
     $admin = ($atts['show_admin'] === 'true' && current_user_can('manage_options')) ? 'true' : 'false';
     $ajax = admin_url('admin-ajax.php');
 
@@ -333,7 +334,8 @@ public function display_gallery_shortcode($atts) {
         'nonce' => $nonce,
         'ajax'  => $ajax,
         'admin' => $admin,
-        'name'  => sanitize_title($atts['name'])
+        'name'  => sanitize_title($atts['name']),
+        'frameToken' => $frame_token,
     ), $index_url);
 
     // Responsive iframe container with flexible height and no internal scrollbars (auto-resize via postMessage)
@@ -357,10 +359,43 @@ public function display_gallery_shortcode($atts) {
       var container = document.getElementById("' . $iframe_id . '-container");
       if(!iframe || !container) return;
 
+      var token = "' . $frame_token . '";
+
       var originalContainerStyle = container.getAttribute("style") || "";
       var originalIframeStyle = iframe.getAttribute("style") || "";
       var lastScrollY = 0;
       var heightBeforeFullscreen = "";
+
+      var originalParent = container.parentNode;
+      var originalNextSibling = container.nextSibling;
+      var placeholder = null;
+
+      function moveContainerToBody(){
+        if(!document.body) return;
+        if(!placeholder){
+          placeholder = document.createElement("span");
+          placeholder.style.display = "none";
+        }
+        if(originalParent && placeholder.parentNode !== originalParent){
+          originalParent.insertBefore(placeholder, container);
+        }
+        document.body.appendChild(container);
+      }
+
+      function restoreContainerPosition(){
+        if(placeholder && placeholder.parentNode){
+          placeholder.parentNode.insertBefore(container, placeholder);
+          placeholder.parentNode.removeChild(placeholder);
+          return;
+        }
+        if(originalParent){
+          if(originalNextSibling && originalNextSibling.parentNode === originalParent){
+            originalParent.insertBefore(container, originalNextSibling);
+          } else {
+            originalParent.appendChild(container);
+          }
+        }
+      }
 
       function setFullscreen(on){
         try{
@@ -368,6 +403,8 @@ public function display_gallery_shortcode($atts) {
             if(container.getAttribute("data-pdf-gallery-fullscreen") === "1") return;
             lastScrollY = window.scrollY || window.pageYOffset || 0;
             heightBeforeFullscreen = iframe.style.height || "";
+
+            moveContainerToBody();
 
             container.setAttribute("data-pdf-gallery-fullscreen", "1");
             container.style.position = "fixed";
@@ -393,6 +430,9 @@ public function display_gallery_shortcode($atts) {
             container.setAttribute("style", originalContainerStyle);
             iframe.setAttribute("style", originalIframeStyle);
             if(heightBeforeFullscreen) iframe.style.height = heightBeforeFullscreen;
+
+            restoreContainerPosition();
+
             document.documentElement.style.overflow = "";
             document.body.style.overflow = "";
             window.scrollTo(0, lastScrollY);
@@ -403,11 +443,11 @@ public function display_gallery_shortcode($atts) {
       function onMsg(e){
         try{
           if(!e || !e.data) return;
-          // Only accept messages coming from THIS iframe
-          if(e.source !== iframe.contentWindow) return;
           var d = e.data;
+          if(!d || d.token !== token) return;
 
           if(d.type === "pdf-gallery:height" && typeof d.height === "number"){
+            if(container.getAttribute("data-pdf-gallery-fullscreen") === "1") return;
             var minH = 600;
             iframe.style.height = Math.max(d.height, minH) + "px";
           }
@@ -422,7 +462,7 @@ public function display_gallery_shortcode($atts) {
       // Trigger a height check after a short delay to avoid clipping
       setTimeout(function(){
         if(iframe && iframe.contentWindow){
-          iframe.contentWindow.postMessage({type:"pdf-gallery:height-check"}, "*");
+          iframe.contentWindow.postMessage({type:"pdf-gallery:height-check", token: token}, "*");
         }
       }, 700);
     })();</script>';

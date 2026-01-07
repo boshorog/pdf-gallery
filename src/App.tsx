@@ -9,6 +9,8 @@ const queryClient = new QueryClient();
 const App = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
+    const token = new URLSearchParams(window.location.search).get('frameToken') || undefined;
     
     let lastHeight = 0;
     let isUpdating = false;
@@ -44,7 +46,7 @@ const App = () => {
         isUpdating = true;
         lastHeight = contentHeight;
         lastSentAt = now;
-        window.parent?.postMessage({ type: 'pdf-gallery:height', height: contentHeight }, '*');
+        window.parent?.postMessage({ type: 'pdf-gallery:height', height: contentHeight, token }, '*');
         setTimeout(() => {
           isUpdating = false;
         }, 250);
