@@ -60,6 +60,7 @@ const LayersIcon = ({ firstLayerGreen = false, allLayersGreen = false, className
 };
 
 interface SettingsProposal2Props {
+  currentGalleryId?: string;
   settings: {
     thumbnailStyle: string;
     accentColor: string;
@@ -77,7 +78,7 @@ interface SettingsProposal2Props {
   onSettingsChange: (settings: any) => void;
 }
 
-const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Props) => {
+const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: SettingsProposal2Props) => {
   const [localSettings, setLocalSettings] = useState({
     ...settings,
     thumbnailSize: settings.thumbnailSize || 'four-rows'
@@ -108,6 +109,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
         form.append('action_type', 'save_settings');
         form.append('nonce', nonce);
         form.append('settings', JSON.stringify(localSettings));
+        form.append('save_scope', saveScope);
+        if (saveScope === 'current' && currentGalleryId) {
+          form.append('gallery_id', currentGalleryId);
+        }
         await fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form });
       }
 
