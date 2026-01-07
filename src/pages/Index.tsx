@@ -11,6 +11,7 @@ import PluginDocumentation from '@/components/PluginDocumentation';
 import GalleryNotFoundShowcase from '@/components/GalleryNotFoundShowcase';
 import GalleryNotFound from '@/components/GalleryNotFound';
 import SettingsScopeSelectorShowcase from '@/components/SettingsScopeSelectorShowcase';
+import LightboxShowcase from '@/components/LightboxShowcase';
 import { useLicense } from '@/hooks/useLicense';
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
@@ -387,6 +388,12 @@ const Index = () => {
   const showSettingsScopeShowcase = urlParams.get('showcase') === 'settings-scope';
   if (showSettingsScopeShowcase) {
     return <SettingsScopeSelectorShowcase />;
+  }
+
+  // DEV: Show showcase for lightbox styles
+  const showLightboxShowcase = urlParams.get('showcase') === 'lightbox';
+  if (showLightboxShowcase) {
+    return <LightboxShowcase />;
   }
 
   if (!showAdmin) {
