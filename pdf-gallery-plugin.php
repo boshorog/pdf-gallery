@@ -124,9 +124,9 @@ class PDF_Gallery_Plugin {
      * Add admin menu page
      */
     public function add_admin_menu() {
-        // Custom SVG icon for the menu (grid pattern matching our logo)
-        // WordPress expects a base64 data URI for custom SVG icons
-        $icon_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="7.5" y="1" width="5" height="5" rx="1"/><rect x="14" y="1" width="5" height="5" rx="1"/><rect x="1" y="7.5" width="5" height="5" rx="1"/><rect x="7.5" y="7.5" width="5" height="5" rx="1"/><rect x="14" y="7.5" width="5" height="5" rx="1"/><rect x="1" y="14" width="5" height="5" rx="1"/><rect x="7.5" y="14" width="5" height="5" rx="1"/></svg>';
+        // Custom SVG icon matching our exact PDF Gallery logo (3x3 grid with bottom-right missing)
+        // Simplified version of src/assets/pdf-gallery-logo.svg for WordPress admin menu
+        $icon_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="black" d="M3.8 0.06l-2.07 0c-0.92,0 -1.66,0.74 -1.66,1.66l0 2.07c0,0.92 0.74,1.66 1.66,1.66l2.07 0c0.92,0 1.66,-0.74 1.66,-1.66l0 -2.07c0,-0.92 -0.74,-1.66 -1.66,-1.66zm0 3.73l-2.07 0 0 -2.07 2.07 0 0 2.07z"/><path fill="black" d="M11.04 0.06l-2.07 0c-0.92,0 -1.66,0.74 -1.66,1.66l0 2.07c0,0.92 0.74,1.66 1.66,1.66l2.07 0c0.92,0 1.66,-0.74 1.66,-1.66l0 -2.07c0,-0.92 -0.74,-1.66 -1.66,-1.66zm0 3.73l-2.07 0 0 -2.07 2.07 0 0 2.07z"/><path fill="black" d="M18.27 0.06l-2.07 0c-0.92,0 -1.66,0.74 -1.66,1.66l0 2.07c0,0.92 0.74,1.66 1.66,1.66l2.07 0c0.92,0 1.66,-0.74 1.66,-1.66l0 -2.07c0,-0.92 -0.74,-1.66 -1.66,-1.66zm0 3.73l-2.07 0 0 -2.07 2.07 0 0 2.07z"/><path fill="black" d="M3.8 7.31l-2.07 0c-0.92,0 -1.66,0.74 -1.66,1.66l0 2.07c0,0.92 0.74,1.66 1.66,1.66l2.07 0c0.92,0 1.66,-0.74 1.66,-1.66l0 -2.07c0,-0.92 -0.74,-1.66 -1.66,-1.66zm0 3.73l-2.07 0 0 -2.07 2.07 0 0 2.07z"/><path fill="black" d="M11.04 7.31l-2.07 0c-0.92,0 -1.66,0.74 -1.66,1.66l0 2.07c0,0.92 0.74,1.66 1.66,1.66l2.07 0c0.92,0 1.66,-0.74 1.66,-1.66l0 -2.07c0,-0.92 -0.74,-1.66 -1.66,-1.66zm0 3.73l-2.07 0 0 -2.07 2.07 0 0 2.07z"/><path fill="black" d="M18.27 7.31l-2.07 0c-0.92,0 -1.66,0.74 -1.66,1.66l0 2.07c0,0.92 0.74,1.66 1.66,1.66l2.07 0c0.92,0 1.66,-0.74 1.66,-1.66l0 -2.07c0,-0.92 -0.74,-1.66 -1.66,-1.66zm0 3.73l-2.07 0 0 -2.07 2.07 0 0 2.07z"/><path fill="black" d="M3.8 14.56l-2.07 0c-0.92,0 -1.66,0.74 -1.66,1.66l0 2.07c0,0.92 0.74,1.66 1.66,1.66l2.07 0c0.92,0 1.66,-0.74 1.66,-1.66l0 -2.07c0,-0.92 -0.74,-1.66 -1.66,-1.66zm0 3.73l-2.07 0 0 -2.07 2.07 0 0 2.07z"/><path fill="black" d="M11.04 14.56l-2.07 0c-0.92,0 -1.66,0.74 -1.66,1.66l0 2.07c0,0.92 0.74,1.66 1.66,1.66l2.07 0c0.92,0 1.66,-0.74 1.66,-1.66l0 -2.07c0,-0.92 -0.74,-1.66 -1.66,-1.66zm0 3.73l-2.07 0 0 -2.07 2.07 0 0 2.07z"/></svg>';
         $icon_base64 = 'data:image/svg+xml;base64,' . base64_encode($icon_svg);
         
         add_menu_page(
@@ -135,7 +135,7 @@ class PDF_Gallery_Plugin {
             'manage_options',               // Capability required
             'pdf-gallery-manager',          // Menu slug
             array($this, 'render_admin_page'), // Callback function
-            $icon_base64,                   // Custom SVG icon
+            $icon_base64,                   // Custom SVG icon (exact PDF Gallery logo)
             100                            // Position (high number = bottom of menu)
         );
 
