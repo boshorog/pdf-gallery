@@ -31,6 +31,7 @@ interface PDFGalleryProps {
   description?: string;
   galleryId?: string;
   showRatings?: boolean;
+  lightboxEnabled?: boolean;
   settings?: {
     thumbnailStyle: string;
     accentColor: string;
@@ -46,7 +47,8 @@ const PDFGallery = ({
   title = "PDF Gallery",
   description = "Browse our collection of PDF documents",
   galleryId = "default",
-  showRatings = true,
+  showRatings = false,
+  lightboxEnabled = false,
   settings = {
     thumbnailStyle: 'default',
     accentColor: '#7FB3DC',
@@ -266,13 +268,36 @@ const PDFGallery = ({
   // Render thumbnail based on style
   const renderThumbnail = (pdf: PDF) => {
     const httpsUrl = PDFThumbnailGenerator.toHttps(pdf.pdfUrl);
+    const isAndroid = /Android/i.test(navigator.userAgent || '');
+    
     const baseProps = {
       className: "block cursor-pointer",
       onMouseEnter: () => setHoveredId(pdf.id),
       onMouseLeave: () => setHoveredId(null),
       onClick: (e: React.MouseEvent) => {
         e.preventDefault();
-        openLightbox(pdf.id);
+        if (lightboxEnabled) {
+          openLightbox(pdf.id);
+        } else {
+          // Open in new tab (fallback behavior when lightbox is disabled)
+          if (isAndroid) {
+            const encodedUrl = encodeURIComponent(httpsUrl);
+            const googleViewerUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
+            try { 
+              (window.top || window).open(googleViewerUrl, '_blank');
+            } catch { 
+              window.open(googleViewerUrl, '_blank');
+            }
+          } else if (isMobile) {
+            try {
+              (window.top || window).location.href = httpsUrl;
+            } catch {
+              window.location.href = httpsUrl;
+            }
+          } else {
+            window.open(httpsUrl, '_blank', 'noopener,noreferrer');
+          }
+        }
       }
     };
 
