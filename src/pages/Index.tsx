@@ -16,7 +16,7 @@ import { useLicense } from '@/hooks/useLicense';
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pdfGalleryLogo from '@/assets/pdf-gallery-logo.svg';
 
-const PLUGIN_VERSION = '2.0.0';
+const PLUGIN_VERSION = '2.0.1';
 
 // Kind Pixels Logo SVG Component
 const KindPixelsLogo = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
@@ -335,7 +335,8 @@ const Index = () => {
 
   const currentGallery = galleryState.galleries.find(g => g.id === galleryState.currentGalleryId);
   const currentItems = currentGallery?.items || [];
-  const galleryRatingsEnabled = (currentGallery as any)?.settings?.ratingsEnabled ?? true;
+  // Use global settings for ratings - default to true if not explicitly set to false
+  const galleryRatingsEnabled = (settings as any)?.ratingsEnabled !== false;
 
 
   // Check if we should show admin interface (Lovable preview or WordPress admin)

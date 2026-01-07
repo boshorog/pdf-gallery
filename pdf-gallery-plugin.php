@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, PPT/PPTX, DOC/DOCX, XLS/XLSX, and image files. Easily organize, sort, and showcase your documents in beautiful grid layouts.
- * Version: 2.0.0
+ * Version: 2.0.1
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
