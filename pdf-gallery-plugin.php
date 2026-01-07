@@ -85,7 +85,7 @@ if (defined('PDF_GALLERY_PLUGIN_LOADED')) {
     return;
 }
 define('PDF_GALLERY_PLUGIN_LOADED', true);
-define('PDF_GALLERY_VERSION', '1.8.1');
+define('PDF_GALLERY_VERSION', '2.0.1');
 class PDF_Gallery_Plugin {
     
     public function __construct() {
@@ -800,17 +800,48 @@ public function display_gallery_shortcode($atts) {
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Insufficient permissions');
         }
+
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
         $settings_json = isset($_POST['settings']) ? wp_unslash($_POST['settings']) : '';
         $settings = json_decode($settings_json, true);
+
+        // Save scope + gallery id (optional)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        $save_scope = isset($_POST['save_scope']) ? sanitize_text_field(wp_unslash($_POST['save_scope'])) : 'all';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        $gallery_id = isset($_POST['gallery_id']) ? sanitize_text_field(wp_unslash($_POST['gallery_id'])) : '';
+
         if (json_last_error() === JSON_ERROR_NONE && is_array($settings)) {
-            update_option('pdf_gallery_settings', $settings);
+            if ($save_scope === 'current' && !empty($gallery_id)) {
+                $per_gallery = get_option('pdf_gallery_gallery_settings', array());
+                if (!is_array($per_gallery)) {
+                    $per_gallery = array();
+                }
+                $per_gallery[$gallery_id] = $settings;
+                update_option('pdf_gallery_gallery_settings', $per_gallery);
+            } else {
+                // Save as global defaults
+                update_option('pdf_gallery_settings', $settings);
+
+                // Also apply to all galleries so they immediately match
+                $galleries = get_option('pdf_gallery_galleries', array());
+                if (is_array($galleries)) {
+                    $per_gallery = array();
+                    foreach ($galleries as $g) {
+                        if (isset($g['id']) && !empty($g['id'])) {
+                            $per_gallery[sanitize_text_field($g['id'])] = $settings;
+                        }
+                    }
+                    update_option('pdf_gallery_gallery_settings', $per_gallery);
+                }
+            }
+
             wp_send_json_success('Settings saved');
         } else {
             wp_send_json_error('Invalid settings data');
         }
     }
-    
+
     private function handle_get_settings() {
         $defaults = array(
             'thumbnailStyle' => 'default',
@@ -818,9 +849,42 @@ public function display_gallery_shortcode($atts) {
             'thumbnailShape' => 'landscape-16-9',
             'pdfIconPosition' => 'top-right',
             'defaultPlaceholder' => 'default',
+            'thumbnailSize' => 'four-rows',
         );
-        $settings = get_option('pdf_gallery_settings', $defaults);
-        $settings = array_merge($defaults, is_array($settings) ? $settings : array());
+
+        $global_settings = get_option('pdf_gallery_settings', array());
+        $global_settings = array_merge($defaults, is_array($global_settings) ? $global_settings : array());
+
+        // Determine gallery id (explicit id preferred; fallback to requested_gallery_name)
+        $gallery_id = '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        if (isset($_POST['gallery_id'])) {
+            $gallery_id = sanitize_text_field(wp_unslash($_POST['gallery_id']));
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
+        if (empty($gallery_id) && isset($_POST['requested_gallery_name'])) {
+            $requested = sanitize_text_field(wp_unslash($_POST['requested_gallery_name']));
+            $galleries = get_option('pdf_gallery_galleries', array());
+            if (!empty($requested) && is_array($galleries)) {
+                $requested_slug = sanitize_title($requested);
+                foreach ($galleries as $g) {
+                    $gname = isset($g['name']) ? $g['name'] : '';
+                    if (!empty($gname) && sanitize_title($gname) === $requested_slug) {
+                        $gallery_id = isset($g['id']) ? sanitize_text_field($g['id']) : '';
+                        break;
+                    }
+                }
+            }
+        }
+
+        $per_gallery = get_option('pdf_gallery_gallery_settings', array());
+        $gallery_settings = array();
+        if (!empty($gallery_id) && is_array($per_gallery) && isset($per_gallery[$gallery_id]) && is_array($per_gallery[$gallery_id])) {
+            $gallery_settings = $per_gallery[$gallery_id];
+        }
+
+        $settings = array_merge($global_settings, $gallery_settings);
         wp_send_json_success(array('settings' => $settings));
     }
     

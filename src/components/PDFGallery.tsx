@@ -277,11 +277,11 @@ const PDFGallery = ({
     switch (effectiveStyle) {
       case 'elevated-card':
         return (
-          <a key={pdf.id} {...baseProps}>
-            <div className="group cursor-pointer">
-              <div className="relative bg-card rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2 border border-border">
-                <div className="aspect-[4/3] overflow-hidden bg-muted">
-                  <img
+            <a key={pdf.id} {...baseProps}>
+             <div className="group cursor-pointer">
+               <div className="relative bg-card rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2 border border-border">
+                 <div className={`${aspectClass || 'aspect-[4/3]'} overflow-hidden bg-muted`}>
+                   <img
                     src={pdf.thumbnail}
                     alt={pdf.title}
                     className="w-full h-full object-cover"
@@ -316,11 +316,11 @@ const PDFGallery = ({
 
       case 'slide-up-text':
         return (
-          <a key={pdf.id} {...baseProps}>
-            <div className="group cursor-pointer overflow-hidden rounded-xl">
-              <div className="relative bg-card border border-border rounded-xl overflow-hidden">
-                <div className="aspect-video overflow-hidden bg-muted">
-                  <img
+            <a key={pdf.id} {...baseProps}>
+             <div className="group cursor-pointer overflow-hidden rounded-xl">
+               <div className="relative bg-card border border-border rounded-xl overflow-hidden">
+                 <div className={`${aspectClass || 'aspect-video'} overflow-hidden bg-muted`}>
+                   <img
                     src={pdf.thumbnail}
                     alt={pdf.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -362,7 +362,7 @@ const PDFGallery = ({
                 }}
               >
                 <div className="relative bg-card rounded-xl overflow-hidden">
-                  <div className="aspect-video overflow-hidden bg-muted">
+                  <div className={`${aspectClass || 'aspect-video'} overflow-hidden bg-muted`}>
                     <img
                       src={pdf.thumbnail}
                       alt={pdf.title}
@@ -395,14 +395,14 @@ const PDFGallery = ({
       case 'split-layout':
         return (
           <a key={pdf.id} {...baseProps}>
-            <div className="group cursor-pointer">
-              <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border transition-all duration-300 group-hover:shadow-md" style={{ borderColor: hoveredId === pdf.id ? settings.accentColor : undefined }}>
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-16 rounded overflow-hidden bg-muted relative">
-                    <img
-                      src={pdf.thumbnail}
-                      alt={pdf.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              <div className="group cursor-pointer">
+               <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border transition-all duration-300 group-hover:shadow-md" style={{ borderColor: hoveredId === pdf.id ? settings.accentColor : undefined }}>
+                 <div className="flex-shrink-0">
+                   <div className={`w-12 ${aspectClass || 'aspect-[3/4]'} rounded overflow-hidden bg-muted relative`}>
+                     <img
+                       src={pdf.thumbnail}
+                       alt={pdf.title}
+                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       loading="lazy"
                       onError={(e) => { e.currentTarget.src = placeholderUrl; }}
                     />
@@ -433,11 +433,11 @@ const PDFGallery = ({
 
       case 'minimal-underline':
         return (
-          <a key={pdf.id} {...baseProps}>
-            <div className="group cursor-pointer">
-              <div className="space-y-2">
-                <div className="relative aspect-video bg-muted overflow-hidden">
-                  <img
+            <a key={pdf.id} {...baseProps}>
+             <div className="group cursor-pointer">
+               <div className="space-y-2">
+                 <div className={`relative ${aspectClass || 'aspect-video'} bg-muted overflow-hidden`}>
+                   <img
                     src={pdf.thumbnail}
                     alt={pdf.title}
                     className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"

@@ -321,6 +321,34 @@ const Index = () => {
     }
   }, [galleryState.galleries, galleryState.currentGalleryId]);
 
+  // Fetch settings for the currently selected gallery (so "Current Gallery" scope persists)
+  useEffect(() => {
+    const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
+    const nonce = wp?.nonce || urlParams.get('nonce') || '';
+
+    if (!ajaxUrl || !nonce || !galleryState.currentGalleryId) return;
+
+    const form = new FormData();
+    form.append('action', 'pdf_gallery_action');
+    form.append('action_type', 'get_settings');
+    form.append('nonce', nonce);
+    form.append('gallery_id', galleryState.currentGalleryId);
+
+    fetch(ajaxUrl, {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: form,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && data?.data?.settings) {
+          setSettings(data.data.settings);
+        }
+      })
+      .catch(() => {});
+  }, [galleryState.currentGalleryId]);
 
   const copyShortcode = async () => {
     const currentGallery = galleryState.galleries.find(g => g.id === galleryState.currentGalleryId);
@@ -487,7 +515,11 @@ const Index = () => {
             </TabsContent>
             
             <TabsContent value="settings" className="mt-0">
-              <SettingsProposal2 settings={settings} onSettingsChange={setSettings} />
+              <SettingsProposal2 
+                settings={settings} 
+                onSettingsChange={setSettings} 
+                currentGalleryId={galleryState.currentGalleryId}
+              />
             </TabsContent>
             
             <TabsContent value="docs" className="mt-0">
