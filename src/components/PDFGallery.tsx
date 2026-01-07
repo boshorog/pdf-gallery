@@ -238,12 +238,9 @@ const PDFGallery = ({
     }
   };
 
-  // Get file type icon and color
+  // Get file type icon and color - use first 3 characters of extension
   const getFileTypeIcon = (fileType: string = 'pdf') => {
-    let label: 'PDF' | 'DOC' | 'PPT' | 'IMG' = 'PDF';
-    if (fileType === 'doc' || fileType === 'docx') label = 'DOC';
-    else if (fileType === 'ppt' || fileType === 'pptx') label = 'PPT';
-    else if (fileType === 'jpg' || fileType === 'jpeg' || fileType === 'png' || fileType === 'gif' || fileType === 'webp') label = 'IMG';
+    const label = fileType.substring(0, 3).toUpperCase();
     return { icon: FileText, color: 'text-muted-foreground', bgColor: 'bg-muted', label };
   };
 
@@ -457,10 +454,12 @@ const PDFGallery = ({
                 </div>
                 <div className="mt-2">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-medium text-sm text-foreground relative truncate flex-1 min-w-0">
-                      {pdf.title}
-                      <span className="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style={{ backgroundColor: settings.accentColor }}></span>
-                    </h3>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm text-foreground relative inline-block max-w-full truncate">
+                        {pdf.title}
+                        <span className="absolute bottom-0 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300" style={{ backgroundColor: settings.accentColor }}></span>
+                      </h3>
+                    </div>
                     {showRatings && (
                       <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} className="mr-2" />
                     )}
