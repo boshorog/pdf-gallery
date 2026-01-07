@@ -17,7 +17,7 @@ import { useLicense } from '@/hooks/useLicense';
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pdfGalleryLogo from '@/assets/pdf-gallery-logo.svg';
 
-const PLUGIN_VERSION = '2.0.2';
+const PLUGIN_VERSION = '2.0.3';
 
 // Kind Pixels Logo SVG Component
 const KindPixelsLogo = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
@@ -426,7 +426,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto">
         {/* Logo Header */}
-        <div className="px-6 pt-6 pb-4">
+        <div className="px-6 pt-6 pb-6">
           <div className="flex items-center gap-3">
             <img src={pdfGalleryLogo} alt="PDF Gallery" className="w-7 h-7" />
             <div className="flex items-baseline gap-2">
