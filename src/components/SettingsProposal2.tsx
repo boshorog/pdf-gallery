@@ -686,11 +686,11 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-1 w-16">
-                      <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                      <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                      <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                      <div className="w-4 h-6 bg-muted rounded-sm"></div>
-                      <div className="w-4 h-6 bg-muted rounded-sm"></div>
+                      <div className="w-4 h-6 bg-muted rounded-[2px]"></div>
+                      <div className="w-4 h-6 bg-muted rounded-[2px]"></div>
+                      <div className="w-4 h-6 bg-muted rounded-[2px]"></div>
+                      <div className="w-4 h-6 bg-muted rounded-[2px]"></div>
+                      <div className="w-4 h-6 bg-muted rounded-[2px]"></div>
                     </div>
                   </div>
                 </div>
@@ -708,13 +708,13 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                       </div>
                     </div>
                     <div className="grid grid-cols-4 gap-1 w-16">
-                      <div className="w-3 h-5 bg-muted rounded-sm"></div>
-                      <div className="w-3 h-5 bg-muted rounded-sm"></div>
-                      <div className="w-3 h-5 bg-muted rounded-sm"></div>
-                      <div className="w-3 h-5 bg-muted rounded-sm"></div>
-                      <div className="w-3 h-5 bg-muted rounded-sm"></div>
-                      <div className="w-3 h-5 bg-muted rounded-sm"></div>
-                      <div className="w-3 h-5 bg-muted rounded-sm"></div>
+                      <div className="w-3 h-5 bg-muted rounded-[2px]"></div>
+                      <div className="w-3 h-5 bg-muted rounded-[2px]"></div>
+                      <div className="w-3 h-5 bg-muted rounded-[2px]"></div>
+                      <div className="w-3 h-5 bg-muted rounded-[2px]"></div>
+                      <div className="w-3 h-5 bg-muted rounded-[2px]"></div>
+                      <div className="w-3 h-5 bg-muted rounded-[2px]"></div>
+                      <div className="w-3 h-5 bg-muted rounded-[2px]"></div>
                     </div>
                   </div>
                 </div>
@@ -732,15 +732,15 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                       </div>
                     </div>
                     <div className="grid grid-cols-5 gap-1 w-16">
-                      <div className="w-2 h-4 bg-muted rounded-sm"></div>
-                      <div className="w-2 h-4 bg-muted rounded-sm"></div>
-                      <div className="w-2 h-4 bg-muted rounded-sm"></div>
-                      <div className="w-2 h-4 bg-muted rounded-sm"></div>
-                      <div className="w-2 h-4 bg-muted rounded-sm"></div>
-                      <div className="w-2 h-4 bg-muted rounded-sm"></div>
-                      <div className="w-2 h-4 bg-muted rounded-sm"></div>
-                      <div className="w-2 h-4 bg-muted rounded-sm"></div>
-                      <div className="w-2 h-4 bg-muted rounded-sm"></div>
+                      <div className="w-2 h-4 bg-muted rounded-[1px]"></div>
+                      <div className="w-2 h-4 bg-muted rounded-[1px]"></div>
+                      <div className="w-2 h-4 bg-muted rounded-[1px]"></div>
+                      <div className="w-2 h-4 bg-muted rounded-[1px]"></div>
+                      <div className="w-2 h-4 bg-muted rounded-[1px]"></div>
+                      <div className="w-2 h-4 bg-muted rounded-[1px]"></div>
+                      <div className="w-2 h-4 bg-muted rounded-[1px]"></div>
+                      <div className="w-2 h-4 bg-muted rounded-[1px]"></div>
+                      <div className="w-2 h-4 bg-muted rounded-[1px]"></div>
                     </div>
                   </div>
                 </div>
