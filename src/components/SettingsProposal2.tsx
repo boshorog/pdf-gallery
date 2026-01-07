@@ -216,7 +216,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
             <CardContent>
               <div className="space-y-6" style={{ ['--accent-color' as any]: localSettings.accentColor }}>
                 {/* Default Style */}
-                <div className="border border-border rounded-lg p-4 hover:border-[var(--accent-color)]/50 transition-colors">
+                <div 
+                  className={`border rounded-lg p-4 hover:border-[var(--accent-color)]/50 transition-colors cursor-pointer ${localSettings.thumbnailStyle === 'default' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                  onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'default' }))}
+                >
                   <div className="flex items-start gap-4">
                     <Checkbox 
                       id="default2" 
@@ -260,7 +263,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                 </div>
 
                 {/* Elevated Card */}
-                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                <div 
+                  className={`border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailStyle === 'elevated-card' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                  onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'elevated-card' }))}
+                >
                   <div className="flex items-start gap-4">
                     <Checkbox 
                       id="elevated-card2" 
@@ -303,7 +309,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                 </div>
 
                 {/* Slide Up Text Style */}
-                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                <div 
+                  className={`border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailStyle === 'slide-up-text' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                  onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'slide-up-text' }))}
+                >
                   <div className="flex items-start gap-4">
                     <Checkbox 
                       id="slide-up-text2" 
@@ -346,7 +355,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                 </div>
 
                 {/* Gradient Zoom Style */}
-                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                <div 
+                  className={`border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailStyle === 'gradient-zoom' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                  onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'gradient-zoom' }))}
+                >
                   <div className="flex items-start gap-4">
                     <Checkbox 
                       id="gradient-zoom2" 
@@ -384,7 +396,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                 </div>
 
                 {/* Split Layout Style */}
-                <div className="border border-border rounded-lg p-4 hover:border-[var(--accent-color)]/50 transition-colors">
+                <div 
+                  className={`border rounded-lg p-4 hover:border-[var(--accent-color)]/50 transition-colors cursor-pointer ${localSettings.thumbnailStyle === 'split-layout' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                  onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'split-layout' }))}
+                >
                   <div className="flex items-start gap-4">
                     <Checkbox 
                       id="split-layout2" 
@@ -430,7 +445,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                 </div>
 
                 {/* Minimal Underline Style */}
-                <div className="border border-border rounded-lg p-4 hover:border-[var(--accent-color)]/50 transition-colors">
+                <div 
+                  className={`border rounded-lg p-4 hover:border-[var(--accent-color)]/50 transition-colors cursor-pointer ${localSettings.thumbnailStyle === 'minimal-underline' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                  onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailStyle: 'minimal-underline' }))}
+                >
                   <div className="flex items-start gap-4">
                     <Checkbox 
                       id="minimal-underline2" 
@@ -560,7 +578,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                   onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailShape: value }))}
                   className="grid grid-cols-2 md:grid-cols-3 gap-3"
                 >
-                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '3:2' || !localSettings.thumbnailShape ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                  <div 
+                    className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '3:2' || !localSettings.thumbnailShape ? 'border-primary bg-primary/5' : 'border-border'}`}
+                    onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailShape: '3:2' }))}
+                  >
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="3:2" id="shape-3-2" />
                       <div className="flex-1">
@@ -570,7 +591,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                     </div>
                   </div>
                   
-                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '1:1' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                  <div 
+                    className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '1:1' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                    onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailShape: '1:1' }))}
+                  >
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="1:1" id="shape-1-1" />
                       <div className="flex-1">
@@ -580,7 +604,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                     </div>
                   </div>
                   
-                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '16:9' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                  <div 
+                    className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '16:9' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                    onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailShape: '16:9' }))}
+                  >
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="16:9" id="shape-16-9" />
                       <div className="flex-1">
@@ -590,7 +617,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                     </div>
                   </div>
                   
-                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '2:3' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                  <div 
+                    className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '2:3' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                    onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailShape: '2:3' }))}
+                  >
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="2:3" id="shape-2-3" />
                       <div className="flex-1">
@@ -600,7 +630,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                     </div>
                   </div>
                   
-                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '9:16' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                  <div 
+                    className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '9:16' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                    onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailShape: '9:16' }))}
+                  >
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="9:16" id="shape-9-16" />
                       <div className="flex-1">
@@ -610,7 +643,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                     </div>
                   </div>
                   
-                  <div className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === 'auto' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                  <div 
+                    className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === 'auto' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                    onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailShape: 'auto' }))}
+                  >
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="auto" id="shape-auto" />
                       <div className="flex-1">
@@ -637,7 +673,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                   onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailSize: value }))}
                   className="space-y-4"
                 >
-                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                <div 
+                  className={`border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailSize === 'three-rows' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                  onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailSize: 'three-rows' }))}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="three-rows" id="three-rows2" />
@@ -656,7 +695,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                   </div>
                 </div>
 
-                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                <div 
+                  className={`border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailSize === 'four-rows' || !localSettings.thumbnailSize ? 'border-primary bg-primary/5' : 'border-border'}`}
+                  onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailSize: 'four-rows' }))}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="four-rows" id="four-rows2" />
@@ -677,7 +719,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange }: SettingsProposal2Prop
                   </div>
                 </div>
 
-                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                <div 
+                  className={`border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailSize === 'five-rows' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                  onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailSize: 'five-rows' }))}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="five-rows" id="five-rows2" />
