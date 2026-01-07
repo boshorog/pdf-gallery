@@ -79,6 +79,23 @@ const DocumentLightbox = ({
     };
   }, [isOpen]);
 
+  // When the gallery is embedded via the shortcode iframe, we can't render
+  // outside the iframe. Instead, we ask the parent page to temporarily expand
+  // the iframe to full viewport while the lightbox is open.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.parent || window.parent === window) return;
+
+    if (isOpen) {
+      window.parent.postMessage({ type: 'pdf-gallery:lightbox-open' }, '*');
+      return () => {
+        window.parent.postMessage({ type: 'pdf-gallery:lightbox-close' }, '*');
+      };
+    }
+
+    window.parent.postMessage({ type: 'pdf-gallery:lightbox-close' }, '*');
+  }, [isOpen]);
+
   // Reset loading state when document changes
   useEffect(() => {
     setIsLoading(true);

@@ -354,11 +354,77 @@ public function display_gallery_shortcode($atts) {
     // Auto-resize listener: receives height from the iframe app and adjusts dynamically (great for mobile)
     $html .= '<script>(function(){
       var iframe = document.getElementById("' . $iframe_id . '");
-      if(!iframe) return;
-      function onMsg(e){ try{ if(!e || !e.data) return; var d = e.data; if(d.type === "pdf-gallery:height" && typeof d.height === "number"){ var minH = 600; iframe.style.height = Math.max(d.height, minH) + "px"; } }catch(err){} }
+      var container = document.getElementById("' . $iframe_id . '-container");
+      if(!iframe || !container) return;
+
+      var originalContainerStyle = container.getAttribute("style") || "";
+      var originalIframeStyle = iframe.getAttribute("style") || "";
+      var lastScrollY = 0;
+      var heightBeforeFullscreen = "";
+
+      function setFullscreen(on){
+        try{
+          if(on){
+            if(container.getAttribute("data-pdf-gallery-fullscreen") === "1") return;
+            lastScrollY = window.scrollY || window.pageYOffset || 0;
+            heightBeforeFullscreen = iframe.style.height || "";
+
+            container.setAttribute("data-pdf-gallery-fullscreen", "1");
+            container.style.position = "fixed";
+            container.style.inset = "0";
+            container.style.width = "100vw";
+            container.style.height = "100vh";
+            container.style.zIndex = "999999";
+            container.style.overflow = "hidden";
+            container.style.left = "0";
+            container.style.transform = "none";
+
+            iframe.style.display = "block";
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+            iframe.style.minHeight = "0";
+            iframe.style.overflow = "hidden";
+
+            document.documentElement.style.overflow = "hidden";
+            document.body.style.overflow = "hidden";
+          } else {
+            if(container.getAttribute("data-pdf-gallery-fullscreen") !== "1") return;
+            container.removeAttribute("data-pdf-gallery-fullscreen");
+            container.setAttribute("style", originalContainerStyle);
+            iframe.setAttribute("style", originalIframeStyle);
+            if(heightBeforeFullscreen) iframe.style.height = heightBeforeFullscreen;
+            document.documentElement.style.overflow = "";
+            document.body.style.overflow = "";
+            window.scrollTo(0, lastScrollY);
+          }
+        }catch(err){}
+      }
+
+      function onMsg(e){
+        try{
+          if(!e || !e.data) return;
+          // Only accept messages coming from THIS iframe
+          if(e.source !== iframe.contentWindow) return;
+          var d = e.data;
+
+          if(d.type === "pdf-gallery:height" && typeof d.height === "number"){
+            var minH = 600;
+            iframe.style.height = Math.max(d.height, minH) + "px";
+          }
+
+          if(d.type === "pdf-gallery:lightbox-open") setFullscreen(true);
+          if(d.type === "pdf-gallery:lightbox-close") setFullscreen(false);
+        }catch(err){}
+      }
+
       window.addEventListener("message", onMsg, false);
+
       // Trigger a height check after a short delay to avoid clipping
-      setTimeout(function(){ if(iframe && iframe.contentWindow){ iframe.contentWindow.postMessage({type:"pdf-gallery:height-check"}, "*"); } }, 700);
+      setTimeout(function(){
+        if(iframe && iframe.contentWindow){
+          iframe.contentWindow.postMessage({type:"pdf-gallery:height-check"}, "*");
+        }
+      }, 700);
     })();</script>';
 
     return $html;
