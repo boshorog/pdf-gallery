@@ -366,37 +366,6 @@ public function display_gallery_shortcode($atts) {
       var lastScrollY = 0;
       var heightBeforeFullscreen = "";
 
-      var originalParent = container.parentNode;
-      var originalNextSibling = container.nextSibling;
-      var placeholder = null;
-
-      function moveContainerToBody(){
-        if(!document.body) return;
-        if(!placeholder){
-          placeholder = document.createElement("span");
-          placeholder.style.display = "none";
-        }
-        if(originalParent && placeholder.parentNode !== originalParent){
-          originalParent.insertBefore(placeholder, container);
-        }
-        document.body.appendChild(container);
-      }
-
-      function restoreContainerPosition(){
-        if(placeholder && placeholder.parentNode){
-          placeholder.parentNode.insertBefore(container, placeholder);
-          placeholder.parentNode.removeChild(placeholder);
-          return;
-        }
-        if(originalParent){
-          if(originalNextSibling && originalNextSibling.parentNode === originalParent){
-            originalParent.insertBefore(container, originalNextSibling);
-          } else {
-            originalParent.appendChild(container);
-          }
-        }
-      }
-
       function setFullscreen(on){
         try{
           if(on){
@@ -404,17 +373,19 @@ public function display_gallery_shortcode($atts) {
             lastScrollY = window.scrollY || window.pageYOffset || 0;
             heightBeforeFullscreen = iframe.style.height || "";
 
-            moveContainerToBody();
-
             container.setAttribute("data-pdf-gallery-fullscreen", "1");
             container.style.position = "fixed";
-            container.style.inset = "0";
+            container.style.top = "0";
+            container.style.left = "0";
+            container.style.right = "0";
+            container.style.bottom = "0";
             container.style.width = "100vw";
             container.style.height = "100vh";
             container.style.zIndex = "999999";
             container.style.overflow = "hidden";
-            container.style.left = "0";
             container.style.transform = "none";
+            container.style.margin = "0";
+            container.style.padding = "0";
 
             iframe.style.display = "block";
             iframe.style.width = "100%";
@@ -430,8 +401,6 @@ public function display_gallery_shortcode($atts) {
             container.setAttribute("style", originalContainerStyle);
             iframe.setAttribute("style", originalIframeStyle);
             if(heightBeforeFullscreen) iframe.style.height = heightBeforeFullscreen;
-
-            restoreContainerPosition();
 
             document.documentElement.style.overflow = "";
             document.body.style.overflow = "";
