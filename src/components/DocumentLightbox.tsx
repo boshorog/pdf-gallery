@@ -242,7 +242,7 @@ const DocumentLightbox = ({
           />
         ) : isPdf ? (
           <iframe
-            src={`${httpsUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+            src={getViewerUrl()}
             title={doc.title}
             className={`w-full h-full rounded-lg sm:rounded-xl shadow-2xl bg-white transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
             onLoad={() => setIsLoading(false)}
