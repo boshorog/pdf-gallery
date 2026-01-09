@@ -350,7 +350,7 @@ public function display_gallery_shortcode($atts) {
       .pdf-gallery-iframe-container iframe{overflow:hidden!important;scrolling:no!important;width:100%!important;max-width:100%!important;margin:0!important;}
     }
     </style>';
-    $html .= '<iframe id="' . esc_attr($iframe_id) . '" src="' . esc_url($src) . '" scrolling="no" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" style="height:1px;min-height:600px;overflow:hidden;"></iframe>';
+    $html .= '<iframe id="' . esc_attr($iframe_id) . '" src="' . esc_url($src) . '" scrolling="no" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-downloads" style="height:1px;min-height:600px;overflow:hidden;"></iframe>';
     $html .= '</div>';
     
     // Auto-resize listener: receives height from the iframe app and adjusts dynamically (great for mobile)
