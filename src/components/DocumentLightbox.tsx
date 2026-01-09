@@ -32,8 +32,23 @@ const DocumentLightbox = ({
   const [showControls, setShowControls] = useState(true);
 
   const doc = documents[currentIndex];
-  const httpsUrl = doc ? PDFThumbnailGenerator.toHttps(doc.pdfUrl) : '';
-  
+
+  const resolveUrl = useCallback((url: string) => {
+    if (!url) return '';
+    try {
+      // Absolute URL already
+      return new URL(url).toString();
+    } catch {
+      // Relative URL -> resolve against current origin
+      try {
+        return new URL(url, window.location.origin).toString();
+      } catch {
+        return url;
+      }
+    }
+  }, []);
+
+  const httpsUrl = doc ? resolveUrl(PDFThumbnailGenerator.toHttps(doc.pdfUrl)) : '';
   // Get file extension
   const getFileType = useCallback((document: Document): string => {
     const url = document.pdfUrl || '';
@@ -104,6 +119,14 @@ const DocumentLightbox = ({
     setIsLoading(true);
   }, [currentIndex]);
 
+  // Safety: if an embed never fires onLoad (blocked/slow), stop the spinner
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!isLoading) return;
+
+    const t = window.setTimeout(() => setIsLoading(false), 8000);
+    return () => window.clearTimeout(t);
+  }, [isOpen, currentIndex, isLoading]);
   // Auto-hide controls after 3 seconds of no interaction
   useEffect(() => {
     if (!isOpen) return;
@@ -291,12 +314,12 @@ const DocumentLightbox = ({
         <div 
           className={`absolute bottom-0 left-0 right-0 py-3 sm:py-4 px-3 sm:px-6 bg-gradient-to-t from-black/70 to-transparent z-10 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}
         >
-          <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 pdfg-scrollbar">
             {documents.map((d, i) => (
               <button
                 key={d.id}
                 onClick={() => onNavigate(i)}
-                className={`flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl overflow-hidden transition-all ${
+                className={`group relative flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-md sm:rounded-lg overflow-hidden transition-all ${
                   i === currentIndex 
                     ? 'ring-2 ring-white scale-110 shadow-lg' 
                     : 'opacity-50 hover:opacity-80 hover:scale-105'
@@ -308,6 +331,9 @@ const DocumentLightbox = ({
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />
+                <div className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/80 px-2 py-1 text-[11px] text-white opacity-0 transition-opacity group-hover:opacity-100">
+                  {d.title}
+                </div>
               </button>
             ))}
           </div>
