@@ -217,11 +217,11 @@ All colors MUST be HSL.
 /* Floating scrollbar for lightbox thumbnail strip */
 .pdfg-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: hsl(var(--foreground) / 0.35) transparent;
+  scrollbar-color: rgba(255,255,255,0.5) transparent;
 }
 
 .pdfg-scrollbar::-webkit-scrollbar {
-  height: 10px;
+  height: 8px;
 }
 
 .pdfg-scrollbar::-webkit-scrollbar-track {
@@ -229,8 +229,6 @@ All colors MUST be HSL.
 }
 
 .pdfg-scrollbar::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--foreground) / 0.35);
+  background-color: rgba(255,255,255,0.5);
   border-radius: 9999px;
-  border: 3px solid transparent;
-  background-clip: padding-box;
 }

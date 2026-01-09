@@ -346,8 +346,8 @@ public function display_gallery_shortcode($atts) {
     .pdf-gallery-iframe-container iframe{display:block;width:100%!important;border:0!important;overflow:hidden!important;scrolling:no!important;-webkit-overflow-scrolling:auto!important;-ms-overflow-style:none!important;scrollbar-width:none!important;}
     .pdf-gallery-iframe-container iframe::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;background:transparent!important;}
     @media (max-width:768px){
-      .pdf-gallery-iframe-container{overflow:hidden!important; width:100%; max-width:100%; position:relative; left:0; margin-left:0;} 
-      .pdf-gallery-iframe-container iframe{overflow:hidden!important;scrolling:no!important;}
+      .pdf-gallery-iframe-container{overflow:hidden!important; width:100%!important; max-width:100%!important; box-sizing:border-box!important; position:relative!important; left:0!important; right:0!important; margin-left:0!important; margin-right:0!important; padding-left:0!important; padding-right:0!important; transform:none!important;} 
+      .pdf-gallery-iframe-container iframe{overflow:hidden!important;scrolling:no!important;width:100%!important;max-width:100%!important;margin:0!important;}
     }
     </style>';
     $html .= '<iframe id="' . esc_attr($iframe_id) . '" src="' . esc_url($src) . '" scrolling="no" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" style="height:1px;min-height:600px;overflow:hidden;"></iframe>';
