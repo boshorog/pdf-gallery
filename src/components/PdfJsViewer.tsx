@@ -130,48 +130,56 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
   };
 
   return (
-    <div className={`relative w-full h-full ${className || ""}`} aria-label={title || "PDF viewer"}>
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-3 z-10 flex items-center gap-2 rounded-full bg-black/50 px-3 py-2 backdrop-blur-sm">
-        <button
-          className="text-white/80 hover:text-white disabled:opacity-40"
-          onClick={() => goTo(page - 1)}
-          disabled={!canPrev}
-          title="Previous page"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <div className="text-white/80 text-xs tabular-nums">
-          {numPages ? `${page} / ${numPages}` : isReady ? "…" : "Loading"}
-        </div>
-        <button
-          className="text-white/80 hover:text-white disabled:opacity-40"
-          onClick={() => goTo(page + 1)}
-          disabled={!canNext}
-          title="Next page"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-
-        <div className="w-px h-5 bg-white/20 mx-1" />
-
-        <button
-          className="text-white/80 hover:text-white"
-          onClick={() => zoomTo(scale - 0.15)}
-          title="Zoom out"
-        >
-          <Minus className="w-5 h-5" />
-        </button>
-        <button
-          className="text-white/80 hover:text-white"
-          onClick={() => zoomTo(scale + 0.15)}
-          title="Zoom in"
-        >
-          <Plus className="w-5 h-5" />
-        </button>
+    <div className={`relative w-full h-full flex flex-col ${className || ""}`} aria-label={title || "PDF viewer"}>
+      {/* Scrollable canvas area */}
+      <div className="flex-1 min-h-0 overflow-auto pdfg-scrollbar-vertical flex items-start justify-center p-2 sm:p-4">
+        <canvas ref={canvasRef} className="block rounded-lg shadow-2xl bg-white" />
       </div>
 
-      <div className="h-full w-full overflow-auto pdfg-scrollbar-vertical flex items-start justify-center p-2 sm:p-4">
-        <canvas ref={canvasRef} className="block rounded-lg shadow-2xl bg-white" />
+      {/* Controls bar - positioned at bottom, always interactive */}
+      <div className="flex-shrink-0 flex items-center justify-center py-3">
+        <div className="flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 backdrop-blur-sm">
+          <button
+            type="button"
+            className="text-white/80 hover:text-white disabled:opacity-40 p-1 cursor-pointer"
+            onClick={() => goTo(page - 1)}
+            disabled={!canPrev}
+            title="Previous page"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="text-white/80 text-xs tabular-nums min-w-[60px] text-center">
+            {numPages ? `${page} / ${numPages}` : isReady ? "…" : "Loading"}
+          </div>
+          <button
+            type="button"
+            className="text-white/80 hover:text-white disabled:opacity-40 p-1 cursor-pointer"
+            onClick={() => goTo(page + 1)}
+            disabled={!canNext}
+            title="Next page"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+
+          <div className="w-px h-5 bg-white/20 mx-1" />
+
+          <button
+            type="button"
+            className="text-white/80 hover:text-white p-1 cursor-pointer"
+            onClick={() => zoomTo(scale - 0.15)}
+            title="Zoom out"
+          >
+            <Minus className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            className="text-white/80 hover:text-white p-1 cursor-pointer"
+            onClick={() => zoomTo(scale + 0.15)}
+            title="Zoom in"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
+        </div>
       </div>
     </div>
   );

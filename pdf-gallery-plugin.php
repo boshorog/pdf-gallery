@@ -365,11 +365,13 @@ public function display_gallery_shortcode($atts) {
       var originalIframeStyle = iframe.getAttribute("style") || "";
       var lastScrollY = 0;
       var heightBeforeFullscreen = "";
+      var isFullscreen = false;
 
       function setFullscreen(on){
         try{
           if(on){
-            if(container.getAttribute("data-pdf-gallery-fullscreen") === "1") return;
+            if(isFullscreen) return;
+            isFullscreen = true;
             lastScrollY = window.scrollY || window.pageYOffset || 0;
             heightBeforeFullscreen = iframe.style.height || "";
 
@@ -381,29 +383,49 @@ public function display_gallery_shortcode($atts) {
             container.style.bottom = "0";
             container.style.width = "100vw";
             container.style.height = "100vh";
-            container.style.zIndex = "999999";
+            container.style.maxWidth = "100vw";
+            container.style.maxHeight = "100vh";
+            container.style.zIndex = "2147483647";
             container.style.overflow = "hidden";
             container.style.transform = "none";
             container.style.margin = "0";
             container.style.padding = "0";
+            container.style.background = "transparent";
 
             iframe.style.display = "block";
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.minHeight = "0";
+            iframe.style.width = "100vw";
+            iframe.style.height = "100vh";
+            iframe.style.maxWidth = "100vw";
+            iframe.style.maxHeight = "100vh";
+            iframe.style.minHeight = "100vh";
             iframe.style.overflow = "hidden";
+            iframe.style.position = "fixed";
+            iframe.style.top = "0";
+            iframe.style.left = "0";
+            iframe.style.zIndex = "2147483647";
 
             document.documentElement.style.overflow = "hidden";
             document.body.style.overflow = "hidden";
+            document.body.style.position = "fixed";
+            document.body.style.width = "100%";
+            document.body.style.top = "-" + lastScrollY + "px";
           } else {
-            if(container.getAttribute("data-pdf-gallery-fullscreen") !== "1") return;
+            if(!isFullscreen) return;
+            isFullscreen = false;
             container.removeAttribute("data-pdf-gallery-fullscreen");
             container.setAttribute("style", originalContainerStyle);
             iframe.setAttribute("style", originalIframeStyle);
             if(heightBeforeFullscreen) iframe.style.height = heightBeforeFullscreen;
+            iframe.style.position = "";
+            iframe.style.top = "";
+            iframe.style.left = "";
+            iframe.style.zIndex = "";
 
             document.documentElement.style.overflow = "";
             document.body.style.overflow = "";
+            document.body.style.position = "";
+            document.body.style.width = "";
+            document.body.style.top = "";
             window.scrollTo(0, lastScrollY);
           }
         }catch(err){}
@@ -416,7 +438,7 @@ public function display_gallery_shortcode($atts) {
           if(!d || d.token !== token) return;
 
           if(d.type === "pdf-gallery:height" && typeof d.height === "number"){
-            if(container.getAttribute("data-pdf-gallery-fullscreen") === "1") return;
+            if(isFullscreen) return;
             var minH = 600;
             iframe.style.height = Math.max(d.height, minH) + "px";
           }
@@ -458,7 +480,7 @@ public function display_gallery_shortcode($atts) {
         }
         
         // Set default options and version
-        add_option('pdf_gallery_version', '2.0.5');
+        add_option('pdf_gallery_version', '2.0.6');
 
         // Bundle a default "Test Gallery" on fresh installs (no existing galleries)
         $existing_galleries = get_option('pdf_gallery_galleries', null);
@@ -573,7 +595,7 @@ public function display_gallery_shortcode($atts) {
             }
         }
         if (!$is_pro) {
-            $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank" style="font-weight:600;color:#d97706;">Upgrade to Pro!</a>';
+            $upgrade_link = '<a href="' . esc_url(admin_url('admin.php?page=pdf-gallery-manager-pricing')) . '" style="font-weight:600;color:#d97706;">Upgrade to Pro!</a>';
             $links[] = $upgrade_link;
         }
         
