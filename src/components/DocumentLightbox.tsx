@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight, Download, FileText, Loader2, ExternalLink } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
+import PdfJsViewer from '@/components/PdfJsViewer';
 
 interface Document {
   id: string;
@@ -49,6 +50,7 @@ const DocumentLightbox = ({
   }, []);
 
   const httpsUrl = doc ? resolveUrl(PDFThumbnailGenerator.toHttps(doc.pdfUrl)) : '';
+
   // Get file extension
   const getFileType = useCallback((document: Document): string => {
     const url = document.pdfUrl || '';
@@ -94,24 +96,28 @@ const DocumentLightbox = ({
     };
   }, [isOpen]);
 
-  // When the gallery is embedded via the shortcode iframe, we can't render
-  // outside the iframe. Instead, we ask the parent page to temporarily expand
+  // When embedded via shortcode iframe: ask the parent page to temporarily expand
   // the iframe to full viewport while the lightbox is open.
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
-    const target = (window.top && window.top !== window ? window.top : window.parent);
-    if (!target || target === window) return;
+    if (window.parent === window) return;
 
     const token = new URLSearchParams(window.location.search).get('frameToken') || undefined;
-    const post = (type: string) => target.postMessage({ type, token }, '*');
+    const post = (type: string) => window.parent.postMessage({ type, token }, '*');
 
     if (isOpen) {
       post('pdf-gallery:lightbox-open');
-      return () => post('pdf-gallery:lightbox-close');
+      const t = window.setTimeout(() => post('pdf-gallery:lightbox-open'), 150);
+      return () => {
+        window.clearTimeout(t);
+        post('pdf-gallery:lightbox-close');
+        window.setTimeout(() => post('pdf-gallery:lightbox-close'), 150);
+      };
     }
 
     post('pdf-gallery:lightbox-close');
+    const t = window.setTimeout(() => post('pdf-gallery:lightbox-close'), 150);
+    return () => window.clearTimeout(t);
   }, [isOpen]);
 
   // Reset loading state when document changes
@@ -127,10 +133,11 @@ const DocumentLightbox = ({
     const t = window.setTimeout(() => setIsLoading(false), 8000);
     return () => window.clearTimeout(t);
   }, [isOpen, currentIndex, isLoading]);
+
   // Auto-hide controls after 3 seconds of no interaction
   useEffect(() => {
     if (!isOpen) return;
-    
+
     let timeout: NodeJS.Timeout;
     const resetTimeout = () => {
       setShowControls(true);
@@ -157,22 +164,65 @@ const DocumentLightbox = ({
     if (currentIndex < documents.length - 1) onNavigate(currentIndex + 1);
   }, [currentIndex, documents.length, onNavigate]);
 
-  // Get Google Docs viewer URL for PDFs and other documents
+  // Get Google Docs viewer URL for non-PDF documents
   const getViewerUrl = useCallback(() => {
     const encodedUrl = encodeURIComponent(httpsUrl);
     return `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
   }, [httpsUrl]);
 
-  const handleDownload = useCallback(() => {
-    if (!httpsUrl) return;
-    // Open in new tab which triggers download for PDFs
-    window.open(httpsUrl, '_blank', 'noopener,noreferrer');
-  }, [httpsUrl]);
+  const handleDownload = useCallback(async () => {
+    if (!httpsUrl || !doc) return;
+
+    const fileNameFromUrl = (() => {
+      try {
+        const u = new URL(httpsUrl);
+        const last = u.pathname.split('/').pop() || '';
+        return last || `${doc.title}.${fileType}`;
+      } catch {
+        return `${doc.title}.${fileType}`;
+      }
+    })();
+
+    // Best effort: try native download attribute first
+    try {
+      const a = document.createElement('a');
+      a.href = httpsUrl;
+      a.download = fileNameFromUrl;
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      return;
+    } catch {
+      // ignore
+    }
+
+    // Fallback: fetch -> blob (works when CORS allows)
+    try {
+      const res = await fetch(httpsUrl, { mode: 'cors' });
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileNameFromUrl;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+      return;
+    } catch {
+      // Final fallback
+      window.open(httpsUrl, '_blank', 'noopener,noreferrer');
+    }
+  }, [httpsUrl, doc, fileType]);
 
   const handlePopOut = useCallback(() => {
     if (!httpsUrl) return;
-    window.open(getViewerUrl(), '_blank', 'noopener,noreferrer');
-  }, [httpsUrl, getViewerUrl]);
+
+    // For non-PDF documents, the Google viewer often provides better preview.
+    const popUrl = isPdf ? httpsUrl : getViewerUrl();
+    window.open(popUrl, '_blank', 'noopener,noreferrer');
+  }, [httpsUrl, isPdf, getViewerUrl]);
 
   // Touch swipe handling for mobile
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -194,7 +244,7 @@ const DocumentLightbox = ({
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
-    
+
     if (isLeftSwipe) handleNext();
     if (isRightSwipe) handlePrev();
   };
@@ -272,13 +322,7 @@ const DocumentLightbox = ({
           />
         ) : isPdf ? (
           <div className={`w-full h-full rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-            <iframe
-              src={httpsUrl}
-              title={doc.title}
-              className="w-full h-full pdfg-scrollbar-vertical"
-              onLoad={() => setIsLoading(false)}
-              style={{ border: 'none', background: 'white' }}
-            />
+            <PdfJsViewer url={httpsUrl} title={doc.title} onLoaded={() => setIsLoading(false)} />
           </div>
         ) : (
           <iframe
