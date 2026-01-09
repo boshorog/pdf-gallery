@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, video, audio, and document files. Easily organize, sort, and showcase your files in beautiful grid layouts.
- * Version: 2.0.3
+ * Version: 2.0.4
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
@@ -346,7 +346,7 @@ public function display_gallery_shortcode($atts) {
     .pdf-gallery-iframe-container iframe{display:block;width:100%!important;border:0!important;overflow:hidden!important;scrolling:no!important;-webkit-overflow-scrolling:auto!important;-ms-overflow-style:none!important;scrollbar-width:none!important;}
     .pdf-gallery-iframe-container iframe::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;background:transparent!important;}
     @media (max-width:768px){
-      .pdf-gallery-iframe-container{overflow:hidden!important; width:100vw; position:relative; left:50%; margin-left:-50vw; margin-left:calc(-50vw + 50%);} 
+      .pdf-gallery-iframe-container{overflow:hidden!important; width:100%; max-width:100%; position:relative; left:0; margin-left:0;} 
       .pdf-gallery-iframe-container iframe{overflow:hidden!important;scrolling:no!important;}
     }
     </style>';
