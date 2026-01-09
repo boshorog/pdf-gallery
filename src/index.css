@@ -251,3 +251,12 @@ All colors MUST be HSL.
   background-color: rgba(255,255,255,0.5);
   border-radius: 9999px;
 }
+
+/* Hidden scrollbar - still scrollable but no visible scrollbar */
+.pdfg-scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.pdfg-scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}

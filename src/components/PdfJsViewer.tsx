@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 
 // Initialize PDF.js worker (mirrors src/utils/pdfThumbnailGenerator.ts)
@@ -27,15 +27,21 @@ type PdfJsViewerProps = {
   className?: string;
 };
 
+const DEFAULT_SCALE = 1.15;
+
 export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsViewerProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const canvasRefs = useRef<Map<number, HTMLCanvasElement>>(new Map());
 
   const [numPages, setNumPages] = useState(0);
-  const [page, setPage] = useState(1);
-  const [scale, setScale] = useState(1.15);
+  const [scale, setScale] = useState(DEFAULT_SCALE);
   const [isReady, setIsReady] = useState(false);
+  const [pdfDoc, setPdfDoc] = useState<any>(null);
 
   const safeUrl = useMemo(() => url || "", [url]);
+
+  // Show scrollbar only when zoomed in
+  const isZoomed = scale > DEFAULT_SCALE + 0.01;
 
   useEffect(() => {
     let cancelled = false;
@@ -46,7 +52,8 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
 
       setIsReady(false);
       setNumPages(0);
-      setPage(1);
+      setPdfDoc(null);
+      canvasRefs.current.clear();
 
       try {
         const task = getDocument({
@@ -60,20 +67,10 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
         if (cancelled) return;
 
         setNumPages(pdf.numPages);
+        setPdfDoc(pdf);
         setIsReady(true);
         onLoaded?.();
-
-        // Render first page
-        const first = await pdf.getPage(1);
-        if (cancelled) return;
-
-        await renderPage(pdf, first, 1, scale);
-
-        // Store pdf on window for later renders without extra state churn
-        (window as any).__pdfg_pdfDoc = pdf;
       } catch (e) {
-        // If the PDF is blocked by X-Frame-Options/CSP or odd headers, PDF.js can still fail.
-        // In that case, the parent UI can fall back to pop-out / download.
         onLoaded?.();
       }
     }
@@ -85,84 +82,86 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [safeUrl]);
 
-  async function renderCurrent(nextPage = page, nextScale = scale) {
-    const pdf = (window as any).__pdfg_pdfDoc;
-    if (!pdf) return;
-    const p = await pdf.getPage(nextPage);
-    await renderPage(pdf, p, nextPage, nextScale);
-  }
+  // Render all pages when pdf or scale changes
+  useEffect(() => {
+    if (!pdfDoc || numPages === 0) return;
 
-  async function renderPage(_pdf: any, pdfPage: any, _pageNum: number, nextScale: number) {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    let cancelled = false;
 
-    const viewport = pdfPage.getViewport({ scale: nextScale });
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    async function renderAllPages() {
+      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        if (cancelled) return;
+        const canvas = canvasRefs.current.get(pageNum);
+        if (!canvas) continue;
 
-    // HiDPI
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(viewport.width * dpr);
-    canvas.height = Math.floor(viewport.height * dpr);
-    canvas.style.width = `${Math.floor(viewport.width)}px`;
-    canvas.style.height = `${Math.floor(viewport.height)}px`;
+        try {
+          const pdfPage = await pdfDoc.getPage(pageNum);
+          if (cancelled) return;
 
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          const viewport = pdfPage.getViewport({ scale });
+          const ctx = canvas.getContext("2d");
+          if (!ctx) continue;
 
-    await pdfPage.render({ canvasContext: ctx, viewport } as any).promise;
-  }
+          const dpr = window.devicePixelRatio || 1;
+          canvas.width = Math.floor(viewport.width * dpr);
+          canvas.height = Math.floor(viewport.height * dpr);
+          canvas.style.width = `${Math.floor(viewport.width)}px`;
+          canvas.style.height = `${Math.floor(viewport.height)}px`;
 
-  const canPrev = page > 1;
-  const canNext = numPages > 0 && page < numPages;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+          await pdfPage.render({ canvasContext: ctx, viewport } as any).promise;
+        } catch (e) {
+          // Page render failed, continue with others
+        }
+      }
+    }
+
+    renderAllPages();
+    return () => {
+      cancelled = true;
+    };
+  }, [pdfDoc, numPages, scale]);
 
   const clampScale = (s: number) => Math.max(0.6, Math.min(2.2, s));
 
-  const goTo = async (next: number) => {
-    const n = Math.max(1, Math.min(numPages || 1, next));
-    setPage(n);
-    await renderCurrent(n, scale);
+  const zoomTo = (next: number) => {
+    setScale(clampScale(next));
   };
 
-  const zoomTo = async (next: number) => {
-    const z = clampScale(next);
-    setScale(z);
-    await renderCurrent(page, z);
+  const setCanvasRef = (pageNum: number) => (el: HTMLCanvasElement | null) => {
+    if (el) {
+      canvasRefs.current.set(pageNum, el);
+    } else {
+      canvasRefs.current.delete(pageNum);
+    }
   };
 
   return (
     <div className={`relative w-full h-full flex flex-col ${className || ""}`} aria-label={title || "PDF viewer"}>
-      {/* Scrollable canvas area */}
-      <div className="flex-1 min-h-0 overflow-auto pdfg-scrollbar-vertical flex items-start justify-center p-2 sm:p-4">
-        <canvas ref={canvasRef} className="block rounded-lg shadow-2xl bg-white" />
+      {/* Scrollable pages area - hide scrollbar unless zoomed */}
+      <div 
+        ref={containerRef}
+        className={`flex-1 min-h-0 overflow-auto flex flex-col items-center gap-4 p-2 sm:p-4 ${isZoomed ? 'pdfg-scrollbar-vertical' : 'pdfg-scrollbar-hidden'}`}
+      >
+        {numPages > 0 ? (
+          Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => (
+            <canvas
+              key={pageNum}
+              ref={setCanvasRef(pageNum)}
+              className="block rounded-lg shadow-2xl bg-white flex-shrink-0"
+            />
+          ))
+        ) : (
+          <div className="flex items-center justify-center h-full text-white/60">
+            {isReady ? "No pages" : "Loading..."}
+          </div>
+        )}
       </div>
 
-      {/* Controls bar - positioned at bottom, always interactive */}
+      {/* Controls bar - zoom only */}
       <div className="flex-shrink-0 flex items-center justify-center py-3 relative z-50">
         <div className="flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 backdrop-blur-sm pointer-events-auto">
-          <button
-            type="button"
-            className="text-white/80 hover:text-white disabled:opacity-40 p-1 cursor-pointer select-none"
-            onClick={(e) => { e.stopPropagation(); goTo(page - 1); }}
-            disabled={!canPrev}
-            title="Previous page"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <div className="text-white/80 text-xs tabular-nums min-w-[60px] text-center select-none">
-            {numPages ? `${page} / ${numPages}` : isReady ? "…" : "Loading"}
-          </div>
-          <button
-            type="button"
-            className="text-white/80 hover:text-white disabled:opacity-40 p-1 cursor-pointer select-none"
-            onClick={(e) => { e.stopPropagation(); goTo(page + 1); }}
-            disabled={!canNext}
-            title="Next page"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-
-          <div className="w-px h-5 bg-white/20 mx-1" />
-
           <button
             type="button"
             className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
@@ -171,6 +170,9 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
           >
             <Minus className="w-5 h-5" />
           </button>
+          <div className="text-white/80 text-xs tabular-nums min-w-[50px] text-center select-none">
+            {Math.round(scale * 100)}%
+          </div>
           <button
             type="button"
             className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
