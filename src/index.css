@@ -232,3 +232,22 @@ All colors MUST be HSL.
   background-color: rgba(255,255,255,0.5);
   border-radius: 9999px;
 }
+
+/* Vertical scrollbar for PDF viewer in lightbox */
+.pdfg-scrollbar-vertical {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.5) transparent;
+}
+
+.pdfg-scrollbar-vertical::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pdfg-scrollbar-vertical::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pdfg-scrollbar-vertical::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,0.5);
+  border-radius: 9999px;
+}

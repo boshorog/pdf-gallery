@@ -254,7 +254,7 @@ const DocumentLightbox = ({
       {/* Content - Maximum size */}
       <div className="h-full flex items-center justify-center pt-14 sm:pt-20 pb-20 sm:pb-24 px-2 sm:px-4 md:px-16">
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center z-20" style={{ pointerEvents: 'none' }}>
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="w-10 h-10 text-white animate-spin" />
               <p className="text-white/70 text-sm">Loading document...</p>
@@ -271,13 +271,15 @@ const DocumentLightbox = ({
             onError={() => setIsLoading(false)}
           />
         ) : isPdf ? (
-          <iframe
-            src={getViewerUrl()}
-            title={doc.title}
-            className={`w-full h-full rounded-lg sm:rounded-xl shadow-2xl bg-white transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-            onLoad={() => setIsLoading(false)}
-            style={{ border: 'none' }}
-          />
+          <div className={`w-full h-full rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+            <iframe
+              src={httpsUrl}
+              title={doc.title}
+              className="w-full h-full pdfg-scrollbar-vertical"
+              onLoad={() => setIsLoading(false)}
+              style={{ border: 'none', background: 'white' }}
+            />
+          </div>
         ) : (
           <iframe
             src={getViewerUrl()}
