@@ -85,7 +85,7 @@ if (defined('PDF_GALLERY_PLUGIN_LOADED')) {
     return;
 }
 define('PDF_GALLERY_PLUGIN_LOADED', true);
-define('PDF_GALLERY_VERSION', '2.0.3');
+define('PDF_GALLERY_VERSION', '2.0.4');
 class PDF_Gallery_Plugin {
     
     public function __construct() {
@@ -458,7 +458,7 @@ public function display_gallery_shortcode($atts) {
         }
         
         // Set default options and version
-        add_option('pdf_gallery_version', '1.7.3');
+        add_option('pdf_gallery_version', '2.0.4');
 
         // Bundle a default "Test Gallery" on fresh installs (no existing galleries)
         $existing_galleries = get_option('pdf_gallery_galleries', null);
