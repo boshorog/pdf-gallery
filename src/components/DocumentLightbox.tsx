@@ -317,8 +317,8 @@ const DocumentLightbox = ({
         </div>
       </div>
       
-      {/* Content - Maximum size */}
-      <div className="h-full flex items-center justify-center pt-14 sm:pt-20 pb-20 sm:pb-24 px-2 sm:px-4 md:px-16">
+      {/* Content - Maximum size, with space for side nav arrows */}
+      <div className="h-full flex items-center justify-center pt-14 sm:pt-20 pb-20 sm:pb-24 px-12 sm:px-20 md:px-24">
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center z-20" style={{ pointerEvents: 'none' }}>
             <div className="flex flex-col items-center gap-3">
@@ -337,7 +337,7 @@ const DocumentLightbox = ({
             onError={() => setIsLoading(false)}
           />
         ) : isPdf ? (
-          <div className={`w-full h-full flex flex-col rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+          <div className={`w-full h-full max-w-5xl mx-auto flex flex-col rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
             <PdfJsViewer url={httpsUrl} title={doc.title} onLoaded={() => setIsLoading(false)} />
           </div>
         ) : isVideo ? (
@@ -399,7 +399,7 @@ const DocumentLightbox = ({
           className={`absolute bottom-0 left-0 right-0 py-3 sm:py-4 px-3 sm:px-6 bg-gradient-to-t from-black/70 to-transparent z-10 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}
         >
           <div className="mx-auto w-full sm:w-[90%] overflow-visible">
-            <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 pt-10 pdfg-scrollbar">
+            <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 pt-10 pl-6 pr-2 pdfg-scrollbar">
               {documents.map((d, i) => (
                 <button
                   key={d.id}
