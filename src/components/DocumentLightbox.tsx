@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X, ChevronLeft, ChevronRight, Download, FileText, Loader2 } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Download, FileText, Loader2, ExternalLink } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 
 interface Document {
@@ -134,16 +134,22 @@ const DocumentLightbox = ({
     if (currentIndex < documents.length - 1) onNavigate(currentIndex + 1);
   }, [currentIndex, documents.length, onNavigate]);
 
+  // Get Google Docs viewer URL for PDFs and other documents
+  const getViewerUrl = useCallback(() => {
+    const encodedUrl = encodeURIComponent(httpsUrl);
+    return `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
+  }, [httpsUrl]);
+
   const handleDownload = useCallback(() => {
     if (!httpsUrl) return;
-    const link = document.createElement('a');
-    link.href = httpsUrl;
-    link.download = doc?.title || 'document';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [httpsUrl, doc?.title]);
+    // Open in new tab which triggers download for PDFs
+    window.open(httpsUrl, '_blank', 'noopener,noreferrer');
+  }, [httpsUrl]);
+
+  const handlePopOut = useCallback(() => {
+    if (!httpsUrl) return;
+    window.open(getViewerUrl(), '_blank', 'noopener,noreferrer');
+  }, [httpsUrl, getViewerUrl]);
 
   // Touch swipe handling for mobile
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -172,15 +178,9 @@ const DocumentLightbox = ({
 
   if (!isOpen || !doc) return null;
 
-  // Get Google Docs viewer URL for PDFs and other documents
-  const getViewerUrl = () => {
-    const encodedUrl = encodeURIComponent(httpsUrl);
-    return `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
-  };
-
   return (
     <div 
-      className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-[9999] bg-black/85"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -209,6 +209,13 @@ const DocumentLightbox = ({
             title="Download"
           >
             <Download className="w-5 h-5" />
+          </button>
+          <button 
+            onClick={handlePopOut}
+            className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg transition-all"
+            title="Open in new tab"
+          >
+            <ExternalLink className="w-5 h-5" />
           </button>
           <div className="w-px h-6 bg-white/20 mx-1 sm:mx-2 hidden sm:block" />
           <button 
