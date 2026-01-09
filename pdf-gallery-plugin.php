@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, video, audio, and document files. Easily organize, sort, and showcase your files in beautiful grid layouts.
- * Version: 2.0.5
+ * Version: 2.0.6
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
@@ -85,7 +85,7 @@ if (defined('PDF_GALLERY_PLUGIN_LOADED')) {
     return;
 }
 define('PDF_GALLERY_PLUGIN_LOADED', true);
-define('PDF_GALLERY_VERSION', '2.0.5');
+define('PDF_GALLERY_VERSION', '2.0.6');
 class PDF_Gallery_Plugin {
     
     public function __construct() {
@@ -559,9 +559,24 @@ public function display_gallery_shortcode($atts) {
                 continue;
             }
         }
-        // Add our styled Upgrade link
-        $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank" style="font-weight:600;color:#d97706;">Upgrade to Pro!</a>';
-        $links[] = $upgrade_link;
+        
+        // Add Dashboard link
+        $dashboard_link = '<a href="' . esc_url(admin_url('admin.php?page=pdf-gallery-manager')) . '">Dashboard</a>';
+        array_unshift($links, $dashboard_link);
+        
+        // Add our styled Upgrade link only if not Pro
+        $is_pro = false;
+        if (function_exists('pdfgallery_fs')) {
+            $fs = pdfgallery_fs();
+            if (is_object($fs) && method_exists($fs, 'is_paying') && $fs->is_paying()) {
+                $is_pro = true;
+            }
+        }
+        if (!$is_pro) {
+            $upgrade_link = '<a href="https://kindpixels.com/pdf-gallery/" target="_blank" style="font-weight:600;color:#d97706;">Upgrade to Pro!</a>';
+            $links[] = $upgrade_link;
+        }
+        
         return $links;
     }
     

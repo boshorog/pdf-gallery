@@ -61,6 +61,8 @@ const DocumentLightbox = ({
   const fileType = doc ? getFileType(doc) : 'pdf';
   const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileType);
   const isPdf = fileType === 'pdf';
+  const isVideo = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'].includes(fileType);
+  const isAudio = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(fileType);
 
   // Keyboard navigation
   useEffect(() => {
@@ -219,10 +221,13 @@ const DocumentLightbox = ({
   const handlePopOut = useCallback(() => {
     if (!httpsUrl) return;
 
-    // For non-PDF documents, the Google viewer often provides better preview.
-    const popUrl = isPdf ? httpsUrl : getViewerUrl();
+    // Different file types get different treatment:
+    // - PDF, video, audio, images: open directly (browsers handle these natively)
+    // - Other documents (Word, Excel, etc.): use Google Docs viewer
+    const opensNatively = isPdf || isImage || isVideo || isAudio;
+    const popUrl = opensNatively ? httpsUrl : getViewerUrl();
     window.open(popUrl, '_blank', 'noopener,noreferrer');
-  }, [httpsUrl, isPdf, getViewerUrl]);
+  }, [httpsUrl, isPdf, isImage, isVideo, isAudio, getViewerUrl]);
 
   // Touch swipe handling for mobile
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -324,6 +329,28 @@ const DocumentLightbox = ({
           <div className={`w-full h-full rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
             <PdfJsViewer url={httpsUrl} title={doc.title} onLoaded={() => setIsLoading(false)} />
           </div>
+        ) : isVideo ? (
+          <video
+            src={httpsUrl}
+            controls
+            autoPlay
+            className={`max-w-full max-h-full rounded-lg sm:rounded-xl shadow-2xl transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+            onLoadedData={() => setIsLoading(false)}
+            onError={() => setIsLoading(false)}
+          />
+        ) : isAudio ? (
+          <div className={`flex flex-col items-center justify-center gap-6 p-8 bg-white/10 rounded-lg sm:rounded-xl shadow-2xl transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+            <FileText className="w-24 h-24 text-white/50" />
+            <h3 className="text-white text-lg font-medium">{doc.title}</h3>
+            <audio
+              src={httpsUrl}
+              controls
+              autoPlay
+              className="w-full max-w-md"
+              onLoadedData={() => setIsLoading(false)}
+              onError={() => setIsLoading(false)}
+            />
+          </div>
         ) : (
           <iframe
             src={getViewerUrl()}
@@ -378,9 +405,11 @@ const DocumentLightbox = ({
                     className="w-full h-full object-cover rounded-md sm:rounded-lg"
                     loading="lazy"
                   />
-                  <div className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[11px] text-white opacity-0 transition-opacity group-hover:opacity-100 z-20">
-                    {d.title}
-                  </div>
+                  {d.title && d.title.trim() && (
+                    <div className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[11px] text-white opacity-0 transition-opacity group-hover:opacity-100 z-20">
+                      {d.title}
+                    </div>
+                  )}
                 </button>
               ))}
             </div>
