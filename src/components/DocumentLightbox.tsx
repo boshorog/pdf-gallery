@@ -105,20 +105,31 @@ const DocumentLightbox = ({
     if (window.parent === window) return;
 
     const token = new URLSearchParams(window.location.search).get('frameToken') || undefined;
-    const post = (type: string) => window.parent.postMessage({ type, token }, '*');
+    const post = (type: string) => {
+      try {
+        window.parent.postMessage({ type, token }, '*');
+      } catch {
+        // cross-origin blocked, ignore
+      }
+    };
 
     if (isOpen) {
+      // Fire multiple times with staggered delays to ensure parent receives message
       post('pdf-gallery:lightbox-open');
-      const t = window.setTimeout(() => post('pdf-gallery:lightbox-open'), 150);
+      const t1 = window.setTimeout(() => post('pdf-gallery:lightbox-open'), 50);
+      const t2 = window.setTimeout(() => post('pdf-gallery:lightbox-open'), 150);
+      const t3 = window.setTimeout(() => post('pdf-gallery:lightbox-open'), 300);
       return () => {
-        window.clearTimeout(t);
+        window.clearTimeout(t1);
+        window.clearTimeout(t2);
+        window.clearTimeout(t3);
         post('pdf-gallery:lightbox-close');
-        window.setTimeout(() => post('pdf-gallery:lightbox-close'), 150);
+        window.setTimeout(() => post('pdf-gallery:lightbox-close'), 100);
       };
     }
 
     post('pdf-gallery:lightbox-close');
-    const t = window.setTimeout(() => post('pdf-gallery:lightbox-close'), 150);
+    const t = window.setTimeout(() => post('pdf-gallery:lightbox-close'), 100);
     return () => window.clearTimeout(t);
   }, [isOpen]);
 
@@ -326,7 +337,7 @@ const DocumentLightbox = ({
             onError={() => setIsLoading(false)}
           />
         ) : isPdf ? (
-          <div className={`w-full h-full rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+          <div className={`w-full h-full flex flex-col rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
             <PdfJsViewer url={httpsUrl} title={doc.title} onLoaded={() => setIsLoading(false)} />
           </div>
         ) : isVideo ? (
