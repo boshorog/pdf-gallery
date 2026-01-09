@@ -137,24 +137,24 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
       </div>
 
       {/* Controls bar - positioned at bottom, always interactive */}
-      <div className="flex-shrink-0 flex items-center justify-center py-3">
-        <div className="flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 backdrop-blur-sm">
+      <div className="flex-shrink-0 flex items-center justify-center py-3 relative z-50">
+        <div className="flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 backdrop-blur-sm pointer-events-auto">
           <button
             type="button"
-            className="text-white/80 hover:text-white disabled:opacity-40 p-1 cursor-pointer"
-            onClick={() => goTo(page - 1)}
+            className="text-white/80 hover:text-white disabled:opacity-40 p-1 cursor-pointer select-none"
+            onClick={(e) => { e.stopPropagation(); goTo(page - 1); }}
             disabled={!canPrev}
             title="Previous page"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <div className="text-white/80 text-xs tabular-nums min-w-[60px] text-center">
+          <div className="text-white/80 text-xs tabular-nums min-w-[60px] text-center select-none">
             {numPages ? `${page} / ${numPages}` : isReady ? "…" : "Loading"}
           </div>
           <button
             type="button"
-            className="text-white/80 hover:text-white disabled:opacity-40 p-1 cursor-pointer"
-            onClick={() => goTo(page + 1)}
+            className="text-white/80 hover:text-white disabled:opacity-40 p-1 cursor-pointer select-none"
+            onClick={(e) => { e.stopPropagation(); goTo(page + 1); }}
             disabled={!canNext}
             title="Next page"
           >
@@ -165,16 +165,16 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
 
           <button
             type="button"
-            className="text-white/80 hover:text-white p-1 cursor-pointer"
-            onClick={() => zoomTo(scale - 0.15)}
+            className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
+            onClick={(e) => { e.stopPropagation(); zoomTo(scale - 0.15); }}
             title="Zoom out"
           >
             <Minus className="w-5 h-5" />
           </button>
           <button
             type="button"
-            className="text-white/80 hover:text-white p-1 cursor-pointer"
-            onClick={() => zoomTo(scale + 0.15)}
+            className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
+            onClick={(e) => { e.stopPropagation(); zoomTo(scale + 0.15); }}
             title="Zoom in"
           >
             <Plus className="w-5 h-5" />
