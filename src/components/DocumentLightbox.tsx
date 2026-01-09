@@ -399,7 +399,7 @@ const DocumentLightbox = ({
           className={`absolute bottom-0 left-0 right-0 py-3 sm:py-4 px-3 sm:px-6 bg-gradient-to-t from-black/70 to-transparent z-10 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}
         >
           <div className="mx-auto w-full sm:w-[90%] overflow-visible">
-            <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 pt-10 pl-6 pr-2 pdfg-scrollbar">
+            <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 pt-10 px-8 pdfg-scrollbar">
               {documents.map((d, i) => (
                 <button
                   key={d.id}
