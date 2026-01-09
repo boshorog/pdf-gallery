@@ -367,11 +367,45 @@ public function display_gallery_shortcode($atts) {
       var heightBeforeFullscreen = "";
       var isFullscreen = false;
 
+      // Some themes (especially on mobile) apply CSS transforms to page wrappers.
+      // That can cause `position: fixed` to behave like it's confined to the wrapper.
+      // To guarantee true fullscreen, we temporarily move the iframe container to <body>.
+      var originalParent = container.parentNode;
+      var originalNextSibling = container.nextSibling;
+      var placeholder = document.createComment("pdf-gallery-fullscreen-placeholder");
+
+      function moveContainerToBody(){
+        try{
+          if(container.parentNode === document.body) return;
+          originalParent = container.parentNode;
+          originalNextSibling = container.nextSibling;
+          if(originalParent){
+            originalParent.insertBefore(placeholder, container);
+          }
+          document.body.appendChild(container);
+        }catch(err){}
+      }
+
+      function restoreContainerFromBody(){
+        try{
+          if(container.parentNode !== document.body) return;
+          if(placeholder && placeholder.parentNode){
+            placeholder.parentNode.insertBefore(container, placeholder);
+            placeholder.parentNode.removeChild(placeholder);
+          } else if(originalParent){
+            originalParent.insertBefore(container, originalNextSibling);
+          }
+        }catch(err){}
+      }
+
       function setFullscreen(on){
         try{
           if(on){
             if(isFullscreen) return;
             isFullscreen = true;
+
+            moveContainerToBody();
+
             lastScrollY = window.scrollY || window.pageYOffset || 0;
             heightBeforeFullscreen = iframe.style.height || "";
 
@@ -412,6 +446,7 @@ public function display_gallery_shortcode($atts) {
           } else {
             if(!isFullscreen) return;
             isFullscreen = false;
+
             container.removeAttribute("data-pdf-gallery-fullscreen");
             container.setAttribute("style", originalContainerStyle);
             iframe.setAttribute("style", originalIframeStyle);
@@ -426,6 +461,8 @@ public function display_gallery_shortcode($atts) {
             document.body.style.position = "";
             document.body.style.width = "";
             document.body.style.top = "";
+
+            restoreContainerFromBody();
             window.scrollTo(0, lastScrollY);
           }
         }catch(err){}
