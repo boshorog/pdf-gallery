@@ -276,6 +276,7 @@ const PDFGallery = ({
       onMouseLeave: () => setHoveredId(null),
       onClick: (e: React.MouseEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         if (lightboxEnabled) {
           openLightbox(pdf.id);
         } else {
