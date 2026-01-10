@@ -277,7 +277,8 @@ const PDFGallery = ({
       onClick: (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (lightboxEnabled) {
+        // Lightbox is desktop-only; on mobile, fall through to open in new tab
+        if (lightboxEnabled && !isMobile) {
           openLightbox(pdf.id);
         } else {
           // Open in new tab (fallback behavior when lightbox is disabled)

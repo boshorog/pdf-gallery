@@ -800,7 +800,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                       <Maximize2 className="w-4 h-4 text-blue-500" />
                       <div className="space-y-0.5">
                         <Label className="text-sm font-medium">Enable Lightbox</Label>
-                        <p className="text-xs text-muted-foreground">Open documents in fullscreen lightbox instead of new tab</p>
+                        <p className="text-xs text-muted-foreground">Open documents in fullscreen lightbox instead of new tab (desktop only)</p>
                       </div>
                     </div>
                     <Checkbox 
