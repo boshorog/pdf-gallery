@@ -309,6 +309,11 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
               <canvas
                 ref={setCanvasRef(pageNum)}
                 className={`block rounded-lg shadow-2xl bg-white flex-shrink-0 ${!isMobile ? 'cursor-zoom-in' : ''}`}
+                style={{
+                  // Hide the original canvas when it's being zoomed
+                  opacity: isZooming && zoomPageNum === pageNum && zoomCanvasReady ? 0 : 1,
+                  transition: 'opacity 0.1s ease-out'
+                }}
                 onMouseDown={(e) => handleCanvasMouseDown(e, pageNum)}
               />
             </div>
