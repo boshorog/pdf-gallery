@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Minus, Plus } from "lucide-react";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 
@@ -28,6 +28,7 @@ type PdfJsViewerProps = {
 };
 
 const DEFAULT_SCALE = 1.15;
+const ZOOM_SCALE = 2.0; // 200% zoom when clicking
 
 export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsViewerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -37,11 +38,22 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
   const [scale, setScale] = useState(DEFAULT_SCALE);
   const [isReady, setIsReady] = useState(false);
   const [pdfDoc, setPdfDoc] = useState<any>(null);
+  
+  // Click-to-zoom state
+  const [isZooming, setIsZooming] = useState(false);
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 0, y: 0 });
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const lastMousePos = useRef({ x: 0, y: 0 });
+  const zoomCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const safeUrl = useMemo(() => url || "", [url]);
 
-  // Show scrollbar only when zoomed in
+  // Show scrollbar only when zoomed in (via buttons)
   const isZoomed = scale > DEFAULT_SCALE + 0.01;
+
+  // Check if we're on mobile
+  const isMobile = typeof navigator !== 'undefined' && 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   useEffect(() => {
     let cancelled = false;
@@ -137,6 +149,76 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
     }
   };
 
+  // Handle mouse down on canvas - start zoom mode
+  const handleCanvasMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>, pageNum: number) => {
+    if (isMobile) return; // Disable on mobile
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const canvas = canvasRefs.current.get(pageNum);
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setZoomOrigin({ x, y });
+    setPanOffset({ x: 0, y: 0 });
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
+    zoomCanvasRef.current = canvas;
+    setIsZooming(true);
+  }, [isMobile]);
+
+  // Handle mouse move while zooming - pan the view
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isZooming) return;
+    
+    const dx = e.clientX - lastMousePos.current.x;
+    const dy = e.clientY - lastMousePos.current.y;
+    
+    setPanOffset(prev => ({
+      x: prev.x + dx,
+      y: prev.y + dy
+    }));
+    
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
+  }, [isZooming]);
+
+  // Handle mouse up - end zoom mode
+  const handleMouseUp = useCallback(() => {
+    setIsZooming(false);
+    zoomCanvasRef.current = null;
+  }, []);
+
+  // Global mouse listeners for pan and release
+  useEffect(() => {
+    if (isZooming) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isZooming, handleMouseMove, handleMouseUp]);
+
+  // Calculate zoom transform for the overlay
+  const getZoomTransform = useCallback(() => {
+    if (!isZooming || !zoomCanvasRef.current) return {};
+    
+    const canvas = zoomCanvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    
+    // Calculate the transform origin based on where user clicked
+    const originX = (zoomOrigin.x / rect.width) * 100;
+    const originY = (zoomOrigin.y / rect.height) * 100;
+    
+    return {
+      transform: `scale(${ZOOM_SCALE / scale}) translate(${panOffset.x}px, ${panOffset.y}px)`,
+      transformOrigin: `${originX}% ${originY}%`,
+    };
+  }, [isZooming, zoomOrigin, panOffset, scale]);
+
   return (
     <div className={`relative w-full h-full flex flex-col ${className || ""}`} aria-label={title || "PDF viewer"}>
       {/* Scrollable pages area - hide scrollbar unless zoomed */}
@@ -146,11 +228,18 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
       >
         {numPages > 0 ? (
           Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => (
-            <canvas
-              key={pageNum}
-              ref={setCanvasRef(pageNum)}
-              className="block rounded-lg shadow-2xl bg-white flex-shrink-0"
-            />
+            <div key={pageNum} className="relative">
+              <canvas
+                ref={setCanvasRef(pageNum)}
+                className={`block rounded-lg shadow-2xl bg-white flex-shrink-0 ${!isMobile ? 'cursor-zoom-in' : ''}`}
+                onMouseDown={(e) => handleCanvasMouseDown(e, pageNum)}
+                style={
+                  isZooming && zoomCanvasRef.current === canvasRefs.current.get(pageNum)
+                    ? getZoomTransform()
+                    : undefined
+                }
+              />
+            </div>
           ))
         ) : (
           <div className="flex items-center justify-center h-full text-white/60">
@@ -158,6 +247,20 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
           </div>
         )}
       </div>
+
+      {/* Zoom hint for desktop */}
+      {!isMobile && numPages > 0 && !isZooming && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 text-white/70 text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none opacity-70">
+          Click & hold to zoom • Drag to pan
+        </div>
+      )}
+
+      {/* Active zoom indicator */}
+      {isZooming && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none">
+          {Math.round(ZOOM_SCALE * 100)}% — Release to exit
+        </div>
+      )}
 
       {/* Controls bar - zoom only */}
       <div className="flex-shrink-0 flex items-center justify-center py-3 relative z-50">
