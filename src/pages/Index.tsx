@@ -518,6 +518,7 @@ const Index = () => {
                 items={currentItems} 
                 settings={settings}
                 showRatings={galleryRatingsEnabled}
+                lightboxEnabled={galleryLightboxEnabled}
                 galleryId={currentGallery?.id || 'default'}
               />
             </TabsContent>
