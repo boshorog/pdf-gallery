@@ -370,8 +370,8 @@ public function display_gallery_shortcode($atts) {
       var isFullscreen = false;
 
       // Some themes (especially on mobile) apply CSS transforms to page wrappers.
-      // That can cause `position: fixed` to behave like it's confined to the wrapper.
-      // To guarantee true fullscreen, we temporarily move the iframe container to <body>.
+      // That can cause position:fixed to behave as if confined to the wrapper.
+      // To guarantee true fullscreen, we temporarily move the iframe container to body.
       var originalParent = container.parentNode;
       var originalNextSibling = container.nextSibling;
       var placeholder = document.createComment("pdf-gallery-fullscreen-placeholder");
