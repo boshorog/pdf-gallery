@@ -220,18 +220,19 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
   }, [isMobile]);
 
   // Handle mouse move while zooming - pan the view (mirrored direction)
+  // We store the user's drag delta in panOffset, and the overlay positioning subtracts it,
+  // so dragging right makes the zoomed view move left ("magnifier" feel).
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isZooming) return;
-    
+
     const dx = e.clientX - lastMousePos.current.x;
     const dy = e.clientY - lastMousePos.current.y;
-    
-    // Mirror the movement: drag right = view moves left (like dragging a magnifying glass)
-    setPanOffset(prev => ({
-      x: prev.x - dx,
-      y: prev.y - dy
+
+    setPanOffset((prev) => ({
+      x: prev.x + dx,
+      y: prev.y + dy,
     }));
-    
+
     lastMousePos.current = { x: e.clientX, y: e.clientY };
   }, [isZooming]);
 

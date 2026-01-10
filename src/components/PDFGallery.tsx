@@ -609,10 +609,10 @@ const PDFGallery = ({
                   currentGrid = [];
                 }
 
-                // Render divider with spacing above (no top margin if it's the first block)
+                // Render divider as a "chapter" break: more vertical space above than below
                 const isFirstBlock = renderedItems.length === 0;
                 renderedItems.push(
-                  <div key={item.id} className={`${isFirstBlock ? 'mt-0' : 'mt-32'} mb-8 -mx-4 md:mx-0`}>
+                  <div key={item.id} className={`${isFirstBlock ? 'pt-10' : 'pt-20'} pb-8 -mx-4 md:mx-0`}>
                     <div className="flex items-center gap-4 px-4 md:px-0">
                       <div className="flex-1 border-t border-border"></div>
                       <span className="bg-background px-4 md:px-6 text-lg font-medium text-muted-foreground whitespace-nowrap">
