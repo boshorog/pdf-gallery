@@ -41,10 +41,14 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
   
   // Click-to-zoom state
   const [isZooming, setIsZooming] = useState(false);
+  const [zoomPageNum, setZoomPageNum] = useState<number | null>(null);
   const [zoomOrigin, setZoomOrigin] = useState({ x: 0, y: 0 });
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const lastMousePos = useRef({ x: 0, y: 0 });
-  const zoomCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  
+  // High-res zoom canvas overlay
+  const zoomOverlayRef = useRef<HTMLCanvasElement | null>(null);
+  const [zoomCanvasReady, setZoomCanvasReady] = useState(false);
 
   const safeUrl = useMemo(() => url || "", [url]);
 
@@ -135,6 +139,51 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
     };
   }, [pdfDoc, numPages, scale]);
 
+  // Render high-resolution zoom overlay when zooming
+  useEffect(() => {
+    if (!isZooming || !pdfDoc || zoomPageNum === null) {
+      setZoomCanvasReady(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function renderZoomOverlay() {
+      const zoomCanvas = zoomOverlayRef.current;
+      if (!zoomCanvas) return;
+
+      try {
+        const pdfPage = await pdfDoc.getPage(zoomPageNum);
+        if (cancelled) return;
+
+        // Render at full zoom scale for crisp quality
+        const zoomViewport = pdfPage.getViewport({ scale: ZOOM_SCALE });
+        const ctx = zoomCanvas.getContext("2d");
+        if (!ctx) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        zoomCanvas.width = Math.floor(zoomViewport.width * dpr);
+        zoomCanvas.height = Math.floor(zoomViewport.height * dpr);
+        zoomCanvas.style.width = `${Math.floor(zoomViewport.width)}px`;
+        zoomCanvas.style.height = `${Math.floor(zoomViewport.height)}px`;
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        await pdfPage.render({ canvasContext: ctx, viewport: zoomViewport } as any).promise;
+        if (cancelled) return;
+        
+        setZoomCanvasReady(true);
+      } catch (e) {
+        // Zoom render failed
+      }
+    }
+
+    renderZoomOverlay();
+    return () => {
+      cancelled = true;
+    };
+  }, [isZooming, pdfDoc, zoomPageNum]);
+
   const clampScale = (s: number) => Math.max(0.6, Math.min(2.2, s));
 
   const zoomTo = (next: number) => {
@@ -159,13 +208,14 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    // Calculate click position as percentage of canvas
+    const xPercent = (e.clientX - rect.left) / rect.width;
+    const yPercent = (e.clientY - rect.top) / rect.height;
 
-    setZoomOrigin({ x, y });
+    setZoomOrigin({ x: xPercent, y: yPercent });
     setPanOffset({ x: 0, y: 0 });
     lastMousePos.current = { x: e.clientX, y: e.clientY };
-    zoomCanvasRef.current = canvas;
+    setZoomPageNum(pageNum);
     setIsZooming(true);
   }, [isMobile]);
 
@@ -187,7 +237,8 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
   // Handle mouse up - end zoom mode
   const handleMouseUp = useCallback(() => {
     setIsZooming(false);
-    zoomCanvasRef.current = null;
+    setZoomPageNum(null);
+    setZoomCanvasReady(false);
   }, []);
 
   // Global mouse listeners for pan and release
@@ -202,22 +253,48 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
     }
   }, [isZooming, handleMouseMove, handleMouseUp]);
 
-  // Calculate zoom transform for the overlay
-  const getZoomTransform = useCallback(() => {
-    if (!isZooming || !zoomCanvasRef.current) return {};
+  // Calculate position for the zoom overlay
+  const getZoomOverlayStyle = useCallback((): React.CSSProperties => {
+    if (!isZooming || zoomPageNum === null) return { display: 'none' };
     
-    const canvas = zoomCanvasRef.current;
-    const rect = canvas.getBoundingClientRect();
+    const sourceCanvas = canvasRefs.current.get(zoomPageNum);
+    if (!sourceCanvas) return { display: 'none' };
+
+    const rect = sourceCanvas.getBoundingClientRect();
+    const container = containerRef.current;
+    if (!container) return { display: 'none' };
     
-    // Calculate the transform origin based on where user clicked
-    const originX = (zoomOrigin.x / rect.width) * 100;
-    const originY = (zoomOrigin.y / rect.height) * 100;
+    const containerRect = container.getBoundingClientRect();
+    
+    // The zoom canvas is rendered at ZOOM_SCALE, so it's larger
+    const zoomRatio = ZOOM_SCALE / scale;
+    const zoomWidth = rect.width * zoomRatio;
+    const zoomHeight = rect.height * zoomRatio;
+    
+    // Calculate the offset so the clicked point stays under the cursor
+    // The click was at (xPercent, yPercent) of the original canvas
+    // In the zoomed canvas, that same point should be at the same screen position
+    const clickXInZoom = zoomOrigin.x * zoomWidth;
+    const clickYInZoom = zoomOrigin.y * zoomHeight;
+    const clickXInOriginal = zoomOrigin.x * rect.width;
+    const clickYInOriginal = zoomOrigin.y * rect.height;
+    
+    // Position the zoom canvas so the click point aligns
+    const left = (rect.left - containerRect.left) + clickXInOriginal - clickXInZoom + panOffset.x;
+    const top = (rect.top - containerRect.top) + container.scrollTop + clickYInOriginal - clickYInZoom + panOffset.y;
     
     return {
-      transform: `scale(${ZOOM_SCALE / scale}) translate(${panOffset.x}px, ${panOffset.y}px)`,
-      transformOrigin: `${originX}% ${originY}%`,
+      position: 'absolute',
+      left: `${left}px`,
+      top: `${top}px`,
+      zIndex: 100,
+      pointerEvents: 'none',
+      borderRadius: '8px',
+      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+      opacity: zoomCanvasReady ? 1 : 0,
+      transition: 'opacity 0.1s ease-out',
     };
-  }, [isZooming, zoomOrigin, panOffset, scale]);
+  }, [isZooming, zoomPageNum, zoomOrigin, panOffset, scale, zoomCanvasReady]);
 
   return (
     <div className={`relative w-full h-full flex flex-col ${className || ""}`} aria-label={title || "PDF viewer"}>
@@ -233,11 +310,6 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
                 ref={setCanvasRef(pageNum)}
                 className={`block rounded-lg shadow-2xl bg-white flex-shrink-0 ${!isMobile ? 'cursor-zoom-in' : ''}`}
                 onMouseDown={(e) => handleCanvasMouseDown(e, pageNum)}
-                style={
-                  isZooming && zoomCanvasRef.current === canvasRefs.current.get(pageNum)
-                    ? getZoomTransform()
-                    : undefined
-                }
               />
             </div>
           ))
@@ -246,21 +318,16 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
             {isReady ? "No pages" : "Loading..."}
           </div>
         )}
+        
+        {/* High-resolution zoom overlay canvas */}
+        {isZooming && (
+          <canvas
+            ref={zoomOverlayRef}
+            className="bg-white rounded-lg"
+            style={getZoomOverlayStyle()}
+          />
+        )}
       </div>
-
-      {/* Zoom hint for desktop */}
-      {!isMobile && numPages > 0 && !isZooming && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 text-white/70 text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none opacity-70">
-          Click & hold to zoom • Drag to pan
-        </div>
-      )}
-
-      {/* Active zoom indicator */}
-      {isZooming && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none">
-          {Math.round(ZOOM_SCALE * 100)}% — Release to exit
-        </div>
-      )}
 
       {/* Controls bar - zoom only */}
       <div className="flex-shrink-0 flex items-center justify-center py-3 relative z-50">
