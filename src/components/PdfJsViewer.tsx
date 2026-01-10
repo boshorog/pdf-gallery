@@ -219,16 +219,17 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
     setIsZooming(true);
   }, [isMobile]);
 
-  // Handle mouse move while zooming - pan the view
+  // Handle mouse move while zooming - pan the view (mirrored direction)
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isZooming) return;
     
     const dx = e.clientX - lastMousePos.current.x;
     const dy = e.clientY - lastMousePos.current.y;
     
+    // Mirror the movement: drag right = view moves left (like dragging a magnifying glass)
     setPanOffset(prev => ({
-      x: prev.x + dx,
-      y: prev.y + dy
+      x: prev.x - dx,
+      y: prev.y - dy
     }));
     
     lastMousePos.current = { x: e.clientX, y: e.clientY };
@@ -280,8 +281,9 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
     const clickYInOriginal = zoomOrigin.y * rect.height;
     
     // Position the zoom canvas so the click point aligns
-    const left = (rect.left - containerRect.left) + clickXInOriginal - clickXInZoom + panOffset.x;
-    const top = (rect.top - containerRect.top) + container.scrollTop + clickYInOriginal - clickYInZoom + panOffset.y;
+    // Use rect.left relative to containerRect to get proper position within scrollable container
+    const left = (rect.left - containerRect.left) + clickXInOriginal - clickXInZoom - panOffset.x;
+    const top = (rect.top - containerRect.top) + container.scrollTop + clickYInOriginal - clickYInZoom - panOffset.y;
     
     return {
       position: 'absolute',
