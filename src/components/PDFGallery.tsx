@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { FileText, ExternalLink, FileType, Presentation, Image, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { FileText, ExternalLink, FileType, Presentation, Image } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 import { generateThumbnail } from '@/utils/supabaseClient';
 import pdfPlaceholder from '@/assets/thumbnail-placeholder.png';
@@ -67,12 +67,6 @@ const PDFGallery = ({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   
-  // Mobile swipe state
-  const [mobileCurrentIndex, setMobileCurrentIndex] = useState(0);
-  const touchStartX = useRef<number | null>(null);
-  const touchEndX = useRef<number | null>(null);
-  const swipeContainerRef = useRef<HTMLDivElement>(null);
-  
   const isMobile = useIsMobile();
   const isAndroid = /Android/i.test(navigator.userAgent || '');
   const license = useLicense();
@@ -92,48 +86,6 @@ const PDFGallery = ({
       setLightboxOpen(true);
     }
   }, [pdfItems]);
-
-  // Mobile swipe handlers
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchEndX.current = null;
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX;
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    if (touchStartX.current === null || touchEndX.current === null) return;
-    
-    const diff = touchStartX.current - touchEndX.current;
-    const threshold = 50; // minimum swipe distance
-    
-    if (Math.abs(diff) > threshold) {
-      if (diff > 0 && mobileCurrentIndex < pdfItems.length - 1) {
-        // Swipe left - next
-        setMobileCurrentIndex(prev => prev + 1);
-      } else if (diff < 0 && mobileCurrentIndex > 0) {
-        // Swipe right - previous
-        setMobileCurrentIndex(prev => prev - 1);
-      }
-    }
-    
-    touchStartX.current = null;
-    touchEndX.current = null;
-  }, [mobileCurrentIndex, pdfItems.length]);
-
-  const goToPrev = useCallback(() => {
-    if (mobileCurrentIndex > 0) {
-      setMobileCurrentIndex(prev => prev - 1);
-    }
-  }, [mobileCurrentIndex]);
-
-  const goToNext = useCallback(() => {
-    if (mobileCurrentIndex < pdfItems.length - 1) {
-      setMobileCurrentIndex(prev => prev + 1);
-    }
-  }, [mobileCurrentIndex, pdfItems.length]);
 
   const getItemFileType = (it: any): string => {
     try {
@@ -625,75 +577,8 @@ const PDFGallery = ({
           <h3 className="text-xl font-semibold mb-2">No content yet</h3>
           <p className="text-muted-foreground">Documents will appear here when they are added.</p>
         </div>
-      ) : isMobile && pdfItems.length > 0 ? (
-        /* Mobile swipe carousel */
-        <div className="relative">
-          <div 
-            ref={swipeContainerRef}
-            className="overflow-hidden"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            <div 
-              className="flex transition-transform duration-300 ease-out"
-              style={{ transform: `translateX(-${mobileCurrentIndex * 100}%)` }}
-            >
-              {pdfItems.map((pdf) => (
-                <div key={pdf.id} className="w-full flex-shrink-0 px-4">
-                  {renderThumbnail(pdf)}
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Navigation arrows */}
-          {pdfItems.length > 1 && (
-            <>
-              <button
-                onClick={goToPrev}
-                disabled={mobileCurrentIndex === 0}
-                className="absolute left-1 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border shadow-lg disabled:opacity-30 disabled:cursor-not-allowed"
-                aria-label="Previous document"
-              >
-                <ChevronLeft className="w-5 h-5 text-foreground" />
-              </button>
-              <button
-                onClick={goToNext}
-                disabled={mobileCurrentIndex === pdfItems.length - 1}
-                className="absolute right-1 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border shadow-lg disabled:opacity-30 disabled:cursor-not-allowed"
-                aria-label="Next document"
-              >
-                <ChevronRight className="w-5 h-5 text-foreground" />
-              </button>
-            </>
-          )}
-          
-          {/* Dot indicators */}
-          {pdfItems.length > 1 && (
-            <div className="flex justify-center gap-2 mt-4">
-              {pdfItems.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setMobileCurrentIndex(idx)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    idx === mobileCurrentIndex 
-                      ? 'w-6 bg-primary' 
-                      : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                  }`}
-                  aria-label={`Go to document ${idx + 1}`}
-                />
-              ))}
-            </div>
-          )}
-          
-          {/* Counter */}
-          <p className="text-center text-sm text-muted-foreground mt-2">
-            {mobileCurrentIndex + 1} / {pdfItems.length}
-          </p>
-        </div>
       ) : (
-        /* Desktop grid view */
+        /* Grid view for both mobile and desktop */
         <div className="space-y-8">
           {(() => {
             let currentGrid: PDF[] = [];
