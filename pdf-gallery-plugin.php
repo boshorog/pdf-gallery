@@ -378,7 +378,18 @@ public function display_gallery_shortcode($atts) {
       var originalNextSibling = null;
       var placeholder = document.createComment("pdf-gallery-fullscreen-placeholder");
 
+      // Mobile browsers (especially iOS Safari) often reload iframes when moved in the DOM.
+      // Skip re-parenting entirely on mobile to avoid page refresh issues.
+      function isMobileDevice(){
+        try{
+          return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                 (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
+        }catch(e){ return false; }
+      }
+
       function hasTransformedAncestor(el){
+        // Never re-parent on mobile - it causes page reloads
+        if(isMobileDevice()) return false;
         try{
           var cur = el && el.parentElement;
           while(cur && cur !== document.body){
