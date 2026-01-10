@@ -51,14 +51,28 @@ const DocumentLightbox = ({
 
   const httpsUrl = doc ? resolveUrl(PDFThumbnailGenerator.toHttps(doc.pdfUrl)) : '';
 
-  // Get file extension
-  const getFileType = useCallback((document: Document): string => {
-    const url = document.pdfUrl || '';
-    const ext = url.split('.').pop()?.toLowerCase() || document.fileType || 'pdf';
-    return ext;
-  }, []);
+  // Determine file extension (robust to query strings / fragments)
+  const fileType = (() => {
+    if (!doc) return 'pdf';
+    const hinted = (doc.fileType || '').toLowerCase().trim();
+    if (hinted) return hinted;
 
-  const fileType = doc ? getFileType(doc) : 'pdf';
+    const urlStr = httpsUrl || doc.pdfUrl || '';
+    if (!urlStr) return 'pdf';
+
+    try {
+      const u = new URL(urlStr);
+      const ext = u.pathname.split('.').pop()?.toLowerCase() || '';
+      if (ext) return ext;
+    } catch {
+      // ignore
+    }
+
+    const cleaned = urlStr.split('?')[0].split('#')[0];
+    const ext = cleaned.split('.').pop()?.toLowerCase() || '';
+    return ext || 'pdf';
+  })();
+
   const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileType);
   const isPdf = fileType === 'pdf';
   const isVideo = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'].includes(fileType);
