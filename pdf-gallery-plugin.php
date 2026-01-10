@@ -760,7 +760,6 @@ public function display_gallery_shortcode($atts) {
             if ( is_object( $fs ) ) {
                 // Debug: Log Freemius SDK information (only in debug mode)
                 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
                     $debug_info = array(
                         'can_use_premium_code' => method_exists( $fs, 'can_use_premium_code' ) ? $fs->can_use_premium_code() : 'method_missing',
                         'is_premium' => method_exists( $fs, 'is_premium' ) ? $fs->is_premium() : 'method_missing',
@@ -770,7 +769,6 @@ public function display_gallery_shortcode($atts) {
                     );
                     error_log('PDF Gallery Freemius Debug: ' . print_r($debug_info, true));
                 }
-            }
                 
                 // Check various Pro indicators
                 if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
