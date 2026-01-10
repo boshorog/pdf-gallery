@@ -364,9 +364,17 @@ const Index = () => {
 
   const currentGallery = galleryState.galleries.find(g => g.id === galleryState.currentGalleryId);
   const currentItems = currentGallery?.items || [];
-  // Use global settings for ratings and lightbox - default to false (disabled by default)
-  const galleryRatingsEnabled = (settings as any)?.ratingsEnabled === true;
-  const galleryLightboxEnabled = (settings as any)?.lightboxEnabled === true;
+
+  const toBoolean = (v: any, fallback: boolean) => {
+    if (v === undefined || v === null) return fallback;
+    if (v === true || v === 'true' || v === 1 || v === '1' || v === 'yes' || v === 'on') return true;
+    if (v === false || v === 'false' || v === 0 || v === '0' || v === 'no' || v === 'off') return false;
+    return !!v;
+  };
+
+  // Ratings default: off. Lightbox default: on (expected gallery behavior).
+  const galleryRatingsEnabled = toBoolean((settings as any)?.ratingsEnabled, false);
+  const galleryLightboxEnabled = toBoolean((settings as any)?.lightboxEnabled, true);
 
 
   // Check if we should show admin interface (Lovable preview or WordPress admin)

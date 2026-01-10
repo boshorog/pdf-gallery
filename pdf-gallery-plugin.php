@@ -999,6 +999,9 @@ public function display_gallery_shortcode($atts) {
             'pdfIconPosition' => 'top-right',
             'defaultPlaceholder' => 'default',
             'thumbnailSize' => 'four-rows',
+            // Behavior toggles
+            'ratingsEnabled' => false,
+            'lightboxEnabled' => true,
         );
 
         $global_settings = get_option('pdf_gallery_settings', array());
