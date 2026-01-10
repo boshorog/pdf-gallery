@@ -59,9 +59,11 @@ const PDFGallery = ({
   }
 }: PDFGalleryProps) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [itemsWithThumbnails, setItemsWithThumbnails] = useState<GalleryItem[]>([]);
+  // Initialize with items immediately to prevent shape flash during loading
+  const [itemsWithThumbnails, setItemsWithThumbnails] = useState<GalleryItem[]>(items);
   const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
   const [thumbnails, setThumbnails] = useState<{ [key: string]: string }>({});
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
   
   // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -107,7 +109,13 @@ const PDFGallery = ({
     if (items.length === 0) {
       setItemsWithThumbnails([]);
       setIsGeneratingThumbnails(false);
+      setInitialLoadDone(true);
       return;
+    }
+
+    // Immediately sync items on first load to prevent shape flash
+    if (!initialLoadDone) {
+      setItemsWithThumbnails(items);
     }
 
     console.log('PDFGallery: Received', items.length, 'items');
@@ -205,6 +213,7 @@ const PDFGallery = ({
       console.log('PDFGallery: No thumbnails to generate, all items ready');
       setIsGeneratingThumbnails(false);
     }
+    setInitialLoadDone(true);
   }, [items, placeholderUrl]);
 
 
