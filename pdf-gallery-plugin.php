@@ -371,10 +371,29 @@ public function display_gallery_shortcode($atts) {
 
       // Some themes (especially on mobile) apply CSS transforms to page wrappers.
       // That can cause position:fixed to behave as if confined to the wrapper.
-      // To guarantee true fullscreen, we temporarily move the iframe container to body.
-      var originalParent = container.parentNode;
-      var originalNextSibling = container.nextSibling;
+      // Moving an iframe in the DOM can trigger a reload in some browsers, so we ONLY
+      // re-parent to <body> when we detect a transformed ancestor that would break
+      // true fullscreen positioning.
+      var originalParent = null;
+      var originalNextSibling = null;
       var placeholder = document.createComment("pdf-gallery-fullscreen-placeholder");
+
+      function hasTransformedAncestor(el){
+        try{
+          var cur = el && el.parentElement;
+          while(cur && cur !== document.body){
+            var st = window.getComputedStyle(cur);
+            if(st){
+              var t = st.transform || st.webkitTransform;
+              if(t && t !== "none") return true;
+              if(st.perspective && st.perspective !== "none") return true;
+              if(st.filter && st.filter !== "none") return true;
+            }
+            cur = cur.parentElement;
+          }
+        }catch(err){}
+        return false;
+      }
 
       function moveContainerToBody(){
         try{
@@ -406,7 +425,9 @@ public function display_gallery_shortcode($atts) {
             if(isFullscreen) return;
             isFullscreen = true;
 
-            moveContainerToBody();
+            var shouldMove = hasTransformedAncestor(container);
+            container.setAttribute("data-pdf-gallery-moved", shouldMove ? "1" : "0");
+            if(shouldMove) moveContainerToBody();
 
             lastScrollY = window.scrollY || window.pageYOffset || 0;
             heightBeforeFullscreen = iframe.style.height || "";
@@ -464,7 +485,10 @@ public function display_gallery_shortcode($atts) {
             document.body.style.width = "";
             document.body.style.top = "";
 
-            restoreContainerFromBody();
+            var wasMoved = container.getAttribute("data-pdf-gallery-moved") === "1";
+            container.removeAttribute("data-pdf-gallery-moved");
+            if(wasMoved) restoreContainerFromBody();
+
             window.scrollTo(0, lastScrollY);
           }
         }catch(err){}
