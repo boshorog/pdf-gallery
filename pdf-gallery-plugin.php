@@ -1058,6 +1058,7 @@ public function display_gallery_shortcode($atts) {
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax() or public shortcode context
         if (empty($gallery_id) && isset($_POST['requested_gallery_name'])) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax() or public shortcode context
             $requested = sanitize_text_field(wp_unslash($_POST['requested_gallery_name']));
             $galleries = get_option('pdf_gallery_galleries', array());
             if (!empty($requested) && is_array($galleries)) {
