@@ -52,7 +52,7 @@ const PDFGallery = ({
   settings = {
     thumbnailStyle: 'default',
     accentColor: '#7FB3DC',
-    thumbnailShape: 'landscape-16-9',
+    thumbnailShape: '3-2',
     pdfIconPosition: 'top-right',
     defaultPlaceholder: 'default',
     thumbnailSize: 'four-rows'
@@ -229,17 +229,24 @@ const PDFGallery = ({
   // Map settings to classes - support both old and new shape value names
   const getAspectClass = () => {
     switch (settings.thumbnailShape) {
+      case '1-1':
       case '1:1':
       case 'square':
+      case 'square-1-1':
         return 'aspect-square';
+      case '3-2':
       case '3:2':
       case 'landscape-3-2':
         return 'aspect-[3/2]';
+      case '2-3':
       case '2:3':
       case 'portrait-2-3':
         return 'aspect-[2/3]';
+      case '16-9':
       case '16:9':
+      case 'landscape-16-9':
         return 'aspect-video';
+      case '9-16':
       case '9:16':
         return 'aspect-[9/16]';
       case 'auto':

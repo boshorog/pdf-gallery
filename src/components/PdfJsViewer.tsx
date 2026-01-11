@@ -282,14 +282,10 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
     const clickYInOriginal = zoomOrigin.y * rect.height;
     
     // Position the zoom canvas so the click point aligns
-    // For proper positioning, we need the canvas position relative to the container's scroll position
-    // rect.top is relative to viewport, so we subtract containerRect.top to get position within container
-    // Then add container.scrollTop to account for any scrolling that has occurred
-    const canvasTopInContainer = rect.top - containerRect.top + container.scrollTop;
-    const canvasLeftInContainer = rect.left - containerRect.left;
-    
-    const left = canvasLeftInContainer + clickXInOriginal - clickXInZoom - panOffset.x;
-    const top = canvasTopInContainer + clickYInOriginal - clickYInZoom - panOffset.y;
+    // IMPORTANT: the overlay is absolutely positioned within the scroll container (which is `relative`).
+    // So we compute coordinates in the container's *scroll content* coordinate space.
+    const left = (rect.left - containerRect.left) + container.scrollLeft + clickXInOriginal - clickXInZoom - panOffset.x;
+    const top = (rect.top - containerRect.top) + container.scrollTop + clickYInOriginal - clickYInZoom - panOffset.y;
     
     return {
       position: 'absolute',
@@ -309,7 +305,7 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
       {/* Scrollable pages area - hide scrollbar unless zoomed */}
       <div 
         ref={containerRef}
-        className={`flex-1 min-h-0 overflow-auto flex flex-col items-center gap-4 p-2 sm:p-4 ${isZoomed ? 'pdfg-scrollbar-vertical' : 'pdfg-scrollbar-hidden'}`}
+        className={`relative flex-1 min-h-0 overflow-auto flex flex-col items-center gap-4 p-2 sm:p-4 ${isZoomed ? 'pdfg-scrollbar-vertical' : 'pdfg-scrollbar-hidden'}`}
       >
         {numPages > 0 ? (
           Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => (
