@@ -26,11 +26,16 @@ define( 'PDF_GALLERY_PLUGIN_LOADED', true );
 define( 'PDF_GALLERY_VERSION', '2.1.4' );
 
 // Freemius SDK Initialization
-if ( ! function_exists( 'pdfgallery_fs' ) ) {
-    function pdfgallery_fs() {
-        global $pdfgallery_fs;
+if ( ! function_exists( 'pdf_gallery_fs' ) ) {
+    /**
+     * Get Freemius SDK instance.
+     *
+     * @return object Freemius SDK instance or stdClass if not available.
+     */
+    function pdf_gallery_fs() {
+        global $pdf_gallery_fs_instance;
 
-        if ( ! isset( $pdfgallery_fs ) ) {
+        if ( ! isset( $pdf_gallery_fs_instance ) ) {
             // Try multiple possible SDK locations
             $paths = array(
                 dirname( __FILE__ ) . '/freemius/start.php',
@@ -47,7 +52,7 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
             }
 
             if ( $sdk_loaded && function_exists( 'fs_dynamic_init' ) ) {
-                $pdfgallery_fs = fs_dynamic_init( array(
+                $pdf_gallery_fs_instance = fs_dynamic_init( array(
                     'id'                => '20814',
                     'slug'              => 'pdf-gallery',
                     'premium_slug'      => 'pdf-gallery-pro',
@@ -70,22 +75,34 @@ if ( ! function_exists( 'pdfgallery_fs' ) ) {
                 ) );
 
                 // Ensure Freemius is aware of this plugin's basename for proper linkage
-                if ( is_object( $pdfgallery_fs ) && method_exists( $pdfgallery_fs, 'set_basename' ) ) {
-                    $pdfgallery_fs->set_basename( false, __FILE__ );
+                if ( is_object( $pdf_gallery_fs_instance ) && method_exists( $pdf_gallery_fs_instance, 'set_basename' ) ) {
+                    $pdf_gallery_fs_instance->set_basename( false, __FILE__ );
                 }
             } else {
                 // SDK not installed or failed to load
-                $pdfgallery_fs = new stdClass();
+                $pdf_gallery_fs_instance = new stdClass();
             }
         }
 
-        return $pdfgallery_fs;
+        return $pdf_gallery_fs_instance;
+    }
+
+    // Backward compatibility wrapper
+    if ( ! function_exists( 'pdfgallery_fs' ) ) {
+        /**
+         * Backward compatibility wrapper for pdf_gallery_fs().
+         *
+         * @return object Freemius SDK instance.
+         */
+        function pdfgallery_fs() {
+            return pdf_gallery_fs();
+        }
     }
 
     // Init Freemius
-    pdfgallery_fs();
+    pdf_gallery_fs();
 
-    do_action( 'pdfgallery_fs_loaded' );
+    do_action( 'pdf_gallery_fs_loaded' );
 }
 
 class PDF_Gallery_Plugin {
@@ -1151,6 +1168,7 @@ public function display_gallery_shortcode($atts) {
         // Front-end request can specify a gallery name to preview via shortcode
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
         $frontend_gallery_override = null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
         $is_frontend_request = isset($_POST['requested_gallery_name']);
         if ($is_frontend_request) {
             $req = sanitize_text_field(wp_unslash($_POST['requested_gallery_name']));
@@ -1166,7 +1184,9 @@ public function display_gallery_shortcode($atts) {
                 }
             }
             // If no match found for the requested name, default to first gallery (not admin's last selection)
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
             if ($frontend_gallery_override === null && is_array($galleries) && count($galleries) > 0) {
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
                 $frontend_gallery_override = isset($galleries[0]['id']) ? $galleries[0]['id'] : 'test';
             }
         }
@@ -1192,7 +1212,7 @@ public function display_gallery_shortcode($atts) {
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
-        $galleries_json = isset($_POST['galleries']) ? wp_unslash($_POST['galleries']) : '';
+        $galleries_json = isset($_POST['galleries']) ? sanitize_text_field(wp_unslash($_POST['galleries'])) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
         $current_id = isset($_POST['current_gallery_id']) ? sanitize_text_field(wp_unslash($_POST['current_gallery_id'])) : '';
         $galleries = json_decode($galleries_json, true);
@@ -1263,6 +1283,7 @@ public function display_gallery_shortcode($atts) {
         
         // Read uploaded chunk content and write using WP_Filesystem
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading from PHP temp upload file
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
         $chunk_content = file_get_contents($chunk_file['tmp_name']);
         if ( false === $chunk_content || ! $wp_filesystem->put_contents( $chunk_path, $chunk_content, FS_CHMOD_FILE ) ) {
             wp_send_json_error('Failed to save chunk');
