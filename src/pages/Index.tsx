@@ -8,6 +8,7 @@ import PDFGallery from '@/components/PDFGallery';
 import PDFSettings from '@/components/PDFSettings';
 import SettingsProposal2 from '@/components/SettingsProposal2';
 import PluginDocumentation from '@/components/PluginDocumentation';
+import ProBanner from '@/components/ProBanner';
 import GalleryNotFoundShowcase from '@/components/GalleryNotFoundShowcase';
 import GalleryNotFound from '@/components/GalleryNotFound';
 import SettingsScopeSelectorShowcase from '@/components/SettingsScopeSelectorShowcase';
@@ -17,7 +18,7 @@ import { useLicense } from '@/hooks/useLicense';
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pdfGalleryLogo from '@/assets/pdf-gallery-logo.svg';
 
-const PLUGIN_VERSION = '2.1.6';
+const PLUGIN_VERSION = '2.2.0';
 
 // Kind Pixels Logo SVG Component
 const KindPixelsLogo = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
@@ -460,7 +461,7 @@ const Index = () => {
                 className="flex-1 px-6 py-4 text-sm font-medium border-b-2 -mb-px flex items-center justify-center gap-2 transition-colors rounded-none data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=inactive]:border-transparent data-[state=inactive]:text-slate-500 hover:text-slate-700 hover:bg-slate-50 data-[state=active]:shadow-none"
               >
                 <Layers className="w-4 h-4" />
-                Gallery Management
+                Galleries
               </TabsTrigger>
               <TabsTrigger 
                 value="settings"
@@ -468,14 +469,20 @@ const Index = () => {
               >
                 <Settings className="w-4 h-4" />
                 Settings
-                <Crown className={`w-3 h-3 text-amber-500`} />
               </TabsTrigger>
               <TabsTrigger 
                 value="docs"
                 className="flex-1 px-6 py-4 text-sm font-medium border-b-2 -mb-px flex items-center justify-center gap-2 transition-colors rounded-none data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=inactive]:border-transparent data-[state=inactive]:text-slate-500 hover:text-slate-700 hover:bg-slate-50 data-[state=active]:shadow-none"
               >
                 <BookOpen className="w-4 h-4" />
-                Info & Documentation
+                Documentation
+              </TabsTrigger>
+              <TabsTrigger 
+                value="pro"
+                className="flex-1 px-6 py-4 text-sm font-medium border-b-2 -mb-px flex items-center justify-center gap-2 transition-colors rounded-none data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=inactive]:border-transparent data-[state=inactive]:text-slate-500 hover:text-slate-700 hover:bg-slate-50 data-[state=active]:shadow-none"
+              >
+                <Crown className="w-4 h-4 text-amber-500" />
+                Pro
               </TabsTrigger>
             </TabsList>
           </div>
@@ -542,6 +549,10 @@ const Index = () => {
             
             <TabsContent value="docs" className="mt-0">
               <PluginDocumentation />
+            </TabsContent>
+            
+            <TabsContent value="pro" className="mt-0">
+              <ProBanner />
             </TabsContent>
           </div>
         </Tabs>

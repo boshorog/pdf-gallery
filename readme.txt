@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.1.6
+Stable tag: 2.2.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,6 +83,13 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 
 == Changelog ==
 
+= 2.2.0 =
+* Changed: All settings now available to free users
+* Changed: Free version limited to 1 gallery with 15 files (was unlimited)
+* Changed: Batch upload now Pro-only (free users upload one file at a time)
+* Improved: WordPress.org guideline compliance - no locked UI features
+* Updated: Reorganized admin tabs - added dedicated "Pro" tab for upgrades
+
 = 2.1.6 =
 * Fixed: Version display consistency across admin UI and plugin header
 * Fixed: PDF lightbox click-to-zoom positioning on multi-page documents
@@ -127,6 +134,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.2.0 =
+Major update: All settings now available to free users. Free version limited to 1 gallery (15 files max) without batch upload.
 
 = 2.1.6 =
 Fixes version display consistency, PDF zoom positioning on multi-page docs, and Settings defaults.

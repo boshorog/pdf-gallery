@@ -137,13 +137,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
     switch (activeSection) {
       case 'placeholder':
         return (
-          <Card className={!license.isPro ? 'opacity-50 cursor-not-allowed' : ''} onClick={!license.isPro ? () => {
-            toast({
-              title: "Upgrade Required",
-              description: "The settings are only available in the Pro version. Please upgrade to access all features.",
-              variant: "destructive"
-            });
-          } : undefined}>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Image className="w-5 h-5" />
@@ -204,13 +198,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
 
       case 'style':
         return (
-          <Card className={!license.isPro ? 'opacity-50 cursor-not-allowed' : ''} onClick={!license.isPro ? () => {
-            toast({
-              title: "Upgrade Required",
-              description: "The settings are only available in the Pro version. Please upgrade to access all features.",
-              variant: "destructive"
-            });
-          } : undefined}>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <LayoutGrid className="w-5 h-5" />
@@ -503,13 +491,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
 
       case 'color':
         return (
-          <Card className={!license.isPro ? 'opacity-50 cursor-not-allowed' : ''} onClick={!license.isPro ? () => {
-            toast({
-              title: "Upgrade Required",
-              description: "The settings are only available in the Pro version. Please upgrade to access all features.",
-              variant: "destructive"
-            });
-          } : undefined}>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Palette className="w-5 h-5" />
@@ -557,13 +539,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
 
       case 'size':
         return (
-          <Card className={!license.isPro ? 'opacity-50 cursor-not-allowed' : ''} onClick={!license.isPro ? () => {
-            toast({
-              title: "Upgrade Required",
-              description: "The settings are only available in the Pro version. Please upgrade to access all features.",
-              variant: "destructive"
-            });
-          } : undefined}>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Maximize2 className="w-5 h-5" />
@@ -760,13 +736,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
 
       case 'other':
         return (
-          <Card className={!license.isPro ? 'opacity-50 cursor-not-allowed' : ''} onClick={!license.isPro ? () => {
-            toast({
-              title: "Upgrade Required",
-              description: "The settings are only available in the Pro version. Please upgrade to access all features.",
-              variant: "destructive"
-            });
-          } : undefined}>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="w-5 h-5" />
@@ -867,17 +837,15 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
 
   return (
     <div className="space-y-6">
-      <ProBanner className="mb-6" />
-      
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <Settings2 className="w-6 h-6 text-primary" />
           <h2 className="text-2xl font-bold">Gallery Settings</h2>
         </div>
-        <div className={`flex items-center ${!license.isPro ? "opacity-50 pointer-events-none" : ""}`}>
+        <div className="flex items-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="rounded-r-none border-r-0" size="lg" disabled={!license.isPro}>
+              <Button variant="outline" className="rounded-r-none border-r-0" size="lg">
                 {saveScope === 'current' ? (
                   <>
                     <LayersIcon firstLayerGreen className="mr-2" />
@@ -916,9 +884,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
             </DropdownMenuContent>
           </DropdownMenu>
           <Button 
-            onClick={() => { if (license.isPro) handleSave(); }}
+            onClick={handleSave}
             className="rounded-l-none bg-primary hover:bg-primary/90"
-            disabled={!license.isPro}
             size="lg"
           >
             Save Settings

@@ -8,7 +8,7 @@ import { Crown, Check, X, Shield, Trash2, BookOpen, FileText, Settings, Upload, 
 import { useLicense } from '@/hooks/useLicense';
 import { useToast } from '@/hooks/use-toast';
 
-const PLUGIN_VERSION = '2.1.6';
+const PLUGIN_VERSION = '2.2.0';
 
 interface PluginDocumentationProps {
   className?: string;
@@ -170,17 +170,17 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className }) 
                     </thead>
                     <tbody>
                       <FeatureRow feature="Number of Galleries" free="1" pro="Unlimited" />
-                      <FeatureRow feature="Documents per Gallery" free="Unlimited" pro="Unlimited" />
+                      <FeatureRow feature="Documents per Gallery" free="15" pro="Unlimited" />
                       <FeatureRow feature="PDF Support" free={true} pro={true} />
                       <FeatureRow feature="Office Files (DOC, PPT, XLS)" free={true} pro={true} />
                       <FeatureRow feature="Image Files" free={true} pro={true} />
                       <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />
                       <FeatureRow feature="Section Dividers" free={true} pro={true} />
                       <FeatureRow feature="Multi-File Upload" free={false} pro={true} />
-                      <FeatureRow feature="Thumbnail Styles" free="2 styles" pro="All styles" />
-                      <FeatureRow feature="Hover Animations" free="Basic" pro="All animations" />
-                      <FeatureRow feature="Custom Accent Colors" free={false} pro={true} />
-                      <FeatureRow feature="Advanced Layout Options" free={false} pro={true} />
+                      <FeatureRow feature="All Thumbnail Styles" free={true} pro={true} />
+                      <FeatureRow feature="All Hover Animations" free={true} pro={true} />
+                      <FeatureRow feature="Custom Accent Colors" free={true} pro={true} />
+                      <FeatureRow feature="Advanced Layout Options" free={true} pro={true} />
                       <FeatureRow feature="Document Ratings" free={true} pro={true} />
                       <FeatureRow feature="Priority Support" free={false} pro={true} />
                     </tbody>

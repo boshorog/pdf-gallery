@@ -60,10 +60,11 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
   };
 
   const handleFiles = useCallback((fileList: FileList) => {
+    // Check batch upload restriction for free users
     if (!license.isPro && fileList.length > 1) {
       toast({
         title: 'Pro Feature Required',
-        description: 'Multiple file uploads require a Pro license. Please upload one file at a time, or upgrade to Pro for bulk uploads.',
+        description: 'Batch uploads require a Pro license. Please upload one file at a time.',
         variant: 'destructive',
       });
       return;

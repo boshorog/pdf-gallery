@@ -270,7 +270,22 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     if (newFiles.length > 1 && !license.isPro) {
       toast({
         title: "Pro Feature Required",
-        description: "Multiple file uploads require a Pro license. Please upload one file at a time, or upgrade to Pro for bulk uploads.",
+        description: "Batch uploads require a Pro license. Please upload one file at a time.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Check 15-file limit for free users
+    const currentFileCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
+    const filesAfterUpload = currentFileCount + newFiles.length;
+    if (!license.isPro && filesAfterUpload > 15) {
+      const remaining = Math.max(0, 15 - currentFileCount);
+      toast({
+        title: "File Limit Reached",
+        description: remaining > 0 
+          ? `Free version allows 15 files per gallery. You can add ${remaining} more file${remaining !== 1 ? 's' : ''}.`
+          : "Free version allows 15 files per gallery. Upgrade to Pro for unlimited files.",
         variant: "destructive",
       });
       return;

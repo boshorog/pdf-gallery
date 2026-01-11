@@ -98,8 +98,8 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
   // Banner should show: we're admin, not Pro, and either no FS or FS says "free"
   console.debug('[PDF Gallery] ProBanner SHOWING');
 
-  const heading = 'Upgrade to PDF Gallery';
-  const description = 'Unlock advanced features to create stunning, unlimited PDF galleries with custom styling options.';
+  const heading = 'Upgrade to PDF Gallery Pro';
+  const description = 'Unlock unlimited galleries and batch uploads to supercharge your document management.';
 
   const handleActivateLicense = async () => {
     if (!licenseKey.trim()) {
@@ -218,11 +218,11 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
               </div>
               <div className="flex items-center gap-3">
                 <Star className="w-6 h-6 text-orange-500" />
-                <span className="text-lg font-semibold">All Thumbnail Styles</span>
+                <span className="text-lg font-semibold">Unlimited Files</span>
               </div>
               <div className="flex items-center gap-3">
                 <Zap className="w-6 h-6 text-orange-500" />
-                <span className="text-lg font-semibold">Advanced Settings</span>
+                <span className="text-lg font-semibold">Batch Upload</span>
               </div>
             </div>
 
