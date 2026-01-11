@@ -799,17 +799,7 @@ public function display_gallery_shortcode($atts) {
         if ( function_exists( 'pdfgallery_fs' ) ) {
             $fs = pdfgallery_fs();
             if ( is_object( $fs ) ) {
-                // Debug: Log Freemius SDK information (only in debug mode)
-                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                    $debug_info = array(
-                        'can_use_premium_code' => method_exists( $fs, 'can_use_premium_code' ) ? $fs->can_use_premium_code() : 'method_missing',
-                        'is_premium' => method_exists( $fs, 'is_premium' ) ? $fs->is_premium() : 'method_missing',
-                        'is_plan_professional' => method_exists( $fs, 'is_plan' ) ? $fs->is_plan( 'professional', true ) : 'method_missing',
-                        'is_trial' => method_exists( $fs, 'is_trial' ) ? $fs->is_trial() : 'method_missing',
-                        'is_paying' => method_exists( $fs, 'is_paying' ) ? $fs->is_paying() : 'method_missing',
-                    );
-                    error_log('PDF Gallery Freemius Debug: ' . print_r($debug_info, true));
-                }
+                // Check various Pro indicators below
                 
                 // Check various Pro indicators
                 if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
@@ -829,10 +819,6 @@ public function display_gallery_shortcode($atts) {
                     $license_info['isPro'] = true;
                 }
                 
-                // Log result only in debug mode
-                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                    error_log('PDF Gallery License Check Result: ' . print_r($license_info, true));
-                }
             }
         }
 
@@ -951,10 +937,8 @@ public function display_gallery_shortcode($atts) {
                         $fs->skip_connection();
                     }
                 } catch ( Exception $e ) {
-                    // Log error but continue
-                    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                        error_log('PDF Gallery: Freemius deactivation error: ' . $e->getMessage());
-                    }
+                    // Silently continue on deactivation error
+                    unset( $e );
                 }
             }
         }
@@ -968,7 +952,7 @@ public function display_gallery_shortcode($atts) {
         }
         
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
-        $items_json = isset($_POST['items']) ? wp_unslash($_POST['items']) : '';
+        $items_json = isset($_POST['items']) ? sanitize_text_field(wp_unslash($_POST['items'])) : '';
         $items = json_decode($items_json, true);
         
         if (json_last_error() === JSON_ERROR_NONE && is_array($items)) {
@@ -990,7 +974,7 @@ public function display_gallery_shortcode($atts) {
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_pdf_gallery_ajax()
-        $settings_json = isset($_POST['settings']) ? wp_unslash($_POST['settings']) : '';
+        $settings_json = isset($_POST['settings']) ? sanitize_text_field(wp_unslash($_POST['settings'])) : '';
         $settings = json_decode($settings_json, true);
 
         // Save scope + gallery id (optional)
