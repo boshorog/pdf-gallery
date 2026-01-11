@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, video, audio, and document files. Easily organize, sort, and showcase your files in beautiful grid layouts.
- * Version: 2.1.3
+ * Version: 2.1.4
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
@@ -23,7 +23,7 @@ if ( defined( 'PDF_GALLERY_PLUGIN_LOADED' ) ) {
 }
 define( 'PDF_GALLERY_PLUGIN_LOADED', true );
 
-define( 'PDF_GALLERY_VERSION', '2.1.3' );
+define( 'PDF_GALLERY_VERSION', '2.1.4' );
 
 // Freemius SDK Initialization
 if ( ! function_exists( 'pdfgallery_fs' ) ) {
@@ -554,7 +554,7 @@ public function display_gallery_shortcode($atts) {
         }
         
         // Set default options and version
-        add_option('pdf_gallery_version', '2.1.3');
+        add_option('pdf_gallery_version', '2.1.4');
 
         // Bundle a default "Test Gallery" on fresh installs (no existing galleries)
         $existing_galleries = get_option('pdf_gallery_galleries', null);
@@ -1267,11 +1267,20 @@ public function display_gallery_shortcode($atts) {
         // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File validation handled below
         $chunk_file = $_FILES['chunk'];
         
-        // Save chunk to temp directory
+        // Save chunk to temp directory using WP_Filesystem
         $chunk_path = $temp_dir . '/chunk_' . str_pad($chunk_index, 5, '0', STR_PAD_LEFT);
         
-        // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Silencing move_uploaded_file for cleaner error handling
-        if (!@move_uploaded_file($chunk_file['tmp_name'], $chunk_path)) {
+        // Initialize WP_Filesystem
+        global $wp_filesystem;
+        if ( empty( $wp_filesystem ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+        
+        // Read uploaded chunk content and write using WP_Filesystem
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading from PHP temp upload file
+        $chunk_content = file_get_contents($chunk_file['tmp_name']);
+        if ( false === $chunk_content || ! $wp_filesystem->put_contents( $chunk_path, $chunk_content, FS_CHMOD_FILE ) ) {
             wp_send_json_error('Failed to save chunk');
         }
         
@@ -1282,23 +1291,20 @@ public function display_gallery_shortcode($atts) {
         if ($chunks_count === $total_chunks) {
             // All chunks received - reassemble the file
             $final_path = $temp_dir . '/' . $filename;
-            $final_handle = fopen($final_path, 'wb');
             
-            if (!$final_handle) {
+            // Sort chunks and concatenate using WP_Filesystem
+            sort($uploaded_chunks);
+            $final_content = '';
+            foreach ($uploaded_chunks as $chunk) {
+                $final_content .= $wp_filesystem->get_contents($chunk);
+                wp_delete_file($chunk); // Clean up chunk using WP function
+            }
+            
+            if ( ! $wp_filesystem->put_contents( $final_path, $final_content, FS_CHMOD_FILE ) ) {
                 wp_send_json_error('Failed to create final file');
             }
             
-            // Sort chunks and concatenate
-            sort($uploaded_chunks);
-            foreach ($uploaded_chunks as $chunk) {
-                $chunk_content = file_get_contents($chunk);
-                fwrite($final_handle, $chunk_content);
-                unlink($chunk); // Clean up chunk
-            }
-            fclose($final_handle);
-            
             // Move to WordPress uploads using standard upload handling
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
             require_once(ABSPATH . 'wp-admin/includes/media.php');
             require_once(ABSPATH . 'wp-admin/includes/image.php');
             
@@ -1307,11 +1313,11 @@ public function display_gallery_shortcode($atts) {
             $mime_type = $filetype['type'] ? $filetype['type'] : 'application/octet-stream';
             
             // Move to proper uploads location
-            $upload_file = wp_upload_bits($filename, null, file_get_contents($final_path));
+            $upload_file = wp_upload_bits($filename, null, $wp_filesystem->get_contents($final_path));
             
-            // Clean up temp file and directory
-            unlink($final_path);
-            rmdir($temp_dir);
+            // Clean up temp file and directory using WP functions
+            wp_delete_file($final_path);
+            $wp_filesystem->rmdir($temp_dir);
             
             if ($upload_file['error']) {
                 wp_send_json_error('Failed to finalize upload: ' . $upload_file['error']);
