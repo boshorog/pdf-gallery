@@ -74,9 +74,39 @@ interface PDFSettingsProps {
 }
 
 const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
+  const normalizeThumbnailShape = (shape?: string) => {
+    const raw = String(shape || '').trim();
+    if (!raw) return '3-2';
+
+    const map: Record<string, string> = {
+      // legacy -> current
+      'landscape-16-9': '16-9',
+      'landscape-3-2': '3-2',
+      'portrait-2-3': '2-3',
+      'square-1-1': '1-1',
+
+      // colon -> hyphen
+      '16:9': '16-9',
+      '3:2': '3-2',
+      '2:3': '2-3',
+      '1:1': '1-1',
+      '9:16': '9-16',
+
+      // older semantic
+      square: '1-1',
+      landscape: '3-2',
+      portrait: '2-3',
+    };
+
+    const normalized = map[raw] ?? raw;
+    const allowed = new Set(['3-2', '1-1', '16-9', '2-3', '9-16', 'auto']);
+    return allowed.has(normalized) ? normalized : '3-2';
+  };
+
   const [localSettings, setLocalSettings] = useState({
     ...settings,
     thumbnailSize: settings.thumbnailSize || 'four-rows',
+    thumbnailShape: normalizeThumbnailShape(settings.thumbnailShape),
     showRatings: settings.showRatings !== false,
     officeApiProvider: settings.officeApiProvider || 'none',
     cloudConvertApiKey: settings.cloudConvertApiKey || '',
@@ -95,6 +125,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
     setLocalSettings({
       ...settings,
       thumbnailSize: settings.thumbnailSize || 'four-rows',
+      thumbnailShape: normalizeThumbnailShape(settings.thumbnailShape),
       showRatings: settings.showRatings !== false,
       officeApiProvider: settings.officeApiProvider || 'none',
       cloudConvertApiKey: settings.cloudConvertApiKey || '',

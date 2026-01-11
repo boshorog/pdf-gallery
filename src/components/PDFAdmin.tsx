@@ -238,7 +238,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   const [settings, setSettings] = useState({
     thumbnailStyle: 'default',
     accentColor: '#7FB3DC',
-    thumbnailShape: 'landscape-16-9',
+    thumbnailShape: '3-2',
     pdfIconPosition: 'top-right',
     defaultPlaceholder: 'default'
   });
