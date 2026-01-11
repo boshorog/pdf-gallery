@@ -10,9 +10,30 @@ import { useLicense } from '@/hooks/useLicense';
 
 interface ProBannerProps {
   className?: string;
+  showComparison?: boolean;
 }
 
-const ProBanner = ({ className = '' }: ProBannerProps) => {
+const FeatureRow = ({ feature, free, pro }: { feature: string; free: boolean | string; pro: boolean | string }) => (
+  <tr className="border-b border-border/50">
+    <td className="py-3 px-4 text-sm">{feature}</td>
+    <td className="py-3 px-4 text-center">
+      {typeof free === 'boolean' ? (
+        free ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <span className="w-5 h-5 text-muted-foreground/50 mx-auto">—</span>
+      ) : (
+        <span className="text-sm text-muted-foreground">{free}</span>
+      )}
+    </td>
+    <td className="py-3 px-4 text-center">
+      {typeof pro === 'boolean' ? (
+        pro ? <Check className="w-5 h-5 text-green-500 mx-auto" /> : <span className="w-5 h-5 text-muted-foreground/50 mx-auto">—</span>
+      ) : (
+        <span className="text-sm font-medium text-primary">{pro}</span>
+      )}
+    </td>
+  </tr>
+);
+
+const ProBanner = ({ className = '', showComparison = false }: ProBannerProps) => {
   const [licenseKey, setLicenseKey] = useState('');
   const [isActivating, setIsActivating] = useState(false);
   const { toast } = useToast();
@@ -287,6 +308,43 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
           </div>
         </div>
       </CardContent>
+      
+      {showComparison && (
+        <CardContent className="pt-0 pb-6">
+          <div className="border-t pt-6">
+            <h4 className="text-base font-semibold mb-4 flex items-center gap-2">
+              <Crown className="w-4 h-4 text-amber-500" />
+              Free vs Pro Comparison
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-muted/50">
+                    <th className="py-3 px-4 text-left text-sm font-semibold">Feature</th>
+                    <th className="py-3 px-4 text-center text-sm font-semibold">Free</th>
+                    <th className="py-3 px-4 text-center text-sm font-semibold">
+                      <span className="inline-flex items-center gap-1">
+                        <Crown className="w-4 h-4 text-amber-500" />
+                        Pro
+                      </span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <FeatureRow feature="Number of Galleries" free="1" pro="Unlimited" />
+                  <FeatureRow feature="Documents per Gallery" free="15" pro="Unlimited" />
+                  <FeatureRow feature="Multi-File Upload" free={false} pro={true} />
+                  <FeatureRow feature="Multiple File Types (PDF, Office, Images, Video, Audio)" free={true} pro={true} />
+                  <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />
+                  <FeatureRow feature="Section Dividers" free={true} pro={true} />
+                  <FeatureRow feature="All Styling Options (Thumbnail Styles, Animations, Colors, Layouts)" free={true} pro={true} />
+                  <FeatureRow feature="Priority Support" free={false} pro={true} />
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </CardContent>
+      )}
     </Card>
   );
 };

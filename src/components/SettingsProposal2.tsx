@@ -558,9 +558,10 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                   value={localSettings.thumbnailShape || '3:2'}
                   onValueChange={(value) => setLocalSettings(prev => ({ ...prev, thumbnailShape: value }))}
                   className="grid grid-cols-2 md:grid-cols-3 gap-3"
+                  defaultValue="3:2"
                 >
                   <div 
-                    className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${localSettings.thumbnailShape === '3:2' || !localSettings.thumbnailShape ? 'border-primary bg-primary/5' : 'border-border'}`}
+                    className={`border rounded-lg p-3 hover:border-primary/50 transition-colors cursor-pointer ${(localSettings.thumbnailShape === '3:2' || !localSettings.thumbnailShape) ? 'border-primary bg-primary/5' : 'border-border'}`}
                     onClick={() => setLocalSettings(prev => ({ ...prev, thumbnailShape: '3:2' }))}
                   >
                     <div className="flex items-center space-x-3">

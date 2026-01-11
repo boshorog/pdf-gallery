@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,6 +83,13 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 
 == Changelog ==
 
+= 2.2.1 =
+* Fixed: Default 3:2 thumbnail shape selection in Settings
+* Improved: Added vertical spacing below tab navigation
+* Improved: Pro tab now shows licensing info for Pro users
+* Improved: Free vs Pro comparison table condensed and moved to better location in docs
+* Changed: Crown icon placement in Pro tab (after title)
+
 = 2.2.0 =
 * Changed: All settings now available to free users
 * Changed: Free version limited to 1 gallery with 15 files (was unlimited)
@@ -134,6 +141,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.2.1 =
+Minor fixes: Default thumbnail shape, tab spacing, Pro tab improvements.
 
 = 2.2.0 =
 Major update: All settings now available to free users. Free version limited to 1 gallery (15 files max) without batch upload.
