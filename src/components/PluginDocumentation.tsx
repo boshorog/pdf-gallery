@@ -8,13 +8,14 @@ import { Crown, Check, X, Shield, Trash2, BookOpen, FileText, Settings, Upload, 
 import { useLicense } from '@/hooks/useLicense';
 import { useToast } from '@/hooks/use-toast';
 
-const PLUGIN_VERSION = '2.2.0';
+const PLUGIN_VERSION = '2.2.1';
 
 interface PluginDocumentationProps {
   className?: string;
+  showOnlyLicenseAndComparison?: boolean;
 }
 
-const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className }) => {
+const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, showOnlyLicenseAndComparison = false }) => {
   const license = useLicense();
   const [isRemovingLicense, setIsRemovingLicense] = useState(false);
   const { toast } = useToast();
@@ -86,6 +87,98 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className }) 
     </tr>
   );
 
+  // If showing only license and comparison, render a simplified view
+  if (showOnlyLicenseAndComparison) {
+    return (
+      <div className={className}>
+        {/* Pro License Info */}
+        {license.isPro && license.checked && (
+          <Card className="mb-6 border-primary/30 bg-gradient-to-r from-primary/5 to-transparent">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-full bg-primary/10">
+                    <Crown className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      Licensed to: <span className="text-primary">{getLicenseOwner()}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">PDF Gallery Pro v{PLUGIN_VERSION}</p>
+                  </div>
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Remove License
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Remove Pro License?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will deactivate your Pro license and revert to the Free version. You can reactivate it later using your license key.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleRemoveLicense}
+                        disabled={isRemovingLicense}
+                        className="bg-destructive hover:bg-destructive/90"
+                      >
+                        {isRemovingLicense ? 'Removing...' : 'Remove License'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Comparison Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Crown className="w-5 h-5 text-amber-500" />
+              Free vs Pro Comparison
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-muted/50">
+                    <th className="py-3 px-4 text-left text-sm font-semibold">Feature</th>
+                    <th className="py-3 px-4 text-center text-sm font-semibold">Free</th>
+                    <th className="py-3 px-4 text-center text-sm font-semibold">
+                      <span className="inline-flex items-center gap-1">
+                        <Crown className="w-4 h-4 text-amber-500" />
+                        Pro
+                      </span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <FeatureRow feature="Number of Galleries" free="1" pro="Unlimited" />
+                  <FeatureRow feature="Documents per Gallery" free="15" pro="Unlimited" />
+                  <FeatureRow feature="Multi-File Upload" free={false} pro={true} />
+                  <FeatureRow feature="Multiple File Types (PDF, Office, Images, Video, Audio)" free={true} pro={true} />
+                  <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />
+                  <FeatureRow feature="Section Dividers" free={true} pro={true} />
+                  <FeatureRow feature="All Styling Options (Thumbnail Styles, Animations, Colors, Layouts)" free={true} pro={true} />
+                  <FeatureRow feature="Priority Support" free={false} pro={true} />
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className={className}>
       {/* Pro License Info */}
@@ -145,63 +238,6 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className }) 
         </CardHeader>
         <CardContent>
           <Accordion type="single" collapsible className="w-full">
-            {/* Free vs Pro Comparison */}
-            <AccordionItem value="comparison">
-              <AccordionTrigger className="text-base font-semibold">
-                <div className="flex items-center gap-2">
-                  <Crown className="w-4 h-4 text-amber-500" />
-                  Free vs Pro Comparison
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="bg-muted/50">
-                        <th className="py-3 px-4 text-left text-sm font-semibold">Feature</th>
-                        <th className="py-3 px-4 text-center text-sm font-semibold">Free</th>
-                        <th className="py-3 px-4 text-center text-sm font-semibold">
-                          <span className="inline-flex items-center gap-1">
-                            <Crown className="w-4 h-4 text-amber-500" />
-                            Pro
-                          </span>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <FeatureRow feature="Number of Galleries" free="1" pro="Unlimited" />
-                      <FeatureRow feature="Documents per Gallery" free="15" pro="Unlimited" />
-                      <FeatureRow feature="PDF Support" free={true} pro={true} />
-                      <FeatureRow feature="Office Files (DOC, PPT, XLS)" free={true} pro={true} />
-                      <FeatureRow feature="Image Files" free={true} pro={true} />
-                      <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />
-                      <FeatureRow feature="Section Dividers" free={true} pro={true} />
-                      <FeatureRow feature="Multi-File Upload" free={false} pro={true} />
-                      <FeatureRow feature="All Thumbnail Styles" free={true} pro={true} />
-                      <FeatureRow feature="All Hover Animations" free={true} pro={true} />
-                      <FeatureRow feature="Custom Accent Colors" free={true} pro={true} />
-                      <FeatureRow feature="Advanced Layout Options" free={true} pro={true} />
-                      <FeatureRow feature="Document Ratings" free={true} pro={true} />
-                      <FeatureRow feature="Priority Support" free={false} pro={true} />
-                    </tbody>
-                  </table>
-                </div>
-                {!license.isPro && (
-                  <div className="mt-4 p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-lg border border-amber-500/20">
-                    <p className="text-sm text-center">
-                      <a 
-                        href="https://kindpixels.com/pdf-gallery-pro" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline font-medium"
-                      >
-                        Upgrade to Pro →
-                      </a>
-                    </p>
-                  </div>
-                )}
-              </AccordionContent>
-            </AccordionItem>
 
             {/* Getting Started */}
             <AccordionItem value="getting-started">
@@ -383,7 +419,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className }) 
               <AccordionContent>
                 <div className="space-y-4 text-sm">
                   <div>
-                    <h4 className="font-medium mb-2">Accent Colors (Pro)</h4>
+                    <h4 className="font-medium mb-2">Accent Colors</h4>
                     <p className="text-muted-foreground">
                       Customize the accent color to match your website's branding. This affects buttons, 
                       links, and interactive elements.
@@ -404,6 +440,58 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className }) 
                     </p>
                   </div>
                 </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Free vs Pro Comparison */}
+            <AccordionItem value="comparison">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <Crown className="w-4 h-4 text-amber-500" />
+                  Free vs Pro Comparison
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-muted/50">
+                        <th className="py-3 px-4 text-left text-sm font-semibold">Feature</th>
+                        <th className="py-3 px-4 text-center text-sm font-semibold">Free</th>
+                        <th className="py-3 px-4 text-center text-sm font-semibold">
+                          <span className="inline-flex items-center gap-1">
+                            <Crown className="w-4 h-4 text-amber-500" />
+                            Pro
+                          </span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <FeatureRow feature="Number of Galleries" free="1" pro="Unlimited" />
+                      <FeatureRow feature="Documents per Gallery" free="15" pro="Unlimited" />
+                      <FeatureRow feature="Multi-File Upload" free={false} pro={true} />
+                      <FeatureRow feature="Multiple File Types (PDF, Office, Images, Video, Audio)" free={true} pro={true} />
+                      <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />
+                      <FeatureRow feature="Section Dividers" free={true} pro={true} />
+                      <FeatureRow feature="All Styling Options (Thumbnail Styles, Animations, Colors, Layouts)" free={true} pro={true} />
+                      <FeatureRow feature="Priority Support" free={false} pro={true} />
+                    </tbody>
+                  </table>
+                </div>
+                {!license.isPro && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-lg border border-amber-500/20">
+                    <p className="text-sm text-center">
+                      <a 
+                        href="https://kindpixels.com/pdf-gallery-pro" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline font-medium"
+                      >
+                        Upgrade to Pro →
+                      </a>
+                    </p>
+                  </div>
+                )}
               </AccordionContent>
             </AccordionItem>
 

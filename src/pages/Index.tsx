@@ -18,7 +18,7 @@ import { useLicense } from '@/hooks/useLicense';
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pdfGalleryLogo from '@/assets/pdf-gallery-logo.svg';
 
-const PLUGIN_VERSION = '2.2.0';
+const PLUGIN_VERSION = '2.2.1';
 
 // Kind Pixels Logo SVG Component
 const KindPixelsLogo = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
@@ -481,13 +481,13 @@ const Index = () => {
                 value="pro"
                 className="flex-1 px-6 py-4 text-sm font-medium border-b-2 -mb-px flex items-center justify-center gap-2 transition-colors rounded-none data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=inactive]:border-transparent data-[state=inactive]:text-slate-500 hover:text-slate-700 hover:bg-slate-50 data-[state=active]:shadow-none"
               >
-                <Crown className="w-4 h-4 text-amber-500" />
                 Pro
+                <Crown className="w-4 h-4 text-amber-500" />
               </TabsTrigger>
             </TabsList>
           </div>
           
-          <div className="p-6">
+          <div className="p-6 pt-8">
             <TabsContent value="preview" className="space-y-6 mt-0">
               <div className="text-center">
                 <h3 className="text-lg font-semibold mb-2">Gallery Shortcode</h3>
@@ -552,7 +552,11 @@ const Index = () => {
             </TabsContent>
             
             <TabsContent value="pro" className="mt-0">
-              <ProBanner />
+              {license.isPro && license.checked ? (
+                <PluginDocumentation showOnlyLicenseAndComparison />
+              ) : (
+                <ProBanner showComparison />
+              )}
             </TabsContent>
           </div>
         </Tabs>
