@@ -71,7 +71,7 @@ export const GallerySelector = ({
     if (!license.isPro && galleries.length >= 1) {
       toast({
         title: "Pro Feature Required",
-        description: "The free version supports one gallery. Upgrade to Pro to create unlimited galleries.",
+        description: "Free version supports 1 gallery. Upgrade to Pro for unlimited galleries.",
         variant: "destructive",
       });
       return;
