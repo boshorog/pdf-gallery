@@ -87,15 +87,15 @@ if ( ! function_exists( 'pdf_gallery_fs' ) ) {
         return $pdf_gallery_fs_instance;
     }
 
-    // Backward compatibility wrapper
-    if ( ! function_exists( 'pdf_gallery_fs_compat' ) ) {
+    // Backward compatibility alias: pdfgallery_fs -> pdf_gallery_fs
+    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Legacy alias for backward compatibility
+    if ( ! function_exists( 'pdfgallery_fs' ) ) {
         /**
-         * Backward compatibility wrapper for pdf_gallery_fs().
+         * Legacy alias for pdf_gallery_fs().
          *
          * @return object Freemius SDK instance.
-         * @deprecated Use pdf_gallery_fs() instead.
          */
-        function pdf_gallery_fs_compat() {
+        function pdfgallery_fs() {
             return pdf_gallery_fs();
         }
     }
