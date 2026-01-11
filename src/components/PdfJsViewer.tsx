@@ -282,9 +282,14 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
     const clickYInOriginal = zoomOrigin.y * rect.height;
     
     // Position the zoom canvas so the click point aligns
-    // Use rect.left relative to containerRect to get proper position within scrollable container
-    const left = (rect.left - containerRect.left) + clickXInOriginal - clickXInZoom - panOffset.x;
-    const top = (rect.top - containerRect.top) + container.scrollTop + clickYInOriginal - clickYInZoom - panOffset.y;
+    // For proper positioning, we need the canvas position relative to the container's scroll position
+    // rect.top is relative to viewport, so we subtract containerRect.top to get position within container
+    // Then add container.scrollTop to account for any scrolling that has occurred
+    const canvasTopInContainer = rect.top - containerRect.top + container.scrollTop;
+    const canvasLeftInContainer = rect.left - containerRect.left;
+    
+    const left = canvasLeftInContainer + clickXInOriginal - clickXInZoom - panOffset.x;
+    const top = canvasTopInContainer + clickYInOriginal - clickYInZoom - panOffset.y;
     
     return {
       position: 'absolute',
