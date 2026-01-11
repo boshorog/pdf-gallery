@@ -8,7 +8,7 @@ import { Crown, Check, X, Shield, Trash2, BookOpen, FileText, Settings, Upload, 
 import { useLicense } from '@/hooks/useLicense';
 import { useToast } from '@/hooks/use-toast';
 
-const PLUGIN_VERSION = '2.2.1';
+const PLUGIN_VERSION = '2.2.2';
 
 interface PluginDocumentationProps {
   className?: string;
@@ -155,8 +155,8 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                     <th className="py-3 px-4 text-center text-sm font-semibold">Free</th>
                     <th className="py-3 px-4 text-center text-sm font-semibold">
                       <span className="inline-flex items-center gap-1">
-                        <Crown className="w-4 h-4 text-amber-500" />
                         Pro
+                        <Crown className="w-4 h-4 text-amber-500" />
                       </span>
                     </th>
                   </tr>
@@ -164,11 +164,11 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                 <tbody>
                   <FeatureRow feature="Number of Galleries" free="1" pro="Unlimited" />
                   <FeatureRow feature="Documents per Gallery" free="15" pro="Unlimited" />
-                  <FeatureRow feature="Multi-File Upload" free={false} pro={true} />
+                  <FeatureRow feature="Upload Multiple Files at Once" free={false} pro={true} />
                   <FeatureRow feature="Multiple File Types (PDF, Office, Images, Video, Audio)" free={true} pro={true} />
                   <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />
                   <FeatureRow feature="Section Dividers" free={true} pro={true} />
-                  <FeatureRow feature="All Styling Options (Thumbnail Styles, Animations, Colors, Layouts)" free={true} pro={true} />
+                  <FeatureRow feature="Many Styling Options" free={true} pro={true} />
                   <FeatureRow feature="Priority Support" free={false} pro={true} />
                 </tbody>
               </table>
@@ -181,53 +181,6 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
 
   return (
     <div className={className}>
-      {/* Pro License Info */}
-      {license.isPro && license.checked && (
-        <Card className="mb-6 border-primary/30 bg-gradient-to-r from-primary/5 to-transparent">
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-full bg-primary/10">
-                  <Crown className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">
-                    Licensed to: <span className="text-primary">{getLicenseOwner()}</span>
-                  </p>
-                  <p className="text-xs text-muted-foreground">PDF Gallery Pro v{PLUGIN_VERSION}</p>
-                </div>
-              </div>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
-                    <Trash2 className="w-4 h-4 mr-1" />
-                    Remove License
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Remove Pro License?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will deactivate your Pro license and revert to the Free version. You can reactivate it later using your license key.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction 
-                      onClick={handleRemoveLicense}
-                      disabled={isRemovingLicense}
-                      className="bg-destructive hover:bg-destructive/90"
-                    >
-                      {isRemovingLicense ? 'Removing...' : 'Remove License'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-center gap-2">

@@ -324,8 +324,8 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
                     <th className="py-3 px-4 text-center text-sm font-semibold">Free</th>
                     <th className="py-3 px-4 text-center text-sm font-semibold">
                       <span className="inline-flex items-center gap-1">
-                        <Crown className="w-4 h-4 text-amber-500" />
                         Pro
+                        <Crown className="w-4 h-4 text-amber-500" />
                       </span>
                     </th>
                   </tr>
@@ -333,11 +333,11 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
                 <tbody>
                   <FeatureRow feature="Number of Galleries" free="1" pro="Unlimited" />
                   <FeatureRow feature="Documents per Gallery" free="15" pro="Unlimited" />
-                  <FeatureRow feature="Multi-File Upload" free={false} pro={true} />
+                  <FeatureRow feature="Upload Multiple Files at Once" free={false} pro={true} />
                   <FeatureRow feature="Multiple File Types (PDF, Office, Images, Video, Audio)" free={true} pro={true} />
                   <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />
                   <FeatureRow feature="Section Dividers" free={true} pro={true} />
-                  <FeatureRow feature="All Styling Options (Thumbnail Styles, Animations, Colors, Layouts)" free={true} pro={true} />
+                  <FeatureRow feature="Many Styling Options" free={true} pro={true} />
                   <FeatureRow feature="Priority Support" free={false} pro={true} />
                 </tbody>
               </table>
