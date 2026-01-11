@@ -1,10 +1,10 @@
 === PDF Gallery ===
 Contributors: developer
-Donate link: https://example.com/donate
+Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
-Tested up to: 6.7
-Stable tag: 2.1.4
+Tested up to: 6.9
+Stable tag: 2.1.5
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,6 +83,12 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 
 == Changelog ==
 
+= 2.1.5 =
+* Fixed: Additional WordPress plugin check compliance
+* Fixed: Nonce verification documentation improvements
+* Fixed: Global function naming conventions
+* Updated: Compatibility with WordPress 6.9
+
 = 2.1.4 =
 * Fixed: WordPress coding standards compliance for file operations
 * Fixed: Proper use of WP_Filesystem methods
@@ -116,6 +122,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.1.5 =
+This update includes WordPress 6.9 compatibility and plugin check compliance fixes.
 
 = 2.1.4 =
 This update includes WordPress coding standards compliance fixes. Recommended for all users.
