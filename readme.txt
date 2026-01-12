@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.6
+Stable tag: 2.2.7
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,12 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.2.7 =
+* CRITICAL FIX: Gallery data now persists correctly on page refresh and plugin updates
+* Fixed 15-file limit bypass when adding files from WordPress Media Library
+* Improved masonry layout CSS for better column flow
+* Removed auto-recreation of Test Gallery - user data is never overwritten
 
 = 2.2.6 =
 * Fixed Test Gallery being recreated on plugin updates - now only installs on fresh installs
@@ -167,6 +173,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.2.7 =
+CRITICAL: Fixes data persistence - your galleries are now preserved correctly on page refresh and plugin updates.
 
 = 2.2.6 =
 Test Gallery now only installs on fresh installs - your galleries are preserved on plugin updates.
