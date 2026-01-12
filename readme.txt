@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.12
+Stable tag: 2.2.13
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,12 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.2.13 =
+* Fixed video files showing "PDF" badge during upload and in gallery - now shows correct file type (VID, AVI, etc.)
+* Files larger than 10MB now use chunked upload for better reliability
+* Added video thumbnail generation from first frame (no more infinite loading animation)
+* Improved video player in lightbox with buffering support and poster image from first frame
 
 = 2.2.12 =
 * Fixed file browser filter to show video files by default (added video/* and audio/* MIME types)
@@ -194,6 +200,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.2.13 =
+Video files now show correct badges, use chunked upload for large files, generate thumbnails from first frame, and play reliably in lightbox.
 
 = 2.2.12 =
 File uploader now shows all video/audio files in browser, displays correct file type badge, and icon sizes match gallery items.

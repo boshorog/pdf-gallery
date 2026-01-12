@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FileText, ExternalLink, FileType, Presentation, Image } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
+import { VideoThumbnailGenerator } from '@/utils/videoThumbnailGenerator';
 import { generateThumbnail } from '@/utils/supabaseClient';
 import pdfPlaceholder from '@/assets/thumbnail-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
@@ -153,22 +154,36 @@ const PDFGallery = ({
     setItemsWithThumbnails(initialItems);
     console.log('PDFGallery: Initial items set with placeholders');
     
-    // Extract PDFs that need thumbnail generation
-    const pdfsNeedingGeneration = initialItems.filter((item): item is PDF => 
-      'pdfUrl' in item && 
-      item.thumbnail === placeholderUrl &&
-      !['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(getItemFileType(item))
-    );
+    // Extract items that need thumbnail generation (PDFs and videos without thumbnails)
+    const itemsNeedingGeneration = initialItems.filter((item): item is PDF => {
+      if (!('pdfUrl' in item)) return false;
+      if (item.thumbnail !== placeholderUrl) return false;
+      const fileType = getItemFileType(item);
+      // Skip images - they use their own URL as thumbnail
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType)) return false;
+      // Generate for PDFs and videos
+      return fileType === 'pdf' || VideoThumbnailGenerator.isVideoType(fileType);
+    });
     
-    if (pdfsNeedingGeneration.length > 0) {
-      console.log('PDFGallery: Need to generate', pdfsNeedingGeneration.length, 'thumbnails');
+    if (itemsNeedingGeneration.length > 0) {
+      console.log('PDFGallery: Need to generate', itemsNeedingGeneration.length, 'thumbnails');
       
       const generateThumbnails = async () => {
         try {
-          const thumbnailPromises = pdfsNeedingGeneration.map(async (pdf) => {
+          const thumbnailPromises = itemsNeedingGeneration.map(async (pdf) => {
             try {
-              console.log('PDFGallery: Generating thumbnail for', pdf.title);
-              const result = await PDFThumbnailGenerator.generateThumbnail(pdf.pdfUrl);
+              const fileType = getItemFileType(pdf);
+              const isVideo = VideoThumbnailGenerator.isVideoType(fileType);
+              
+              console.log('PDFGallery: Generating thumbnail for', pdf.title, isVideo ? '(video)' : '(pdf)');
+              
+              let result;
+              if (isVideo) {
+                result = await VideoThumbnailGenerator.generateThumbnail(pdf.pdfUrl);
+              } else {
+                result = await PDFThumbnailGenerator.generateThumbnail(pdf.pdfUrl);
+              }
+              
               if (result.success && result.dataUrl) {
                 console.log('PDFGallery: Successfully generated thumbnail for', pdf.title);
                 // Cache the thumbnail
