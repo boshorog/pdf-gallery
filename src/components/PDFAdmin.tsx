@@ -913,6 +913,21 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
         return;
       }
 
+      // Check 15-file limit for free users (including media library selection)
+      const currentFileCount = items.filter(item => !('type' in item && item.type === 'divider')).length;
+      const filesAfterAdd = currentFileCount + attachments.length;
+      if (!license.isPro && filesAfterAdd > 15) {
+        const remaining = Math.max(0, 15 - currentFileCount);
+        toast({
+          title: "File Limit Reached",
+          description: remaining > 0 
+            ? `Free version allows 15 files per gallery. You can add ${remaining} more file${remaining !== 1 ? 's' : ''}.`
+            : "Free version allows 15 files per gallery. Upgrade to Pro for unlimited files.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       let accItems = items.slice();
       
       for (const attachment of attachments) {

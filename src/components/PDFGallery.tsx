@@ -636,9 +636,9 @@ const PDFGallery = ({
                   if (isMasonry) {
                     // True masonry layout using CSS columns
                     renderedItems.push(
-                      <div key={`grid-${currentGrid[0].id}`} className={`${getMasonryCols()} gap-6`}>
+                      <div key={`grid-${currentGrid[0].id}`} className={`${getMasonryCols()} gap-x-6`} style={{ columnGap: '1.5rem' }}>
                         {currentGrid.map((pdf) => (
-                          <div key={pdf.id} className="break-inside-avoid mb-6">
+                          <div key={pdf.id} className="break-inside-avoid mb-6" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                             {renderThumbnail(pdf)}
                           </div>
                         ))}
@@ -683,9 +683,9 @@ const PDFGallery = ({
               if (isMasonry) {
                 // True masonry layout using CSS columns
                 renderedItems.push(
-                  <div key={`grid-final`} className={`${getMasonryCols()} gap-6`}>
+                  <div key={`grid-final`} className={`${getMasonryCols()} gap-x-6`} style={{ columnGap: '1.5rem' }}>
                     {currentGrid.map((pdf) => (
-                      <div key={pdf.id} className="break-inside-avoid mb-6">
+                      <div key={pdf.id} className="break-inside-avoid mb-6" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                         {renderThumbnail(pdf)}
                       </div>
                     ))}
