@@ -239,7 +239,26 @@ const Index = () => {
           }
         })
         .catch(() => {
-          // Create test gallery for development
+          // Non-WP environment: try to restore from localStorage first
+          try {
+            const backupRaw = localStorage.getItem('pdf_gallery_backup');
+            const backup = backupRaw ? JSON.parse(backupRaw) : null;
+            if (Array.isArray(backup) && backup.length > 0) {
+              const restoredGalleries = backup.map((gallery: any) => ({
+                id: gallery.id || 'main',
+                name: gallery.name || 'Main Gallery',
+                items: Array.isArray(gallery.items) ? gallery.items : [],
+                createdAt: gallery.createdAt || new Date().toISOString(),
+              }));
+              setGalleryState({
+                galleries: restoredGalleries,
+                currentGalleryId: restoredGalleries[0]?.id || 'main',
+              });
+              return;
+            }
+          } catch {}
+
+          // Create test gallery for development if no backup exists
           const testGallery: Gallery = {
             id: 'test',
             name: 'Test Gallery',
@@ -264,6 +283,8 @@ const Index = () => {
             galleries: [testGallery],
             currentGalleryId: 'test'
           });
+          // Save default test gallery to localStorage
+          try { localStorage.setItem('pdf_gallery_backup', JSON.stringify([testGallery])); } catch {}
         });
 
       // Also fetch settings (needed for frontend visitors too)
