@@ -349,16 +349,16 @@ const PDFGallery = ({
       case 'elevated-card':
         return (
             <div key={pdf.id} {...baseProps}>
-             <div className="group cursor-pointer">
-               <div className="relative bg-card rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2 border border-border">
-                 <div className={`${aspectClass || 'aspect-[4/3]'} overflow-hidden bg-muted`}>
-                   <img
-                    src={pdf.thumbnail}
-                    alt={pdf.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    onError={(e) => { e.currentTarget.src = placeholderUrl; }}
-                  />
+               <div className="group cursor-pointer">
+                 <div className="relative bg-card rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2 border border-border">
+                   <div className={`${isMasonry ? '' : (aspectClass || 'aspect-[4/3]')} overflow-hidden bg-muted`}>
+                     <img
+                      src={pdf.thumbnail}
+                      alt={pdf.title}
+                      className={isMasonry ? "w-full h-auto block" : "w-full h-full object-cover"}
+                      loading="lazy"
+                      onError={(e) => { e.currentTarget.src = placeholderUrl; }}
+                    />
                   <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/40"></div>
                 </div>
                 <div className="absolute bottom-3 right-3">
@@ -387,17 +387,17 @@ const PDFGallery = ({
 
       case 'slide-up-text':
         return (
-            <div key={pdf.id} {...baseProps}>
-             <div className="group cursor-pointer overflow-hidden rounded-xl">
-               <div className="relative bg-card border border-border rounded-xl overflow-hidden">
-                 <div className={`${aspectClass || 'aspect-video'} overflow-hidden bg-muted`}>
-                   <img
-                    src={pdf.thumbnail}
-                    alt={pdf.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                    onError={(e) => { e.currentTarget.src = placeholderUrl; }}
-                  />
+             <div key={pdf.id} {...baseProps}>
+              <div className="group cursor-pointer overflow-hidden rounded-xl">
+                <div className="relative bg-card border border-border rounded-xl overflow-hidden">
+                  <div className={`${isMasonry ? '' : (aspectClass || 'aspect-video')} overflow-hidden bg-muted`}>
+                    <img
+                     src={pdf.thumbnail}
+                     alt={pdf.title}
+                     className={isMasonry ? "w-full h-auto block transition-transform duration-500 group-hover:scale-110" : "w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"}
+                     loading="lazy"
+                     onError={(e) => { e.currentTarget.src = placeholderUrl; }}
+                   />
                 </div>
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black/95 via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -436,15 +436,15 @@ const PDFGallery = ({
                   background: `linear-gradient(135deg, ${settings.accentColor}, transparent, ${settings.accentColor})`,
                 }}
               >
-                <div className="relative bg-card rounded-xl overflow-hidden">
-                  <div className={`${aspectClass || 'aspect-video'} overflow-hidden bg-muted`}>
-                    <img
-                      src={pdf.thumbnail}
-                      alt={pdf.title}
-                      className="w-full h-full object-cover transition-all duration-500 group-hover:scale-125"
-                      loading="lazy"
-                      onError={(e) => { e.currentTarget.src = placeholderUrl; }}
-                    />
+                 <div className="relative bg-card rounded-xl overflow-hidden">
+                   <div className={`${isMasonry ? '' : (aspectClass || 'aspect-video')} overflow-hidden bg-muted`}>
+                     <img
+                       src={pdf.thumbnail}
+                       alt={pdf.title}
+                       className={isMasonry ? "w-full h-auto block transition-all duration-500 group-hover:scale-125" : "w-full h-full object-cover transition-all duration-500 group-hover:scale-125"}
+                       loading="lazy"
+                       onError={(e) => { e.currentTarget.src = placeholderUrl; }}
+                     />
                     <div 
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{
@@ -511,11 +511,11 @@ const PDFGallery = ({
             <div key={pdf.id} {...baseProps}>
              <div className="group cursor-pointer">
                <div className="space-y-2">
-                 <div className={`relative ${aspectClass || 'aspect-video'} bg-muted overflow-hidden`}>
+                 <div className={`relative ${isMasonry ? '' : (aspectClass || 'aspect-video')} bg-muted overflow-hidden`}>
                    <img
                     src={pdf.thumbnail}
                     alt={pdf.title}
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+                    className={isMasonry ? "w-full h-auto block opacity-80 group-hover:opacity-100 transition-opacity duration-300" : "w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"}
                     loading="lazy"
                     onError={(e) => { e.currentTarget.src = placeholderUrl; }}
                   />
@@ -551,11 +551,11 @@ const PDFGallery = ({
           <div key={pdf.id} {...baseProps}>
             <div className="group">
               <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border">
-                <div className={`${aspectClass || 'aspect-[3/2]'} overflow-hidden bg-muted`}>
+                <div className={`${isMasonry ? '' : (aspectClass || 'aspect-[3/2]')} overflow-hidden bg-muted`}>
                   <img
                     src={pdf.thumbnail}
                     alt={pdf.title}
-                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    className={isMasonry ? "w-full h-auto block transition-transform duration-200 group-hover:scale-105" : "w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"}
                     loading="lazy"
                     onError={(e) => { e.currentTarget.src = placeholderUrl; }}
                   />
@@ -638,7 +638,7 @@ const PDFGallery = ({
                     renderedItems.push(
                       <div key={`grid-${currentGrid[0].id}`} className={`${getMasonryCols()} gap-x-6`} style={{ columnGap: '1.5rem' }}>
                         {currentGrid.map((pdf) => (
-                          <div key={pdf.id} className="break-inside-avoid mb-6" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                          <div key={pdf.id} className="mb-6 inline-block w-full" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                             {renderThumbnail(pdf)}
                           </div>
                         ))}
@@ -685,7 +685,7 @@ const PDFGallery = ({
                 renderedItems.push(
                   <div key={`grid-final`} className={`${getMasonryCols()} gap-x-6`} style={{ columnGap: '1.5rem' }}>
                     {currentGrid.map((pdf) => (
-                      <div key={pdf.id} className="break-inside-avoid mb-6" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                      <div key={pdf.id} className="mb-6 inline-block w-full" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                         {renderThumbnail(pdf)}
                       </div>
                     ))}
