@@ -360,7 +360,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
               ref={fileInputRef}
               type="file"
               multiple={license.isPro}
-              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,.odt,.ods,.odp,.rtf,.txt,.csv,.svg,.ico,.zip,.rar,.7z,.epub,.mobi,.mp3,.wav,.ogg,.mp4,.mov,.webm"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,.odt,.ods,.odp,.rtf,.txt,.csv,.svg,.ico,.zip,.rar,.7z,.epub,.mobi,.mp3,.wav,.ogg,.mp4,.mov,.webm,.avi,.mkv,.flv,.wmv,.m4v,.m4a,.flac,.aac,video/*,audio/*"
               onChange={handleFileInput}
               className="hidden"
             />
@@ -397,9 +397,11 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
                   <div key={file.uploadId || originalIndex} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="relative w-10 h-10 bg-muted rounded flex items-center justify-center flex-shrink-0">
-                          <FileText className="w-5 h-5 text-muted-foreground" />
-                          <div className="absolute -top-1 -right-1 text-xs px-1 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground">
+                        <div className="relative">
+                          <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                            <FileText className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                          <div className="absolute -top-1 -right-1 min-w-[24px] px-1 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground text-center z-10">
                             {file.fileType.toUpperCase().slice(0, 3)}
                           </div>
                         </div>

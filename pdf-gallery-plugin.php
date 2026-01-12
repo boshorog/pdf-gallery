@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, video, audio, and document files. Easily organize, sort, and showcase your files in beautiful grid layouts.
- * Version: 2.2.11
+ * Version: 2.2.12
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
@@ -23,7 +23,7 @@ if ( defined( 'PDF_GALLERY_PLUGIN_LOADED' ) ) {
 }
 define( 'PDF_GALLERY_PLUGIN_LOADED', true );
 
-define( 'PDF_GALLERY_VERSION', '2.2.11' );
+define( 'PDF_GALLERY_VERSION', '2.2.12' );
 
 // Freemius SDK Initialization
 if ( ! function_exists( 'pdf_gallery_fs' ) ) {
@@ -1498,7 +1498,21 @@ public function display_gallery_shortcode($atts) {
             // Video
             'video/mp4',
             'video/quicktime',
-            'video/webm'
+            'video/webm',
+            'video/x-msvideo',
+            'video/avi',
+            'video/x-matroska',
+            'video/x-flv',
+            'video/x-ms-wmv',
+            'video/x-m4v',
+            'video/3gpp',
+            'video/3gpp2',
+            // Additional audio
+            'audio/x-m4a',
+            'audio/m4a',
+            'audio/flac',
+            'audio/aac',
+            'audio/x-aac'
         );
         if (!in_array($file['type'], $allowed_types, true)) {
             wp_send_json_error('File type not allowed. Supported: documents, images, audio, video, archives, and eBooks.');
