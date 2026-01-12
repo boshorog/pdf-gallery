@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Crown, ExternalLink, Star, Zap, Unlock, Key, Check } from 'lucide-react';
+import { Crown, ExternalLink, LayoutGrid, Zap, Unlock, Key, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useLicense } from '@/hooks/useLicense';
@@ -238,7 +238,7 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
                 <span className="text-lg font-semibold">Unlimited Galleries</span>
               </div>
               <div className="flex items-center gap-3">
-                <Star className="w-6 h-6 text-orange-500" />
+                <LayoutGrid className="w-6 h-6 text-orange-500" />
                 <span className="text-lg font-semibold">Unlimited Files</span>
               </div>
               <div className="flex items-center gap-3">
