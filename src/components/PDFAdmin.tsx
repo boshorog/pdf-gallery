@@ -468,7 +468,13 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
         return false;
       }
     }
-    return true; // Return true for non-WP environments
+    // Non-WP environment: persist to localStorage
+    try { 
+      localStorage.setItem('pdf_gallery_backup', JSON.stringify(updatedGalleries)); 
+    } catch (e) {
+      console.warn('Failed to save to localStorage:', e);
+    }
+    return true;
   };
 
   const updateCurrentGalleryItems = (updatedItems: GalleryItem[]) => {
