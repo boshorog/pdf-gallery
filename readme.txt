@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.11
+Stable tag: 2.2.12
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,12 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.2.12 =
+* Fixed file browser filter to show video files by default (added video/* and audio/* MIME types)
+* Fixed file type badge showing correct extension (first 3 chars) during upload
+* Fixed file icon and badge size to match gallery items (w-12 h-12 with min-w-[24px] badge)
+* Expanded PHP allowed MIME types to support more video/audio formats (AVI, MKV, FLV, WMV, M4V, FLAC, AAC, etc.)
 
 = 2.2.11 =
 * Added media library browse button to Thumbnail URL field when adding/editing files
@@ -188,6 +194,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.2.12 =
+File uploader now shows all video/audio files in browser, displays correct file type badge, and icon sizes match gallery items.
 
 = 2.2.11 =
 Browse button added to Thumbnail URL field opens WordPress Media Library for easy thumbnail selection.
