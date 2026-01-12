@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, video, audio, and document files. Easily organize, sort, and showcase your files in beautiful grid layouts.
- * Version: 2.2.9
+ * Version: 2.2.10
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
@@ -23,7 +23,7 @@ if ( defined( 'PDF_GALLERY_PLUGIN_LOADED' ) ) {
 }
 define( 'PDF_GALLERY_PLUGIN_LOADED', true );
 
-define( 'PDF_GALLERY_VERSION', '2.2.9' );
+define( 'PDF_GALLERY_VERSION', '2.2.10' );
 
 // Freemius SDK Initialization
 if ( ! function_exists( 'pdf_gallery_fs' ) ) {
@@ -572,30 +572,35 @@ public function display_gallery_shortcode($atts) {
         }
         
         // Set default options and version
-        // Only create Test Gallery on fresh installs or if galleries are empty
+        // Only create Test Gallery on fresh installs or if there's exactly one empty gallery
         // This prevents overwriting user data on plugin updates
         $existing_galleries = get_option('pdf_gallery_galleries', 'NOT_SET');
         $is_fresh_install = ($existing_galleries === 'NOT_SET');
         
-        // Check if galleries exist but are empty or only contain empty galleries
+        // Determine if we need the test gallery:
+        // 1. Fresh install (no galleries option exists)
+        // 2. Exactly one gallery exists but has no files
         $needs_test_gallery = $is_fresh_install;
         if (!$is_fresh_install && is_array($existing_galleries)) {
-            // Check if all galleries are empty (no items or only empty items arrays)
-            $has_user_content = false;
-            foreach ($existing_galleries as $gallery) {
-                if (isset($gallery['items']) && is_array($gallery['items']) && count($gallery['items']) > 0) {
-                    $has_user_content = true;
-                    break;
+            $gallery_count = count($existing_galleries);
+            
+            if ($gallery_count === 0) {
+                // No galleries at all - treat as fresh install
+                $needs_test_gallery = true;
+            } elseif ($gallery_count === 1) {
+                // Exactly one gallery - check if it's empty
+                $first_gallery = reset($existing_galleries);
+                $has_files = isset($first_gallery['items']) && is_array($first_gallery['items']) && count($first_gallery['items']) > 0;
+                if (!$has_files) {
+                    // Single empty gallery - replace with test gallery
+                    $needs_test_gallery = true;
                 }
             }
-            // If no galleries or all are empty, we need the test gallery
-            if (count($existing_galleries) === 0 || !$has_user_content) {
-                $needs_test_gallery = true;
-            }
+            // If more than one gallery exists, never add test gallery
         }
         
         // Store version for tracking
-        add_option('pdf_gallery_version', '2.2.9');
+        add_option('pdf_gallery_version', '2.2.10');
         
         if ($needs_test_gallery) {
             // Fresh install - create test gallery

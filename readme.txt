@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.9
+Stable tag: 2.2.10
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,10 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.2.10 =
+* Refined test gallery logic: adds test gallery only on fresh install or when exactly one empty gallery exists
+* Replaces single empty gallery (any name) with the default Test Gallery
 
 = 2.2.9 =
 * Improved test gallery seeding: only creates test gallery on fresh install OR when all galleries are empty
@@ -181,6 +185,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.2.10 =
+Clearer test gallery seeding: only on fresh install or when a single empty gallery exists.
 
 = 2.2.9 =
 Smarter test gallery seeding and updated documentation with full file type support.
