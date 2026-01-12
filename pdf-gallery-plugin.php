@@ -113,6 +113,8 @@ class PDF_Gallery_Plugin {
     }
     
     public function init() {
+        $this->maybe_upgrade();
+
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_shortcode('pdf_gallery', array($this, 'display_gallery_shortcode'));
@@ -552,7 +554,112 @@ public function display_gallery_shortcode($atts) {
 
     return $html;
 }
-    
+
+    /**
+     * Returns true if a gallery contains at least one actual file item (dividers do not count).
+     *
+     * @param mixed $gallery
+     */
+    private static function gallery_has_any_files($gallery) {
+        if (!is_array($gallery)) {
+            return false;
+        }
+        if (!isset($gallery['items']) || !is_array($gallery['items'])) {
+            return false;
+        }
+
+        foreach ($gallery['items'] as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            // Dividers are not files.
+            if (isset($item['type']) && $item['type'] === 'divider') {
+                continue;
+            }
+
+            // Any non-divider entry is considered a file item.
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Seed the default Test Gallery.
+     */
+    private static function seed_test_gallery() {
+        // Unified sample items for the Test Gallery (matches Lovable preview)
+        $sample_items = array(
+            array('id' => 'div-1', 'type' => 'divider', 'text' => 'First Section'),
+            array('id' => 'pdf-1', 'title' => 'Sample Document 1', 'date' => 'January 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-2', 'title' => 'Sample Document 2', 'date' => 'February 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2502_De-La-Februs-La-Hristos.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-3', 'title' => 'Sample Document 3', 'date' => 'March 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2503_De-la-Moarte-la-Viata.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-4', 'title' => 'Sample Document 4', 'date' => 'April 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2504_Cand-Isus-Ne-Cheama-Pe-Nume.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-5', 'title' => 'Sample Document 5', 'date' => 'May 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2505_Inaltarea-Mantuitorului.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-6', 'title' => 'Sample Document 6', 'date' => 'June 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2506_Putere-Pentru-O-Viata-Transformata.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-7', 'title' => 'Sample Document 7', 'date' => 'July 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2507_Va-Gasi-Rod.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'div-2', 'type' => 'divider', 'text' => 'Second Section'),
+            array('id' => 'pdf-8', 'title' => 'Sample Document 1', 'date' => 'January 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2401_Un-Gand-Pentru-Anul-Nou.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-9', 'title' => 'Sample Document 2', 'date' => 'February 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2402_Risipa-De-Iubire.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-10', 'title' => 'Sample Document 3', 'date' => 'March 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2403_Lucruri-Noi.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+            array('id' => 'pdf-11', 'title' => 'Sample Document 4', 'date' => 'April 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2404_O-Sarbatoare-Dulce-Amaruie.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
+        );
+
+        $test_gallery = array(
+            'id' => 'test',
+            'name' => 'Test Gallery',
+            'items' => $sample_items,
+            'createdAt' => current_time('mysql'),
+        );
+
+        update_option('pdf_gallery_galleries', array($test_gallery));
+        update_option('pdf_gallery_current_gallery_id', 'test');
+    }
+
+    /**
+     * Run upgrade routines on plugin updates (WordPress updates don't trigger activate()).
+     */
+    private function maybe_upgrade() {
+        $stored_version = get_option('pdf_gallery_version', '');
+
+        // WordPress in-place updates do NOT run activate(). Also, this specific seeding rule was
+        // refined recently, so we run it once even if the version string didn't change.
+        $seed_rule_ran = get_option('pdf_gallery_seed_rule_checked', '');
+        $version_matches = (!empty($stored_version) && $stored_version === PDF_GALLERY_VERSION);
+        if ($version_matches && !empty($seed_rule_ran)) {
+            return;
+        }
+
+        // Seed rules:
+        // - Fresh install (no gallery option)
+        // - Exactly one gallery exists but it contains no FILE items (dividers don't count)
+        $existing_galleries = get_option('pdf_gallery_galleries', 'NOT_SET');
+        $is_fresh_install = ($existing_galleries === 'NOT_SET');
+
+        $needs_test_gallery = $is_fresh_install;
+        if (!$is_fresh_install && is_array($existing_galleries)) {
+            $gallery_count = count($existing_galleries);
+
+            if ($gallery_count === 0) {
+                $needs_test_gallery = true;
+            } elseif ($gallery_count === 1) {
+                $first_gallery = reset($existing_galleries);
+                $has_any_files = self::gallery_has_any_files($first_gallery);
+                if (!$has_any_files) {
+                    $needs_test_gallery = true;
+                }
+            }
+        }
+
+        if ($needs_test_gallery) {
+            self::seed_test_gallery();
+        }
+
+        update_option('pdf_gallery_version', PDF_GALLERY_VERSION);
+        update_option('pdf_gallery_seed_rule_checked', '1');
+    }
+
     /**
      * Plugin activation
      */
@@ -588,48 +695,25 @@ public function display_gallery_shortcode($atts) {
                 // No galleries at all - treat as fresh install
                 $needs_test_gallery = true;
             } elseif ($gallery_count === 1) {
-                // Exactly one gallery - check if it's empty
+                // Exactly one gallery - check if it has any FILE items (dividers do not count)
                 $first_gallery = reset($existing_galleries);
-                $has_files = isset($first_gallery['items']) && is_array($first_gallery['items']) && count($first_gallery['items']) > 0;
-                if (!$has_files) {
+                $has_any_files = self::gallery_has_any_files($first_gallery);
+                if (!$has_any_files) {
                     // Single empty gallery - replace with test gallery
                     $needs_test_gallery = true;
                 }
             }
             // If more than one gallery exists, never add test gallery
         }
-        
-        // Store version for tracking
-        add_option('pdf_gallery_version', '2.2.10');
-        
+
+        // Store version for tracking (also used for upgrades)
+        update_option('pdf_gallery_version', PDF_GALLERY_VERSION);
+
         if ($needs_test_gallery) {
-            // Fresh install - create test gallery
-            $sample_items = array(
-                array('id' => 'div-1', 'type' => 'divider', 'text' => 'First Section'),
-                array('id' => 'pdf-1', 'title' => 'Sample Document 1', 'date' => 'January 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-2', 'title' => 'Sample Document 2', 'date' => 'February 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2502_De-La-Februs-La-Hristos.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-3', 'title' => 'Sample Document 3', 'date' => 'March 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2503_De-la-Moarte-la-Viata.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-4', 'title' => 'Sample Document 4', 'date' => 'April 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2504_Cand-Isus-Ne-Cheama-Pe-Nume.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-5', 'title' => 'Sample Document 5', 'date' => 'May 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2505_Inaltarea-Mantuitorului.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-6', 'title' => 'Sample Document 6', 'date' => 'June 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2506_Putere-Pentru-O-Viata-Transformata.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-7', 'title' => 'Sample Document 7', 'date' => 'July 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2507_Va-Gasi-Rod.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'div-2', 'type' => 'divider', 'text' => 'Second Section'),
-                array('id' => 'pdf-8', 'title' => 'Sample Document 1', 'date' => 'January 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2401_Un-Gand-Pentru-Anul-Nou.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-9', 'title' => 'Sample Document 2', 'date' => 'February 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2402_Risipa-De-Iubire.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-10', 'title' => 'Sample Document 3', 'date' => 'March 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2403_Lucruri-Noi.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-                array('id' => 'pdf-11', 'title' => 'Sample Document 4', 'date' => 'April 2024', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2404_O-Sarbatoare-Dulce-Amaruie.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
-            );
-            $test_gallery = array(
-                'id' => 'test',
-                'name' => 'Test Gallery',
-                'items' => $sample_items,
-                'createdAt' => current_time('mysql'),
-            );
-            update_option('pdf_gallery_galleries', array($test_gallery));
-            update_option('pdf_gallery_current_gallery_id', 'test');
+            self::seed_test_gallery();
         }
         // If existing_galleries is set (even if empty array), preserve user data - don't overwrite
-        
+
         // Set activation redirect transient for onboarding
         set_transient('pdf_gallery_activation_redirect', true, 30);
     }
