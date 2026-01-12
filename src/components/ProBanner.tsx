@@ -312,8 +312,9 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
       {showComparison && (
         <CardContent className="pt-0 pb-6">
           <div className="border-t pt-6">
-            <h4 className="text-base font-semibold mb-4">
+            <h4 className="text-base font-semibold mb-4 flex items-center gap-2">
               Free vs Pro Comparison
+              <Crown className="w-4 h-4 text-amber-500" />
             </h4>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">

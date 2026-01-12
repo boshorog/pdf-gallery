@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.3
+Stable tag: 2.2.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,11 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.2.4 =
+* Fixed crown icon placement to appear after "Pro" in all comparison tables
+* Added crown icon after "Free vs Pro Comparison" title in Pro tab
+* Added Shift+click multi-select for files in gallery management
 
 = 2.2.3 =
 * Removed crown icon before "Free vs Pro Comparison" title in Pro tab

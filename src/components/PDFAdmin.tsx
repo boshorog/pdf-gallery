@@ -48,7 +48,7 @@ interface SortableItemProps {
   onDelete: (id: string) => void;
   onRefresh: (item: GalleryItem) => void;
   isSelected: boolean;
-  onSelect: (id: string, selected: boolean) => void;
+  onSelect: (id: string, selected: boolean, shiftKey: boolean) => void;
 }
 
 const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect }: SortableItemProps) => {
@@ -71,7 +71,13 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
         <div className="flex items-center space-x-3 ml-2.5">
           <Checkbox className="mt-0" 
             checked={isSelected}
-            onCheckedChange={(checked) => onSelect(item.id, !!checked)}
+            onCheckedChange={(checked) => onSelect(item.id, !!checked, false)}
+            onClick={(e) => {
+              if (e.shiftKey) {
+                e.preventDefault();
+                onSelect(item.id, !isSelected, true);
+              }
+            }}
             aria-label="Select item"
           />
           <div
@@ -212,6 +218,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   const [isAddingDivider, setIsAddingDivider] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
   const [shortcodeCopied, setShortcodeCopied] = useState(false);
   const [documentFormData, setDocumentFormData] = useState({
     title: '',
@@ -729,7 +736,27 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     }
   };
 
-  const handleSelect = (id: string, selected: boolean) => {
+  const handleSelect = (id: string, selected: boolean, shiftKey: boolean = false) => {
+    if (shiftKey && lastSelectedId && lastSelectedId !== id) {
+      // Find range between lastSelectedId and current id
+      const lastIndex = items.findIndex(item => item.id === lastSelectedId);
+      const currentIndex = items.findIndex(item => item.id === id);
+      
+      if (lastIndex !== -1 && currentIndex !== -1) {
+        const start = Math.min(lastIndex, currentIndex);
+        const end = Math.max(lastIndex, currentIndex);
+        
+        setSelectedItems(prev => {
+          const newSet = new Set(prev);
+          for (let i = start; i <= end; i++) {
+            newSet.add(items[i].id);
+          }
+          return newSet;
+        });
+        return;
+      }
+    }
+    
     setSelectedItems(prev => {
       const newSet = new Set(prev);
       if (selected) {
@@ -739,6 +766,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       }
       return newSet;
     });
+    setLastSelectedId(id);
   };
 
   const handleSelectAll = (checked: boolean) => {
