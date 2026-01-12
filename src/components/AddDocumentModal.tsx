@@ -381,8 +381,20 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
                 {isUploading ? 'Uploading Files...' : `Selected Files (${files.length})`}
               </Label>
               <div className="space-y-3 max-h-60 overflow-y-auto">
-                {files.map((file, index) => (
-                  <div key={file.uploadId || index} className="border rounded-lg p-4 space-y-3">
+                {/* Sort files: uploading first, then pending, then paused/error, then complete */}
+                {[...files].sort((a, b) => {
+                  const statusOrder: Record<string, number> = {
+                    'uploading': 0,
+                    'pending': 1,
+                    'paused': 2,
+                    'error': 3,
+                    'complete': 4
+                  };
+                  return (statusOrder[a.status] ?? 5) - (statusOrder[b.status] ?? 5);
+                }).map((file) => {
+                  const originalIndex = files.findIndex(f => f.uploadId === file.uploadId);
+                  return (
+                  <div key={file.uploadId || originalIndex} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
                         <div className="relative w-10 h-10 bg-muted rounded flex items-center justify-center flex-shrink-0">
@@ -442,7 +454,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeFile(index)}
+                            onClick={() => removeFile(originalIndex)}
                           >
                             <X className="h-4 w-4" />
                           </Button>
@@ -472,7 +484,8 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
                       <p className="text-sm text-destructive">{file.error}</p>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
