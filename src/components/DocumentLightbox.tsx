@@ -73,7 +73,7 @@ const DocumentLightbox = ({
     return ext || 'pdf';
   })();
 
-  const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileType);
+  const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico', 'img'].includes(fileType);
   const isPdf = fileType === 'pdf';
   const isVideo = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'].includes(fileType);
   const isAudio = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(fileType);
@@ -344,11 +344,12 @@ const DocumentLightbox = ({
         
         {isImage ? (
           <img 
-            src={httpsUrl}
+            src={httpsUrl || doc.pdfUrl}
             alt={doc.title}
             className={`max-w-full max-h-full object-contain rounded-lg sm:rounded-xl shadow-2xl transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
             onLoad={() => setIsLoading(false)}
             onError={() => setIsLoading(false)}
+            crossOrigin="anonymous"
           />
         ) : isPdf ? (
           <div className={`w-full h-full max-w-5xl mx-auto flex flex-col rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
@@ -407,13 +408,13 @@ const DocumentLightbox = ({
         </>
       )}
       
-      {/* Bottom thumbnails - scrollable on mobile */}
+      {/* Bottom thumbnails - only scroll when exceeding 90% width */}
       {documents.length > 1 && (
         <div 
           className={`absolute bottom-0 left-0 right-0 py-3 sm:py-4 px-3 sm:px-6 bg-gradient-to-t from-black/70 to-transparent z-10 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}
         >
-          <div className="mx-auto w-full sm:w-[90%] overflow-visible flex justify-center">
-            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 pt-10 px-4 pdfg-scrollbar max-w-full">
+          <div className="mx-auto max-w-[90%] flex justify-center">
+            <div className="inline-flex items-center gap-2 sm:gap-3 pb-2 pt-10 px-4 pdfg-scrollbar max-w-full overflow-x-auto">
               {documents.map((d, i) => (
                 <button
                   key={d.id}
@@ -425,7 +426,7 @@ const DocumentLightbox = ({
                   }`}
                 >
                   <img 
-                    src={d.thumbnail} 
+                    src={d.thumbnail || d.pdfUrl} 
                     alt={d.title} 
                     className="w-full h-full object-cover rounded-md sm:rounded-lg"
                     loading="lazy"
