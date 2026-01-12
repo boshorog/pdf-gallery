@@ -7,7 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, ExternalLink, Upload, Image, Palette, Maximize2, Settings2, ChevronRight, LayoutGrid, Settings, ChevronDown, Check, Star } from 'lucide-react';
+import { FileText, ExternalLink, Upload, Image, Palette, Maximize2, Settings2, ChevronRight, LayoutGrid, Settings, ChevronDown, Check, Star, Type, FileType } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -74,6 +74,8 @@ interface SettingsProposal2Props {
     cacheDuration?: string;
     ratingsEnabled?: boolean;
     lightboxEnabled?: boolean;
+    showFileTypeBadges?: boolean;
+    showTitlesSubtitles?: boolean;
   };
   onSettingsChange: (settings: any) => void;
 }
@@ -781,6 +783,34 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                     <Checkbox 
                       checked={localSettings.lightboxEnabled === true}
                       onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, lightboxEnabled: checked === true }))}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FileType className="w-4 h-4 text-green-500" />
+                      <div className="space-y-0.5">
+                        <Label className="text-sm font-medium">Show File Type Badges</Label>
+                        <p className="text-xs text-muted-foreground">Display file type indicators (PDF, JPG, etc.) on thumbnails</p>
+                      </div>
+                    </div>
+                    <Checkbox 
+                      checked={localSettings.showFileTypeBadges !== false}
+                      onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, showFileTypeBadges: checked === true }))}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Type className="w-4 h-4 text-purple-500" />
+                      <div className="space-y-0.5">
+                        <Label className="text-sm font-medium">Show Titles & Subtitles</Label>
+                        <p className="text-xs text-muted-foreground">Display document titles and dates below thumbnails</p>
+                      </div>
+                    </div>
+                    <Checkbox 
+                      checked={localSettings.showTitlesSubtitles !== false}
+                      onCheckedChange={(checked) => setLocalSettings(prev => ({ ...prev, showTitlesSubtitles: checked === true }))}
                     />
                   </div>
                 </div>
