@@ -253,14 +253,26 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   const { toast } = useToast();
   const license = useLicense();
 
+  // File type detection based on extension - matches all supported formats
   const getFileType = (file: File): string => {
-    const extension = file.name.split('.').pop()?.toLowerCase();
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '')) return 'img';
+    const extension = file.name.split('.').pop()?.toLowerCase() || '';
+    // Images
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico'].includes(extension)) return 'img';
+    // Documents
     if (extension === 'pdf') return 'pdf';
-    if (['doc', 'docx'].includes(extension || '')) return 'doc';
-    if (['ppt', 'pptx'].includes(extension || '')) return 'ppt';
-    if (['xls', 'xlsx'].includes(extension || '')) return 'xls';
-    return 'pdf';
+    if (['doc', 'docx', 'odt', 'rtf', 'txt'].includes(extension)) return 'doc';
+    if (['ppt', 'pptx', 'odp'].includes(extension)) return 'ppt';
+    if (['xls', 'xlsx', 'ods', 'csv'].includes(extension)) return 'xls';
+    // Archives
+    if (['zip', 'rar', '7z'].includes(extension)) return 'zip';
+    // eBooks
+    if (['epub', 'mobi'].includes(extension)) return 'epub';
+    // Audio
+    if (['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac'].includes(extension)) return 'audio';
+    // Video
+    if (['mp4', 'mov', 'webm', 'avi', 'mkv', 'flv', 'wmv', 'm4v'].includes(extension)) return 'video';
+    // Return extension if known, otherwise 'file'
+    return extension || 'file';
   };
 
   const handleFiles = useCallback((fileList: FileList) => {
@@ -349,11 +361,64 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     ));
   };
 
-  const uploadFileToWP = (file: { file: File; title: string; subtitle: string; fileType: string }, index: number): Promise<string> => {
+  const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+  const CHUNKED_UPLOAD_THRESHOLD = 10 * 1024 * 1024; // Use chunked upload for files > 10MB
+
+  const uploadChunk = async (
+    file: File,
+    chunkIndex: number,
+    uploadId: string,
+    totalChunks: number,
+    wp: any
+  ): Promise<{ success: boolean; complete?: boolean; url?: string; error?: string }> => {
+    const start = chunkIndex * CHUNK_SIZE;
+    const end = Math.min(start + CHUNK_SIZE, file.size);
+    const chunk = file.slice(start, end);
+
+    return new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', wp.ajaxUrl, true);
+      xhr.withCredentials = true;
+
+      xhr.onload = () => {
+        try {
+          const res = JSON.parse(xhr.responseText || '{}');
+          if (res?.success) {
+            resolve({
+              success: true,
+              complete: res.data?.complete || false,
+              url: res.data?.url
+            });
+          } else {
+            resolve({ success: false, error: res?.data || 'Chunk upload failed' });
+          }
+        } catch (err) {
+          resolve({ success: false, error: 'Parse error' });
+        }
+      };
+
+      xhr.onerror = () => resolve({ success: false, error: 'Network error' });
+
+      const form = new FormData();
+      form.append('action', 'pdf_gallery_action');
+      form.append('action_type', 'upload_chunk');
+      form.append('nonce', wp.nonce);
+      form.append('chunk', chunk, file.name);
+      form.append('upload_id', uploadId);
+      form.append('chunk_index', chunkIndex.toString());
+      form.append('total_chunks', totalChunks.toString());
+      form.append('filename', file.name);
+
+      xhr.send(form);
+    });
+  };
+
+  const uploadFileToWP = async (file: { file: File; title: string; subtitle: string; fileType: string }, index: number): Promise<string> => {
     const wp = (window as any).wpPDFGallery;
-    return new Promise((resolve, reject) => {
-      // Fallback: simulate in non-WordPress environments
-      if (!wp?.ajaxUrl || !wp?.nonce) {
+    
+    // Fallback: simulate in non-WordPress environments
+    if (!wp?.ajaxUrl || !wp?.nonce) {
+      return new Promise((resolve) => {
         let progress = 0;
         const interval = setInterval(() => {
           progress = Math.min(100, progress + 10);
@@ -365,9 +430,34 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
             resolve(localUrl);
           }
         }, 50);
-        return;
-      }
+      });
+    }
 
+    // Use chunked upload for files larger than threshold
+    if (file.file.size > CHUNKED_UPLOAD_THRESHOLD) {
+      const uploadId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const totalChunks = Math.ceil(file.file.size / CHUNK_SIZE);
+      
+      for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+        const result = await uploadChunk(file.file, chunkIndex, uploadId, totalChunks, wp);
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Chunk upload failed');
+        }
+        
+        const progress = Math.round(((chunkIndex + 1) / totalChunks) * 100);
+        setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress } : f));
+        
+        if (result.complete && result.url) {
+          return result.url;
+        }
+      }
+      
+      throw new Error('Chunked upload completed but no URL returned');
+    }
+
+    // Direct upload for smaller files
+    return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', wp.ajaxUrl, true);
       xhr.withCredentials = true;

@@ -500,14 +500,24 @@ const DocumentLightbox = ({
             <PdfJsViewer url={httpsUrl} title={doc.title} onLoaded={() => setIsLoading(false)} />
           </div>
         ) : isVideo ? (
-          <video
-            src={httpsUrl}
-            controls
-            autoPlay
-            className={`max-w-full max-h-full rounded-lg sm:rounded-xl shadow-2xl transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-            onLoadedData={() => setIsLoading(false)}
-            onError={() => setIsLoading(false)}
-          />
+          <div className={`w-full h-full max-w-5xl mx-auto flex flex-col items-center justify-center rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+            <video
+              src={httpsUrl}
+              controls
+              autoPlay
+              preload="auto"
+              playsInline
+              poster={doc.thumbnail || undefined}
+              className="max-w-full max-h-full rounded-lg sm:rounded-xl"
+              style={{ backgroundColor: '#000' }}
+              onLoadedData={() => setIsLoading(false)}
+              onCanPlay={() => setIsLoading(false)}
+              onError={() => setIsLoading(false)}
+            >
+              <source src={httpsUrl} type={`video/${fileType === 'mov' ? 'quicktime' : fileType}`} />
+              Your browser does not support video playback.
+            </video>
+          </div>
         ) : isAudio ? (
           <div className={`flex flex-col items-center justify-center gap-6 p-8 bg-white/10 rounded-lg sm:rounded-xl shadow-2xl transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
             <FileText className="w-24 h-24 text-white/50" />
