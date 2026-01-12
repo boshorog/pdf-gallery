@@ -805,7 +805,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                       <Type className="w-4 h-4 text-purple-500" />
                       <div className="space-y-0.5">
                         <Label className="text-sm font-medium">Show Titles & Subtitles</Label>
-                        <p className="text-xs text-muted-foreground">Display document titles and dates below thumbnails</p>
+                        <p className="text-xs text-muted-foreground">Display document titles and subtitles below thumbnails</p>
                       </div>
                     </div>
                     <Checkbox 
