@@ -81,7 +81,9 @@ interface SettingsProposal2Props {
 const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: SettingsProposal2Props) => {
   const [localSettings, setLocalSettings] = useState({
     ...settings,
-    thumbnailSize: settings.thumbnailSize || 'four-rows'
+    thumbnailSize: settings.thumbnailSize || 'four-rows',
+    thumbnailShape: settings.thumbnailShape || '3:2',
+    accentColor: settings.accentColor || '#7FB3DC'
   });
   const [activeSection, setActiveSection] = useState('style');
   const [saveScope, setSaveScope] = useState<'current' | 'all'>('current');
@@ -91,7 +93,9 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
   useEffect(() => {
     setLocalSettings({
       ...settings,
-      thumbnailSize: settings.thumbnailSize || 'four-rows'
+      thumbnailSize: settings.thumbnailSize || 'four-rows',
+      thumbnailShape: settings.thumbnailShape || '3:2',
+      accentColor: settings.accentColor || '#7FB3DC'
     });
   }, [settings]);
 

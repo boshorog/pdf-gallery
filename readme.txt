@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.2
+Stable tag: 2.2.3
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,11 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.2.3 =
+* Removed crown icon before "Free vs Pro Comparison" title in Pro tab
+* Fixed mandatory thumbnail shape selection (defaults to 3:2 if none selected)
+* Changed default accent color to #7FB3DC
 
 = 2.2.2 =
 * Removed licensing info banner from Documentation tab (now only in Pro tab)
