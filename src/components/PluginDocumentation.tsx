@@ -400,8 +400,8 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
             <AccordionItem value="comparison">
               <AccordionTrigger className="text-base font-semibold">
                 <div className="flex items-center gap-2">
-                  Free vs Pro Comparison
                   <Crown className="w-4 h-4 text-amber-500" />
+                  Free vs Pro Comparison
                 </div>
               </AccordionTrigger>
               <AccordionContent>

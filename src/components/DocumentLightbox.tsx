@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { X, ChevronLeft, ChevronRight, Download, FileText, Loader2, ExternalLink } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { X, ChevronLeft, ChevronRight, Download, FileText, Loader2, ExternalLink, Minus, Plus } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 import PdfJsViewer from '@/components/PdfJsViewer';
 
@@ -20,6 +20,151 @@ interface DocumentLightboxProps {
   onNavigate: (index: number) => void;
   accentColor?: string;
 }
+
+const ZOOM_SCALE = 2.0; // 200% zoom when clicking
+
+// ImageViewer component with zoom functionality similar to PDF viewer
+interface ImageViewerProps {
+  src: string;
+  alt: string;
+  isLoading: boolean;
+  onLoad: () => void;
+  onError: () => void;
+}
+
+const ImageViewer = ({ src, alt, isLoading, onLoad, onError }: ImageViewerProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  
+  const [isZooming, setIsZooming] = useState(false);
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 0, y: 0 });
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const lastMousePos = useRef({ x: 0, y: 0 });
+  const [imgLoaded, setImgLoaded] = useState(false);
+  
+  // Check if we're on mobile
+  const isMobile = typeof navigator !== 'undefined' && 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  const handleLoad = useCallback(() => {
+    setImgLoaded(true);
+    onLoad();
+  }, [onLoad]);
+
+  // Handle mouse down on image - start zoom mode
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile) return;
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const img = imgRef.current;
+    if (!img) return;
+
+    const rect = img.getBoundingClientRect();
+    // Calculate click position as percentage of image
+    const xPercent = (e.clientX - rect.left) / rect.width;
+    const yPercent = (e.clientY - rect.top) / rect.height;
+
+    setZoomOrigin({ x: xPercent, y: yPercent });
+    setPanOffset({ x: 0, y: 0 });
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
+    setIsZooming(true);
+  }, [isMobile]);
+
+  // Handle mouse move while zooming - pan the view (mirrored direction)
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isZooming) return;
+
+    const dx = e.clientX - lastMousePos.current.x;
+    const dy = e.clientY - lastMousePos.current.y;
+
+    setPanOffset((prev) => ({
+      x: prev.x + dx,
+      y: prev.y + dy,
+    }));
+
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
+  }, [isZooming]);
+
+  // Handle mouse up - end zoom mode
+  const handleMouseUp = useCallback(() => {
+    setIsZooming(false);
+  }, []);
+
+  // Global mouse listeners for pan and release
+  useEffect(() => {
+    if (isZooming) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isZooming, handleMouseMove, handleMouseUp]);
+
+  // Calculate transform for zoomed image
+  const getZoomStyle = useCallback((): React.CSSProperties => {
+    if (!isZooming) return {};
+    
+    const img = imgRef.current;
+    if (!img) return {};
+
+    const rect = img.getBoundingClientRect();
+    
+    // Calculate transform origin based on click point
+    const originX = zoomOrigin.x * 100;
+    const originY = zoomOrigin.y * 100;
+    
+    // Calculate translation to follow mouse (inverted for magnifier feel)
+    const translateX = -panOffset.x;
+    const translateY = -panOffset.y;
+    
+    return {
+      transform: `scale(${ZOOM_SCALE}) translate(${translateX / ZOOM_SCALE}px, ${translateY / ZOOM_SCALE}px)`,
+      transformOrigin: `${originX}% ${originY}%`,
+      transition: 'none',
+    };
+  }, [isZooming, zoomOrigin, panOffset]);
+
+  return (
+    <div 
+      ref={containerRef}
+      className="relative w-full h-full flex flex-col items-center justify-center"
+    >
+      <div 
+        className={`relative max-w-full max-h-[calc(100%-60px)] overflow-hidden rounded-lg sm:rounded-xl shadow-2xl ${!isMobile ? 'cursor-zoom-in' : ''}`}
+        onMouseDown={handleMouseDown}
+        style={{ 
+          cursor: isZooming ? 'grabbing' : (!isMobile ? 'zoom-in' : 'default')
+        }}
+      >
+        <img 
+          ref={imgRef}
+          src={src}
+          alt={alt}
+          className={`max-w-full max-h-full object-contain transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+          style={isZooming ? getZoomStyle() : {}}
+          onLoad={handleLoad}
+          onError={onError}
+          crossOrigin="anonymous"
+          draggable={false}
+        />
+      </div>
+      
+      {/* Zoom tooltip - shown below image when not on mobile */}
+      {!isMobile && imgLoaded && (
+        <div className="flex-shrink-0 flex items-center justify-center py-3 relative z-50">
+          <div className="flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 backdrop-blur-sm pointer-events-none">
+            <div className="text-white/80 text-xs select-none">
+              {isZooming ? 'Move mouse to pan • Release to exit zoom' : 'Click and hold to zoom'}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const DocumentLightbox = ({
   isOpen,
@@ -343,13 +488,12 @@ const DocumentLightbox = ({
         )}
         
         {isImage ? (
-          <img 
+          <ImageViewer 
             src={httpsUrl || doc.pdfUrl}
             alt={doc.title}
-            className={`max-w-full max-h-full object-contain rounded-lg sm:rounded-xl shadow-2xl transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+            isLoading={isLoading}
             onLoad={() => setIsLoading(false)}
             onError={() => setIsLoading(false)}
-            crossOrigin="anonymous"
           />
         ) : isPdf ? (
           <div className={`w-full h-full max-w-5xl mx-auto flex flex-col rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
