@@ -1373,12 +1373,41 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 
                 <div className="space-y-3">
                   <Label htmlFor="thumbnail">Thumbnail URL (optional)</Label>
-                  <Input
-                    id="thumbnail"
-                    value={documentFormData.thumbnail}
-                    onChange={(e) => setDocumentFormData(prev => ({ ...prev, thumbnail: e.target.value }))}
-                    placeholder="https://example.com/thumbnail.jpg"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="thumbnail"
+                      value={documentFormData.thumbnail}
+                      onChange={(e) => setDocumentFormData(prev => ({ ...prev, thumbnail: e.target.value }))}
+                      placeholder="https://example.com/thumbnail.jpg"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        const wp = (window as any).wp;
+                        if (wp?.media) {
+                          const frame = wp.media({
+                            title: 'Select Thumbnail',
+                            button: { text: 'Use as Thumbnail' },
+                            multiple: false,
+                            library: { type: 'image' }
+                          });
+                          frame.on('select', () => {
+                            const attachment = frame.state().get('selection').first().toJSON();
+                            if (attachment?.url) {
+                              setDocumentFormData(prev => ({ ...prev, thumbnail: attachment.url }));
+                            }
+                          });
+                          frame.open();
+                        }
+                      }}
+                      title="Browse Media Library"
+                    >
+                      <FolderOpen className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 
                 <div className="flex gap-2">

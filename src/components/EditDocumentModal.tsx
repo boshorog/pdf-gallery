@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FolderOpen } from 'lucide-react';
 
 interface PDF {
   id: string;
@@ -18,7 +19,7 @@ interface EditDocumentModalProps {
   isOpen: boolean;
   pdf: PDF;
   onClose: () => void;
-  onEdit: (id: string, updates: { title: string; date: string; pdfUrl: string; fileType: string }) => void;
+  onEdit: (id: string, updates: { title: string; date: string; pdfUrl: string; fileType: string; thumbnail?: string }) => void;
 }
 
 const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalProps) => {
@@ -26,6 +27,7 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
   const [date, setDate] = useState('');
   const [pdfUrl, setPdfUrl] = useState('');
   const [fileType, setFileType] = useState('pdf');
+  const [thumbnail, setThumbnail] = useState('');
 
   useEffect(() => {
     if (pdf) {
@@ -33,14 +35,34 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
       setDate(pdf.date);
       setPdfUrl(pdf.pdfUrl);
       setFileType(pdf.fileType || 'pdf');
+      setThumbnail(pdf.thumbnail || '');
     }
   }, [pdf]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (pdfUrl) {
-      onEdit(pdf.id, { title, date, pdfUrl, fileType });
+      onEdit(pdf.id, { title, date, pdfUrl, fileType, thumbnail });
       onClose();
+    }
+  };
+
+  const openMediaLibrary = () => {
+    const wp = (window as any).wp;
+    if (wp?.media) {
+      const frame = wp.media({
+        title: 'Select Thumbnail',
+        button: { text: 'Use as Thumbnail' },
+        multiple: false,
+        library: { type: 'image' }
+      });
+      frame.on('select', () => {
+        const attachment = frame.state().get('selection').first().toJSON();
+        if (attachment?.url) {
+          setThumbnail(attachment.url);
+        }
+      });
+      frame.open();
     }
   };
 
@@ -101,6 +123,27 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
               placeholder="Enter document URL"
               required
             />
+          </div>
+          <div>
+            <Label htmlFor="thumbnail">Thumbnail URL (optional)</Label>
+            <div className="flex gap-2">
+              <Input
+                id="thumbnail"
+                value={thumbnail}
+                onChange={(e) => setThumbnail(e.target.value)}
+                placeholder="https://example.com/thumbnail.jpg"
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={openMediaLibrary}
+                title="Browse Media Library"
+              >
+                <FolderOpen className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
