@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.5
+Stable tag: 2.2.6
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,10 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.2.6 =
+* Fixed Test Gallery being recreated on plugin updates - now only installs on fresh installs
+* Changed "Display document titles and dates" to "Display document titles and subtitles" in settings
 
 = 2.2.5 =
 * Implemented true masonry layout with CSS columns for intertwined thumbnails
@@ -163,6 +167,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.2.6 =
+Test Gallery now only installs on fresh installs - your galleries are preserved on plugin updates.
 
 = 2.2.5 =
 True masonry layout and new gallery display options for hiding/showing file type badges and titles.
