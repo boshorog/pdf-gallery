@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.4
+Stable tag: 2.2.5
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,6 +83,11 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 
 == Changelog ==
 
+= 2.2.5 =
+* Implemented true masonry layout with CSS columns for intertwined thumbnails
+* Added "Show File Type Badges" gallery display option (on by default)
+* Added "Show Titles & Subtitles" gallery display option (on by default)
+
 = 2.2.4 =
 * Fixed crown icon placement to appear after "Pro" in all comparison tables
 * Added crown icon after "Free vs Pro Comparison" title in Pro tab
@@ -158,6 +163,12 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.2.5 =
+True masonry layout and new gallery display options for hiding/showing file type badges and titles.
+
+= 2.2.4 =
+Crown icon placement fixes and Shift+click multi-select for files.
 
 = 2.2.2 =
 UI refinements: Moved licensing info to Pro tab only, fixed crown placement, improved feature naming.

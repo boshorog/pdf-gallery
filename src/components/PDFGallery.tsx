@@ -39,6 +39,8 @@ interface PDFGalleryProps {
     pdfIconPosition: string;
     defaultPlaceholder: string;
     thumbnailSize?: string;
+    showFileTypeBadges?: boolean;
+    showTitlesSubtitles?: boolean;
   };
 }
 
@@ -55,7 +57,9 @@ const PDFGallery = ({
     thumbnailShape: '3-2',
     pdfIconPosition: 'top-right',
     defaultPlaceholder: 'default',
-    thumbnailSize: 'four-rows'
+    thumbnailSize: 'four-rows',
+    showFileTypeBadges: true,
+    showTitlesSubtitles: true
   }
 }: PDFGalleryProps) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -275,6 +279,23 @@ const PDFGallery = ({
     }
   };
 
+  // Masonry columns based on thumbnail size setting
+  const getMasonryCols = () => {
+    switch (settings.thumbnailSize) {
+      case 'three-rows': return 'columns-1 sm:columns-2 md:columns-3';
+      case 'five-rows': return 'columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5';
+      case 'four-rows':
+      default: return 'columns-1 sm:columns-2 md:columns-3 lg:columns-4';
+    }
+  };
+
+  // Check if masonry layout is active
+  const isMasonry = settings.thumbnailShape === 'auto';
+
+  // Check display options (default to true)
+  const showFileTypeBadges = settings.showFileTypeBadges !== false;
+  const showTitlesSubtitles = settings.showTitlesSubtitles !== false;
+
   // Get file type icon and color - use first 3 characters of extension
   const getFileTypeIcon = (fileType: string = 'pdf') => {
     const label = fileType.substring(0, 3).toUpperCase();
@@ -381,20 +402,24 @@ const PDFGallery = ({
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black/95 via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-                <div className="absolute bottom-2 left-0 right-0 px-4 pb-3 text-white translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-bold text-sm leading-tight truncate text-white flex-1 min-w-0">{pdf.title}</h3>
-                    {showRatings && (
-                      <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} className="mr-2 [&_button]:text-white [&_svg]:text-white" />
-                    )}
+                {showTitlesSubtitles && (
+                  <div className="absolute bottom-2 left-0 right-0 px-4 pb-3 text-white translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-bold text-sm leading-tight truncate text-white flex-1 min-w-0">{pdf.title}</h3>
+                      {showRatings && (
+                        <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} className="mr-2 [&_button]:text-white [&_svg]:text-white" />
+                      )}
+                    </div>
+                    <p className="text-xs opacity-90 mt-1 truncate text-white">{pdf.date}</p>
                   </div>
-                  <p className="text-xs opacity-90 mt-1 truncate text-white">{pdf.date}</p>
-                </div>
-                <div className="absolute top-3 left-3 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
-                  <div className="bg-white/90 rounded px-2 py-1">
-                    <span className="text-xs font-medium text-muted-foreground">{fileTypeInfo.label}</span>
+                )}
+                {showFileTypeBadges && (
+                  <div className="absolute top-3 left-3 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
+                    <div className="bg-white/90 rounded px-2 py-1">
+                      <span className="text-xs font-medium text-muted-foreground">{fileTypeInfo.label}</span>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -526,7 +551,7 @@ const PDFGallery = ({
           <div key={pdf.id} {...baseProps}>
             <div className="group">
               <div className="relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-border">
-                <div className={`${aspectClass} overflow-hidden bg-muted`}>
+                <div className={`${aspectClass || 'aspect-[3/2]'} overflow-hidden bg-muted`}>
                   <img
                     src={pdf.thumbnail}
                     alt={pdf.title}
@@ -542,34 +567,38 @@ const PDFGallery = ({
                 </div>
 
                 {/* File Type Indicator */}
-                <div className={`absolute ${iconPosClass} bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm`}>
-                  <div className="flex items-center gap-1">
-                    <IconComponent className={`w-3 h-3 ${fileTypeInfo.color}`} />
-                    <span className={`text-xs font-medium ${fileTypeInfo.color}`}>{fileTypeInfo.label}</span>
+                {showFileTypeBadges && (
+                  <div className={`absolute ${iconPosClass} bg-card/90 backdrop-blur-sm rounded-md px-2 py-1 shadow-sm`}>
+                    <div className="flex items-center gap-1">
+                      <IconComponent className={`w-3 h-3 ${fileTypeInfo.color}`} />
+                      <span className={`text-xs font-medium ${fileTypeInfo.color}`}>{fileTypeInfo.label}</span>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
               
               {/* Clickable text outside the thumbnail frame */}
-              <div className="mt-3 transition-colors duration-200">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-semibold text-sm leading-tight text-foreground group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)] transition-colors duration-200 truncate flex-1 min-w-0">
-                    {pdf.title}
-                  </h3>
-                  {showRatings && (
-                    <DocumentRating 
-                      documentId={pdf.id} 
-                      galleryId={galleryId} 
-                      size="sm" 
-                      showCount={false}
-                      className="mr-2"
-                    />
-                  )}
+              {showTitlesSubtitles && (
+                <div className="mt-3 transition-colors duration-200">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-semibold text-sm leading-tight text-foreground group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)] transition-colors duration-200 truncate flex-1 min-w-0">
+                      {pdf.title}
+                    </h3>
+                    {showRatings && (
+                      <DocumentRating 
+                        documentId={pdf.id} 
+                        galleryId={galleryId} 
+                        size="sm" 
+                        showCount={false}
+                        className="mr-2"
+                      />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-tight mt-1 group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)]">
+                    {pdf.date}
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground leading-tight mt-1 group-hover:text-[var(--accent-color)] hover:text-[var(--accent-color)]">
-                  {pdf.date}
-                </p>
-              </div>
+              )}
             </div>
           </div>
         );
@@ -594,7 +623,7 @@ const PDFGallery = ({
           <p className="text-muted-foreground">Documents will appear here when they are added.</p>
         </div>
       ) : (
-        /* Grid view for both mobile and desktop */
+        /* Grid or Masonry view for both mobile and desktop */
         <div className="space-y-8">
           {(() => {
             let currentGrid: PDF[] = [];
@@ -604,15 +633,29 @@ const PDFGallery = ({
               if ('type' in item && item.type === 'divider') {
                 // Render previous grid if exists
                 if (currentGrid.length > 0) {
-                  renderedItems.push(
-                    <div key={`grid-${currentGrid[0].id}`} className={`grid ${getGridCols()} gap-6`}>
-                      {currentGrid.map((pdf) => (
-                        <div key={pdf.id}>
-                          {renderThumbnail(pdf)}
-                        </div>
-                      ))}
-                    </div>
-                  );
+                  if (isMasonry) {
+                    // True masonry layout using CSS columns
+                    renderedItems.push(
+                      <div key={`grid-${currentGrid[0].id}`} className={`${getMasonryCols()} gap-6`}>
+                        {currentGrid.map((pdf) => (
+                          <div key={pdf.id} className="break-inside-avoid mb-6">
+                            {renderThumbnail(pdf)}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  } else {
+                    // Regular grid layout
+                    renderedItems.push(
+                      <div key={`grid-${currentGrid[0].id}`} className={`grid ${getGridCols()} gap-6`}>
+                        {currentGrid.map((pdf) => (
+                          <div key={pdf.id}>
+                            {renderThumbnail(pdf)}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  }
                   currentGrid = [];
                 }
 
@@ -637,15 +680,29 @@ const PDFGallery = ({
 
             // Render remaining grid if any PDFs are left
             if (currentGrid.length > 0) {
-              renderedItems.push(
-                <div key={`grid-final`} className={`grid ${getGridCols()} gap-6`}>
-                  {currentGrid.map((pdf) => (
-                    <div key={pdf.id}>
-                      {renderThumbnail(pdf)}
-                    </div>
-                  ))}
-                </div>
-              );
+              if (isMasonry) {
+                // True masonry layout using CSS columns
+                renderedItems.push(
+                  <div key={`grid-final`} className={`${getMasonryCols()} gap-6`}>
+                    {currentGrid.map((pdf) => (
+                      <div key={pdf.id} className="break-inside-avoid mb-6">
+                        {renderThumbnail(pdf)}
+                      </div>
+                    ))}
+                  </div>
+                );
+              } else {
+                // Regular grid layout
+                renderedItems.push(
+                  <div key={`grid-final`} className={`grid ${getGridCols()} gap-6`}>
+                    {currentGrid.map((pdf) => (
+                      <div key={pdf.id}>
+                        {renderThumbnail(pdf)}
+                      </div>
+                    ))}
+                  </div>
+                );
+              }
             }
 
             return renderedItems;
