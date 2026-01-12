@@ -8,7 +8,7 @@ import { Crown, Check, X, Shield, Trash2, BookOpen, FileText, Settings, Upload, 
 import { useLicense } from '@/hooks/useLicense';
 import { useToast } from '@/hooks/use-toast';
 
-const PLUGIN_VERSION = '2.2.3';
+const PLUGIN_VERSION = '2.2.4';
 
 interface PluginDocumentationProps {
   className?: string;
@@ -142,8 +142,8 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Crown className="w-5 h-5 text-amber-500" />
               Free vs Pro Comparison
+              <Crown className="w-5 h-5 text-amber-500" />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -400,8 +400,8 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
             <AccordionItem value="comparison">
               <AccordionTrigger className="text-base font-semibold">
                 <div className="flex items-center gap-2">
-                  <Crown className="w-4 h-4 text-amber-500" />
                   Free vs Pro Comparison
+                  <Crown className="w-4 h-4 text-amber-500" />
                 </div>
               </AccordionTrigger>
               <AccordionContent>
@@ -413,8 +413,8 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                         <th className="py-3 px-4 text-center text-sm font-semibold">Free</th>
                         <th className="py-3 px-4 text-center text-sm font-semibold">
                           <span className="inline-flex items-center gap-1">
-                            <Crown className="w-4 h-4 text-amber-500" />
                             Pro
+                            <Crown className="w-4 h-4 text-amber-500" />
                           </span>
                         </th>
                       </tr>
