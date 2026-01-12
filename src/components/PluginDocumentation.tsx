@@ -8,7 +8,7 @@ import { Crown, Check, X, Shield, Trash2, BookOpen, FileText, Settings, Upload, 
 import { useLicense } from '@/hooks/useLicense';
 import { useToast } from '@/hooks/use-toast';
 
-const PLUGIN_VERSION = '2.2.8';
+const PLUGIN_VERSION = '2.2.9';
 
 interface PluginDocumentationProps {
   className?: string;
@@ -201,28 +201,79 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <div className="space-y-4 text-sm">
+                <div className="space-y-6 text-sm">
                   <div>
-                    <h4 className="font-medium mb-2">Quick Start Guide</h4>
-                    <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-                      <li>Go to the <strong>Gallery Management</strong> tab</li>
+                    <h4 className="font-medium mb-3 text-base border-b border-border pb-2">1. Add Your Files</h4>
+                    <ol className="list-decimal list-inside space-y-2 text-muted-foreground ml-2">
+                      <li>Go to the <strong>Galleries</strong> tab</li>
                       <li>Click <strong>"Add File(s)"</strong> to upload documents</li>
                       <li>Arrange your documents using drag & drop</li>
+                    </ol>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-3 text-base border-b border-border pb-2">2. Organize with Dividers</h4>
+                    <p className="text-muted-foreground ml-2">
+                      Use <strong>"Add Divider"</strong> to create section headers and organize your files into logical chapters or categories.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-3 text-base border-b border-border pb-2">3. Customize Appearance</h4>
+                    <p className="text-muted-foreground ml-2">
+                      Visit the <strong>Settings</strong> tab to adjust column layout, thumbnail styles, colors, hover effects, and more.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-3 text-base border-b border-border pb-2">4. Embed Your Gallery</h4>
+                    <ol className="list-decimal list-inside space-y-2 text-muted-foreground ml-2">
                       <li>Copy the shortcode from the <strong>Preview</strong> tab</li>
                       <li>Paste the shortcode into any page or post</li>
                     </ol>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">Supported File Types</h4>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="outline">PDF</Badge>
-                      <Badge variant="outline">DOC/DOCX</Badge>
-                      <Badge variant="outline">PPT/PPTX</Badge>
-                      <Badge variant="outline">XLS/XLSX</Badge>
-                      <Badge variant="outline">JPG/JPEG</Badge>
-                      <Badge variant="outline">PNG</Badge>
-                      <Badge variant="outline">GIF</Badge>
-                      <Badge variant="outline">WEBP</Badge>
+                    <div className="space-y-2">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Documents</p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline">PDF</Badge>
+                          <Badge variant="outline">DOC/DOCX</Badge>
+                          <Badge variant="outline">PPT/PPTX</Badge>
+                          <Badge variant="outline">XLS/XLSX</Badge>
+                          <Badge variant="outline">TXT</Badge>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Images</p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline">JPG/JPEG</Badge>
+                          <Badge variant="outline">PNG</Badge>
+                          <Badge variant="outline">GIF</Badge>
+                          <Badge variant="outline">WEBP</Badge>
+                          <Badge variant="outline">SVG</Badge>
+                          <Badge variant="outline">BMP</Badge>
+                          <Badge variant="outline">ICO</Badge>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Audio</p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline">MP3</Badge>
+                          <Badge variant="outline">WAV</Badge>
+                          <Badge variant="outline">OGG</Badge>
+                          <Badge variant="outline">M4A</Badge>
+                          <Badge variant="outline">FLAC</Badge>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Video</p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline">MP4</Badge>
+                          <Badge variant="outline">WEBM</Badge>
+                          <Badge variant="outline">OGV</Badge>
+                          <Badge variant="outline">MOV</Badge>
+                          <Badge variant="outline">AVI</Badge>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
