@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.7
+Stable tag: 2.2.8
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,10 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.2.8 =
+* Added bottom "Delete X items" bulk-action button in Galleries
+* Fixed Masonry (Auto) thumbnails to keep each file's natural aspect ratio
 
 = 2.2.7 =
 * CRITICAL FIX: Gallery data now persists correctly on page refresh and plugin updates
@@ -173,6 +177,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.2.8 =
+Fixes Masonry (Auto) thumbnail aspect ratio and adds a bottom bulk-delete button in Galleries.
 
 = 2.2.7 =
 CRITICAL: Fixes data persistence - your galleries are now preserved correctly on page refresh and plugin updates.

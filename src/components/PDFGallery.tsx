@@ -473,14 +473,14 @@ const PDFGallery = ({
               <div className="group cursor-pointer">
                <div className="flex items-center gap-3 bg-card p-3 rounded-lg border border-border transition-all duration-300 group-hover:shadow-md" style={{ borderColor: hoveredId === pdf.id ? settings.accentColor : undefined }}>
                  <div className="flex-shrink-0">
-                   <div className={`w-12 ${aspectClass || 'aspect-[3/4]'} rounded overflow-hidden bg-muted relative`}>
+                   <div className={`w-12 ${isMasonry ? '' : (aspectClass || 'aspect-[3/4]')} rounded overflow-hidden bg-muted relative`}>
                      <img
-                       src={pdf.thumbnail}
-                       alt={pdf.title}
-                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      loading="lazy"
-                      onError={(e) => { e.currentTarget.src = placeholderUrl; }}
-                    />
+                        src={pdf.thumbnail}
+                        alt={pdf.title}
+                        className={isMasonry ? "w-full h-auto block" : "w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"}
+                       loading="lazy"
+                       onError={(e) => { e.currentTarget.src = placeholderUrl; }}
+                     />
                     <div className="absolute top-1 right-1">
                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: settings.accentColor }}></div>
                     </div>

@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, video, audio, and document files. Easily organize, sort, and showcase your files in beautiful grid layouts.
- * Version: 2.2.7
+ * Version: 2.2.8
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
@@ -23,7 +23,7 @@ if ( defined( 'PDF_GALLERY_PLUGIN_LOADED' ) ) {
 }
 define( 'PDF_GALLERY_PLUGIN_LOADED', true );
 
-define( 'PDF_GALLERY_VERSION', '2.2.7' );
+define( 'PDF_GALLERY_VERSION', '2.2.8' );
 
 // Freemius SDK Initialization
 if ( ! function_exists( 'pdf_gallery_fs' ) ) {
@@ -578,7 +578,7 @@ public function display_gallery_shortcode($atts) {
         $is_fresh_install = ($existing_galleries === 'NOT_SET');
         
         // Store version for tracking
-        add_option('pdf_gallery_version', '2.2.7');
+        add_option('pdf_gallery_version', '2.2.8');
         
         if ($is_fresh_install) {
             // Fresh install - create test gallery

@@ -1451,6 +1451,12 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
           {items.length > 0 && (
             <div className="flex items-center justify-end pt-2">
               <div className="flex gap-2">
+                {selectedItems.size > 0 && (
+                  <Button onClick={handleDeleteSelected} variant="destructive">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete {selectedItems.size} item{selectedItems.size > 1 ? 's' : ''}
+                  </Button>
+                )}
                 <Button 
                   onClick={() => {
                     setIsAddingDocument(true);
@@ -1475,6 +1481,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
               </div>
             </div>
           )}
+
 
           {items.length === 0 && !isAddingDocument && !isAddingDivider && (
             <Card>
