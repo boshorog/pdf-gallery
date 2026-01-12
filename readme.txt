@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.10
+Stable tag: 2.2.11
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.2.11 =
+* Added media library browse button to Thumbnail URL field when adding/editing files
 
 = 2.2.10 =
 * Refined test gallery logic: adds test gallery only on fresh install or when exactly one empty gallery exists
@@ -185,6 +188,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.2.11 =
+Browse button added to Thumbnail URL field opens WordPress Media Library for easy thumbnail selection.
 
 = 2.2.10 =
 Clearer test gallery seeding: only on fresh install or when a single empty gallery exists.
