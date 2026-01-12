@@ -3,7 +3,7 @@
  * Plugin Name: PDF Gallery
  * Plugin URI: https://kindpixels.com
  * Description: Create visually stunning galleries from PDF, video, audio, and document files. Easily organize, sort, and showcase your files in beautiful grid layouts.
- * Version: 2.2.8
+ * Version: 2.2.9
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
@@ -23,7 +23,7 @@ if ( defined( 'PDF_GALLERY_PLUGIN_LOADED' ) ) {
 }
 define( 'PDF_GALLERY_PLUGIN_LOADED', true );
 
-define( 'PDF_GALLERY_VERSION', '2.2.8' );
+define( 'PDF_GALLERY_VERSION', '2.2.9' );
 
 // Freemius SDK Initialization
 if ( ! function_exists( 'pdf_gallery_fs' ) ) {
@@ -572,15 +572,32 @@ public function display_gallery_shortcode($atts) {
         }
         
         // Set default options and version
-        // Only create Test Gallery on fresh installs (when option doesn't exist at all)
+        // Only create Test Gallery on fresh installs or if galleries are empty
         // This prevents overwriting user data on plugin updates
         $existing_galleries = get_option('pdf_gallery_galleries', 'NOT_SET');
         $is_fresh_install = ($existing_galleries === 'NOT_SET');
         
-        // Store version for tracking
-        add_option('pdf_gallery_version', '2.2.8');
+        // Check if galleries exist but are empty or only contain empty galleries
+        $needs_test_gallery = $is_fresh_install;
+        if (!$is_fresh_install && is_array($existing_galleries)) {
+            // Check if all galleries are empty (no items or only empty items arrays)
+            $has_user_content = false;
+            foreach ($existing_galleries as $gallery) {
+                if (isset($gallery['items']) && is_array($gallery['items']) && count($gallery['items']) > 0) {
+                    $has_user_content = true;
+                    break;
+                }
+            }
+            // If no galleries or all are empty, we need the test gallery
+            if (count($existing_galleries) === 0 || !$has_user_content) {
+                $needs_test_gallery = true;
+            }
+        }
         
-        if ($is_fresh_install) {
+        // Store version for tracking
+        add_option('pdf_gallery_version', '2.2.9');
+        
+        if ($needs_test_gallery) {
             // Fresh install - create test gallery
             $sample_items = array(
                 array('id' => 'div-1', 'type' => 'divider', 'text' => 'First Section'),
