@@ -1,0 +1,55 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-13",
+  "title": "Free vs Pro Comparison",
+  "features": [
+    {
+      "id": "galleries",
+      "feature": "Number of Galleries",
+      "free": "1",
+      "pro": "Unlimited"
+    },
+    {
+      "id": "documents",
+      "feature": "Documents per Gallery",
+      "free": "15",
+      "pro": "Unlimited"
+    },
+    {
+      "id": "multi-upload",
+      "feature": "Upload Multiple Files at Once",
+      "free": false,
+      "pro": true
+    },
+    {
+      "id": "file-types",
+      "feature": "Multiple File Types (PDF, Office, Images, Video, Audio)",
+      "free": true,
+      "pro": true
+    },
+    {
+      "id": "drag-drop",
+      "feature": "Drag & Drop Reordering",
+      "free": true,
+      "pro": true
+    },
+    {
+      "id": "dividers",
+      "feature": "Section Dividers",
+      "free": true,
+      "pro": true
+    },
+    {
+      "id": "styling",
+      "feature": "Many Styling Options",
+      "free": true,
+      "pro": true
+    },
+    {
+      "id": "support",
+      "feature": "Priority Support",
+      "free": false,
+      "pro": true
+    }
+  ]
+}
