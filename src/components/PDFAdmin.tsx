@@ -1435,7 +1435,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
           {isAddingDocument && !editingId && (
             <Card className="edit-section">
               <CardHeader>
-                <CardTitle>Add Documents</CardTitle>
+                <CardTitle>Add Files</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Upload Area */}
@@ -1568,20 +1568,20 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
             </Card>
           )}
 
-          {/* Single Document Edit Form */}
+          {/* Single File Edit Form */}
           {isAddingDocument && editingId && (
             <Card className="edit-section">
               <CardHeader>
-                <CardTitle>Edit Document</CardTitle>
+                <CardTitle>Edit File</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  <Label htmlFor="title">Title</Label>
+                  <Label htmlFor="title">File Title</Label>
                   <Input
                     id="title"
                     value={documentFormData.title}
                     onChange={(e) => setDocumentFormData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Document Title"
+                    placeholder="File Title"
                   />
                 </div>
                 
@@ -1596,13 +1596,49 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 </div>
                 
                 <div className="space-y-3">
-                  <Label htmlFor="pdfUrl">Document URL</Label>
+                  <Label htmlFor="pdfUrl">File URL</Label>
                   <Input
                     id="pdfUrl"
                     value={documentFormData.pdfUrl}
-                    onChange={(e) => setDocumentFormData(prev => ({ ...prev, pdfUrl: e.target.value }))}
-                    placeholder="https://example.com/document.pdf"
+                    onChange={(e) => {
+                      const newUrl = e.target.value;
+                      setDocumentFormData(prev => ({ ...prev, pdfUrl: newUrl }));
+                      
+                      // Auto-detect YouTube URLs
+                      const youtubePatterns = [
+                        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                      ];
+                      let youtubeId: string | null = null;
+                      for (const pattern of youtubePatterns) {
+                        const match = newUrl.match(pattern);
+                        if (match) { youtubeId = match[1]; break; }
+                      }
+                      
+                      if (youtubeId) {
+                        // Set fileType to youtube
+                        setDocumentFormData(prev => ({ ...prev, fileType: 'youtube' }));
+                        // Auto-set thumbnail if empty
+                        if (!documentFormData.thumbnail) {
+                          setDocumentFormData(prev => ({ ...prev, thumbnail: `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` }));
+                        }
+                        // Auto-fetch YouTube title
+                        fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${youtubeId}&format=json`)
+                          .then(res => res.json())
+                          .then(data => {
+                            if (data?.title) {
+                              setDocumentFormData(prev => ({ ...prev, title: data.title }));
+                            }
+                          })
+                          .catch(() => {});
+                      }
+                    }}
+                    placeholder="https://example.com/document.pdf or YouTube link"
                   />
+                  {documentFormData.fileType === 'youtube' && (
+                    <p className="text-xs text-muted-foreground">
+                      YouTube video detected! Title and thumbnail auto-fetched.
+                    </p>
+                  )}
                 </div>
                 
                 <div className="space-y-3">
