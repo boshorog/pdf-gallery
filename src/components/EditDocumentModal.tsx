@@ -12,7 +12,7 @@ interface PDF {
   date: string;
   pdfUrl: string;
   thumbnail: string;
-  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp' | 'odt' | 'ods' | 'odp' | 'rtf' | 'txt' | 'csv' | 'svg' | 'ico' | 'zip' | 'rar' | '7z' | 'epub' | 'mobi' | 'mp3' | 'wav' | 'ogg' | 'mp4' | 'mov' | 'webm';
+  fileType?: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'jpg' | 'jpeg' | 'png' | 'gif' | 'webp' | 'odt' | 'ods' | 'odp' | 'rtf' | 'txt' | 'csv' | 'svg' | 'ico' | 'zip' | 'rar' | '7z' | 'epub' | 'mobi' | 'mp3' | 'wav' | 'ogg' | 'mp4' | 'mov' | 'webm' | 'youtube';
 }
 
 interface EditDocumentModalProps {
@@ -21,6 +21,19 @@ interface EditDocumentModalProps {
   onClose: () => void;
   onEdit: (id: string, updates: { title: string; date: string; pdfUrl: string; fileType: string; thumbnail?: string }) => void;
 }
+
+// Extract YouTube video ID from various URL formats
+const getYouTubeVideoId = (url: string): string | null => {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/  // Just the ID
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+};
 
 const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalProps) => {
   const [title, setTitle] = useState('');
@@ -38,6 +51,20 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
       setThumbnail(pdf.thumbnail || '');
     }
   }, [pdf]);
+
+  // Auto-detect YouTube URLs and update fileType
+  useEffect(() => {
+    if (pdfUrl) {
+      const youtubeId = getYouTubeVideoId(pdfUrl);
+      if (youtubeId) {
+        setFileType('youtube');
+        // Auto-set YouTube thumbnail if none exists
+        if (!thumbnail) {
+          setThumbnail(`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`);
+        }
+      }
+    }
+  }, [pdfUrl]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,16 +97,16 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Document</DialogTitle>
+          <DialogTitle>Edit File</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="title">Document Title</Label>
+            <Label htmlFor="title">File Title</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter document title (optional)"
+              placeholder="Enter file title (optional)"
             />
           </div>
           <div>
@@ -93,10 +120,10 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
             />
           </div>
           <div>
-            <Label htmlFor="fileType">Document Type</Label>
+            <Label htmlFor="fileType">File Type</Label>
             <Select value={fileType} onValueChange={setFileType}>
               <SelectTrigger>
-                <SelectValue placeholder="Select document type" />
+                <SelectValue placeholder="Select file type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="pdf">PDF</SelectItem>
@@ -111,18 +138,26 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
                 <SelectItem value="png">PNG</SelectItem>
                 <SelectItem value="gif">GIF</SelectItem>
                 <SelectItem value="webp">WEBP</SelectItem>
+                <SelectItem value="mp4">MP4</SelectItem>
+                <SelectItem value="webm">WebM</SelectItem>
+                <SelectItem value="youtube">YouTube</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label htmlFor="pdfUrl">Document URL</Label>
+            <Label htmlFor="pdfUrl">File URL</Label>
             <Input
               id="pdfUrl"
               value={pdfUrl}
               onChange={(e) => setPdfUrl(e.target.value)}
-              placeholder="Enter document URL"
+              placeholder="Enter file URL or YouTube link"
               required
             />
+            {fileType === 'youtube' && (
+              <p className="text-xs text-muted-foreground mt-1">
+                YouTube video detected! Supports youtube.com/watch?v= and youtu.be/ formats.
+              </p>
+            )}
           </div>
           <div>
             <Label htmlFor="thumbnail">Thumbnail URL (optional)</Label>

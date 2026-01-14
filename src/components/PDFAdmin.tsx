@@ -77,7 +77,7 @@ const renderItemContent = (item: GalleryItem) => {
     const url = pdfItem.pdfUrl || '';
     const title = pdfItem.title || '';
     let extension = url.split('.').pop()?.toLowerCase();
-    if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm'].includes(extension)) {
+    if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm','youtube'].includes(extension)) {
       extension = title.split('.').pop()?.toLowerCase();
     }
     fileType = extension || 'pdf';

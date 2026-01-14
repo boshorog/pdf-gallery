@@ -222,6 +222,22 @@ const DocumentLightbox = ({
   const isPdf = fileType === 'pdf';
   const isVideo = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'].includes(fileType);
   const isAudio = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(fileType);
+  const isYouTube = fileType === 'youtube';
+
+  // Extract YouTube video ID
+  const getYouTubeVideoId = (url: string): string | null => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+      /^([a-zA-Z0-9_-]{11})$/
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    return null;
+  };
+
+  const youtubeVideoId = isYouTube ? getYouTubeVideoId(doc?.pdfUrl || '') : null;
 
   // Keyboard navigation
   useEffect(() => {
@@ -389,6 +405,12 @@ const DocumentLightbox = ({
   }, [httpsUrl, doc, fileType]);
 
   const handlePopOut = useCallback(() => {
+    // YouTube videos open on YouTube
+    if (isYouTube && youtubeVideoId) {
+      window.open(`https://www.youtube.com/watch?v=${youtubeVideoId}`, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
     if (!httpsUrl) return;
 
     // Different file types get different treatment:
@@ -397,7 +419,7 @@ const DocumentLightbox = ({
     const opensNatively = isPdf || isImage || isVideo || isAudio;
     const popUrl = opensNatively ? httpsUrl : getViewerUrl();
     window.open(popUrl, '_blank', 'noopener,noreferrer');
-  }, [httpsUrl, isPdf, isImage, isVideo, isAudio, getViewerUrl]);
+  }, [httpsUrl, isPdf, isImage, isVideo, isAudio, isYouTube, youtubeVideoId, getViewerUrl]);
 
   // Touch swipe handling for mobile
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -517,6 +539,18 @@ const DocumentLightbox = ({
               <source src={httpsUrl} type={`video/${fileType === 'mov' ? 'quicktime' : fileType}`} />
               Your browser does not support video playback.
             </video>
+          </div>
+        ) : isYouTube && youtubeVideoId ? (
+          <div className={`w-full h-full max-w-5xl mx-auto flex flex-col items-center justify-center rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+            <iframe
+              src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&rel=0`}
+              title={doc.title}
+              className="w-full aspect-video rounded-lg sm:rounded-xl"
+              style={{ maxHeight: '80vh' }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              onLoad={() => setIsLoading(false)}
+            />
           </div>
         ) : isAudio ? (
           <div className={`flex flex-col items-center justify-center gap-6 p-8 bg-white/10 rounded-lg sm:rounded-xl shadow-2xl transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
