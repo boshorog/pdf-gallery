@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.13
+Stable tag: 2.2.14
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.2.14 =
+* Gallery iframe background is now transparent for seamless theme integration
 
 = 2.2.13 =
 * Fixed video files showing "PDF" badge during upload and in gallery - now shows correct file type (VID, AVI, etc.)
@@ -200,6 +203,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.2.14 =
+Gallery iframe background is now transparent for seamless theme integration.
 
 = 2.2.13 =
 Video files now show correct badges, use chunked upload for large files, generate thumbnails from first frame, and play reliably in lightbox.
