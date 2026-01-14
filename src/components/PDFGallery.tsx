@@ -126,6 +126,19 @@ const PDFGallery = ({
     console.log('PDFGallery: Received', items.length, 'items');
     setIsGeneratingThumbnails(true);
     
+    // Helper to extract YouTube video ID
+    const getYouTubeVideoId = (url: string): string | null => {
+      const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+        /^([a-zA-Z0-9_-]{11})$/
+      ];
+      for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return match[1];
+      }
+      return null;
+    };
+
     // Initialize all items with placeholders or existing thumbnails first
     const initialItems = items.map(item => {
       if ('pdfUrl' in item) {
@@ -133,6 +146,16 @@ const PDFGallery = ({
         // For image files, use the original URL as thumbnail
         if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType)) {
           return { ...item, thumbnail: (item as PDF).pdfUrl };
+        }
+        // For YouTube videos, use YouTube thumbnail
+        if (fileType === 'youtube') {
+          const youtubeId = getYouTubeVideoId((item as PDF).pdfUrl);
+          if (youtubeId) {
+            const ytThumbnail = item.thumbnail && item.thumbnail !== placeholderUrl 
+              ? item.thumbnail 
+              : `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+            return { ...item, thumbnail: ytThumbnail };
+          }
         }
         // For PDFs with existing thumbnails, keep them
         if (item.thumbnail && item.thumbnail !== placeholderUrl && !(item as any).thumbnail?.includes('placeholder')) {
@@ -161,6 +184,8 @@ const PDFGallery = ({
       const fileType = getItemFileType(item);
       // Skip images - they use their own URL as thumbnail
       if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType)) return false;
+      // Skip YouTube - they use YouTube thumbnails
+      if (fileType === 'youtube') return false;
       // Generate for PDFs and videos
       return fileType === 'pdf' || VideoThumbnailGenerator.isVideoType(fileType);
     });
@@ -313,7 +338,10 @@ const PDFGallery = ({
 
   // Get file type icon and color - use first 3 characters of extension
   const getFileTypeIcon = (fileType: string = 'pdf') => {
-    const label = fileType.substring(0, 3).toUpperCase();
+    // Use "VID" for YouTube and video files
+    const isYouTube = fileType === 'youtube';
+    const isVideo = ['mp4','mov','webm','avi','mkv'].includes(fileType) || isYouTube;
+    const label = isYouTube || isVideo ? 'VID' : fileType.substring(0, 3).toUpperCase();
     return { icon: FileText, color: 'text-muted-foreground', bgColor: 'bg-muted', label };
   };
 

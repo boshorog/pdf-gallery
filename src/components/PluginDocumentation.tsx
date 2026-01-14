@@ -8,7 +8,7 @@ import { Crown, Check, X, Shield, Trash2, BookOpen, FileText, Settings, Upload, 
 import { useLicense } from '@/hooks/useLicense';
 import { useToast } from '@/hooks/use-toast';
 
-const PLUGIN_VERSION = '2.3.0';
+const PLUGIN_VERSION = '2.3.1';
 
 interface PluginDocumentationProps {
   className?: string;

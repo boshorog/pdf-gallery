@@ -313,7 +313,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Documents</DialogTitle>
+          <DialogTitle>Add Files</DialogTitle>
         </DialogHeader>
         <form className="space-y-6">
           {/* Upload Area */}
