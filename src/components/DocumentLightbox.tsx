@@ -196,26 +196,46 @@ const DocumentLightbox = ({
 
   const httpsUrl = doc ? resolveUrl(PDFThumbnailGenerator.toHttps(doc.pdfUrl)) : '';
 
-  // Determine file extension (robust to query strings / fragments)
+  // Determine file type (robust to query strings / fragments + YouTube URLs)
   const fileType = (() => {
     if (!doc) return 'pdf';
-    const hinted = (doc.fileType || '').toLowerCase().trim();
-    if (hinted) return hinted;
 
     const urlStr = httpsUrl || doc.pdfUrl || '';
+
+    // YouTube detection should win even if a bad fileType like "com" was saved
+    const getYouTubeVideoId = (url: string): string | null => {
+      const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+        /^([a-zA-Z0-9_-]{11})$/
+      ];
+      for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return match[1];
+      }
+      return null;
+    };
+
+    if (getYouTubeVideoId(urlStr)) return 'youtube';
+
+    const hinted = (doc.fileType || '').toLowerCase().trim();
+    const validTypes = new Set([
+      'pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm','avi','mkv','flv','wmv','m4v','m4a','flac','aac','youtube','img'
+    ]);
+    if (hinted && validTypes.has(hinted)) return hinted;
+
     if (!urlStr) return 'pdf';
 
     try {
       const u = new URL(urlStr);
       const ext = u.pathname.split('.').pop()?.toLowerCase() || '';
-      if (ext) return ext;
+      if (ext && validTypes.has(ext)) return ext;
     } catch {
       // ignore
     }
 
     const cleaned = urlStr.split('?')[0].split('#')[0];
     const ext = cleaned.split('.').pop()?.toLowerCase() || '';
-    return ext || 'pdf';
+    return (ext && validTypes.has(ext)) ? ext : 'pdf';
   })();
 
   const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico', 'img'].includes(fileType);
