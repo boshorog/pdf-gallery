@@ -49,24 +49,29 @@ interface SortableItemProps {
   onRefresh: (item: GalleryItem) => void;
   isSelected: boolean;
   onSelect: (id: string, selected: boolean, shiftKey: boolean) => void;
+  selectedCount: number;
+  isPartOfMultiDrag: boolean;
 }
 
-const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect }: SortableItemProps) => {
+const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect, selectedCount, isPartOfMultiDrag }: SortableItemProps) => {
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
+    isDragging,
   } = useSortable({ id: item.id });
 
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     transition,
+    opacity: isDragging ? 0.8 : 1,
+    zIndex: isDragging ? 50 : undefined,
   };
 
   return (
-    <Card ref={setNodeRef} style={style} className="bg-background">
+    <Card ref={setNodeRef} style={style} className={`bg-background ${isSelected ? 'ring-2 ring-primary' : ''} ${isDragging && isPartOfMultiDrag ? 'shadow-lg' : ''}`}>
       <CardContent className="flex items-center justify-between px-2 pl-3 py-3">
         <div className="flex items-center space-x-3 ml-2.5">
           <Checkbox className="mt-0" 
@@ -83,15 +88,20 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect 
           <div
             {...attributes}
             {...listeners}
-            className="w-10 flex items-center justify-center cursor-grab hover:cursor-grabbing h-10"
-            title="Drag to reorder"
-            aria-label="Drag handle"
+            className="w-10 flex items-center justify-center cursor-grab hover:cursor-grabbing h-10 relative"
+            title={isPartOfMultiDrag ? `Drag to move ${selectedCount} items` : "Drag to reorder"}
+            aria-label={isPartOfMultiDrag ? `Drag handle - will move ${selectedCount} selected items` : "Drag handle"}
           >
             <div aria-hidden="true" className="grid grid-cols-3 gap-x-0.5 gap-y-1">
               {Array.from({ length: 9 }).map((_, i) => (
                 <span key={i} className="w-1 h-1 rounded-full bg-muted-foreground/70 block" />
               ))}
             </div>
+            {isPartOfMultiDrag && (
+              <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold bg-primary text-primary-foreground flex items-center justify-center">
+                {selectedCount}
+              </div>
+            )}
           </div>
 
           {('type' in item && item.type === 'divider') ? (
@@ -587,28 +597,74 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   const handleDragEnd = async (event: any) => {
     const { active, over } = event;
 
-    if (active.id !== over.id) {
-      const oldIndex = items.findIndex((item) => item.id === active.id);
-      const newIndex = items.findIndex((item) => item.id === over.id);
+    if (!over || active.id === over.id) return;
 
-      const newItems = arrayMove(items, oldIndex, newIndex);
-      const updatedGalleries = updateCurrentGalleryItems(newItems);
+    const activeId = active.id as string;
+    const overId = over.id as string;
+    
+    // Check if the dragged item is part of a selection
+    const isDraggingSelected = selectedItems.has(activeId);
+    
+    let newItems: GalleryItem[];
+    
+    if (isDraggingSelected && selectedItems.size > 1) {
+      // Multi-select drag: move all selected items together
+      const selectedIds = Array.from(selectedItems);
       
-      // Save to WordPress first
-      const saved = await saveGalleriesToWP(updatedGalleries);
+      // Get selected items in their current order
+      const selectedItemsInOrder = items.filter(item => selectedIds.includes(item.id));
       
-      if (saved) {
-        toast({
-          title: "Reordered",
-          description: "Items have been reordered successfully",
-        });
+      // Get non-selected items
+      const nonSelectedItems = items.filter(item => !selectedIds.includes(item.id));
+      
+      // Find the target position in the non-selected items
+      const overIndex = nonSelectedItems.findIndex(item => item.id === overId);
+      const activeIndex = items.findIndex(item => item.id === activeId);
+      const overOriginalIndex = items.findIndex(item => item.id === overId);
+      
+      // Determine insert position
+      let insertIndex: number;
+      if (overIndex === -1) {
+        // Dropping on a selected item - find the closest non-selected position
+        insertIndex = nonSelectedItems.length;
+      } else if (activeIndex < overOriginalIndex) {
+        // Dragging down - insert after the target
+        insertIndex = overIndex + 1;
       } else {
-        toast({
-          title: "Error",
-          description: "Failed to save the new order",
-          variant: "destructive",
-        });
+        // Dragging up - insert before the target
+        insertIndex = overIndex;
       }
+      
+      // Insert selected items at the new position
+      newItems = [
+        ...nonSelectedItems.slice(0, insertIndex),
+        ...selectedItemsInOrder,
+        ...nonSelectedItems.slice(insertIndex)
+      ];
+    } else {
+      // Single item drag (original behavior)
+      const oldIndex = items.findIndex((item) => item.id === activeId);
+      const newIndex = items.findIndex((item) => item.id === overId);
+      newItems = arrayMove(items, oldIndex, newIndex);
+    }
+    
+    const updatedGalleries = updateCurrentGalleryItems(newItems);
+    
+    // Save to WordPress first
+    const saved = await saveGalleriesToWP(updatedGalleries);
+    
+    if (saved) {
+      const itemCount = isDraggingSelected && selectedItems.size > 1 ? selectedItems.size : 1;
+      toast({
+        title: "Reordered",
+        description: `${itemCount} item${itemCount > 1 ? 's have' : ' has'} been reordered successfully`,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to save the new order",
+        variant: "destructive",
+      });
     }
   };
 
@@ -1562,6 +1618,8 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                           onRefresh={handleRefreshThumbnail}
                           isSelected={selectedItems.has(item.id)}
                           onSelect={handleSelect}
+                          selectedCount={selectedItems.size}
+                          isPartOfMultiDrag={selectedItems.has(item.id) && selectedItems.size > 1}
                         />
                 ))}
               </SortableContext>
