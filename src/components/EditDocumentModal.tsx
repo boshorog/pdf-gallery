@@ -52,7 +52,7 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
     }
   }, [pdf]);
 
-  // Auto-detect YouTube URLs and update fileType
+// Auto-detect YouTube URLs and update fileType, thumbnail, and title
   useEffect(() => {
     if (pdfUrl) {
       const youtubeId = getYouTubeVideoId(pdfUrl);
@@ -61,6 +61,19 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
         // Auto-set YouTube thumbnail if none exists
         if (!thumbnail) {
           setThumbnail(`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`);
+        }
+        // Auto-fetch YouTube title if title is empty or unchanged
+        if (!title || title === pdf.title) {
+          fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${youtubeId}&format=json`)
+            .then(res => res.json())
+            .then(data => {
+              if (data?.title) {
+                setTitle(data.title);
+              }
+            })
+            .catch(() => {
+              // Ignore errors - title will just stay as is
+            });
         }
       }
     }

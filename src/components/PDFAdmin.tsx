@@ -75,15 +75,18 @@ const renderItemContent = (item: GalleryItem) => {
   let fileType = pdfItem.fileType?.toLowerCase();
   if (!fileType) {
     const url = pdfItem.pdfUrl || '';
-    const title = pdfItem.title || '';
+    const itemTitle = pdfItem.title || '';
     let extension = url.split('.').pop()?.toLowerCase();
     if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm','youtube'].includes(extension)) {
-      extension = title.split('.').pop()?.toLowerCase();
+      extension = itemTitle.split('.').pop()?.toLowerCase();
     }
     fileType = extension || 'pdf';
   }
   const isImage = ['img','jpg','jpeg','png','gif','webp','svg','ico'].includes(fileType || '');
-  const label = (fileType || 'pdf').toUpperCase().slice(0, 3);
+  const isYouTube = fileType === 'youtube';
+  const isVideo = ['mp4','mov','webm','avi','mkv'].includes(fileType || '') || isYouTube;
+  // Use "VID" for YouTube and video files, otherwise first 3 chars of extension
+  const label = isYouTube || isVideo ? 'VID' : (fileType || 'pdf').toUpperCase().slice(0, 3);
   
   return (
     <div className="flex items-center space-x-3">

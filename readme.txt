@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,16 +83,22 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 
 == Changelog ==
 
-= 2.2.17 =
-* Multi-drag now shows all selected items moving together as a visual stack
-* Selected items automatically gather together when starting a multi-drag
-* Removed visual clutter (selection ring, count badge) - cleaner look
+= 2.3.1 =
+* Fixed YouTube video support - thumbnails, lightbox playback, and gallery display now work correctly
+* YouTube videos display "VID" badge in both admin list and frontend gallery
+* Auto-fetches YouTube video title when pasting a YouTube URL
+* Fixed labels: "Edit Document" → "Edit File", "Document URL" → "File URL"
 
 = 2.3.0 =
 * Added YouTube video support in galleries - paste YouTube URLs when editing files
 * Supports youtube.com/watch and youtu.be URL formats with auto-thumbnail from YouTube
 * Renamed "Edit Document" to "Edit File" and "Document URL" to "File URL" for broader file type support
 * YouTube videos play in embedded player within the lightbox
+
+= 2.2.17 =
+* Multi-drag now shows all selected items moving together as a visual stack
+* Selected items automatically gather together when starting a multi-drag
+* Removed visual clutter (selection ring, count badge) - cleaner look
 
 = 2.2.16 =
 * Added multi-select drag: select multiple items and drag them all together to reorder
