@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.2.16
+Stable tag: 2.2.17
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,11 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.2.17 =
+* Multi-drag now shows all selected items moving together as a visual stack
+* Selected items automatically gather together when starting a multi-drag
+* Removed visual clutter (selection ring, count badge) - cleaner look
 
 = 2.2.16 =
 * Added multi-select drag: select multiple items and drag them all together to reorder
