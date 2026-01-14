@@ -72,15 +72,30 @@ const renderItemContent = (item: GalleryItem) => {
   }
   
   const pdfItem = item as PDF;
+  
+  // Helper to detect YouTube URLs
+  const isYouTubeUrl = (url: string): boolean => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    ];
+    return patterns.some(pattern => pattern.test(url));
+  };
+  
   let fileType = pdfItem.fileType?.toLowerCase();
   if (!fileType) {
     const url = pdfItem.pdfUrl || '';
-    const itemTitle = pdfItem.title || '';
-    let extension = url.split('.').pop()?.toLowerCase();
-    if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm','youtube'].includes(extension)) {
-      extension = itemTitle.split('.').pop()?.toLowerCase();
+    // Check for YouTube URL first
+    if (isYouTubeUrl(url)) {
+      fileType = 'youtube';
+    } else {
+      const itemTitle = pdfItem.title || '';
+      let extension = url.split('.').pop()?.toLowerCase();
+      const validExts = ['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm'];
+      if (!extension || !validExts.includes(extension)) {
+        extension = itemTitle.split('.').pop()?.toLowerCase();
+      }
+      fileType = (extension && validExts.includes(extension)) ? extension : 'pdf';
     }
-    fileType = extension || 'pdf';
   }
   const isImage = ['img','jpg','jpeg','png','gif','webp','svg','ico'].includes(fileType || '');
   const isYouTube = fileType === 'youtube';

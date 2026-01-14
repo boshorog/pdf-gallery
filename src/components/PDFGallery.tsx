@@ -94,15 +94,41 @@ const PDFGallery = ({
     }
   }, [pdfItems]);
 
+  // Helper to extract YouTube video ID
+  const getYouTubeVideoIdFromUrl = (url: string): string | null => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+      /^([a-zA-Z0-9_-]{11})$/
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    return null;
+  };
+
   const getItemFileType = (it: any): string => {
     try {
+      // First, prioritize the stored fileType if it exists
+      if (it.fileType) return it.fileType;
+      
       const url = 'pdfUrl' in it ? (it.pdfUrl || '') : '';
+      
+      // Check if it's a YouTube URL
+      if (getYouTubeVideoIdFromUrl(url)) {
+        return 'youtube';
+      }
+      
       const title = 'title' in it ? (it.title || '') : '';
       const thumb = 'thumbnail' in it ? (it.thumbnail || '') : '';
       const source = url || title || thumb;
       const ext = (source.split('.').pop() || '').toLowerCase();
-      if (!ext) return (it.fileType || 'pdf');
-      return ext;
+      
+      // Valid extensions list
+      const validExts = ['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm'];
+      if (ext && validExts.includes(ext)) return ext;
+      
+      return 'pdf';
     } catch {
       return 'pdf';
     }
@@ -126,18 +152,6 @@ const PDFGallery = ({
     console.log('PDFGallery: Received', items.length, 'items');
     setIsGeneratingThumbnails(true);
     
-    // Helper to extract YouTube video ID
-    const getYouTubeVideoId = (url: string): string | null => {
-      const patterns = [
-        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-        /^([a-zA-Z0-9_-]{11})$/
-      ];
-      for (const pattern of patterns) {
-        const match = url.match(pattern);
-        if (match) return match[1];
-      }
-      return null;
-    };
 
     // Initialize all items with placeholders or existing thumbnails first
     const initialItems = items.map(item => {
@@ -149,7 +163,7 @@ const PDFGallery = ({
         }
         // For YouTube videos, use YouTube thumbnail
         if (fileType === 'youtube') {
-          const youtubeId = getYouTubeVideoId((item as PDF).pdfUrl);
+          const youtubeId = getYouTubeVideoIdFromUrl((item as PDF).pdfUrl);
           if (youtubeId) {
             const ytThumbnail = item.thumbnail && item.thumbnail !== placeholderUrl 
               ? item.thumbnail 
