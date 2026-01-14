@@ -22,6 +22,8 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  DragOverlay,
+  DragStartEvent,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -49,11 +51,67 @@ interface SortableItemProps {
   onRefresh: (item: GalleryItem) => void;
   isSelected: boolean;
   onSelect: (id: string, selected: boolean, shiftKey: boolean) => void;
-  selectedCount: number;
-  isPartOfMultiDrag: boolean;
+  isDragOverlay?: boolean;
+  hideActions?: boolean;
 }
 
-const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect, selectedCount, isPartOfMultiDrag }: SortableItemProps) => {
+// Helper to render item content (divider vs file)
+const renderItemContent = (item: GalleryItem) => {
+  if ('type' in item && item.type === 'divider') {
+    return (
+      <div className="flex items-center space-x-3">
+        <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
+          <Minus className="w-6 h-6 text-muted-foreground" />
+        </div>
+        <div className="ml-2.5">
+          <h3 className="text-sm font-semibold">Divider: {item.text}</h3>
+          <p className="text-xs text-muted-foreground">Section divider</p>
+        </div>
+      </div>
+    );
+  }
+  
+  const pdfItem = item as PDF;
+  let fileType = pdfItem.fileType?.toLowerCase();
+  if (!fileType) {
+    const url = pdfItem.pdfUrl || '';
+    const title = pdfItem.title || '';
+    let extension = url.split('.').pop()?.toLowerCase();
+    if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm'].includes(extension)) {
+      extension = title.split('.').pop()?.toLowerCase();
+    }
+    fileType = extension || 'pdf';
+  }
+  const isImage = ['img','jpg','jpeg','png','gif','webp','svg','ico'].includes(fileType || '');
+  const label = (fileType || 'pdf').toUpperCase().slice(0, 3);
+  
+  return (
+    <div className="flex items-center space-x-3">
+      <div className="relative">
+        <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
+          {isImage ? (
+            <img 
+              src={pdfItem.pdfUrl} 
+              alt={pdfItem.title} 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <FileText className="w-6 h-6 text-muted-foreground" />
+          )}
+        </div>
+        <div className="absolute -top-1 -right-1 min-w-[24px] px-1 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground text-center z-10">
+          {label}
+        </div>
+      </div>
+      <div className="ml-2.5">
+        <h3 className="text-sm font-semibold">{pdfItem.title}</h3>
+        <p className="text-xs text-muted-foreground">{pdfItem.date}</p>
+      </div>
+    </div>
+  );
+};
+
+const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect, isDragOverlay, hideActions }: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -66,12 +124,33 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect,
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     transition,
-    opacity: isDragging ? 0.8 : 1,
+    opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 50 : undefined,
   };
 
+  // Static item for drag overlay (no sortable hooks needed)
+  if (isDragOverlay) {
+    return (
+      <Card className="bg-background shadow-lg mb-1">
+        <CardContent className="flex items-center justify-between px-2 pl-3 py-3">
+          <div className="flex items-center space-x-3 ml-2.5">
+            <Checkbox className="mt-0" checked={true} disabled aria-label="Select item" />
+            <div className="w-10 flex items-center justify-center cursor-grabbing h-10">
+              <div aria-hidden="true" className="grid grid-cols-3 gap-x-0.5 gap-y-1">
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <span key={i} className="w-1 h-1 rounded-full bg-muted-foreground/70 block" />
+                ))}
+              </div>
+            </div>
+            {renderItemContent(item)}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card ref={setNodeRef} style={style} className={`bg-background ${isSelected ? 'ring-2 ring-primary' : ''} ${isDragging && isPartOfMultiDrag ? 'shadow-lg' : ''}`}>
+    <Card ref={setNodeRef} style={style} className="bg-background">
       <CardContent className="flex items-center justify-between px-2 pl-3 py-3">
         <div className="flex items-center space-x-3 ml-2.5">
           <Checkbox className="mt-0" 
@@ -88,125 +167,70 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect,
           <div
             {...attributes}
             {...listeners}
-            className="w-10 flex items-center justify-center cursor-grab hover:cursor-grabbing h-10 relative"
-            title={isPartOfMultiDrag ? `Drag to move ${selectedCount} items` : "Drag to reorder"}
-            aria-label={isPartOfMultiDrag ? `Drag handle - will move ${selectedCount} selected items` : "Drag handle"}
+            className="w-10 flex items-center justify-center cursor-grab hover:cursor-grabbing h-10"
+            title="Drag to reorder"
+            aria-label="Drag handle"
           >
             <div aria-hidden="true" className="grid grid-cols-3 gap-x-0.5 gap-y-1">
               {Array.from({ length: 9 }).map((_, i) => (
                 <span key={i} className="w-1 h-1 rounded-full bg-muted-foreground/70 block" />
               ))}
             </div>
-            {isPartOfMultiDrag && (
-              <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold bg-primary text-primary-foreground flex items-center justify-center">
-                {selectedCount}
-              </div>
-            )}
           </div>
-
-          {('type' in item && item.type === 'divider') ? (
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
-                <Minus className="w-6 h-6 text-muted-foreground" />
-              </div>
-              <div className="ml-2.5">
-                <h3 className="text-sm font-semibold">Divider: {item.text}</h3>
-                <p className="text-xs text-muted-foreground">Section divider</p>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-3">
-              {(() => {
-                const pdfItem = item as PDF;
-                let fileType = pdfItem.fileType?.toLowerCase();
-                if (!fileType) {
-                  const url = pdfItem.pdfUrl || '';
-                  const title = pdfItem.title || '';
-                  let extension = url.split('.').pop()?.toLowerCase();
-                  if (!extension || !['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm'].includes(extension)) {
-                    extension = title.split('.').pop()?.toLowerCase();
-                  }
-                  fileType = extension || 'pdf';
-                }
-                const isImage = ['img','jpg','jpeg','png','gif','webp','svg','ico'].includes(fileType || '');
-                const label = (fileType || 'pdf').toUpperCase().slice(0, 3);
-                
-                return (
-                  <div className="relative">
-                    <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
-                      {isImage ? (
-                        <img 
-                          src={pdfItem.pdfUrl} 
-                          alt={pdfItem.title} 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <FileText className="w-6 h-6 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="absolute -top-1 -right-1 min-w-[24px] px-1 py-0.5 rounded text-[9px] font-medium bg-primary text-primary-foreground text-center z-10">
-                      {label}
-                    </div>
-                  </div>
-                );
-              })()}
-              <div className="ml-2.5">
-                <h3 className="text-sm font-semibold">{(item as PDF).title}</h3>
-                <p className="text-xs text-muted-foreground">{(item as PDF).date}</p>
-              </div>
-            </div>
-          )}
+          {renderItemContent(item)}
         </div>
 
-        <div className="flex items-center space-x-2">
-          {!('type' in item && item.type === 'divider') && (
+        {!hideActions && (
+          <div className="flex items-center space-x-2">
+            {!('type' in item && item.type === 'divider') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => window.open((item as PDF).pdfUrl, '_blank')}
+                title="View document"
+              >
+                <Eye className="w-4 h-4" />
+              </Button>
+            )}
+            
+            {!('type' in item && item.type === 'divider') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onRefresh(item)}
+                title="Refresh thumbnail"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            )}
+            
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => window.open((item as PDF).pdfUrl, '_blank')}
-              title="View document"
+              onClick={() => {
+                onEdit(item);
+                setTimeout(() => {
+                  const editSection = document.querySelector('.edit-section');
+                  if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  else window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 50);
+              }}
+              title="Edit"
             >
-              <Eye className="w-4 h-4" />
+              <Edit className="w-4 h-4" />
             </Button>
-          )}
-          
-          {!('type' in item && item.type === 'divider') && (
+            
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onRefresh(item)}
-              title="Refresh thumbnail"
+              onClick={() => onDelete(item.id)}
+              title="Delete"
+              className="text-destructive hover:text-destructive"
             >
-              <RefreshCw className="w-4 h-4" />
+              <Trash2 className="w-4 h-4" />
             </Button>
-          )}
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              onEdit(item);
-              setTimeout(() => {
-                const editSection = document.querySelector('.edit-section');
-                if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                else window.scrollTo({ top: 0, behavior: 'smooth' });
-              }, 50);
-            }}
-            title="Edit"
-          >
-            <Edit className="w-4 h-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onDelete(item.id)}
-            title="Delete"
-            className="text-destructive hover:text-destructive"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -247,6 +271,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     url?: string;
   }>>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dividerFormData, setDividerFormData] = useState({
     text: ''
@@ -594,8 +619,51 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     return updatedGalleries;
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const activeId = active.id as string;
+    setActiveDragId(activeId);
+    
+    // If dragging a selected item and there are multiple selected, gather them together
+    if (selectedItems.has(activeId) && selectedItems.size > 1) {
+      const selectedIds = Array.from(selectedItems);
+      
+      // Check if selected items are already contiguous
+      const selectedIndices = selectedIds.map(id => items.findIndex(item => item.id === id)).sort((a, b) => a - b);
+      const isContiguous = selectedIndices.every((val, idx, arr) => idx === 0 || val === arr[idx - 1] + 1);
+      
+      if (!isContiguous) {
+        // Gather selected items to the position of the dragged item
+        const activeIndex = items.findIndex(item => item.id === activeId);
+        const selectedItemsInOrder = items.filter(item => selectedIds.includes(item.id));
+        const nonSelectedItems = items.filter(item => !selectedIds.includes(item.id));
+        
+        // Find where to insert in non-selected list to match active item's relative position
+        let insertAt = 0;
+        let nonSelectedIdx = 0;
+        for (let i = 0; i < items.length && nonSelectedIdx < nonSelectedItems.length; i++) {
+          if (!selectedIds.includes(items[i].id)) {
+            if (i >= activeIndex) break;
+            insertAt++;
+            nonSelectedIdx++;
+          }
+        }
+        
+        const gatheredItems = [
+          ...nonSelectedItems.slice(0, insertAt),
+          ...selectedItemsInOrder,
+          ...nonSelectedItems.slice(insertAt)
+        ];
+        
+        // Update items immediately (visual gather effect)
+        updateCurrentGalleryItems(gatheredItems);
+      }
+    }
+  };
+
   const handleDragEnd = async (event: any) => {
     const { active, over } = event;
+    setActiveDragId(null);
 
     if (!over || active.id === over.id) return;
 
@@ -1606,23 +1674,55 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
               <SortableContext items={items} strategy={verticalListSortingStrategy}>
                 {items.map((item) => (
-                        <SortableItem
-                          key={item.id}
-                          item={item}
-                          onEdit={handleEdit}
-                          onDelete={handleDelete}
-                          onRefresh={handleRefreshThumbnail}
-                          isSelected={selectedItems.has(item.id)}
-                          onSelect={handleSelect}
-                          selectedCount={selectedItems.size}
-                          isPartOfMultiDrag={selectedItems.has(item.id) && selectedItems.size > 1}
-                        />
+                  <SortableItem
+                    key={item.id}
+                    item={item}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onRefresh={handleRefreshThumbnail}
+                    isSelected={selectedItems.has(item.id)}
+                    onSelect={handleSelect}
+                  />
                 ))}
               </SortableContext>
+              <DragOverlay>
+                {activeDragId && selectedItems.has(activeDragId) && selectedItems.size > 1 ? (
+                  // Show all selected items stacked in the overlay
+                  <div className="space-y-1">
+                    {items.filter(item => selectedItems.has(item.id)).map((item, index) => (
+                      <div key={item.id} style={{ opacity: index === 0 ? 1 : 0.8 }}>
+                        <SortableItem
+                          item={item}
+                          onEdit={() => {}}
+                          onDelete={() => {}}
+                          onRefresh={() => {}}
+                          isSelected={true}
+                          onSelect={() => {}}
+                          isDragOverlay
+                          hideActions
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : activeDragId ? (
+                  // Single item drag
+                  <SortableItem
+                    item={items.find(item => item.id === activeDragId)!}
+                    onEdit={() => {}}
+                    onDelete={() => {}}
+                    onRefresh={() => {}}
+                    isSelected={false}
+                    onSelect={() => {}}
+                    isDragOverlay
+                    hideActions
+                  />
+                ) : null}
+              </DragOverlay>
             </DndContext>
           </div>
 
