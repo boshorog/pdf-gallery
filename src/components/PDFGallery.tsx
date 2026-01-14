@@ -680,7 +680,7 @@ const PDFGallery = ({
                   <div key={item.id} className={`${isFirstBlock ? 'pt-6' : 'pt-14'} pb-5 -mx-4 md:mx-0`}>
                     <div className="flex items-center gap-4 px-4 md:px-0">
                       <div className="flex-1 border-t border-border"></div>
-                      <span className="bg-background px-4 md:px-6 text-lg font-medium text-muted-foreground whitespace-nowrap">
+                      <span className="bg-transparent px-4 md:px-6 text-lg font-medium text-muted-foreground whitespace-nowrap">
                         {item.text}
                       </span>
                       <div className="flex-1 border-t border-border"></div>
