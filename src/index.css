@@ -163,6 +163,18 @@ All colors MUST be HSL.
     margin: 0 !important;
     padding: 0 !important;
   }
+
+  /* If the gallery is rendered inside an iframe, make the document background transparent */
+  html.pdfg-embedded,
+  html.pdfg-embedded body {
+    background: transparent !important;
+  }
+
+  html.pdfg-embedded #pdf-gallery-root,
+  html.pdfg-embedded #newsletter-gallery-root,
+  html.pdfg-embedded #root {
+    background: transparent !important;
+  }
   
   #pdf-gallery-root {
     margin: 0 !important;
