@@ -109,25 +109,36 @@ const PDFGallery = ({
 
   const getItemFileType = (it: any): string => {
     try {
-      // First, prioritize the stored fileType if it exists
-      if (it.fileType) return it.fileType;
-      
+      const hinted = (it?.fileType || '').toString().toLowerCase().trim();
+
       const url = 'pdfUrl' in it ? (it.pdfUrl || '') : '';
-      
-      // Check if it's a YouTube URL
-      if (getYouTubeVideoIdFromUrl(url)) {
-        return 'youtube';
-      }
-      
+
+      // Always prefer URL-based YouTube detection (even if a bad fileType like "com" was saved)
+      if (getYouTubeVideoIdFromUrl(url)) return 'youtube';
+
+      // If fileType exists and is valid, use it
+      const validTypes = [
+        'pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm','youtube'
+      ];
+      if (hinted && validTypes.includes(hinted)) return hinted;
+
       const title = 'title' in it ? (it.title || '') : '';
       const thumb = 'thumbnail' in it ? (it.thumbnail || '') : '';
       const source = url || title || thumb;
-      const ext = (source.split('.').pop() || '').toLowerCase();
-      
-      // Valid extensions list
-      const validExts = ['pdf','doc','docx','ppt','pptx','xls','xlsx','jpg','jpeg','png','gif','webp','odt','ods','odp','rtf','txt','csv','svg','ico','zip','rar','7z','epub','mobi','mp3','wav','ogg','mp4','mov','webm'];
-      if (ext && validExts.includes(ext)) return ext;
-      
+
+      // Try to parse extension from URL pathname (avoids picking up ".com")
+      try {
+        const u = new URL(source);
+        const ext = (u.pathname.split('.').pop() || '').toLowerCase();
+        if (ext && validTypes.includes(ext)) return ext;
+      } catch {
+        // ignore
+      }
+
+      const cleaned = source.split('?')[0].split('#')[0];
+      const ext = (cleaned.split('.').pop() || '').toLowerCase();
+      if (ext && validTypes.includes(ext)) return ext;
+
       return 'pdf';
     } catch {
       return 'pdf';
