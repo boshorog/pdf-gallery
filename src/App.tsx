@@ -21,19 +21,20 @@ const App = () => {
       const doc = document.documentElement;
       const body = document.body;
 
+      // IMPORTANT: avoid using *clientHeight* here.
+      // In an iframe, clientHeight tracks the iframe viewport height, which can create
+      // a feedback loop (parent sets iframe height -> iframe clientHeight grows -> we post bigger height).
       const heights = [
         rootEl?.scrollHeight,
         rootEl?.offsetHeight,
         doc?.scrollHeight,
         doc?.offsetHeight,
-        doc?.clientHeight,
         body?.scrollHeight,
         body?.offsetHeight,
-        body?.clientHeight,
       ].filter((v): v is number => typeof v === 'number');
 
-      const raw = Math.max(...heights, 0) + 48; // extra padding to avoid cutting the last row
-      const contentHeight = Math.ceil(raw / 16) * 16; // align to 16px to reduce micro-jitter
+      const raw = Math.max(...heights, 0) + 24; // small padding to avoid cutting the last row
+      const contentHeight = Math.ceil(raw / 8) * 8; // align to reduce micro-jitter
       return contentHeight;
     };
     
