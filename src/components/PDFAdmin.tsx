@@ -1462,7 +1462,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                       <div className="space-y-2">
                         <p className="text-lg font-medium">Drop files here or click to browse</p>
                         <p className="text-sm text-muted-foreground">
-                          Supports PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, ODT, ODS, ODP, RTF, TXT, CSV, images, audio, video, archives, and eBooks
+                          Supports PDF, Office files, images, audio, video, archives, and eBooks
                         </p>
                       </div>
                       <div className="flex justify-center gap-3 mt-4">

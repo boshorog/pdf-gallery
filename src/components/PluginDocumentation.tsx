@@ -8,7 +8,7 @@ import { Crown, Check, X, Shield, Trash2, BookOpen, FileText, Settings, Upload, 
 import { useLicense } from '@/hooks/useLicense';
 import { useToast } from '@/hooks/use-toast';
 
-const PLUGIN_VERSION = '2.3.2';
+const PLUGIN_VERSION = '2.3.3';
 
 interface PluginDocumentationProps {
   className?: string;
@@ -400,6 +400,9 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                       <li><strong>Thumbnail Shape:</strong> Square, landscape, or portrait aspect ratios</li>
                       <li><strong>Gap Size:</strong> Spacing between gallery items</li>
                     </ul>
+                    <p className="text-muted-foreground mt-2 text-xs italic">
+                      Note: On mobile devices, thumbnails display one per row. On tablets, they display two per row regardless of column settings.
+                    </p>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">Thumbnail Styles</h4>
