@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -82,6 +82,10 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.3.3 =
+* Simplified upload text - file types now summarized as "Office files" instead of listing each extension
+* Added documentation note about responsive thumbnail behavior (1 column on mobile, 2 on tablet)
 
 = 2.3.2 =
 * Fixed YouTube video detection when editing files - now properly sets fileType to "youtube" and auto-fetches title/thumbnail
