@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.3.3
+Stable tag: 2.3.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -13,11 +13,11 @@ Create beautiful, interactive PDF and document galleries with customizable layou
 
 == Description ==
 
-PDF Gallery is a powerful WordPress plugin that allows you to create stunning document galleries with ease. Display PDFs, images, and Office documents in beautiful grid, list, or masonry layouts with a built-in lightbox viewer.
+PDF Gallery is a powerful WordPress plugin that allows you to create stunning document galleries with ease. Display PDFs, images, videos, audio files, and Office documents in beautiful grid, list, or masonry layouts with a built-in lightbox viewer.
 
 = Key Features =
 
-* **Multiple Gallery Support** – Create unlimited galleries for different pages or sections
+* **Multiple Gallery Support** – Create unlimited galleries for different pages or sections (Pro: unlimited, Free: 1 gallery with up to 15 files)
 * **Flexible Layouts** – Choose from Grid, List, or Masonry display styles
 * **Built-in Lightbox** – Professional document viewer with zoom and navigation
 * **Drag & Drop Ordering** – Easily reorder documents with intuitive drag and drop
@@ -31,14 +31,21 @@ PDF Gallery is a powerful WordPress plugin that allows you to create stunning do
 
 * PDF documents
 * Images (JPG, PNG, GIF, WebP)
-* Microsoft Office (Word, Excel, PowerPoint) – Pro feature
+* Videos (MP4, WebM, YouTube)
+* Audio files (MP3, WAV, OGG)
+* Microsoft Office (Word, Excel, PowerPoint)
 
-= Pro Features =
+= Free vs Pro =
 
+**Free version includes:**
+* 1 gallery with up to 15 files
+* All display settings and styling options
+* Single file upload
+
+**Pro version adds:**
+* Unlimited galleries and files
 * Multi-file drag & drop upload
-* Advanced thumbnail generation
 * Priority support
-* Additional layout options
 
 == Installation ==
 
@@ -82,6 +89,11 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.3.4 =
+* Updated Plugin URI to https://kindpixels.com/plugins/pdf-gallery/
+* Updated Free/Pro feature descriptions to reflect current functionality
+* Clarified supported file types including video and audio
 
 = 2.3.3 =
 * Simplified upload text - file types now summarized as "Office files" instead of listing each extension
