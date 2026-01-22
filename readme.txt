@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.3.4
+Stable tag: 2.3.5
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -89,6 +89,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.3.5 =
+* Added is_org_compliant flag for WordPress.org Freemius compliance
 
 = 2.3.4 =
 * Updated Plugin URI to https://kindpixels.com/plugins/pdf-gallery/
