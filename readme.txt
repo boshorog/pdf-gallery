@@ -1,5 +1,5 @@
 === PDF Gallery ===
-Contributors: developer
+Contributors: kindpixels
 Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
