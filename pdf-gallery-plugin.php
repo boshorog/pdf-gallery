@@ -59,6 +59,7 @@ if ( ! function_exists( 'pdf_gallery_fs' ) ) {
                     'type'              => 'plugin',
                     'public_key'        => 'pk_349523fbf9f410023e4e5a4faa9b8',
                     'is_premium'        => false,
+                    'is_org_compliant'  => true,
                     'has_addons'        => false,
                     'has_paid_plans'    => true,
                     'anonymous_mode'    => true,
