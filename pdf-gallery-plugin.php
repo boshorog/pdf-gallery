@@ -166,6 +166,7 @@ class PDF_Gallery_Plugin {
     
     /**
      * Hide admin notices from other plugins on PDF Gallery pages
+     * Note: We keep WordPress core notices for security and update information
      */
     public function hide_other_plugin_notices() {
         // Check if we're on the PDF Gallery admin page
@@ -174,12 +175,17 @@ class PDF_Gallery_Plugin {
             return;
         }
         
-        // Remove all admin notices on our page
-        remove_all_actions('admin_notices');
-        remove_all_actions('all_admin_notices');
-        
-        // Only keep WordPress core update notices
-        add_action('admin_notices', 'update_nag', 3);
+        // Use CSS to hide third-party notices while keeping WordPress core notices visible
+        // This is less aggressive than remove_all_actions and preserves important system notices
+        echo '<style>
+            .pdf-gallery-admin-page .notice:not(.notice-error):not(.notice-warning):not(.update-nag) { 
+                display: none !important; 
+            }
+            /* Hide notices that are not from WordPress core but keep security/update warnings */
+            .pdf-gallery-admin-page [class*="notice-"]:not([class*="update"]):not([class*="error"]):not([class*="warning"]) {
+                display: none !important;
+            }
+        </style>';
     }
     
     /**
