@@ -692,7 +692,7 @@ public function display_gallery_shortcode($atts) {
         // Create upload directory if it doesn't exist
         $upload_dir = wp_upload_dir();
         if (isset($upload_dir['basedir'])) {
-            $pdf_gallery_dir = $upload_dir['basedir'] . '/pdf-gallery';
+            $pdf_gallery_dir = $upload_dir['basedir'] . '/kindpixels-pdf-gallery';
             if (!file_exists($pdf_gallery_dir)) {
                 wp_mkdir_p($pdf_gallery_dir);
             }
@@ -1358,7 +1358,7 @@ public function display_gallery_shortcode($atts) {
         
         // Create temp directory for chunks
         $upload_dir = wp_upload_dir();
-        $temp_dir = $upload_dir['basedir'] . '/pdf-gallery-temp/' . $upload_id;
+        $temp_dir = $upload_dir['basedir'] . '/kindpixels-pdf-gallery/temp/' . $upload_id;
         
         if (!file_exists($temp_dir)) {
             wp_mkdir_p($temp_dir);
