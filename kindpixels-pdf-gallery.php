@@ -88,17 +88,6 @@ if ( ! function_exists( 'kindpdfg_fs' ) ) {
         return $kindpdfg_fs_instance;
     }
 
-    // Backward compatibility alias for legacy code
-    if ( ! function_exists( 'pdfgallery_fs' ) ) {
-        /**
-         * Legacy alias for kindpdfg_fs().
-         *
-         * @return object Freemius SDK instance.
-         */
-        function pdfgallery_fs() {
-            return kindpdfg_fs();
-        }
-    }
 
     // Init Freemius
     kindpdfg_fs();
