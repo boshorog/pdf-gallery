@@ -767,7 +767,7 @@ public function display_gallery_shortcode($atts) {
      * Ensure our scripts load as ES modules
      */
     public function modify_script_tag($tag, $handle, $src) {
-        if (in_array($handle, array('pdf-gallery-admin', 'pdf-gallery-frontend'), true)) {
+        if (in_array($handle, array('kindpdfg-admin', 'kindpdfg-frontend'), true)) {
             // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Modifying already enqueued script via script_loader_tag filter
             $tag = '<script type="module" src="' . esc_url($src) . '" id="' . esc_attr($handle) . '-js"></script>';
         }
