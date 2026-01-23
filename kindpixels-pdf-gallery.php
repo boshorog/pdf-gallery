@@ -60,6 +60,7 @@ if ( ! function_exists( 'pdf_gallery_fs' ) ) {
                     'public_key'        => 'pk_349523fbf9f410023e4e5a4faa9b8',
                     'is_premium'        => true,
                     'is_premium_only'   => true,
+                    'is_org_compliant'  => true,
                     'has_addons'        => false,
                     'has_paid_plans'    => true,
                     'wp_org_gatekeeper' => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
