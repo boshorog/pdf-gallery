@@ -149,7 +149,7 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
 
       if (ajaxUrl && nonce) {
         const form = new FormData();
-        form.append('action', 'pdf_gallery_freemius_activate');
+        form.append('action', 'kindpdfg_freemius_activate');
         form.append('license_key', licenseKey.trim());
         form.append('nonce', nonce);
 

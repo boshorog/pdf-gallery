@@ -55,7 +55,7 @@ export const useLicense = (): LicenseInfo => {
         return;
       }
       const form = new FormData();
-      form.append('action', 'pdf_gallery_freemius_check');
+      form.append('action', 'kindpdfg_freemius_check');
       form.append('nonce', nonce);
 
       fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form })

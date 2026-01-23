@@ -16,7 +16,7 @@ export const fetchNewsletters = async (): Promise<WPNewsletter[] | null> => {
   if (!wp?.ajaxUrl || !wp?.nonce) return null;
 
   const form = new FormData();
-  form.append('action', 'newsletter_gallery_action');
+  form.append('action', 'kindpdfg_action');
   form.append('action_type', 'get_newsletters');
   form.append('nonce', wp.nonce);
 
@@ -33,7 +33,7 @@ export const saveNewsletters = async (newsletters: WPNewsletter[]): Promise<bool
   if (!wp?.ajaxUrl || !wp?.nonce) return false;
 
   const form = new FormData();
-  form.append('action', 'newsletter_gallery_action');
+  form.append('action', 'kindpdfg_action');
   form.append('action_type', 'save_newsletters');
   form.append('nonce', wp.nonce);
   form.append('newsletters', JSON.stringify(newsletters));
