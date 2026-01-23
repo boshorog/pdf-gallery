@@ -1,17 +1,17 @@
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist';
-// Initialize PDF.js worker using a more robust approach
-let pdfWorker;
-try {
-  // First try the module worker approach (for modern environments)
-  pdfWorker = new Worker(
+
+// Initialize PDF.js worker - bundled locally, no CDN fallback
+let pdfWorkerInitialized = false;
+function ensurePdfWorker() {
+  if (pdfWorkerInitialized) return;
+  pdfWorkerInitialized = true;
+  
+  // Use module worker bundled with pdfjs-dist (Vite will handle this)
+  const pdfWorker = new Worker(
     new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url),
     { type: 'module' }
   );
   GlobalWorkerOptions.workerPort = pdfWorker;
-} catch (moduleError) {
-  console.warn('Module worker failed, falling back to legacy worker:', moduleError);
-  // Fallback to legacy worker
-  GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/build/pdf.worker.min.js';
 }
 
 export interface ThumbnailResult {
@@ -34,6 +34,8 @@ export class PDFThumbnailGenerator {
   
   static async generateThumbnail(pdfUrl: string, scale: number = 1.2): Promise<ThumbnailResult> {
     try {
+      ensurePdfWorker();
+      
       const secureUrl = this.toHttps(pdfUrl);
       console.log('PDFThumbnailGenerator: Loading PDF:', secureUrl);
       
@@ -56,7 +58,7 @@ export class PDFThumbnailGenerator {
         const arrayBuffer = await response.arrayBuffer();
         const loadingTask = getDocument({
           data: new Uint8Array(arrayBuffer),
-          cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/cmaps/',
+          // No cMapUrl - cmaps are only needed for CJK fonts
           cMapPacked: true,
           verbosity: 0
         });
@@ -69,7 +71,7 @@ export class PDFThumbnailGenerator {
         try {
           const loadingTask = getDocument({
             url: secureUrl,
-            cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/cmaps/',
+            // No cMapUrl - cmaps are only needed for CJK fonts
             cMapPacked: true,
             disableAutoFetch: false,
             disableStream: false,

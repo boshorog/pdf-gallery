@@ -2,22 +2,18 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Minus, Plus } from "lucide-react";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 
-// Initialize PDF.js worker (mirrors src/utils/pdfThumbnailGenerator.ts)
+// Initialize PDF.js worker - bundled locally, no CDN fallback
 let _workerInitialized = false;
 function ensurePdfWorker() {
   if (_workerInitialized) return;
   _workerInitialized = true;
 
-  try {
-    const pdfWorker = new Worker(
-      new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url),
-      { type: "module" }
-    );
-    GlobalWorkerOptions.workerPort = pdfWorker as any;
-  } catch {
-    GlobalWorkerOptions.workerSrc =
-      "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/build/pdf.worker.min.js";
-  }
+  // Use module worker bundled with pdfjs-dist (Vite will handle this)
+  const pdfWorker = new Worker(
+    new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url),
+    { type: "module" }
+  );
+  GlobalWorkerOptions.workerPort = pdfWorker as any;
 }
 
 type PdfJsViewerProps = {
@@ -74,7 +70,7 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
       try {
         const task = getDocument({
           url: safeUrl,
-          cMapUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/cmaps/",
+          // No cMapUrl - cmaps are only needed for CJK fonts
           cMapPacked: true,
           verbosity: 0,
         } as any);
