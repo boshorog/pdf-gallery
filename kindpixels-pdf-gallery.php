@@ -177,12 +177,20 @@ class PDF_Gallery_Plugin {
         
         // Use CSS to hide third-party notices while keeping WordPress core notices visible
         // This is less aggressive than remove_all_actions and preserves important system notices
+        // Target notices at body level and inside .wrap container
         echo '<style>
-            .pdf-gallery-admin-page .notice:not(.notice-error):not(.notice-warning):not(.update-nag) { 
+            /* Hide all non-critical notices on PDF Gallery admin page */
+            body.pdf-gallery-admin-page .notice:not(.notice-error):not(.notice-warning):not(.update-nag),
+            body.pdf-gallery-admin-page div.notice:not(.notice-error):not(.notice-warning):not(.update-nag),
+            body.pdf-gallery-admin-page .updated:not(.notice-error):not(.notice-warning),
+            .wrap.pdf-gallery-admin-page ~ .notice:not(.notice-error):not(.notice-warning):not(.update-nag),
+            #wpbody-content > .notice:not(.notice-error):not(.notice-warning):not(.update-nag) { 
                 display: none !important; 
             }
-            /* Hide notices that are not from WordPress core but keep security/update warnings */
-            .pdf-gallery-admin-page [class*="notice-"]:not([class*="update"]):not([class*="error"]):not([class*="warning"]) {
+            /* Also hide common third-party notice wrappers */
+            body.pdf-gallery-admin-page .acf-admin-notice,
+            body.pdf-gallery-admin-page .backuply-notice,
+            body.pdf-gallery-admin-page [class*="-notice"]:not(.notice-error):not(.notice-warning):not(.update-nag) {
                 display: none !important;
             }
         </style>';
@@ -335,9 +343,10 @@ class PDF_Gallery_Plugin {
             wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'kindpixels-pdf-gallery'));
         }
         
-        // Hide the WordPress admin page title using CSS since we have our own header
+        // Add body class for notice hiding CSS and hide the WordPress admin page title
+        echo '<script>document.body.classList.add("pdf-gallery-admin-page");</script>';
         echo '<style>.wrap > h1:first-child { display: none !important; }</style>';
-        echo '<div class="wrap">';
+        echo '<div class="wrap pdf-gallery-admin-page">';
         echo '<div id="pdf-gallery-root" style="margin-top: 0;"></div>';
         echo '</div>';
     }
@@ -757,7 +766,7 @@ public function display_gallery_shortcode($atts) {
         }
         
         // Redirect to plugin page
-        wp_safe_redirect(admin_url('admin.php?page=pdf-gallery-manager'));
+        wp_safe_redirect(admin_url('admin.php?page=kindpixels-pdf-gallery'));
         exit;
     }
     
