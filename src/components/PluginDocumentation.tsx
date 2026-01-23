@@ -489,7 +489,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                   <div className="mt-4 p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-lg border border-amber-500/20">
                     <p className="text-sm text-center">
                       <a 
-                        href="https://kindpixels.com/pdf-gallery-pro" 
+                        href="https://kindpixels.com/plugins/kindpixels-pdf-gallery-pro" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-primary hover:underline font-medium"
@@ -566,7 +566,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                         </a>
                       </li>
                       <li>
-                        <a href="https://kindpixels.com/pdf-gallery-pro" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                        <a href="https://kindpixels.com/plugins/kindpixels-pdf-gallery-pro" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                           Upgrade to Pro →
                         </a>
                       </li>

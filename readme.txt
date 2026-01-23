@@ -1,4 +1,4 @@
-=== PDF Gallery ===
+=== KindPixels PDF Gallery ===
 Contributors: kindpixels
 Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
@@ -13,7 +13,7 @@ Create beautiful, interactive PDF and document galleries with customizable layou
 
 == Description ==
 
-PDF Gallery is a powerful WordPress plugin that allows you to create stunning document galleries with ease. Display PDFs, images, videos, audio files, and Office documents in beautiful grid, list, or masonry layouts with a built-in lightbox viewer.
+KindPixels PDF Gallery is a powerful WordPress plugin that allows you to create stunning document galleries with ease. Display PDFs, images, videos, audio files, and Office documents in beautiful grid, list, or masonry layouts with a built-in lightbox viewer.
 
 = Key Features =
 
@@ -49,7 +49,7 @@ PDF Gallery is a powerful WordPress plugin that allows you to create stunning do
 
 == Installation ==
 
-1. Upload the `pdf-gallery` folder to the `/wp-content/plugins/` directory
+1. Upload the `kindpixels-pdf-gallery` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Go to 'PDF Gallery' in your admin menu to start creating galleries
 4. Use the shortcode `[pdf_gallery]` to display your gallery on any page or post

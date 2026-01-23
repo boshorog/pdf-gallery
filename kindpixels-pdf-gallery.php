@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name: PDF Gallery
- * Plugin URI: https://kindpixels.com/plugins/pdf-gallery/
+ * Plugin Name: KindPixels PDF Gallery
+ * Plugin URI: https://kindpixels.com/plugins/kindpixels-pdf-gallery/
  * Description: Create visually stunning galleries from PDF, video, audio, and document files. Easily organize, sort, and showcase your files in beautiful grid layouts.
  * Version: 2.3.5
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: pdf-gallery
+ * Text Domain: kindpixels-pdf-gallery
  * Requires at least: 5.8
  * Tested up to: 6.9
  */
@@ -51,11 +51,11 @@ if ( ! function_exists( 'pdf_gallery_fs' ) ) {
                 }
             }
 
-            if ( $sdk_loaded && function_exists( 'fs_dynamic_init' ) ) {
+        if ( $sdk_loaded && function_exists( 'fs_dynamic_init' ) ) {
                 $pdf_gallery_fs_instance = fs_dynamic_init( array(
                     'id'                => '20814',
-                    'slug'              => 'pdf-gallery',
-                    'premium_slug'      => 'pdf-gallery-pro',
+                    'slug'              => 'kindpixels-pdf-gallery',
+                    'premium_slug'      => 'kindpixels-pdf-gallery-pro',
                     'type'              => 'plugin',
                     'public_key'        => 'pk_349523fbf9f410023e4e5a4faa9b8',
                     'is_premium'        => false,
@@ -69,7 +69,7 @@ if ( ! function_exists( 'pdf_gallery_fs' ) ) {
                         'localhost' => false,
                     ),
                     'menu'              => array(
-                        'slug'    => 'pdf-gallery-manager',
+                        'slug'    => 'kindpixels-pdf-gallery',
                         'account' => true,
                         'support' => false,
                     ),
@@ -154,9 +154,9 @@ class PDF_Gallery_Plugin {
         
         add_menu_page(
             '',                             // Empty page title (we use our own header)
-            'PDF Gallery',                  // Menu title
+            'PDF Gallery',                  // Menu title (kept short for UX)
             'manage_options',               // Capability required
-            'pdf-gallery-manager',          // Menu slug
+            'kindpixels-pdf-gallery',       // Menu slug
             array($this, 'render_admin_page'), // Callback function
             $icon_base64,                   // Custom SVG icon (exact PDF Gallery logo)
             100                            // Position (high number = bottom of menu)
@@ -171,7 +171,7 @@ class PDF_Gallery_Plugin {
     public function hide_other_plugin_notices() {
         // Check if we're on the PDF Gallery admin page
         $screen = get_current_screen();
-        if (!$screen || strpos($screen->id, 'pdf-gallery') === false) {
+        if (!$screen || strpos($screen->id, 'kindpixels-pdf-gallery') === false) {
             return;
         }
         
@@ -223,7 +223,7 @@ class PDF_Gallery_Plugin {
      */
     public function enqueue_admin_scripts($hook_suffix) {
         // Only load on our admin page
-        if ($hook_suffix !== 'toplevel_page_pdf-gallery-manager') {
+        if ($hook_suffix !== 'toplevel_page_kindpixels-pdf-gallery') {
             return;
         }
         
@@ -332,7 +332,7 @@ class PDF_Gallery_Plugin {
      */
     public function render_admin_page() {
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'pdf-gallery'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'kindpixels-pdf-gallery'));
         }
         
         // Hide the WordPress admin page title using CSS since we have our own header

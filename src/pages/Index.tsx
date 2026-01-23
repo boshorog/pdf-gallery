@@ -607,7 +607,7 @@ const Index = () => {
                   <ExternalLink className="w-3 h-3" />
                 </a>
                 <a 
-                  href="https://wordpress.org/plugins/pdf-gallery/#reviews" 
+                  href="https://wordpress.org/plugins/kindpixels-pdf-gallery/#reviews" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
