@@ -54,22 +54,17 @@ if ( ! function_exists( 'pdf_gallery_fs' ) ) {
         if ( $sdk_loaded && function_exists( 'fs_dynamic_init' ) ) {
                 $pdf_gallery_fs_instance = fs_dynamic_init( array(
                     'id'                => '20814',
-                    'slug'              => 'kindpixels-pdf-gallery',
-                    'premium_slug'      => 'kindpixels-pdf-gallery-pro',
+                    'slug'              => 'pdf-gallery',
+                    'premium_slug'      => 'kindpixels-pdf-gallery',
                     'type'              => 'plugin',
                     'public_key'        => 'pk_349523fbf9f410023e4e5a4faa9b8',
-                    'is_premium'        => false,
-                    'is_org_compliant'  => true,
+                    'is_premium'        => true,
+                    'is_premium_only'   => true,
                     'has_addons'        => false,
                     'has_paid_plans'    => true,
-                    'anonymous_mode'    => true,
-                    'opt_in_moderation' => array(
-                        'new'       => 0,
-                        'updates'   => 0,
-                        'localhost' => false,
-                    ),
+                    'wp_org_gatekeeper' => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
                     'menu'              => array(
-                        'slug'    => 'kindpixels-pdf-gallery',
+                        'slug'    => 'pdf-gallery-manager',
                         'account' => true,
                         'support' => false,
                     ),
