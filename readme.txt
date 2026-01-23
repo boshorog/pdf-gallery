@@ -91,7 +91,10 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 == Changelog ==
 
 = 2.3.7 =
-* Prefixed all PHP functions, classes, constants, options, and AJAX actions with kindpdfg_ for WordPress.org compliance
+* WordPress.org compliance: All PHP functions, classes, constants, options, and AJAX actions prefixed with kindpdfg_
+* WordPress.org compliance: All remote file loading eliminated (PDF.js workers bundled locally)
+* WordPress.org compliance: Removed external developer images from meta tags
+* WordPress.org compliance: All file operations confined to /wp-content/uploads/kindpixels-pdf-gallery/
 * Updated React code to use new kindpdfg_action AJAX handler
 * Fixed blank page issue after activation caused by syntax error
 
