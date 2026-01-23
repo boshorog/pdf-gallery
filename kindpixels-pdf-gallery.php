@@ -175,23 +175,27 @@ class PDF_Gallery_Plugin {
             return;
         }
         
-        // Use CSS to hide third-party notices while keeping WordPress core notices visible
-        // This is less aggressive than remove_all_actions and preserves important system notices
-        // Target notices at body level and inside .wrap container
+        // Use CSS to hide ALL third-party notices while keeping only critical WordPress core notices
+        // This aggressive approach hides everything except errors, warnings, and update nags
         echo '<style>
-            /* Hide all non-critical notices on PDF Gallery admin page */
-            body.pdf-gallery-admin-page .notice:not(.notice-error):not(.notice-warning):not(.update-nag),
-            body.pdf-gallery-admin-page div.notice:not(.notice-error):not(.notice-warning):not(.update-nag),
-            body.pdf-gallery-admin-page .updated:not(.notice-error):not(.notice-warning),
-            .wrap.pdf-gallery-admin-page ~ .notice:not(.notice-error):not(.notice-warning):not(.update-nag),
-            #wpbody-content > .notice:not(.notice-error):not(.notice-warning):not(.update-nag) { 
-                display: none !important; 
-            }
-            /* Also hide common third-party notice wrappers */
-            body.pdf-gallery-admin-page .acf-admin-notice,
-            body.pdf-gallery-admin-page .backuply-notice,
-            body.pdf-gallery-admin-page [class*="-notice"]:not(.notice-error):not(.notice-warning):not(.update-nag) {
+            /* Hide ALL notices in the admin header area on PDF Gallery pages */
+            body.pdf-gallery-admin-page #wpbody-content > .notice,
+            body.pdf-gallery-admin-page #wpbody-content > .updated,
+            body.pdf-gallery-admin-page #wpbody-content > div.notice,
+            body.pdf-gallery-admin-page #wpbody-content > div.updated,
+            body.pdf-gallery-admin-page .wrap > .notice,
+            body.pdf-gallery-admin-page .wrap > .updated,
+            body.pdf-gallery-admin-page .notice,
+            body.pdf-gallery-admin-page .updated,
+            body.pdf-gallery-admin-page div[class*="notice"],
+            body.pdf-gallery-admin-page div[class*="update"] {
                 display: none !important;
+            }
+            /* But show critical WordPress core notices */
+            body.pdf-gallery-admin-page .notice-error,
+            body.pdf-gallery-admin-page .notice-warning,
+            body.pdf-gallery-admin-page .update-nag {
+                display: block !important;
             }
         </style>';
     }
