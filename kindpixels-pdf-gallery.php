@@ -800,19 +800,19 @@ public function display_gallery_shortcode($atts) {
         }
         
         // Add Dashboard link
-        $dashboard_link = '<a href="' . esc_url(admin_url('admin.php?page=pdf-gallery-manager')) . '">Dashboard</a>';
+        $dashboard_link = '<a href="' . esc_url(admin_url('admin.php?page=kindpixels-pdf-gallery')) . '">Dashboard</a>';
         array_unshift($links, $dashboard_link);
         
         // Add our styled Upgrade link only if not Pro
         $is_pro = false;
-        if (function_exists('pdfgallery_fs')) {
-            $fs = pdfgallery_fs();
+        if (function_exists('kindpdfg_fs')) {
+            $fs = kindpdfg_fs();
             if (is_object($fs) && method_exists($fs, 'is_paying') && $fs->is_paying()) {
                 $is_pro = true;
             }
         }
         if (!$is_pro) {
-            $upgrade_link = '<a href="' . esc_url(admin_url('admin.php?page=pdf-gallery-manager-pricing')) . '" style="font-weight:600;color:#d97706;">Upgrade to Pro!</a>';
+            $upgrade_link = '<a href="' . esc_url(admin_url('admin.php?page=kindpixels-pdf-gallery-pricing')) . '" style="font-weight:600;color:#d97706;">Upgrade to Pro!</a>';
             $links[] = $upgrade_link;
         }
         
