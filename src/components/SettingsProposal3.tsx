@@ -48,7 +48,7 @@ const SettingsProposal3 = ({ settings, onSettingsChange }: SettingsProposal3Prop
 
       if (ajaxUrl && nonce) {
         const form = new FormData();
-        form.append('action', 'pdf_gallery_action');
+        form.append('action', 'kindpdfg_action');
         form.append('action_type', 'save_settings');
         form.append('nonce', nonce);
         form.append('settings', JSON.stringify(localSettings));

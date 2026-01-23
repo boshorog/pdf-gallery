@@ -190,7 +190,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
       xhr.onerror = () => resolve({ success: false, error: 'Network error' });
 
       const form = new FormData();
-      form.append('action', 'pdf_gallery_action');
+      form.append('action', 'kindpdfg_action');
       form.append('action_type', 'upload_chunk');
       form.append('nonce', wp.nonce);
       form.append('chunk', chunk, file.name);

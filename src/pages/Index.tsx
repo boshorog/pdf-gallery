@@ -103,7 +103,7 @@ const Index = () => {
     if (ajaxUrl && nonce) {
       // Fetch galleries from WordPress
       const form = new FormData();
-      form.append('action', 'pdf_gallery_action');
+      form.append('action', 'kindpdfg_action');
       form.append('action_type', 'get_galleries');
       form.append('nonce', nonce);
       if (requestedGalleryName) { form.append('requested_gallery_name', requestedGalleryName); }
@@ -134,7 +134,7 @@ const Index = () => {
                   
                   // Attempt server restore so it persists
                   const restoreForm = new FormData();
-                  restoreForm.append('action', 'pdf_gallery_action');
+                  restoreForm.append('action', 'kindpdfg_action');
                   restoreForm.append('action_type', 'save_galleries');
                   restoreForm.append('nonce', nonce);
                   restoreForm.append('galleries', JSON.stringify(restoredGalleries));
@@ -177,7 +177,7 @@ const Index = () => {
               try { localStorage.setItem('pdf_gallery_backup', JSON.stringify([testGallery])); } catch {}
               if (ajaxUrl && nonce) {
                 const saveForm = new FormData();
-                saveForm.append('action', 'pdf_gallery_action');
+                saveForm.append('action', 'kindpdfg_action');
                 saveForm.append('action_type', 'save_galleries');
                 saveForm.append('nonce', nonce);
                 saveForm.append('galleries', JSON.stringify([testGallery]));
@@ -289,7 +289,7 @@ const Index = () => {
 
       // Also fetch settings (needed for frontend visitors too)
       const settingsForm = new FormData();
-      settingsForm.append('action', 'pdf_gallery_action');
+      settingsForm.append('action', 'kindpdfg_action');
       settingsForm.append('action_type', 'get_settings');
       settingsForm.append('nonce', nonce);
 
@@ -354,7 +354,7 @@ const Index = () => {
     if (!ajaxUrl || !nonce || !galleryState.currentGalleryId) return;
 
     const form = new FormData();
-    form.append('action', 'pdf_gallery_action');
+    form.append('action', 'kindpdfg_action');
     form.append('action_type', 'get_settings');
     form.append('nonce', nonce);
     form.append('gallery_id', galleryState.currentGalleryId);

@@ -453,7 +453,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       xhr.onerror = () => resolve({ success: false, error: 'Network error' });
 
       const form = new FormData();
-      form.append('action', 'pdf_gallery_action');
+      form.append('action', 'kindpdfg_action');
       form.append('action_type', 'upload_chunk');
       form.append('nonce', wp.nonce);
       form.append('chunk', chunk, file.name);
@@ -539,7 +539,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       xhr.onerror = () => reject('Network error');
 
       const form = new FormData();
-      form.append('action', 'pdf_gallery_action');
+      form.append('action', 'kindpdfg_action');
       form.append('action_type', 'upload_pdf');
       form.append('nonce', wp.nonce);
       form.append('pdf_file', file.file);
@@ -596,7 +596,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     if (wp?.ajaxUrl && wp?.nonce) {
       try {
         const form = new FormData();
-        form.append('action', 'pdf_gallery_action');
+        form.append('action', 'kindpdfg_action');
         form.append('action_type', 'save_galleries');
         form.append('nonce', wp.nonce);
         form.append('galleries', JSON.stringify(updatedGalleries));
@@ -1021,7 +1021,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       
         if (wp?.ajaxUrl && wp?.nonce) {
           const formData = new FormData();
-          formData.append('action', 'pdf_gallery_action');
+          formData.append('action', 'kindpdfg_action');
           formData.append('action_type', 'upload_pdf');
           formData.append('nonce', wp.nonce);
           formData.append('pdf_file', file);

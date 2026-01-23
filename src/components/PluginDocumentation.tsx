@@ -43,7 +43,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
       }
 
       const form = new FormData();
-      form.append('action', 'pdf_gallery_freemius_deactivate');
+      form.append('action', 'kindpdfg_freemius_deactivate');
       form.append('nonce', nonce);
 
       const response = await fetch(ajaxUrl, {
