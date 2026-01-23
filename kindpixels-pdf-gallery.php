@@ -51,7 +51,7 @@ if ( ! function_exists( 'kindpdfg_fs' ) ) {
                 }
             }
 
-        if ( $sdk_loaded && function_exists( 'fs_dynamic_init' ) ) {
+            if ( $sdk_loaded && function_exists( 'fs_dynamic_init' ) ) {
                 $kindpdfg_fs_instance = fs_dynamic_init( array(
                     'id'                => '20814',
                     'slug'              => 'kindpixels-pdf-gallery',
