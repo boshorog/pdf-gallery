@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.3.6
+Stable tag: 2.3.7
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -89,6 +89,11 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.3.7 =
+* Prefixed all PHP functions, classes, constants, options, and AJAX actions with kindpdfg_ for WordPress.org compliance
+* Updated React code to use new kindpdfg_action AJAX handler
+* Fixed blank page issue after activation caused by syntax error
 
 = 2.3.6 =
 * Renamed plugin to "KindPixels PDF Gallery" for WordPress.org directory compliance
@@ -257,6 +262,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.3.7 =
+All PHP functions and globals now prefixed with kindpdfg_ for WordPress.org compliance. Fixes blank page on activation.
 
 = 2.3.6 =
 Plugin renamed to "KindPixels PDF Gallery" for WordPress.org directory compliance. All functionality remains the same.
