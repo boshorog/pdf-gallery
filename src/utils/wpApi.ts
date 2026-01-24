@@ -9,7 +9,7 @@ export interface WPNewsletter {
   thumbnail: string;
 }
 
-const getWPContext = () => (typeof window !== 'undefined' ? (window as any).wpNewsletterGallery : undefined);
+const getWPContext = () => (typeof window !== 'undefined' ? ((window as any).kindpdfgData || (window as any).wpPDFGallery || (window as any).wpNewsletterGallery) : undefined);
 
 export const fetchNewsletters = async (): Promise<WPNewsletter[] | null> => {
   const wp = getWPContext();

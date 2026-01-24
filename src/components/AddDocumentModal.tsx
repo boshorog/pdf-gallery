@@ -146,7 +146,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     uploadId: string, 
     totalChunks: number
   ): Promise<{ success: boolean; complete?: boolean; url?: string; error?: string }> => {
-    const wp = (window as any).wpPDFGallery;
+    const wp = (window as any).kindpdfgData || (window as any).wpPDFGallery;
     
     const start = chunkIndex * CHUNK_SIZE;
     const end = Math.min(start + CHUNK_SIZE, file.size);

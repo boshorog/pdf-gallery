@@ -23,7 +23,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
   // Get license owner info from WordPress global
   const getLicenseOwner = () => {
     try {
-      const wpGlobal = (window as any).wpPDFGallery || (window.parent as any)?.wpPDFGallery;
+      const wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || (window.parent as any)?.kindpdfgData || (window.parent as any)?.wpPDFGallery;
       return wpGlobal?.licensedTo || 'Pro User';
     } catch {
       return 'Pro User';
@@ -33,7 +33,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
   const handleRemoveLicense = async () => {
     setIsRemovingLicense(true);
     try {
-      const wpGlobal = (window as any).wpPDFGallery || (window.parent as any)?.wpPDFGallery;
+      const wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || (window.parent as any)?.kindpdfgData || (window.parent as any)?.wpPDFGallery;
       const ajaxUrl = wpGlobal?.ajaxUrl || (window as any).ajaxurl;
       const nonce = wpGlobal?.nonce;
 

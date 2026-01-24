@@ -26,9 +26,9 @@ export const useLicense = (): LicenseInfo => {
 
     const getWPGlobal = () => {
       let wpGlobal: any = null;
-      try { wpGlobal = (window as any).wpPDFGallery || null; } catch {}
+      try { wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || null; } catch {}
       if (!wpGlobal) {
-        try { wpGlobal = (window.parent && (window.parent as any).wpPDFGallery) || null; } catch {}
+        try { wpGlobal = (window.parent && ((window.parent as any).kindpdfgData || (window.parent as any).wpPDFGallery)) || null; } catch {}
       }
       return wpGlobal;
     };

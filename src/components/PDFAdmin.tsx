@@ -467,7 +467,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   };
 
   const uploadFileToWP = async (file: { file: File; title: string; subtitle: string; fileType: string }, index: number): Promise<string> => {
-    const wp = (window as any).wpPDFGallery;
+    const wp = (window as any).kindpdfgData || (window as any).wpPDFGallery;
     
     // Fallback: simulate in non-WordPress environments
     if (!wp?.ajaxUrl || !wp?.nonce) {
@@ -592,7 +592,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       console.warn('Aborting save: empty galleries payload');
       return false;
     }
-    const wp = (window as any).wpPDFGallery;
+    const wp = (window as any).kindpdfgData || (window as any).wpPDFGallery;
     if (wp?.ajaxUrl && wp?.nonce) {
       try {
         const form = new FormData();
@@ -610,7 +610,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
         
         const data = await res.json();
         if (data?.success) {
-          try { localStorage.setItem('pdf_gallery_backup', JSON.stringify(updatedGalleries)); } catch {}
+          try { localStorage.setItem('kindpdfg_backup', JSON.stringify(updatedGalleries)); } catch {}
         }
         return data?.success;
       } catch (error) {
@@ -620,7 +620,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     }
     // Non-WP environment: persist to localStorage
     try { 
-      localStorage.setItem('pdf_gallery_backup', JSON.stringify(updatedGalleries)); 
+      localStorage.setItem('kindpdfg_backup', JSON.stringify(updatedGalleries));
     } catch (e) {
       console.warn('Failed to save to localStorage:', e);
     }
@@ -1017,7 +1017,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     setIsUploading(true);
 
     try {
-      const wp = (window as any).wpPDFGallery;
+      const wp = (window as any).kindpdfgData || (window as any).wpPDFGallery;
       
         if (wp?.ajaxUrl && wp?.nonce) {
           const formData = new FormData();
@@ -1102,13 +1102,13 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
 
   const openWordPressMediaLibrary = () => {
     const wp = (window as any).wp;
-    const wpPDFGallery = (window as any).wpPDFGallery;
+    const wpData = (window as any).kindpdfgData || (window as any).wpPDFGallery;
     
     // Check if WordPress media library is available
     // wp.media is a function that needs to exist, not just wp object
     if (typeof wp?.media !== 'function') {
       // Try to check if we're in WordPress but media isn't loaded
-      if (typeof (window as any).ajaxurl !== 'undefined' || wpPDFGallery) {
+      if (typeof (window as any).ajaxurl !== 'undefined' || wpData) {
         toast({
           title: "Media Library Not Loaded",
           description: "Please ensure WordPress media scripts are loaded. Try refreshing the page.",
@@ -1242,7 +1242,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     saveGalleriesToWP(updatedGalleries);
     
     // Show rename warning if user hasn't dismissed it 3 times yet
-    const dismissCount = parseInt(localStorage.getItem('pdf_gallery_rename_warning_dismissed') || '0', 10);
+    const dismissCount = parseInt(localStorage.getItem('kindpdfg_rename_warning_dismissed') || '0', 10);
     if (dismissCount < 3) {
       setShowRenameWarning(true);
     }
@@ -1250,8 +1250,8 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
 
   const handleDismissRenameWarning = () => {
     setShowRenameWarning(false);
-    const currentCount = parseInt(localStorage.getItem('pdf_gallery_rename_warning_dismissed') || '0', 10);
-    localStorage.setItem('pdf_gallery_rename_warning_dismissed', String(currentCount + 1));
+    const currentCount = parseInt(localStorage.getItem('kindpdfg_rename_warning_dismissed') || '0', 10);
+    localStorage.setItem('kindpdfg_rename_warning_dismissed', String(currentCount + 1));
   };
 
   const handleGalleryDelete = (galleryId: string) => {

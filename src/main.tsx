@@ -18,6 +18,7 @@ if (typeof window !== 'undefined' && isEmbedded()) {
 
 // Look for WordPress root element first, then fallback to default
 const rootElement =
+  document.getElementById("kindpdfg-root") ||
   document.getElementById("pdf-gallery-root") ||
   document.getElementById("newsletter-gallery-root") ||
   document.getElementById("root");
