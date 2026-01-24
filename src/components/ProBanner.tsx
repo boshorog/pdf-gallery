@@ -46,14 +46,14 @@ const ProBanner = ({ className = '', showComparison = false }: ProBannerProps) =
 
   // Show banner only in explicit WordPress admin free state
   let wpGlobal: any = null;
-  try { wpGlobal = (window as any).wpPDFGallery || null; } catch {}
+  try { wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || null; } catch {}
   if (!wpGlobal) {
-    try { wpGlobal = (window.parent && (window.parent as any).wpPDFGallery) || null; } catch {}
+    try { wpGlobal = (window.parent && ((window.parent as any).kindpdfgData || (window.parent as any).wpPDFGallery)) || null; } catch {}
   }
   const urlParams = new URLSearchParams(window.location.search);
   const hideParam = urlParams.get('hideProBanner') === 'true';
   let lsSuppress = false;
-  try { lsSuppress = localStorage.getItem('wpPDFGallery_suppressProBanner') === '1'; } catch {}
+  try { lsSuppress = localStorage.getItem('kindpdfg_suppressProBanner') === '1'; } catch {}
 const isLikelyWpAdmin = (() => {
   try {
     const w = window as any;
@@ -135,7 +135,7 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
     setIsActivating(true);
     
     try {
-      const wp = (window as any).wpPDFGallery;
+      const wp = (window as any).kindpdfgData || (window as any).wpPDFGallery;
       const urlParams = new URLSearchParams(window.location.search);
       const ajaxUrl =
         wp?.ajaxUrl ||
@@ -181,7 +181,7 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
             title: 'Pro Activated!',
             description: 'Your Pro license is now active. Reloading...',
           });
-          try { localStorage.setItem('wpPDFGallery_suppressProBanner', '1'); } catch {}
+          try { localStorage.setItem('kindpdfg_suppressProBanner', '1'); } catch {}
           setTimeout(() => window.location.reload(), 1500);
         } else {
           console.error('License activation failed:', { status: response.status, data });

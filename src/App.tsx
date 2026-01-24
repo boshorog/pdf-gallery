@@ -47,7 +47,7 @@ const App = () => {
         isUpdating = true;
         lastHeight = contentHeight;
         lastSentAt = now;
-        window.parent?.postMessage({ type: 'pdf-gallery:height', height: contentHeight, token }, '*');
+        window.parent?.postMessage({ type: 'kindpdfg:height', height: contentHeight, token }, '*');
         setTimeout(() => {
           isUpdating = false;
         }, 250);

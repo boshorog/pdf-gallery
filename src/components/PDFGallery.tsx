@@ -146,7 +146,7 @@ const PDFGallery = ({
   };
   useEffect(() => {
     // Notify parent page to allow height auto-resize
-    window.parent?.postMessage({ type: 'pdf-gallery:height-check' }, '*');
+    window.parent?.postMessage({ type: 'kindpdfg:height-check' }, '*');
     
     if (items.length === 0) {
       setItemsWithThumbnails([]);

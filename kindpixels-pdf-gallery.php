@@ -106,8 +106,10 @@ class KindPDFG_Plugin {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_shortcode('kindpdfg_gallery', array($this, 'display_gallery_shortcode'));
-        // Legacy shortcode alias for backward compatibility
-        add_shortcode('pdf_gallery', array($this, 'display_gallery_shortcode'));
+        // Legacy shortcode alias for backward compatibility (only register if not already defined)
+        if (!shortcode_exists('pdf_gallery')) {
+            add_shortcode('pdf_gallery', array($this, 'display_gallery_shortcode'));
+        }
         
         // AJAX handlers
         add_action('wp_ajax_kindpdfg_action', array($this, 'handle_kindpdfg_ajax'));
@@ -168,22 +170,22 @@ class KindPDFG_Plugin {
         // This aggressive approach hides everything except errors, warnings, and update nags
         echo '<style>
             /* Hide ALL notices in the admin header area on PDF Gallery pages */
-            body.pdf-gallery-admin-page #wpbody-content > .notice,
-            body.pdf-gallery-admin-page #wpbody-content > .updated,
-            body.pdf-gallery-admin-page #wpbody-content > div.notice,
-            body.pdf-gallery-admin-page #wpbody-content > div.updated,
-            body.pdf-gallery-admin-page .wrap > .notice,
-            body.pdf-gallery-admin-page .wrap > .updated,
-            body.pdf-gallery-admin-page .notice,
-            body.pdf-gallery-admin-page .updated,
-            body.pdf-gallery-admin-page div[class*="notice"],
-            body.pdf-gallery-admin-page div[class*="update"] {
+            body.kindpdfg-admin-page #wpbody-content > .notice,
+            body.kindpdfg-admin-page #wpbody-content > .updated,
+            body.kindpdfg-admin-page #wpbody-content > div.notice,
+            body.kindpdfg-admin-page #wpbody-content > div.updated,
+            body.kindpdfg-admin-page .wrap > .notice,
+            body.kindpdfg-admin-page .wrap > .updated,
+            body.kindpdfg-admin-page .notice,
+            body.kindpdfg-admin-page .updated,
+            body.kindpdfg-admin-page div[class*="notice"],
+            body.kindpdfg-admin-page div[class*="update"] {
                 display: none !important;
             }
             /* But show critical WordPress core notices */
-            body.pdf-gallery-admin-page .notice-error,
-            body.pdf-gallery-admin-page .notice-warning,
-            body.pdf-gallery-admin-page .update-nag {
+            body.kindpdfg-admin-page .notice-error,
+            body.kindpdfg-admin-page .notice-warning,
+            body.kindpdfg-admin-page .update-nag {
                 display: block !important;
             }
         </style>';
@@ -311,7 +313,7 @@ class KindPDFG_Plugin {
             }
         }
         
-        wp_localize_script('kindpdfg-admin', 'wpPDFGallery', array(
+        wp_localize_script('kindpdfg-admin', 'kindpdfgData', array(
             'isAdmin' => current_user_can('manage_options'),
             'nonce' => wp_create_nonce('kindpdfg_nonce'),
             'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -337,10 +339,10 @@ class KindPDFG_Plugin {
         }
         
         // Add body class for notice hiding CSS and hide the WordPress admin page title
-        echo '<script>document.body.classList.add("pdf-gallery-admin-page");</script>';
+        echo '<script>document.body.classList.add("kindpdfg-admin-page");</script>';
         echo '<style>.wrap > h1:first-child { display: none !important; }</style>';
-        echo '<div class="wrap pdf-gallery-admin-page">';
-        echo '<div id="pdf-gallery-root" style="margin-top: 0;"></div>';
+        echo '<div class="wrap kindpdfg-admin-page">';
+        echo '<div id="kindpdfg-root" style="margin-top: 0;"></div>';
         echo '</div>';
     }
     
@@ -370,15 +372,15 @@ public function display_gallery_shortcode($atts) {
     ), $index_url);
 
     // Responsive iframe container with flexible height and no internal scrollbars (auto-resize via postMessage)
-    $iframe_id = 'pdf-gallery-iframe-' . uniqid();
-    $html  = '<div class="pdf-gallery-iframe-container" id="' . esc_attr($iframe_id) . '-container" style="position:relative;width:100%;overflow:hidden;">';
+    $iframe_id = 'kindpdfg-iframe-' . uniqid();
+    $html  = '<div class="kindpdfg-iframe-container" id="' . esc_attr($iframe_id) . '-container" style="position:relative;width:100%;overflow:hidden;">';
     $html .= '<style>
-    .pdf-gallery-iframe-container{overflow:hidden!important;width:100%;position:relative;}
-    .pdf-gallery-iframe-container iframe{display:block;width:100%!important;border:0!important;overflow:hidden!important;scrolling:no!important;-webkit-overflow-scrolling:auto!important;-ms-overflow-style:none!important;scrollbar-width:none!important;}
-    .pdf-gallery-iframe-container iframe::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;background:transparent!important;}
+    .kindpdfg-iframe-container{overflow:hidden!important;width:100%;position:relative;}
+    .kindpdfg-iframe-container iframe{display:block;width:100%!important;border:0!important;overflow:hidden!important;scrolling:no!important;-webkit-overflow-scrolling:auto!important;-ms-overflow-style:none!important;scrollbar-width:none!important;}
+    .kindpdfg-iframe-container iframe::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;background:transparent!important;}
     @media (max-width:768px){
-      .pdf-gallery-iframe-container{overflow:hidden!important; width:100%!important; max-width:100%!important; box-sizing:border-box!important; position:relative!important; left:0!important; right:0!important; margin-left:0!important; margin-right:0!important; padding-left:0!important; padding-right:0!important; transform:none!important;} 
-      .pdf-gallery-iframe-container iframe{overflow:hidden!important;scrolling:no!important;width:100%!important;max-width:100%!important;margin:0!important;}
+      .kindpdfg-iframe-container{overflow:hidden!important; width:100%!important; max-width:100%!important; box-sizing:border-box!important; position:relative!important; left:0!important; right:0!important; margin-left:0!important; margin-right:0!important; padding-left:0!important; padding-right:0!important; transform:none!important;} 
+      .kindpdfg-iframe-container iframe{overflow:hidden!important;scrolling:no!important;width:100%!important;max-width:100%!important;margin:0!important;}
     }
     </style>';
     $html .= '<iframe id="' . esc_attr($iframe_id) . '" src="' . esc_url($src) . '" scrolling="no" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-downloads" style="height:1px;min-height:1px;overflow:hidden;"></iframe>';
@@ -405,7 +407,7 @@ public function display_gallery_shortcode($atts) {
       // true fullscreen positioning.
       var originalParent = null;
       var originalNextSibling = null;
-      var placeholder = document.createComment("pdf-gallery-fullscreen-placeholder");
+      var placeholder = document.createComment("kindpdfg-fullscreen-placeholder");
 
       // Mobile browsers (especially iOS Safari) often reload iframes when moved in the DOM.
       // Skip re-parenting entirely on mobile to avoid page refresh issues.
@@ -466,13 +468,13 @@ public function display_gallery_shortcode($atts) {
             isFullscreen = true;
 
             var shouldMove = hasTransformedAncestor(container);
-            container.setAttribute("data-pdf-gallery-moved", shouldMove ? "1" : "0");
+            container.setAttribute("data-kindpdfg-moved", shouldMove ? "1" : "0");
             if(shouldMove) moveContainerToBody();
 
             lastScrollY = window.scrollY || window.pageYOffset || 0;
             heightBeforeFullscreen = iframe.style.height || "";
 
-            container.setAttribute("data-pdf-gallery-fullscreen", "1");
+            container.setAttribute("data-kindpdfg-fullscreen", "1");
             container.style.position = "fixed";
             container.style.top = "0";
             container.style.left = "0";
@@ -510,7 +512,7 @@ public function display_gallery_shortcode($atts) {
             if(!isFullscreen) return;
             isFullscreen = false;
 
-            container.removeAttribute("data-pdf-gallery-fullscreen");
+            container.removeAttribute("data-kindpdfg-fullscreen");
             container.setAttribute("style", originalContainerStyle);
             iframe.setAttribute("style", originalIframeStyle);
             if(heightBeforeFullscreen) iframe.style.height = heightBeforeFullscreen;
@@ -525,8 +527,8 @@ public function display_gallery_shortcode($atts) {
             document.body.style.width = "";
             document.body.style.top = "";
 
-            var wasMoved = container.getAttribute("data-pdf-gallery-moved") === "1";
-            container.removeAttribute("data-pdf-gallery-moved");
+            var wasMoved = container.getAttribute("data-kindpdfg-moved") === "1";
+            container.removeAttribute("data-kindpdfg-moved");
             if(wasMoved) restoreContainerFromBody();
 
             window.scrollTo(0, lastScrollY);
@@ -540,14 +542,14 @@ public function display_gallery_shortcode($atts) {
           var d = e.data;
           if(!d || d.token !== token) return;
 
-          if(d.type === "pdf-gallery:height" && typeof d.height === "number"){
+          if(d.type === "kindpdfg:height" && typeof d.height === "number"){
             if(isFullscreen) return;
             var minH = 1;
             iframe.style.height = Math.max(d.height, minH) + "px";
           }
 
-          if(d.type === "pdf-gallery:lightbox-open") setFullscreen(true);
-          if(d.type === "pdf-gallery:lightbox-close") setFullscreen(false);
+          if(d.type === "kindpdfg:lightbox-open") setFullscreen(true);
+          if(d.type === "kindpdfg:lightbox-close") setFullscreen(false);
         }catch(err){}
       }
 
@@ -556,7 +558,7 @@ public function display_gallery_shortcode($atts) {
       // Trigger a height check after a short delay to avoid clipping
       setTimeout(function(){
         if(iframe && iframe.contentWindow){
-          iframe.contentWindow.postMessage({type:"pdf-gallery:height-check", token: token}, "*");
+          iframe.contentWindow.postMessage({type:"kindpdfg:height-check", token: token}, "*");
         }
       }, 700);
     })();</script>';

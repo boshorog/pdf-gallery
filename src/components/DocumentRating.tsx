@@ -13,7 +13,7 @@ interface DocumentRatingProps {
 
 // Generate or retrieve a persistent visitor ID
 const getVisitorId = (): string => {
-  const storageKey = 'pdf_gallery_visitor_id';
+  const storageKey = 'kindpdfg_visitor_id';
   let visitorId = localStorage.getItem(storageKey);
   
   if (!visitorId) {

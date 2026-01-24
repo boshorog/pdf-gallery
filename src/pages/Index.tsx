@@ -95,7 +95,7 @@ const Index = () => {
   const [galleryNotFound, setGalleryNotFound] = useState(false);
 
   useEffect(() => {
-    const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
+    const wp = (typeof window !== 'undefined' && ((window as any).kindpdfgData || (window as any).wpPDFGallery)) ? ((window as any).kindpdfgData || (window as any).wpPDFGallery) : null;
     const urlParams = new URLSearchParams(window.location.search);
     const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
     const nonce = wp?.nonce || urlParams.get('nonce') || '';
@@ -121,7 +121,7 @@ const Index = () => {
             if (galleries.length === 0) {
               // Try to restore from local backup if available
               try {
-                const backupRaw = localStorage.getItem('pdf_gallery_backup');
+                const backupRaw = localStorage.getItem('kindpdfg_backup');
                 const backup = backupRaw ? JSON.parse(backupRaw) : null;
                 if (Array.isArray(backup) && backup.length > 0) {
                   // Ensure galleries have proper structure with names
@@ -174,7 +174,7 @@ const Index = () => {
                 currentGalleryId: 'test'
               });
               // Persist default test gallery on fresh install
-              try { localStorage.setItem('pdf_gallery_backup', JSON.stringify([testGallery])); } catch {}
+              try { localStorage.setItem('kindpdfg_backup', JSON.stringify([testGallery])); } catch {}
               if (ajaxUrl && nonce) {
                 const saveForm = new FormData();
                 saveForm.append('action', 'kindpdfg_action');
@@ -202,7 +202,7 @@ const Index = () => {
 
               // Server data is the source of truth - save to local backup
               try {
-                localStorage.setItem('pdf_gallery_backup', JSON.stringify(galleries));
+                localStorage.setItem('kindpdfg_backup', JSON.stringify(galleries));
               } catch {}
               
               setGalleryState({
@@ -241,7 +241,7 @@ const Index = () => {
         .catch(() => {
           // Non-WP environment: try to restore from localStorage first
           try {
-            const backupRaw = localStorage.getItem('pdf_gallery_backup');
+            const backupRaw = localStorage.getItem('kindpdfg_backup');
             const backup = backupRaw ? JSON.parse(backupRaw) : null;
             if (Array.isArray(backup) && backup.length > 0) {
               const restoredGalleries = backup.map((gallery: any) => ({
@@ -284,7 +284,7 @@ const Index = () => {
             currentGalleryId: 'test'
           });
           // Save default test gallery to localStorage
-          try { localStorage.setItem('pdf_gallery_backup', JSON.stringify([testGallery])); } catch {}
+          try { localStorage.setItem('kindpdfg_backup', JSON.stringify([testGallery])); } catch {}
         });
 
       // Also fetch settings (needed for frontend visitors too)
@@ -346,7 +346,7 @@ const Index = () => {
 
   // Fetch settings for the currently selected gallery (so "Current Gallery" scope persists)
   useEffect(() => {
-    const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
+    const wp = (typeof window !== 'undefined' && ((window as any).kindpdfgData || (window as any).wpPDFGallery)) ? ((window as any).kindpdfgData || (window as any).wpPDFGallery) : null;
     const urlParams = new URLSearchParams(window.location.search);
     const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
     const nonce = wp?.nonce || urlParams.get('nonce') || '';
@@ -401,7 +401,7 @@ const Index = () => {
 
   // Check if we should show admin interface (Lovable preview or WordPress admin)
   const urlParams = new URLSearchParams(window.location.search);
-  const wp = (typeof window !== 'undefined' && (window as any).wpPDFGallery) ? (window as any).wpPDFGallery : null;
+  const wp = (typeof window !== 'undefined' && ((window as any).kindpdfgData || (window as any).wpPDFGallery)) ? ((window as any).kindpdfgData || (window as any).wpPDFGallery) : null;
   const isWordPressAdmin = !!wp?.isAdmin || urlParams.get('admin') === 'true';
   const hostname = window.location.hostname;
   const isLovablePreview = hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';

@@ -104,7 +104,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
   const handleSave = async () => {
     onSettingsChange(localSettings);
     try {
-      const wp = (window as any).wpPDFGallery;
+      const wp = (window as any).kindpdfgData || (window as any).wpPDFGallery;
       const urlParams = new URLSearchParams(window.location.search);
       const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
       const nonce = wp?.nonce || urlParams.get('nonce') || '';
