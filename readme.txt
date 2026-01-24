@@ -4,7 +4,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.3.7
+Stable tag: 2.3.8
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -89,6 +89,14 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 5. Drag and drop reordering
 
 == Changelog ==
+
+= 2.3.8 =
+* WordPress.org compliance: Renamed JavaScript global from wpPDFGallery to kindpdfgData
+* WordPress.org compliance: All DOM IDs and CSS classes prefixed with kindpdfg (e.g., #kindpdfg-root, .kindpdfg-admin-page)
+* WordPress.org compliance: All localStorage keys prefixed with kindpdfg_
+* WordPress.org compliance: All postMessage types prefixed with kindpdfg:
+* Legacy shortcode [pdf_gallery] now only registers if not already taken by another plugin
+* Primary shortcode is [kindpdfg_gallery], [pdf_gallery] kept for backward compatibility
 
 = 2.3.7 =
 * WordPress.org compliance: All PHP functions, classes, constants, options, and AJAX actions prefixed with kindpdfg_
@@ -265,6 +273,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.3.8 =
+Full WordPress.org naming compliance: JS global renamed to kindpdfgData, all DOM/CSS/localStorage/postMessage prefixed with kindpdfg. Legacy [pdf_gallery] shortcode only registers if not conflicting.
 
 = 2.3.7 =
 All PHP functions and globals now prefixed with kindpdfg_ for WordPress.org compliance. Fixes blank page on activation.
