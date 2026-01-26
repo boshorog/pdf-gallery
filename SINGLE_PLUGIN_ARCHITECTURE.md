@@ -4,15 +4,30 @@
 
 The plugin uses a **single-codebase architecture** where both Free and Pro versions are generated from the same source code. This simplifies maintenance and ensures feature parity.
 
+## Security Model (Two-Layer Protection)
+
+**IMPORTANT**: The Pro version requires BOTH conditions to unlock features:
+
+1. **Build-time inclusion** (`BUILD_FLAGS`) - Pro code is only included in Pro builds
+2. **Runtime license validation** (`useLicense.isPro`) - Freemius checks if user has active license
+
+This means:
+- Free ZIP → Pro code is **physically absent** (cannot be hacked)
+- Pro ZIP without license → Pro UI is visible but **features are locked**
+- Pro ZIP with valid license → Full Pro features enabled
+
 ## Build Commands
 
 ```bash
 # Free version (for WordPress.org)
 npm run build:free
 
-# Pro version (for paying customers)
+# Pro version (for paying customers)  
 npm run build:pro
 ```
+
+**⚠️ IMPORTANT**: On Windows, do NOT use `set VITE_BUILD_VARIANT=pro && npm run build`.
+Always use the npm scripts which use `cross-env` for cross-platform compatibility.
 
 ## How It Works
 
@@ -22,9 +37,28 @@ The `src/config/buildFlags.ts` file exports feature flags based on `VITE_BUILD_V
 
 ```typescript
 export const BUILD_FLAGS = {
-  MULTI_GALLERY_UI: BUILD_VARIANT === 'pro',  // Add Gallery button
-  BULK_UPLOAD_UI: BUILD_VARIANT === 'pro',    // Multi-file upload
+  MULTI_GALLERY_UI: BUILD_VARIANT === 'pro',  // Add Gallery button (code included)
+  BULK_UPLOAD_UI: BUILD_VARIANT === 'pro',    // Multi-file upload (code included)
   FILE_LIMIT: BUILD_VARIANT === 'pro' ? Infinity : 15,
+};
+```
+
+### 2. Runtime License Validation
+
+Components must check BOTH conditions:
+
+```tsx
+import { BUILD_FLAGS } from '@/config/buildFlags';
+import { useLicense } from '@/hooks/useLicense';
+
+const MyComponent = () => {
+  const license = useLicense();
+  
+  // Pro feature only shows if: code is included AND license is valid
+  if (BUILD_FLAGS.MULTI_GALLERY_UI && license.isPro) {
+    return <ProFeature />;
+  }
+  return <FreeFeature />;
 };
 ```
 
