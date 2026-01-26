@@ -31,6 +31,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useLicense } from '@/hooks/useLicense';
 import { Gallery } from '@/types/gallery';
+import { BUILD_FLAGS } from '@/config/buildFlags';
 
 interface GallerySelectorProps {
   galleries: Gallery[];
@@ -68,10 +69,12 @@ export const GallerySelector = ({
   }, [galleries.length, currentGalleryId]); // Removed galleries and onGalleryChange from deps to prevent loops
 
   const handleCreateGallery = () => {
-    if (!license.isPro && galleries.length >= 1) {
+    // In free build, multi-gallery is not available at all
+    // In pro build, check runtime license for edge cases
+    if (!BUILD_FLAGS.MULTI_GALLERY_UI || (!license.isPro && galleries.length >= 1)) {
       toast({
         title: "Pro Feature Required",
-        description: "Free version supports 1 gallery. Upgrade to Pro for unlimited galleries.",
+        description: "Multiple galleries require the Pro addon. Upgrade to Pro for unlimited galleries.",
         variant: "destructive",
       });
       return;
@@ -226,44 +229,47 @@ export const GallerySelector = ({
             {shortcodeCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
           </Button>
 
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-               <Button
-                 variant="ghost"
-                 size="sm"
-                 className="h-8 w-8 p-0"
-                 aria-label="Add Gallery"
-                 title="Add Gallery"
-               >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Gallery</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-               <div className="space-y-3">
-                  <Label htmlFor="new-gallery">Gallery Name</Label>
-                 <Input
-                    id="new-gallery"
-                    value={newGalleryName}
-                    onChange={(e) => setNewGalleryName(e.target.value)}
-                    placeholder="Enter gallery name"
-                    onKeyDown={(e) => e.key === 'Enter' && handleCreateGallery()}
-                  />
+          {/* Add Gallery button - only shown in Pro build */}
+          {BUILD_FLAGS.MULTI_GALLERY_UI && (
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                 <Button
+                   variant="ghost"
+                   size="sm"
+                   className="h-8 w-8 p-0"
+                   aria-label="Add Gallery"
+                   title="Add Gallery"
+                 >
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Gallery</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                 <div className="space-y-3">
+                    <Label htmlFor="new-gallery">Gallery Name</Label>
+                   <Input
+                      id="new-gallery"
+                      value={newGalleryName}
+                      onChange={(e) => setNewGalleryName(e.target.value)}
+                      placeholder="Enter gallery name"
+                      onKeyDown={(e) => e.key === 'Enter' && handleCreateGallery()}
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleCreateGallery}>
+                      Create Gallery
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleCreateGallery}>
-                    Create Gallery
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
     );
@@ -365,44 +371,47 @@ export const GallerySelector = ({
           {shortcodeCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
         </Button>
 
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-             <Button
-               variant="ghost"
-               size="sm"
-               className="h-8 w-8 p-0"
-               aria-label="Add Gallery"
-               title="Add Gallery"
-             >
-              <Plus className="h-3 w-3" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Gallery</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-               <div className="space-y-3">
-                  <Label htmlFor="new-gallery">Gallery Name</Label>
-                 <Input
-                  id="new-gallery"
-                  value={newGalleryName}
-                  onChange={(e) => setNewGalleryName(e.target.value)}
-                  placeholder="Enter gallery name"
-                  onKeyDown={(e) => e.key === 'Enter' && handleCreateGallery()}
-                />
+        {/* Add Gallery button - only shown in Pro build */}
+        {BUILD_FLAGS.MULTI_GALLERY_UI && (
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+               <Button
+                 variant="ghost"
+                 size="sm"
+                 className="h-8 w-8 p-0"
+                 aria-label="Add Gallery"
+                 title="Add Gallery"
+               >
+                <Plus className="h-3 w-3" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Gallery</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                 <div className="space-y-3">
+                    <Label htmlFor="new-gallery">Gallery Name</Label>
+                   <Input
+                    id="new-gallery"
+                    value={newGalleryName}
+                    onChange={(e) => setNewGalleryName(e.target.value)}
+                    placeholder="Enter gallery name"
+                    onKeyDown={(e) => e.key === 'Enter' && handleCreateGallery()}
+                  />
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleCreateGallery}>
+                    Create Gallery
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateGallery}>
-                  Create Gallery
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Upload, X, FileText, Pause, Play, RotateCcw } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
 import { useToast } from '@/hooks/use-toast';
+import { BUILD_FLAGS } from '@/config/buildFlags';
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
 const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB max
@@ -60,11 +61,12 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
   };
 
   const handleFiles = useCallback((fileList: FileList) => {
-    // Check batch upload restriction for free users
-    if (!license.isPro && fileList.length > 1) {
+    // Check batch upload restriction - blocked in free build or if runtime license is not Pro
+    const allowBulk = BUILD_FLAGS.BULK_UPLOAD_UI && license.isPro;
+    if (!allowBulk && fileList.length > 1) {
       toast({
         title: 'Pro Feature Required',
-        description: 'Batch uploads require a Pro license. Please upload one file at a time.',
+        description: 'Bulk uploads require the Pro addon. Please upload one file at a time.',
         variant: 'destructive',
       });
       return;
@@ -359,7 +361,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
             <input
               ref={fileInputRef}
               type="file"
-              multiple={license.isPro}
+              multiple={BUILD_FLAGS.BULK_UPLOAD_UI && license.isPro}
               accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,.odt,.ods,.odp,.rtf,.txt,.csv,.svg,.ico,.zip,.rar,.7z,.epub,.mobi,.mp3,.wav,.ogg,.mp4,.mov,.webm,.avi,.mkv,.flv,.wmv,.m4v,.m4a,.flac,.aac,video/*,audio/*"
               onChange={handleFileInput}
               className="hidden"

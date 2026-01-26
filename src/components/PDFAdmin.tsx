@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useLicense } from '@/hooks/useLicense';
+import { BUILD_FLAGS } from '@/config/buildFlags';
 import {
   DndContext,
   closestCenter,
@@ -338,11 +339,12 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     // Convert FileList to array
     const newFiles = Array.from(fileList);
     
-    // Only allow multi-file upload for Pro users
-    if (newFiles.length > 1 && !license.isPro) {
+    // Only allow multi-file upload for Pro users with Pro build
+    const allowBulk = BUILD_FLAGS.BULK_UPLOAD_UI && license.isPro;
+    if (newFiles.length > 1 && !allowBulk) {
       toast({
         title: "Pro Feature Required",
-        description: "Batch uploads require a Pro license. Please upload one file at a time.",
+        description: "Bulk uploads require the Pro addon. Please upload one file at a time.",
         variant: "destructive",
       });
       return;
@@ -1488,7 +1490,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   <input
                     ref={fileInputRef}
                     type="file"
-                    multiple={license.isPro}
+                    multiple={BUILD_FLAGS.BULK_UPLOAD_UI && license.isPro}
                     accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,.odt,.ods,.odp,.rtf,.txt,.csv,.svg,.ico,.zip,.rar,.7z,.epub,.mobi,.mp3,.wav,.ogg,.mp4,.mov,.webm,.avi,.mkv,.flv,.wmv,.m4v,.m4a,.flac,.aac,video/*,audio/*"
                     onChange={handleFileInput}
                     className="hidden"
