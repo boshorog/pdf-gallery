@@ -102,8 +102,8 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
   return (
     <Card 
       className={`
-        border-2 border-green-500/30 bg-gradient-to-br from-green-50 to-emerald-50 
-        dark:from-green-950/30 dark:to-emerald-950/30 
+        border-2 border-orange-500/30 bg-gradient-to-br from-orange-50 to-amber-50 
+        dark:from-orange-950/30 dark:to-amber-950/30 
         overflow-hidden transition-all duration-300
         ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}
         ${className}
@@ -121,7 +121,7 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/25">
+          <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/25">
             <Crown className="w-7 h-7 text-white" />
           </div>
           <div>
@@ -140,9 +140,9 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="flex flex-col items-center text-center p-4 rounded-xl bg-white/60 dark:bg-white/5 border border-green-200/50 dark:border-green-800/30"
+              className="flex flex-col items-center text-center p-4 rounded-xl bg-white/60 dark:bg-white/5 border border-orange-200/50 dark:border-orange-800/30"
             >
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mb-3 shadow-md">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center mb-3 shadow-md">
                 <feature.icon className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-foreground mb-1">{feature.title}</h3>
@@ -155,7 +155,7 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
         <div className="flex justify-center">
           <Button
             onClick={handleDismiss}
-            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-medium px-8"
+            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-medium px-8"
           >
             Get Started
           </Button>
