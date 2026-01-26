@@ -18,9 +18,19 @@ export const useLicense = (): LicenseInfo => {
 
   useEffect(() => {
     let cancelled = false;
+    let finished = false;
+    let intervalId: number | null = null;
 
     const commit = (next: Partial<LicenseInfo>) => {
       if (cancelled) return;
+      // If we've conclusively determined the status, stop polling.
+      if (next.checked === true || next.isPro === true) {
+        finished = true;
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+      }
       setLicense((prev) => ({ ...prev, ...next }));
     };
 
@@ -113,14 +123,31 @@ export const useLicense = (): LicenseInfo => {
     // 1) Try global immediately
     if (resolveFromGlobal()) return;
 
-    // 2) Wait briefly for global to become available to avoid flicker
+    // 2) Wait for Freemius globals to become available.
+    // After activation the SDK can take longer to attach to window, so we poll longer.
     let attempts = 0;
-    const interval = window.setInterval(() => {
+    const maxAttempts = hasLicenseChangeParam ? 120 : 20; // 12s vs 2s
+    intervalId = window.setInterval(() => {
+      if (cancelled || finished) {
+        if (intervalId) clearInterval(intervalId);
+        intervalId = null;
+        return;
+      }
       attempts += 1;
       if (resolveFromGlobal()) {
-        clearInterval(interval);
-      } else if (attempts >= 10) {
-        clearInterval(interval);
+        // resolveFromGlobal commits with checked=true and will stop polling via commit()
+        return;
+      }
+
+      // Try remote checks a few times (especially after activation) in case globals lag.
+      if (attempts === 10 || (hasLicenseChangeParam && (attempts === 30 || attempts === 60))) {
+        doRemoteCheck();
+      }
+
+      if (attempts >= maxAttempts) {
+        if (intervalId) clearInterval(intervalId);
+        intervalId = null;
+        // One last attempt at a remote check (no-op if missing AJAX context).
         doRemoteCheck();
       }
     }, 100);
@@ -142,7 +169,7 @@ export const useLicense = (): LicenseInfo => {
 
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      if (intervalId) clearInterval(intervalId);
       window.removeEventListener('focus', onFocus);
       document.removeEventListener('visibilitychange', onVisibility);
     };
