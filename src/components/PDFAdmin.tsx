@@ -1335,6 +1335,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 <GallerySelector
                   galleries={galleries}
                   currentGalleryId={currentGalleryId}
+                  isPro={license.isPro}
                   onGalleryChange={onCurrentGalleryChange}
                   onGalleryCreate={handleGalleryCreate}
                   onGalleryRename={handleGalleryRename}
