@@ -1057,9 +1057,21 @@ public function display_gallery_shortcode($atts) {
                 if ( $pro_now ) {
                     delete_option( 'kindpdfg_license_data' );
                     update_option( 'kindpdfg_license_key', $license_key );
+
+                    // Ensure the next page loads fetch fresh JS/CSS (avoid users needing a hard refresh)
+                    // and give React a deterministic trigger for the ProWelcome message.
+                    $ts = time();
+                    set_transient( 'kindpdfg_license_changed', $ts, 300 );
+                    $redirect_url = add_query_arg( array(
+                        'page'             => 'kindpixels-pdf-gallery',
+                        'license_activated' => '1',
+                        'license_updated'   => $ts,
+                    ), admin_url( 'admin.php' ) );
+
                     wp_send_json_success( array( 
                         'message' => 'License activated successfully',
-                        'pro' => true
+                        'pro' => true,
+                        'redirect' => $redirect_url,
                     ) );
                 } else {
                     $error_msg = is_wp_error( $result ) ? $result->get_error_message() : 'Activation reported success but Pro is not enabled by Freemius. Please ensure the key matches this plugin/product and try again.';

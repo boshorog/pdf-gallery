@@ -125,9 +125,26 @@ export const useLicense = (): LicenseInfo => {
       }
     }, 100);
 
+    // 3) If user activates license in another tab/window and then returns here,
+    // re-check once on focus/visibility without requiring a hard refresh.
+    const recheck = () => {
+      // If Pro resolves from globals, we're done; otherwise try remote check.
+      if (!resolveFromGlobal()) {
+        doRemoteCheck();
+      }
+    };
+    const onFocus = () => recheck();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') recheck();
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+
     return () => {
       cancelled = true;
       clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);
 
