@@ -60,6 +60,7 @@ if ( ! function_exists( 'kindpdfg_fs' ) ) {
                     'id'                => '20814',
                     'slug'              => 'kindpixels-pdf-gallery',
                     'premium_slug'      => 'kindpixels-pdf-gallery-pro',
+                    'premium_suffix'    => 'Pro',        // Adds "Pro" to plugin name in Freemius UI
                     'type'              => 'plugin',
                     'public_key'        => 'pk_349523fbf9f410023e4e5a4faa9b8',
                     'is_premium'        => $is_premium_build,
@@ -74,9 +75,10 @@ if ( ! function_exists( 'kindpdfg_fs' ) ) {
                         'localhost' => false,
                     ),
                     'menu'              => array(
-                        'slug'    => 'kindpixels-pdf-gallery',
-                        'account' => $is_premium_build,  // Show account page only for Pro
-                        'support' => false,
+                        'slug'       => 'kindpixels-pdf-gallery',
+                        'first-path' => 'admin.php?page=kindpixels-pdf-gallery', // Redirect after activation
+                        'account'    => $is_premium_build,  // Show account page only for Pro
+                        'support'    => false,
                     ),
                 ) );
 
