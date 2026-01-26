@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "lastUpdated": "2025-01-26",
   "title": "Free vs Pro Comparison",
   "features": [
@@ -16,8 +16,14 @@
       "pro": "Unlimited"
     },
     {
+      "id": "drag-drop-upload",
+      "feature": "Drag & Drop File Upload",
+      "free": false,
+      "pro": true
+    },
+    {
       "id": "multi-upload",
-      "feature": "Upload Multiple Files at Once",
+      "feature": "Batch Upload (Multiple Files)",
       "free": false,
       "pro": true
     },
@@ -34,7 +40,7 @@
       "pro": true
     },
     {
-      "id": "drag-drop",
+      "id": "drag-drop-reorder",
       "feature": "Drag & Drop Reordering",
       "free": true,
       "pro": true
@@ -59,4 +65,3 @@
     }
   ]
 }
-
