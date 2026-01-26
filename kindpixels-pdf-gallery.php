@@ -106,10 +106,6 @@ class KindPDFG_Plugin {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_shortcode('kindpdfg_gallery', array($this, 'display_gallery_shortcode'));
-        // Legacy shortcode alias for backward compatibility (only register if not already defined)
-        if (!shortcode_exists('pdf_gallery')) {
-            add_shortcode('pdf_gallery', array($this, 'display_gallery_shortcode'));
-        }
         
         // AJAX handlers
         add_action('wp_ajax_kindpdfg_action', array($this, 'handle_kindpdfg_ajax'));

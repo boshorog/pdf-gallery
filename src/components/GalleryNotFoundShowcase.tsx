@@ -42,7 +42,7 @@ const GalleryNotFoundShowcase: React.FC = () => {
                 The gallery specified in your shortcode doesn't exist or may have been deleted.
               </p>
               <code className="text-xs text-primary/80 bg-primary/10 px-2 py-1 rounded mt-3 inline-block">
-                [pdf_gallery id="..."]
+                [kindpdfg_gallery name="..."]
               </code>
             </div>
           </div>
