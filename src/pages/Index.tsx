@@ -9,6 +9,7 @@ import PDFSettings from '@/components/PDFSettings';
 import SettingsProposal2 from '@/components/SettingsProposal2';
 import PluginDocumentation from '@/components/PluginDocumentation';
 import ProBanner from '@/components/ProBanner';
+import ProWelcome from '@/components/ProWelcome';
 import GalleryNotFoundShowcase from '@/components/GalleryNotFoundShowcase';
 import GalleryNotFound from '@/components/GalleryNotFound';
 import SettingsScopeSelectorShowcase from '@/components/SettingsScopeSelectorShowcase';
@@ -465,6 +466,9 @@ const Index = () => {
             </div>
           </div>
         </div>
+
+        {/* Pro Welcome Message - shows after license activation */}
+        {license.isPro && <ProWelcome className="mx-6 mb-6" />}
         
         <Tabs defaultValue={new URLSearchParams(window.location.search).get('tab') || "gallery"} className="w-full">
           {/* Tab Navigation with Underline Style */}
