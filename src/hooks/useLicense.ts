@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BUILD_FLAGS } from '@/config/buildFlags';
 
 export interface LicenseInfo {
   isValid: boolean;
@@ -21,8 +22,32 @@ export const useLicense = (): LicenseInfo => {
     let finished = false;
     let intervalId: number | null = null;
 
+    const reloadOnce = (reason: string) => {
+      try {
+        const key = 'kindpdfg_post_pro_upgrade_reload';
+        const alreadyReloaded = sessionStorage.getItem(key) === '1';
+        if (alreadyReloaded) return;
+        sessionStorage.setItem(key, '1');
+
+        const nextUrl = new URL(window.location.href);
+        nextUrl.searchParams.set('kindpdfg_reload', String(Date.now()));
+        nextUrl.searchParams.set('kindpdfg_reload_reason', reason);
+        window.location.replace(nextUrl.toString());
+      } catch {
+        window.location.reload();
+      }
+    };
+
     const commit = (next: Partial<LicenseInfo>) => {
       if (cancelled) return;
+
+      // If Pro is detected while running the Free bundle, reload once so the browser
+      // picks up the newly-installed Pro assets (prevents users needing hard refresh).
+      if (next.isPro === true && BUILD_FLAGS.MULTI_GALLERY_UI === false) {
+        reloadOnce('pro_detected');
+        return;
+      }
+
       // If we've conclusively determined the status, stop polling.
       if (next.checked === true || next.isPro === true) {
         finished = true;
