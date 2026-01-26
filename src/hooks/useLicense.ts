@@ -24,8 +24,18 @@ export const useLicense = (): LicenseInfo => {
     const commit = (next: Partial<LicenseInfo>) => {
       if (cancelled) return;
 
-      // If we've conclusively determined the status, stop polling.
-      if (next.checked === true || next.isPro === true) {
+      // IMPORTANT:
+      // During an activation/upgrade redirect flow, a remote check can briefly return
+      // a stale "free" status. If we stop polling on that result, Pro UI won't unlock
+      // until a manual hard refresh. So we only treat `checked: true` as final when:
+      // - we're NOT in a license-change flow, OR
+      // - the resolved status is not "free" (or is explicitly Pro).
+      const nextStatus = String((next as any).status ?? '').toLowerCase();
+      const shouldFinish =
+        next.isPro === true ||
+        (next.checked === true && (!hasLicenseChangeParam || (nextStatus && nextStatus !== 'free')));
+
+      if (shouldFinish) {
         finished = true;
         if (intervalId) {
           clearInterval(intervalId);
@@ -111,7 +121,15 @@ export const useLicense = (): LicenseInfo => {
             if (lic.status === 'free' && !fsAvailable) {
               return; // keep hidden; avoid false-positive free when FS SDK missing
             }
-            commit({ ...lic, checked: true });
+
+            // Normalize remote result shape (defensive): some responses may only provide `status`.
+            const remoteStatus = String(lic.status ?? '').toLowerCase();
+            const remoteIsPro =
+              lic.isPro === true ||
+              remoteStatus === 'pro' ||
+              (!!remoteStatus && remoteStatus !== 'free');
+
+            commit({ ...lic, isPro: remoteIsPro, isValid: remoteIsPro || remoteStatus === 'free', checked: true });
           } else {
             // Not confirmed free; keep hidden (checked remains false)
           }

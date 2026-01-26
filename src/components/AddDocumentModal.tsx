@@ -106,8 +106,9 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     }, 100);
   }, [license.isPro, toast]);
 
-  // Drag & drop is only available in Pro build
-  const isDragDropEnabled = BUILD_FLAGS.BULK_UPLOAD_UI;
+  // Drag & drop is only available in Pro build AND only when a Pro license is active.
+  // (Pro build without a license should still behave like Free at runtime.)
+  const isDragDropEnabled = BUILD_FLAGS.BULK_UPLOAD_UI && license.isPro;
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
