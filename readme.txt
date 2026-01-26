@@ -34,6 +34,8 @@ KindPixels PDF Gallery is a powerful WordPress plugin that allows you to create 
 * Videos (MP4, WebM, YouTube)
 * Audio files (MP3, WAV, OGG)
 * Microsoft Office (Word, Excel, PowerPoint)
+* Archives (ZIP, RAR, 7Z)
+* eBooks (EPUB, MOBI)
 
 = Free vs Pro =
 
@@ -91,14 +93,11 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 == Changelog ==
 
 = 2.4.0 =
-* ARCHITECTURE: Simplified to single-plugin model (no separate Pro addon required)
-* Pro version is now the same plugin with premium features unlocked via Freemius license
-* Users upgrade by installing the Pro ZIP which replaces the Free version
-* Free version: 1 gallery, 15 files max, single-file upload
-* Pro version: Unlimited galleries and files, bulk upload, priority support
-* Build system generates Free and Pro ZIPs from the same codebase
-* Removed separate kindpixels-pdf-gallery-pro addon plugin
-* Freemius SDK now auto-detects build variant for proper license handling
+* Simplified to single-plugin architecture (no separate Pro addon)
+* Freemius SDK integration for license management
+* All PHP functions, classes, and hooks properly prefixed with kindpdfg_
+* PDF.js workers bundled locally (no remote file loading)
+* All file operations confined to /wp-content/uploads/kindpixels-pdf-gallery/
 
 = 2.3.8 =
 * WordPress.org compliance: Renamed JavaScript global from wpPDFGallery to kindpdfgData
@@ -282,6 +281,9 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.4.0 =
+Single-plugin architecture with Freemius license management. All remote dependencies bundled locally.
 
 = 2.3.8 =
 Full WordPress.org naming compliance. Shortcode changed to [kindpdfg_gallery].

@@ -166,7 +166,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                   <FeatureRow feature="Documents per Gallery" free="Unlimited" pro="Unlimited" />
                   <FeatureRow feature="Batch Upload of Multiple Files" free={false} pro={true} />
                   <FeatureRow feature="File Analytics" free={false} pro={true} />
-                  <FeatureRow feature="Multiple File Types (PDF, Office, Images, Video, Audio)" free={true} pro={true} />
+                  <FeatureRow feature="Multiple File Types (PDF, Office, Images, Video, Audio, Archives)" free={true} pro={true} />
                   <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />
                   <FeatureRow feature="Section Dividers" free={true} pro={true} />
                   <FeatureRow feature="Many Styling Options" free={true} pro={true} />
@@ -273,6 +273,21 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                           <Badge variant="outline">OGV</Badge>
                           <Badge variant="outline">MOV</Badge>
                           <Badge variant="outline">AVI</Badge>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Archives</p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline">ZIP</Badge>
+                          <Badge variant="outline">RAR</Badge>
+                          <Badge variant="outline">7Z</Badge>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">eBooks</p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline">EPUB</Badge>
+                          <Badge variant="outline">MOBI</Badge>
                         </div>
                       </div>
                     </div>
