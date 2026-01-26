@@ -113,8 +113,9 @@ function kindpdfg_after_license_change( $plan_change ) {
         return;
     }
     
-    // Set a transient to trigger JS reload on next page load
-    set_transient( 'kindpdfg_license_changed', '1', 60 );
+    // Set a transient to trigger JS/CSS cache-bust on the next few page loads.
+    // We store a stable timestamp and let it expire naturally to survive multiple reloads.
+    set_transient( 'kindpdfg_license_changed', time(), 300 );
     
     // Redirect to plugin page with cache-bust parameter
     $redirect_url = add_query_arg( array(
@@ -271,11 +272,12 @@ class KindPDFG_Plugin {
             return;
         }
         
-        // Cache-bust version: add timestamp if license recently changed
+        // Cache-bust version: add a stable timestamp if license recently changed.
+        // IMPORTANT: do NOT delete immediately; allow multiple reloads to keep busting.
         $cache_bust = KINDPDFG_VERSION;
-        if ( get_transient( 'kindpdfg_license_changed' ) ) {
-            $cache_bust = KINDPDFG_VERSION . '.' . time();
-            delete_transient( 'kindpdfg_license_changed' );
+        $license_changed_ts = get_transient( 'kindpdfg_license_changed' );
+        if ( $license_changed_ts ) {
+            $cache_bust = KINDPDFG_VERSION . '.' . intval( $license_changed_ts );
         }
         
         // Enqueue the React app's JS and CSS with version for cache busting
