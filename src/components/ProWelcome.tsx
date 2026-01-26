@@ -21,6 +21,7 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
     const urlParams = new URLSearchParams(window.location.search);
     const licenseUpdated = urlParams.get('license_updated');
     const licenseActivated = urlParams.get('license_activated');
+    const reloadParam = urlParams.get('kindpdfg_reload');
 
     // Check WP localized globals for Pro state (server-side truth)
     let wpGlobal: any = null;
@@ -59,11 +60,23 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
     setTimeout(() => setIsVisible(true), 100);
 
     // Clean up URL params after showing (if present)
+    // IMPORTANT: Only clean after the post-license reload attempt ran.
+    // Otherwise we can remove the params before useLicense sees them,
+    // which prevents the auto-reload needed to pick up the Pro bundle.
     if (licenseUpdated || licenseActivated) {
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.delete('license_updated');
-      newUrl.searchParams.delete('license_activated');
-      window.history.replaceState({}, '', newUrl.toString());
+      let reloadAttempted = false;
+      try {
+        reloadAttempted = sessionStorage.getItem('kindpdfg_post_license_reload') === '1';
+      } catch {
+        // ignore
+      }
+
+      if (reloadAttempted || !!reloadParam) {
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('license_updated');
+        newUrl.searchParams.delete('license_activated');
+        window.history.replaceState({}, '', newUrl.toString());
+      }
     }
   }, []);
 
