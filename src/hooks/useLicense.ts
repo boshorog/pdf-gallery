@@ -38,7 +38,27 @@ export const useLicense = (): LicenseInfo => {
     const licenseActivated = urlParams.get('license_activated');
     const licenseUpdated = urlParams.get('license_updated');
     
-    if (licenseActivated === '1' || licenseUpdated === '1') {
+    const hasLicenseChangeParam = licenseActivated === '1' || !!licenseUpdated;
+
+    // Force a one-time reload after returning from Freemius so the page
+    // re-evaluates localized WP globals and fetches freshly cache-busted assets.
+    if (hasLicenseChangeParam) {
+      try {
+        const key = 'kindpdfg_post_license_reload';
+        const alreadyReloaded = sessionStorage.getItem(key) === '1';
+        if (!alreadyReloaded) {
+          sessionStorage.setItem(key, '1');
+          const nextUrl = new URL(window.location.href);
+          nextUrl.searchParams.set('kindpdfg_reload', String(Date.now()));
+          window.location.replace(nextUrl.toString());
+          return;
+        }
+      } catch {
+        // If sessionStorage is unavailable, proceed without forced reload.
+      }
+    }
+
+    if (hasLicenseChangeParam) {
       // Clear localStorage suppression to ensure Pro features show
       try { localStorage.removeItem('kindpdfg_pro_welcome_dismissed'); } catch {}
     }
