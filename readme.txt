@@ -1,5 +1,6 @@
 === KindPixels PDF Gallery ===
 Contributors: kindpixels
+Plugin URI: https://kindpixels.com/plugins/pdf-gallery/
 Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
@@ -17,7 +18,7 @@ KindPixels PDF Gallery is a powerful WordPress plugin that allows you to create 
 
 = Key Features =
 
-* **Multiple Gallery Support** – Create unlimited galleries for different pages or sections (Pro: unlimited, Free: 1 gallery with up to 15 files)
+* **Multiple Gallery Support** – Create unlimited galleries for different pages or sections
 * **Flexible Layouts** – Choose from Grid, List, or Masonry display styles
 * **Built-in Lightbox** – Professional document viewer with zoom and navigation
 * **Drag & Drop Ordering** – Easily reorder documents with intuitive drag and drop
@@ -40,13 +41,14 @@ KindPixels PDF Gallery is a powerful WordPress plugin that allows you to create 
 = Free vs Pro =
 
 **Free version includes:**
-* 1 gallery with up to 15 files
+* 1 gallery with unlimited files
 * All display settings and styling options
 * Single file upload
 
 **Pro version adds:**
-* Unlimited galleries and files
-* Multi-file drag & drop upload
+* Unlimited galleries
+* Batch upload of multiple files
+* File analytics
 * Priority support
 
 == Installation ==
@@ -54,33 +56,17 @@ KindPixels PDF Gallery is a powerful WordPress plugin that allows you to create 
 1. Upload the `kindpixels-pdf-gallery` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Go to 'PDF Gallery' in your admin menu to start creating galleries
-4. Use the shortcode `[pdf_gallery]` to display your gallery on any page or post
+4. Each gallery has a unique shortcode starting with `[kindpdfg_gallery]` - copy and paste it on any page or post
 
 == Frequently Asked Questions ==
 
 = How do I display a gallery on my page? =
 
-Use the shortcode `[pdf_gallery]` on any page or post. You can specify a gallery by name: `[pdf_gallery gallery="my-gallery"]`
+Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simply copy the shortcode from the Galleries tab and paste it on any page or post on your website.
 
-= Can I customize the number of columns? =
+= What if I have more questions? =
 
-Yes! Use the columns parameter: `[pdf_gallery columns="4"]`
-
-= What thumbnail styles are available? =
-
-Available styles: flat, shadow, lifted, curled, and stacked. Use: `[pdf_gallery style="shadow"]`
-
-= Can I add hover animations? =
-
-Yes! Available animations: none, lift, grow, tilt, glow, and float. Use: `[pdf_gallery animation="lift"]`
-
-= How do I create section dividers? =
-
-In the admin panel, click "Add Divider" to create section headers that organize your documents into chapters.
-
-= Is the lightbox viewer customizable? =
-
-The lightbox automatically displays documents with zoom controls, navigation, and responsive sizing.
+Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Screenshots ==
 
@@ -93,8 +79,10 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 == Changelog ==
 
 = 2.4.0 =
-* Simplified to single-plugin architecture (no separate Pro addon)
-* Freemius SDK integration for license management
+* Complete rewrite of the free/pro licensing architecture
+* Plugin no longer has any file or gallery limits in the free version
+* Pro features are now delivered via the Pro addon
+* Legacy [pdf_gallery] shortcode removed - use [kindpdfg_gallery] instead
 * All PHP functions, classes, and hooks properly prefixed with kindpdfg_
 * PDF.js workers bundled locally (no remote file loading)
 * All file operations confined to /wp-content/uploads/kindpixels-pdf-gallery/
@@ -361,11 +349,11 @@ Major update with new features. Please backup before upgrading.
 
 = Example Shortcodes =
 
-`[pdf_gallery]` – Display default gallery
+`[kindpdfg_gallery]` – Display default gallery
 
-`[pdf_gallery gallery="newsletters" columns="4" style="lifted"]` – Custom gallery with 4 columns
+`[kindpdfg_gallery gallery="newsletters" columns="4" style="lifted"]` – Custom gallery with 4 columns
 
-`[pdf_gallery animation="glow" show_search="false"]` – Gallery with glow animation, no search
+`[kindpdfg_gallery animation="glow" show_search="false"]` – Gallery with glow animation, no search
 
 = Support =
 
