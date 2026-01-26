@@ -89,7 +89,7 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
     },
     {
       icon: Zap,
-      title: 'Batch Upload (Drag & Drop)',
+      title: 'Batch Upload of Multiple Files',
       description: 'Upload multiple files at once with drag & drop support.',
     },
     {

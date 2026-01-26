@@ -17,7 +17,7 @@
     },
     {
       "id": "multi-upload",
-      "feature": "Batch Upload (Drag & Drop)",
+      "feature": "Batch Upload of Multiple Files",
       "free": false,
       "pro": true
     },

@@ -191,7 +191,7 @@ const ProBanner = ({ className = '', showComparison = false }: ProBannerProps) =
                 <tbody>
                   <FeatureRow feature="Number of Galleries" free="1" pro="Unlimited" />
                   <FeatureRow feature="Documents per Gallery" free="Unlimited" pro="Unlimited" />
-                  <FeatureRow feature="Batch Upload (Drag & Drop)" free={false} pro={true} />
+                  <FeatureRow feature="Batch Upload of Multiple Files" free={false} pro={true} />
                   <FeatureRow feature="File Analytics" free={false} pro={true} />
                   <FeatureRow feature="Multiple File Types (PDF, Office, Images, Video, Audio)" free={true} pro={true} />
                   <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />

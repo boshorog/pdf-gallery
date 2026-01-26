@@ -229,8 +229,8 @@ export const GallerySelector = ({
             {shortcodeCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
           </Button>
 
-          {/* Add Gallery button - only shown in Pro build */}
-          {BUILD_FLAGS.MULTI_GALLERY_UI && (
+          {/* Add Gallery button - shown in Pro build when license is active */}
+          {BUILD_FLAGS.MULTI_GALLERY_UI && license.isPro && (
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
                  <Button
@@ -371,8 +371,8 @@ export const GallerySelector = ({
           {shortcodeCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
         </Button>
 
-        {/* Add Gallery button - only shown in Pro build */}
-        {BUILD_FLAGS.MULTI_GALLERY_UI && (
+        {/* Add Gallery button - shown in Pro build when license is active */}
+        {BUILD_FLAGS.MULTI_GALLERY_UI && license.isPro && (
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
                <Button
