@@ -1,0 +1,126 @@
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Crown, Unlock, Zap, BarChart3, X, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+interface ProWelcomeProps {
+  className?: string;
+  onDismiss?: () => void;
+}
+
+const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
+
+  useEffect(() => {
+    // Check if we should show the welcome message
+    const urlParams = new URLSearchParams(window.location.search);
+    const licenseUpdated = urlParams.get('license_updated');
+    
+    // Check localStorage for dismissed state
+    const dismissed = localStorage.getItem('kindpdfg_pro_welcome_dismissed');
+    
+    // Show if license was just updated and not previously dismissed
+    if (licenseUpdated && !dismissed) {
+      setShouldRender(true);
+      // Small delay for animation
+      setTimeout(() => setIsVisible(true), 100);
+    }
+  }, []);
+
+  const handleDismiss = () => {
+    setIsVisible(false);
+    localStorage.setItem('kindpdfg_pro_welcome_dismissed', '1');
+    setTimeout(() => {
+      setShouldRender(false);
+      onDismiss?.();
+    }, 300);
+  };
+
+  if (!shouldRender) return null;
+
+  const features = [
+    {
+      icon: Unlock,
+      title: 'Unlimited Galleries',
+      description: 'Create as many galleries as you need for different sections of your site.',
+    },
+    {
+      icon: Zap,
+      title: 'Batch Upload',
+      description: 'Upload multiple files at once with drag & drop support.',
+    },
+    {
+      icon: BarChart3,
+      title: 'File Analytics',
+      description: 'Track views and downloads for all your documents.',
+    },
+  ];
+
+  return (
+    <Card 
+      className={`
+        border-2 border-green-500/30 bg-gradient-to-br from-green-50 to-emerald-50 
+        dark:from-green-950/30 dark:to-emerald-950/30 
+        overflow-hidden transition-all duration-300
+        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}
+        ${className}
+      `}
+    >
+      <CardContent className="p-6 relative">
+        {/* Dismiss button */}
+        <button
+          onClick={handleDismiss}
+          className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+          aria-label="Dismiss welcome message"
+        >
+          <X className="w-5 h-5 text-muted-foreground" />
+        </button>
+
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/25">
+            <Crown className="w-7 h-7 text-white" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold text-foreground">Welcome to PDF Gallery Pro!</h2>
+              <Sparkles className="w-5 h-5 text-amber-500" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Thank you for upgrading. Here's what you've unlocked:
+            </p>
+          </div>
+        </div>
+
+        {/* Features grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {features.map((feature) => (
+            <div
+              key={feature.title}
+              className="flex flex-col items-center text-center p-4 rounded-xl bg-white/60 dark:bg-white/5 border border-green-200/50 dark:border-green-800/30"
+            >
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mb-3 shadow-md">
+                <feature.icon className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-foreground mb-1">{feature.title}</h3>
+              <p className="text-xs text-muted-foreground">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div className="flex justify-center">
+          <Button
+            onClick={handleDismiss}
+            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-medium px-8"
+          >
+            Get Started
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default ProWelcome;

@@ -1,12 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Crown, ExternalLink, LayoutGrid, Zap, Unlock, Key, Check } from 'lucide-react';
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { Crown, ExternalLink, Zap, Unlock, Check, BarChart3 } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
-
 
 interface ProBannerProps {
   className?: string;
@@ -34,9 +29,6 @@ const FeatureRow = ({ feature, free, pro }: { feature: string; free: boolean | s
 );
 
 const ProBanner = ({ className = '', showComparison = false }: ProBannerProps) => {
-  const [licenseKey, setLicenseKey] = useState('');
-  const [isActivating, setIsActivating] = useState(false);
-  const { toast } = useToast();
   const license = useLicense();
 
   // If our license hook confirms Pro/Trial, never render
@@ -54,21 +46,23 @@ const ProBanner = ({ className = '', showComparison = false }: ProBannerProps) =
   const hideParam = urlParams.get('hideProBanner') === 'true';
   let lsSuppress = false;
   try { lsSuppress = localStorage.getItem('kindpdfg_suppressProBanner') === '1'; } catch {}
-const isLikelyWpAdmin = (() => {
-  try {
-    const w = window as any;
-    const topPath = w.top?.location?.pathname || '';
-    const herePath = w.location?.pathname || '';
-    const hasWrap = document?.body?.id === 'wpwrap' || document?.body?.classList?.contains('wp-admin');
-    const parentDoc = w.parent?.document;
-    const parentHasWrap = !!parentDoc && (parentDoc.body?.id === 'wpwrap' || parentDoc.body?.classList?.contains('wp-admin'));
-    return topPath.includes('/wp-admin/') || herePath.includes('/wp-admin/') || hasWrap || parentHasWrap;
-  } catch { return false; }
-})();
-const isAdmin = !!wpGlobal?.isAdmin || urlParams.get('admin') === 'true' || isLikelyWpAdmin;
-const fsAvailable = !!wpGlobal?.fsAvailable;
-const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
-const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1));
+  
+  const isLikelyWpAdmin = (() => {
+    try {
+      const w = window as any;
+      const topPath = w.top?.location?.pathname || '';
+      const herePath = w.location?.pathname || '';
+      const hasWrap = document?.body?.id === 'wpwrap' || document?.body?.classList?.contains('wp-admin');
+      const parentDoc = w.parent?.document;
+      const parentHasWrap = !!parentDoc && (parentDoc.body?.id === 'wpwrap' || parentDoc.body?.classList?.contains('wp-admin'));
+      return topPath.includes('/wp-admin/') || herePath.includes('/wp-admin/') || hasWrap || parentHasWrap;
+    } catch { return false; }
+  })();
+  
+  const isAdmin = !!wpGlobal?.isAdmin || urlParams.get('admin') === 'true' || isLikelyWpAdmin;
+  const fsAvailable = !!wpGlobal?.fsAvailable;
+  const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
+  const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1));
   
   console.debug('[PDF Gallery] ProBanner check', { 
     isAdmin, 
@@ -122,96 +116,6 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
   const heading = 'Upgrade to PDF Gallery Pro';
   const description = 'Unlock unlimited galleries and batch uploads to supercharge your document management.';
 
-  const handleActivateLicense = async () => {
-    if (!licenseKey.trim()) {
-      toast({
-        title: "License Key Required",
-        description: "Please enter your license key to activate Pro features",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsActivating(true);
-    
-    try {
-      const wp = (window as any).kindpdfgData || (window as any).wpPDFGallery;
-      const urlParams = new URLSearchParams(window.location.search);
-      const ajaxUrl =
-        wp?.ajaxUrl ||
-        (window as any).ajaxurl ||
-        urlParams.get('ajax') ||
-        urlParams.get('ajaxurl') ||
-        urlParams.get('ajax_url') ||
-        '';
-      const nonce = wp?.nonce || urlParams.get('nonce') || '';
-      console.debug('[PDF Gallery] License activation config', { hasAjaxUrl: !!ajaxUrl, hasNonce: !!nonce });
-
-      if (ajaxUrl && nonce) {
-        const form = new FormData();
-        form.append('action', 'kindpdfg_freemius_activate');
-        form.append('license_key', licenseKey.trim());
-        form.append('nonce', nonce);
-
-        const response = await fetch(ajaxUrl, {
-          method: 'POST',
-          credentials: 'same-origin',
-          body: form,
-        });
-
-        let data: any = null;
-        const contentType = response.headers.get('content-type') || '';
-        try {
-          if (contentType.includes('application/json')) {
-            data = await response.json();
-          } else {
-            const text = await response.text();
-            // Try to parse JSON from text, otherwise wrap as error
-            try { data = JSON.parse(text); }
-            catch { data = { success: false, data: { message: text || `HTTP ${response.status}` } }; }
-          }
-        } catch (e) {
-          // Parsing failed – read as text for better diagnostics
-          const text = await response.text().catch(() => '');
-          data = { success: false, data: { message: text || `HTTP ${response.status}` } };
-        }
-
-        if (response.ok && data?.success) {
-          toast({
-            title: 'Pro Activated!',
-            description: 'Your Pro license is now active. Reloading...',
-          });
-          try { localStorage.setItem('kindpdfg_suppressProBanner', '1'); } catch {}
-          setTimeout(() => window.location.reload(), 1500);
-        } else {
-          console.error('License activation failed:', { status: response.status, data });
-          toast({
-            title: 'License Activation Failed',
-            description: data?.data?.message || 'The license key you entered is invalid or has already been used. Please check your key and try again.',
-            variant: 'destructive'
-          });
-        }
-      } else {
-        console.error('Activation setup error: missing ajaxUrl or nonce', { hasAjaxUrl: !!ajaxUrl, hasNonce: !!nonce });
-        toast({
-          title: 'Connection Error',
-          description: 'Unable to connect to the licensing server. Please refresh the page and try again.',
-          variant: 'destructive'
-        });
-        return;
-      }
-    } catch (error) {
-      console.error('Activation request error:', error);
-      toast({
-        title: 'Connection Failed',
-        description: error instanceof Error ? error.message : 'Unable to reach the licensing server. Please check your internet connection and try again.',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsActivating(false);
-    }
-  };
-
   return (
     <Card className={`border-gradient-to-r from-orange-500/20 to-red-500/20 bg-gradient-to-r from-orange-50/50 to-red-50/50 dark:from-orange-950/20 dark:to-red-950/20 ${className}`}>
       <CardContent className="p-6">
@@ -232,79 +136,33 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
               {description}
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="flex items-center gap-3">
                 <Unlock className="w-6 h-6 text-orange-500" />
                 <span className="text-lg font-semibold">Unlimited Galleries</span>
               </div>
               <div className="flex items-center gap-3">
-                <LayoutGrid className="w-6 h-6 text-orange-500" />
-                <span className="text-lg font-semibold">Unlimited Files</span>
-              </div>
-              <div className="flex items-center gap-3">
                 <Zap className="w-6 h-6 text-orange-500" />
                 <span className="text-lg font-semibold">Batch Upload</span>
               </div>
+              <div className="flex items-center gap-3">
+                <BarChart3 className="w-6 h-6 text-orange-500" />
+                <span className="text-lg font-semibold">File Analytics</span>
+              </div>
             </div>
 
-            {/* License activation section */}
-            <div className="space-y-3">
-                {/* Get Pro button first */}
-                <div className="w-full flex justify-center">
-                  <div className="w-full max-w-md">
-                      <Button 
-                        className="w-full h-9 text-sm bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium"
-                        onClick={() => window.open('https://checkout.freemius.com/plugin/20814/plan/34946/', '_blank')}
-                      >
-                      Get PDF Gallery Pro
-                      <ExternalLink className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </div>
-                
-                {/* Divider matching width */}
-                <div className="w-full flex justify-center">
-                  <div className="flex items-center gap-2 w-full max-w-md">
-                    <div className="h-px bg-border flex-1"></div>
-                    <span className="text-xs text-muted-foreground px-2">or</span>
-                    <div className="h-px bg-border flex-1"></div>
-                  </div>
-                </div>
-                
-                {/* License input section below divider */}
-                <div className="w-full flex justify-center">
-                  <div className="flex gap-2 w-full max-w-md">
-                    <div className="relative flex-1">
-                      <Input
-                        id="license-key"
-                        type="text"
-                        placeholder="Enter your license key"
-                        value={licenseKey}
-                        onChange={(e) => setLicenseKey(e.target.value)}
-                        className="pr-10 h-9 text-sm"
-                        disabled={isActivating}
-                      />
-                      <Key className="w-4 h-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                    </div>
-                    <Button 
-                      onClick={handleActivateLicense}
-                      disabled={isActivating || !licenseKey.trim()}
-                      variant="outline"
-                      size="sm"
-                      className="border-muted-foreground/30 text-muted-foreground bg-transparent hover:bg-muted/50"
-                    >
-                      {isActivating ? (
-                        'Activating...'
-                      ) : (
-                        <>
-                          <Check className="w-4 h-4 mr-1" />
-                          Activate
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
+            {/* Get Pro button */}
+            <div className="w-full flex justify-center">
+              <div className="w-full max-w-md">
+                <Button 
+                  className="w-full h-10 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium"
+                  onClick={() => window.open('https://checkout.freemius.com/plugin/20814/plan/34946/', '_blank')}
+                >
+                  Get PDF Gallery Pro
+                  <ExternalLink className="w-4 h-4 ml-2" />
+                </Button>
               </div>
+            </div>
           </div>
         </div>
       </CardContent>
@@ -334,6 +192,7 @@ const wpIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro ==
                   <FeatureRow feature="Number of Galleries" free="1" pro="Unlimited" />
                   <FeatureRow feature="Documents per Gallery" free="15" pro="Unlimited" />
                   <FeatureRow feature="Upload Multiple Files at Once" free={false} pro={true} />
+                  <FeatureRow feature="File Analytics" free={false} pro={true} />
                   <FeatureRow feature="Multiple File Types (PDF, Office, Images, Video, Audio)" free={true} pro={true} />
                   <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />
                   <FeatureRow feature="Section Dividers" free={true} pro={true} />
