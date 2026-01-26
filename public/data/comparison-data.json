@@ -1,5 +1,5 @@
 {
-  "version": "1.0.2",
+  "version": "1.0.3",
   "lastUpdated": "2025-01-26",
   "title": "Free vs Pro Comparison",
   "features": [
@@ -12,18 +12,12 @@
     {
       "id": "documents",
       "feature": "Documents per Gallery",
-      "free": "15",
+      "free": "Unlimited",
       "pro": "Unlimited"
     },
     {
-      "id": "drag-drop-upload",
-      "feature": "Drag & Drop File Upload",
-      "free": false,
-      "pro": true
-    },
-    {
       "id": "multi-upload",
-      "feature": "Batch Upload (Multiple Files)",
+      "feature": "Batch Upload (Drag & Drop)",
       "free": false,
       "pro": true
     },

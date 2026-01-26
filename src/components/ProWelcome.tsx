@@ -16,15 +16,22 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
     // Check if we should show the welcome message
     const urlParams = new URLSearchParams(window.location.search);
     const licenseUpdated = urlParams.get('license_updated');
+    const licenseActivated = urlParams.get('license_activated');
     
     // Check localStorage for dismissed state
     const dismissed = localStorage.getItem('kindpdfg_pro_welcome_dismissed');
     
-    // Show if license was just updated and not previously dismissed
-    if (licenseUpdated && !dismissed) {
+    // Show if license was just updated/activated and not previously dismissed
+    if ((licenseUpdated || licenseActivated) && !dismissed) {
       setShouldRender(true);
       // Small delay for animation
       setTimeout(() => setIsVisible(true), 100);
+      
+      // Clean up URL params after showing
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('license_updated');
+      newUrl.searchParams.delete('license_activated');
+      window.history.replaceState({}, '', newUrl.toString());
     }
   }, []);
 
@@ -47,7 +54,7 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
     },
     {
       icon: Zap,
-      title: 'Batch Upload',
+      title: 'Batch Upload (Drag & Drop)',
       description: 'Upload multiple files at once with drag & drop support.',
     },
     {
