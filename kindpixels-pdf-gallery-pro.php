@@ -55,7 +55,15 @@ function kindpdfg_pro_missing_free_notice() {
 add_action( 'admin_notices', 'kindpdfg_pro_missing_free_notice' );
 
 /**
- * Initialize Freemius SDK for Pro addon (license validation)
+ * Initialize Freemius SDK for Pro addon (as add-on to main plugin)
+ * 
+ * IMPORTANT SETUP STEPS:
+ * 1. In Freemius Dashboard, go to your main plugin (kindpixels-pdf-gallery)
+ * 2. Click "Add-ons" tab, then "Add New Add-on"
+ * 3. Create the add-on with slug "kindpixels-pdf-gallery-pro"
+ * 4. Copy the Add-on ID and Public Key from Freemius
+ * 5. Replace the values below with your actual Add-on ID and Public Key
+ * 6. The Parent ID should be your main plugin's Freemius ID
  */
 if ( ! function_exists( 'kindpdfg_pro_fs' ) ) {
     function kindpdfg_pro_fs() {
@@ -79,23 +87,29 @@ if ( ! function_exists( 'kindpdfg_pro_fs' ) ) {
 
             if ( $sdk_loaded && function_exists( 'fs_dynamic_init' ) ) {
                 $kindpdfg_pro_fs_instance = fs_dynamic_init( array(
-                    'id'                => '20815', // Different ID for Pro addon
+                    // ========================================
+                    // REPLACE THESE VALUES FROM FREEMIUS:
+                    // ========================================
+                    'id'                => '00000',                    // Your Add-on ID from Freemius
+                    'parent_id'         => '20815',                    // Your Main Plugin ID from Freemius
+                    'public_key'        => 'pk_YOUR_ADDON_KEY_HERE',   // Your Add-on Public Key
+                    // ========================================
+                    
                     'slug'              => 'kindpixels-pdf-gallery-pro',
-                    'premium_slug'      => 'kindpixels-pdf-gallery-pro',
                     'type'              => 'plugin',
-                    'public_key'        => 'pk_pro_addon_key_here', // Replace with actual Pro addon key
                     'is_premium'        => true,
                     'is_premium_only'   => true,
-                    'has_addons'        => false,
                     'has_paid_plans'    => true,
-                    'is_org_compliant'  => false, // Pro addon is not on WordPress.org
+                    'is_org_compliant'  => false,
+                    'parent'            => array(
+                        'id'   => '20815',  // Same as parent_id above
+                        'slug' => 'kindpixels-pdf-gallery',
+                        'name' => 'KindPixels PDF Gallery',
+                    ),
                     'menu'              => array(
                         'slug'    => 'kindpixels-pdf-gallery',
-                        'account' => false, // Use main plugin's account page
+                        'account' => false,
                         'support' => false,
-                        'parent'  => array(
-                            'slug' => 'kindpixels-pdf-gallery',
-                        ),
                     ),
                 ) );
 
@@ -104,7 +118,7 @@ if ( ! function_exists( 'kindpdfg_pro_fs' ) ) {
                     $kindpdfg_pro_fs_instance->set_basename( false, __FILE__ );
                 }
             } else {
-                // SDK not installed
+                // SDK not installed - return dummy object
                 $kindpdfg_pro_fs_instance = new stdClass();
             }
         }
@@ -118,7 +132,7 @@ if ( ! function_exists( 'kindpdfg_pro_fs' ) ) {
             kindpdfg_pro_fs();
             do_action( 'kindpdfg_pro_fs_loaded' );
         }
-    }, 15 ); // Priority 15 to load after free version
+    }, 15 );
 }
 
 /**
