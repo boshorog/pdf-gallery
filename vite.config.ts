@@ -13,15 +13,38 @@ const proBuildMarker = () => ({
   closeBundle() {
     const isPro = process.env.VITE_BUILD_VARIANT === 'pro';
     const markerPath = path.resolve(__dirname, 'dist/.pro-build');
+    const phpPath = path.resolve(__dirname, 'kindpixels-pdf-gallery.php');
     
     if (isPro) {
       // Create marker file for Pro build
       fs.writeFileSync(markerPath, 'pro');
       console.log('✓ Created .pro-build marker for Pro version');
+      
+      // Update PHP header to show "PDF Gallery Pro" for Pro builds
+      if (fs.existsSync(phpPath)) {
+        let phpContent = fs.readFileSync(phpPath, 'utf8');
+        // Change plugin name to "PDF Gallery Pro" (remove KindPixels prefix)
+        phpContent = phpContent.replace(
+          /Plugin Name:\s*KindPixels PDF Gallery\s*$/m,
+          'Plugin Name: PDF Gallery Pro'
+        );
+        fs.writeFileSync(phpPath, phpContent, 'utf8');
+        console.log('✓ Updated plugin header to "PDF Gallery Pro"');
+      }
     } else {
       // Ensure no marker exists for Free build
       if (fs.existsSync(markerPath)) {
         fs.unlinkSync(markerPath);
+      }
+      
+      // Restore original plugin name for Free builds
+      if (fs.existsSync(phpPath)) {
+        let phpContent = fs.readFileSync(phpPath, 'utf8');
+        phpContent = phpContent.replace(
+          /Plugin Name:\s*PDF Gallery Pro\s*$/m,
+          'Plugin Name: KindPixels PDF Gallery'
+        );
+        fs.writeFileSync(phpPath, phpContent, 'utf8');
       }
       console.log('✓ Free version build (no .pro-build marker)');
     }
