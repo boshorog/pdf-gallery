@@ -98,7 +98,32 @@ if ( ! function_exists( 'kindpdfg_fs' ) ) {
     // Init Freemius
     kindpdfg_fs();
 
+    // Force redirect to plugin page after license activation (clears cache)
+    kindpdfg_fs()->add_action( 'after_license_change', 'kindpdfg_after_license_change' );
+    
     do_action( 'kindpdfg_fs_loaded' );
+}
+
+/**
+ * Redirect to plugin page after license activation/deactivation.
+ * This forces a fresh page load so React gets the updated license status.
+ */
+function kindpdfg_after_license_change( $plan_change ) {
+    if ( ! is_admin() ) {
+        return;
+    }
+    
+    // Set a transient to trigger JS reload on next page load
+    set_transient( 'kindpdfg_license_changed', '1', 60 );
+    
+    // Redirect to plugin page with cache-bust parameter
+    $redirect_url = add_query_arg( array(
+        'page'          => 'kindpixels-pdf-gallery',
+        'license_updated' => time(),
+    ), admin_url( 'admin.php' ) );
+    
+    wp_safe_redirect( $redirect_url );
+    exit;
 }
 
 class KindPDFG_Plugin {
@@ -246,12 +271,19 @@ class KindPDFG_Plugin {
             return;
         }
         
+        // Cache-bust version: add timestamp if license recently changed
+        $cache_bust = KINDPDFG_VERSION;
+        if ( get_transient( 'kindpdfg_license_changed' ) ) {
+            $cache_bust = KINDPDFG_VERSION . '.' . time();
+            delete_transient( 'kindpdfg_license_changed' );
+        }
+        
         // Enqueue the React app's JS and CSS with version for cache busting
         wp_enqueue_script(
             'kindpdfg-admin', 
             $js_file, 
             array(), 
-            KINDPDFG_VERSION,
+            $cache_bust,
             true
         );
         wp_script_add_data('kindpdfg-admin', 'type', 'module');
@@ -260,7 +292,7 @@ class KindPDFG_Plugin {
             'kindpdfg-admin', 
             $css_file, 
             array(), 
-            KINDPDFG_VERSION
+            $cache_bust
         );
         
         // Pass WordPress user info to React app
