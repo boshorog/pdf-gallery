@@ -106,24 +106,30 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     }, 100);
   }, [license.isPro, toast]);
 
+  // Drag & drop is only available in Pro build
+  const isDragDropEnabled = BUILD_FLAGS.BULK_UPLOAD_UI;
+
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
+    if (!isDragDropEnabled) return;
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       handleFiles(files);
     }
-  }, [handleFiles]);
+  }, [handleFiles, isDragDropEnabled]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    if (!isDragDropEnabled) return;
     setIsDragOver(true);
-  }, []);
+  }, [isDragDropEnabled]);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    if (!isDragDropEnabled) return;
     setIsDragOver(false);
-  }, []);
+  }, [isDragDropEnabled]);
 
   const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -321,16 +327,16 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
           {/* Upload Area */}
           <div
             className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              isDragOver 
+              isDragDropEnabled && isDragOver 
                 ? 'bg-primary border-primary text-primary-foreground' 
                 : 'border-muted-foreground/25 hover:border-muted-foreground/50'
             }`}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDragEnter={(e) => { e.preventDefault(); setIsDragOver(true); }}
+            onDrop={isDragDropEnabled ? handleDrop : undefined}
+            onDragOver={isDragDropEnabled ? handleDragOver : undefined}
+            onDragLeave={isDragDropEnabled ? handleDragLeave : undefined}
+            onDragEnter={isDragDropEnabled ? (e) => { e.preventDefault(); setIsDragOver(true); } : undefined}
           >
-            {isDragOver ? (
+            {isDragDropEnabled && isDragOver ? (
               <div className="flex flex-col items-center justify-center gap-2 py-6">
                 <Upload className="mx-auto h-12 w-12 text-primary-foreground/90" />
                 <p className="text-lg font-semibold">Drop your files here</p>
@@ -340,7 +346,9 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
               <>
                 <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <div className="space-y-2">
-                  <p className="text-lg font-medium">Drop files here or click to browse</p>
+                  <p className="text-lg font-medium">
+                    {isDragDropEnabled ? 'Drop files here or click to browse' : 'Click to browse files'}
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     Supports PDF, Office files, images, audio, video, archives, and eBooks
                   </p>
