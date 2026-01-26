@@ -347,7 +347,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
                 <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <div className="space-y-2">
                   <p className="text-lg font-medium">
-                    {isDragDropEnabled ? 'Drop files here or click to browse' : 'Click to browse files'}
+                    Click to browse files
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Supports PDF, Office files, images, audio, video, archives, and eBooks
