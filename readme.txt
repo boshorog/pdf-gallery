@@ -4,11 +4,10 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.3.8
+Stable tag: 2.4.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Source Code: https://github.com/kindpixels/kindpixels-pdf-gallery
 
 Create beautiful, interactive PDF and document galleries with customizable layouts, lightbox viewer, and drag-and-drop management.
 
