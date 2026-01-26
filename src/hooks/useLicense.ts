@@ -33,6 +33,16 @@ export const useLicense = (): LicenseInfo => {
       return wpGlobal;
     };
 
+    // Check for license activation URL params and trigger refresh if needed
+    const urlParams = new URLSearchParams(window.location.search);
+    const licenseActivated = urlParams.get('license_activated');
+    const licenseUpdated = urlParams.get('license_updated');
+    
+    if (licenseActivated === '1' || licenseUpdated === '1') {
+      // Clear localStorage suppression to ensure Pro features show
+      try { localStorage.removeItem('kindpdfg_pro_welcome_dismissed'); } catch {}
+    }
+
     const resolveFromGlobal = () => {
       const wpGlobal = getWPGlobal();
       const status = String(wpGlobal?.fsStatus ?? '').toLowerCase();

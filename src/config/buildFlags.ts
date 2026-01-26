@@ -42,10 +42,10 @@ export const BUILD_FLAGS = {
 
   /**
    * File limit per gallery
-   * - Free: 15 files max
+   * - Free: Unlimited (was 15, now unlimited)
    * - Pro: Unlimited
    */
-  FILE_LIMIT: BUILD_VARIANT === 'pro' ? Infinity : 15,
+  FILE_LIMIT: Infinity,
 
   /**
    * Analytics features (future)
