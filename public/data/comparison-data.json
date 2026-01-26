@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "lastUpdated": "2025-01-13",
+  "version": "1.0.1",
+  "lastUpdated": "2025-01-26",
   "title": "Free vs Pro Comparison",
   "features": [
     {
@@ -18,6 +18,12 @@
     {
       "id": "multi-upload",
       "feature": "Upload Multiple Files at Once",
+      "free": false,
+      "pro": true
+    },
+    {
+      "id": "analytics",
+      "feature": "File Analytics",
       "free": false,
       "pro": true
     },
@@ -53,3 +59,4 @@
     }
   ]
 }
+
