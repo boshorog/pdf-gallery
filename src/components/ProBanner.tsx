@@ -193,7 +193,7 @@ const ProBanner = ({ className = '', showComparison = false }: ProBannerProps) =
                   <FeatureRow feature="Documents per Gallery" free="Unlimited" pro="Unlimited" />
                   <FeatureRow feature="Batch Upload of Multiple Files" free={false} pro={true} />
                   <FeatureRow feature="File Analytics" free={false} pro={true} />
-                  <FeatureRow feature="Multiple File Types (PDF, Office, Images, Video, Audio)" free={true} pro={true} />
+                  <FeatureRow feature="Multiple File Types (PDF, Office, Images, Video, Audio, Archives)" free={true} pro={true} />
                   <FeatureRow feature="Drag & Drop Reordering" free={true} pro={true} />
                   <FeatureRow feature="Section Dividers" free={true} pro={true} />
                   <FeatureRow feature="Many Styling Options" free={true} pro={true} />
