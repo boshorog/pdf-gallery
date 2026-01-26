@@ -29,13 +29,13 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useLicense } from '@/hooks/useLicense';
 import { Gallery } from '@/types/gallery';
 import { BUILD_FLAGS } from '@/config/buildFlags';
 
 interface GallerySelectorProps {
   galleries: Gallery[];
   currentGalleryId: string;
+  isPro: boolean;
   onGalleryChange: (galleryId: string) => void;
   onGalleryCreate: (name: string) => void;
   onGalleryRename: (galleryId: string, newName: string) => void;
@@ -45,6 +45,7 @@ interface GallerySelectorProps {
 export const GallerySelector = ({
   galleries,
   currentGalleryId,
+  isPro,
   onGalleryChange,
   onGalleryCreate,
   onGalleryRename,
@@ -56,7 +57,6 @@ export const GallerySelector = ({
   const [renameGalleryName, setRenameGalleryName] = useState('');
   const [shortcodeCopied, setShortcodeCopied] = useState(false);
   const { toast } = useToast();
-  const license = useLicense();
 
   const currentGallery = galleries.find(g => g.id === currentGalleryId);
 
@@ -71,7 +71,7 @@ export const GallerySelector = ({
   const handleCreateGallery = () => {
     // In free build, multi-gallery is not available at all
     // In pro build, check runtime license for edge cases
-    if (!BUILD_FLAGS.MULTI_GALLERY_UI || (!license.isPro && galleries.length >= 1)) {
+    if (!BUILD_FLAGS.MULTI_GALLERY_UI || (!isPro && galleries.length >= 1)) {
       toast({
         title: "Pro Feature Required",
         description: "Multiple galleries require the Pro addon. Upgrade to Pro for unlimited galleries.",
@@ -230,7 +230,7 @@ export const GallerySelector = ({
           </Button>
 
           {/* Add Gallery button - shown in Pro build when license is active */}
-          {BUILD_FLAGS.MULTI_GALLERY_UI && license.isPro && (
+          {BUILD_FLAGS.MULTI_GALLERY_UI && isPro && (
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
                  <Button
@@ -372,7 +372,7 @@ export const GallerySelector = ({
         </Button>
 
         {/* Add Gallery button - shown in Pro build when license is active */}
-        {BUILD_FLAGS.MULTI_GALLERY_UI && license.isPro && (
+        {BUILD_FLAGS.MULTI_GALLERY_UI && isPro && (
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
                <Button
