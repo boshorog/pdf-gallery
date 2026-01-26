@@ -1,16 +1,20 @@
 /**
  * Build Flags Configuration
  * 
- * This file controls feature availability based on whether this is
- * the Free version or the Pro addon.
+ * Single-Plugin Architecture:
+ * - One codebase generates both Free and Pro versions
+ * - Build variant is set at compile time via VITE_BUILD_VARIANT
  * 
- * Build Strategy:
- * - Free version: VITE_BUILD_VARIANT=free (default)
- * - Pro addon: VITE_BUILD_VARIANT=pro
+ * Build Commands:
+ * - npm run build:free  → For WordPress.org (limited features)
+ * - npm run build:pro   → For paying customers (all features)
  * 
- * The free version checks license.isPro for runtime features,
- * but certain UI elements (like "Add Gallery" button) are completely
- * hidden at build time in the free version.
+ * Distribution:
+ * - Free ZIP: Uploaded to WordPress.org
+ * - Pro ZIP: Sold via Freemius/your site (replaces Free when installed)
+ * 
+ * The Pro build creates a marker file (dist/.pro-build) that the PHP
+ * uses to configure Freemius with is_premium=true.
  */
 
 export type BuildVariant = 'free' | 'pro';
@@ -23,23 +27,30 @@ export const BUILD_VARIANT: BuildVariant =
 // Feature flags based on build variant
 export const BUILD_FLAGS = {
   /**
-   * Whether the build includes multi-gallery management UI
-   * - Free: false (single gallery only, no "Add Gallery" button)
-   * - Pro: true (full gallery management)
+   * Multi-gallery management UI (Add Gallery button, gallery selector)
+   * - Free: false → Single gallery only
+   * - Pro: true → Unlimited galleries
    */
   MULTI_GALLERY_UI: BUILD_VARIANT === 'pro',
 
   /**
-   * Whether bulk upload UI is shown
-   * - Free: false (single file upload only)
-   * - Pro: true (multi-file selection enabled)
+   * Bulk upload UI (drag & drop multiple files)
+   * - Free: false → One file at a time
+   * - Pro: true → Select multiple files
    */
   BULK_UPLOAD_UI: BUILD_VARIANT === 'pro',
 
   /**
-   * Whether analytics features are available
+   * File limit per gallery
+   * - Free: 15 files max
+   * - Pro: Unlimited
+   */
+  FILE_LIMIT: BUILD_VARIANT === 'pro' ? Infinity : 15,
+
+  /**
+   * Analytics features (future)
    * - Free: false
-   * - Pro: true (to be implemented)
+   * - Pro: true
    */
   ANALYTICS: BUILD_VARIANT === 'pro',
 } as const;

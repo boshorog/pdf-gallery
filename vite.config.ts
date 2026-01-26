@@ -2,6 +2,31 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import fs from "fs";
+
+/**
+ * Custom plugin to create .pro-build marker file for Pro builds
+ * This marker is detected by PHP to configure Freemius with is_premium=true
+ */
+const proBuildMarker = () => ({
+  name: 'pro-build-marker',
+  closeBundle() {
+    const isPro = process.env.VITE_BUILD_VARIANT === 'pro';
+    const markerPath = path.resolve(__dirname, 'dist/.pro-build');
+    
+    if (isPro) {
+      // Create marker file for Pro build
+      fs.writeFileSync(markerPath, 'pro');
+      console.log('✓ Created .pro-build marker for Pro version');
+    } else {
+      // Ensure no marker exists for Free build
+      if (fs.existsSync(markerPath)) {
+        fs.unlinkSync(markerPath);
+      }
+      console.log('✓ Free version build (no .pro-build marker)');
+    }
+  }
+});
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -12,8 +37,8 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === 'development' && componentTagger(),
+    mode === 'production' && proBuildMarker(),
   ].filter(Boolean),
   resolve: {
     alias: {

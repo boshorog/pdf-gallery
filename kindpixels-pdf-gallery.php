@@ -52,17 +52,22 @@ if ( ! function_exists( 'kindpdfg_fs' ) ) {
             }
 
             if ( $sdk_loaded && function_exists( 'fs_dynamic_init' ) ) {
+                // Determine if this is a Pro build (set at compile time via VITE_BUILD_VARIANT)
+                // The dist/assets will contain either free or pro code based on npm run build:free/pro
+                $is_premium_build = file_exists( dirname( __FILE__ ) . '/dist/.pro-build' );
+                
                 $kindpdfg_fs_instance = fs_dynamic_init( array(
                     'id'                => '20814',
                     'slug'              => 'kindpixels-pdf-gallery',
                     'premium_slug'      => 'kindpixels-pdf-gallery-pro',
                     'type'              => 'plugin',
                     'public_key'        => 'pk_349523fbf9f410023e4e5a4faa9b8',
-                    'is_premium'        => false,
-                    'is_org_compliant'  => true,
+                    'is_premium'        => $is_premium_build,
+                    'is_premium_only'   => false,        // Free version exists on WordPress.org
+                    'is_org_compliant'  => ! $is_premium_build, // Only free version is on WP.org
                     'has_addons'        => false,
                     'has_paid_plans'    => true,
-                    'anonymous_mode'    => true,
+                    'anonymous_mode'    => ! $is_premium_build, // Premium users opt-in
                     'opt_in_moderation' => array(
                         'new'       => 0,
                         'updates'   => 0,
@@ -70,7 +75,7 @@ if ( ! function_exists( 'kindpdfg_fs' ) ) {
                     ),
                     'menu'              => array(
                         'slug'    => 'kindpixels-pdf-gallery',
-                        'account' => true,
+                        'account' => $is_premium_build,  // Show account page only for Pro
                         'support' => false,
                     ),
                 ) );
