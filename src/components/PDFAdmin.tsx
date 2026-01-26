@@ -380,24 +380,29 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     }
   }, [license.isPro, galleries.length, currentGalleryId, items]);
 
+  const isDragDropEnabled = BUILD_FLAGS.BULK_UPLOAD_UI && license.isPro;
+
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
+    if (!isDragDropEnabled) return;
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       handleFiles(files);
     }
-  }, [handleFiles]);
+  }, [handleFiles, isDragDropEnabled]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    if (!isDragDropEnabled) return;
     setIsDragOver(true);
-  }, []);
+  }, [isDragDropEnabled]);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    if (!isDragDropEnabled) return;
     setIsDragOver(false);
-  }, []);
+  }, [isDragDropEnabled]);
 
   const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -1444,16 +1449,16 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                 {/* Upload Area */}
                 <div
                   className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    isDragOver 
+                    isDragDropEnabled && isDragOver 
                       ? 'bg-primary border-primary text-primary-foreground' 
                       : 'border-muted-foreground/25 hover:border-muted-foreground/50'
                   }`}
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
-                  onDragEnter={(e) => { e.preventDefault(); setIsDragOver(true); }}
+                  onDragEnter={(e) => { e.preventDefault(); if (!isDragDropEnabled) return; setIsDragOver(true); }}
                 >
-                  {isDragOver ? (
+                  {isDragDropEnabled && isDragOver ? (
                     <div className="flex flex-col items-center justify-center gap-2 py-6">
                       <Upload className="mx-auto h-12 w-12 text-primary-foreground/90" />
                       <p className="text-lg font-semibold">Drop your files here</p>
@@ -1463,7 +1468,9 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                     <>
                       <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                       <div className="space-y-2">
-                        <p className="text-lg font-medium">Drop files here or click to browse</p>
+                        <p className="text-lg font-medium">
+                          {isDragDropEnabled ? 'Drop files here or click to browse' : 'Click to browse files'}
+                        </p>
                         <p className="text-sm text-muted-foreground">
                           Supports PDF, Office files, images, audio, video, archives, and eBooks
                         </p>
