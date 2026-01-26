@@ -360,14 +360,14 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                   <div>
                     <h4 className="font-medium mb-2">Basic Usage</h4>
                     <code className="block bg-muted p-3 rounded text-xs">
-                      [pdf_gallery]
+                      [kindpdfg_gallery]
                     </code>
                     <p className="text-muted-foreground mt-2">Displays the default gallery.</p>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">Specific Gallery</h4>
                     <code className="block bg-muted p-3 rounded text-xs">
-                      [pdf_gallery name="my-gallery-name"]
+                      [kindpdfg_gallery name="my-gallery-name"]
                     </code>
                     <p className="text-muted-foreground mt-2">Displays a specific gallery by name (use lowercase with hyphens).</p>
                   </div>

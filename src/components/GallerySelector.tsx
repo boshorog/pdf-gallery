@@ -151,7 +151,7 @@ export const GallerySelector = ({
 
   const handleCopyShortcode = async () => {
     const galleryName = currentGallery?.name || 'main';
-    const shortcode = `[pdf_gallery name="${galleryName.toLowerCase().replace(/[^a-z0-9-_]/g, '-')}"]`;
+    const shortcode = `[kindpdfg_gallery name="${galleryName.toLowerCase().replace(/[^a-z0-9-_]/g, '-')}"]`;
     try {
       await navigator.clipboard.writeText(shortcode);
       setShortcodeCopied(true);

@@ -376,7 +376,7 @@ const Index = () => {
   const copyShortcode = async () => {
     const currentGallery = galleryState.galleries.find(g => g.id === galleryState.currentGalleryId);
     const galleryName = currentGallery?.name || 'main';
-    const shortcode = `[pdf_gallery name="${galleryName.toLowerCase().replace(/[^a-z0-9-_]/g, '-')}"]`;
+    const shortcode = `[kindpdfg_gallery name="${galleryName.toLowerCase().replace(/[^a-z0-9-_]/g, '-')}"]`;
     try {
       await navigator.clipboard.writeText(shortcode);
       setShortcodeCopied(true);
@@ -519,7 +519,7 @@ const Index = () => {
                   <code className="bg-muted px-3 py-2 rounded text-sm font-mono">
                     {(() => {
                       const galleryName = currentGallery?.name || 'main';
-                      return `[pdf_gallery name="${galleryName.toLowerCase().replace(/[^a-z0-9-_]/g, '-')}"]`;
+                      return `[kindpdfg_gallery name="${galleryName.toLowerCase().replace(/[^a-z0-9-_]/g, '-')}"]`;
                     })()}
                   </code>
                   <Button 
