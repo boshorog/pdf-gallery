@@ -13,21 +13,53 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
-    // Check if we should show the welcome message
+    // Show criteria:
+    // 1) Explicit redirect params (license_updated / license_activated)
+    // 2) Fallback: first time we detect Pro in this browser (covers cases where Freemius
+    //    returns to the page without params and users previously needed a hard refresh)
+
     const urlParams = new URLSearchParams(window.location.search);
     const licenseUpdated = urlParams.get('license_updated');
     const licenseActivated = urlParams.get('license_activated');
-    
-    // Check localStorage for dismissed state
+
+    // Check WP localized globals for Pro state (server-side truth)
+    let wpGlobal: any = null;
+    try {
+      wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || null;
+    } catch {}
+    if (!wpGlobal) {
+      try {
+        wpGlobal = (window.parent && ((window.parent as any).kindpdfgData || (window.parent as any).wpPDFGallery)) || null;
+      } catch {}
+    }
+
+    const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
+    const wpIsPro = !!(
+      wpGlobal &&
+      (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1)
+    );
+    const isProLike = wpIsPro || (!!wpStatus && wpStatus !== 'free');
+
+    // localStorage flags
     const dismissed = localStorage.getItem('kindpdfg_pro_welcome_dismissed');
-    
-    // Show if license was just updated/activated and not previously dismissed
-    if ((licenseUpdated || licenseActivated) && !dismissed) {
-      setShouldRender(true);
-      // Small delay for animation
-      setTimeout(() => setIsVisible(true), 100);
-      
-      // Clean up URL params after showing
+    const shown = localStorage.getItem('kindpdfg_pro_welcome_shown');
+
+    const shouldTrigger =
+      (!!licenseUpdated || !!licenseActivated) ||
+      (isProLike && !dismissed && !shown);
+
+    if (!shouldTrigger) return;
+
+    // Mark as shown immediately (so even if user navigates away quickly it won't re-trigger)
+    try {
+      localStorage.setItem('kindpdfg_pro_welcome_shown', '1');
+    } catch {}
+
+    setShouldRender(true);
+    setTimeout(() => setIsVisible(true), 100);
+
+    // Clean up URL params after showing (if present)
+    if (licenseUpdated || licenseActivated) {
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.delete('license_updated');
       newUrl.searchParams.delete('license_activated');
@@ -37,7 +69,10 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
 
   const handleDismiss = () => {
     setIsVisible(false);
-    localStorage.setItem('kindpdfg_pro_welcome_dismissed', '1');
+    try {
+      localStorage.setItem('kindpdfg_pro_welcome_dismissed', '1');
+      localStorage.setItem('kindpdfg_pro_welcome_shown', '1');
+    } catch {}
     setTimeout(() => {
       setShouldRender(false);
       onDismiss?.();
