@@ -91,19 +91,21 @@ The lightbox automatically displays documents with zoom controls, navigation, an
 == Changelog ==
 
 = 2.4.0 =
-* NEW: Introduced separate Pro addon plugin (kindpixels-pdf-gallery-pro) for premium features
-* Pro addon uses Freemius add-on architecture for license validation
-* Pro features: Unlimited galleries, multi-file bulk upload, priority support
-* Free version remains fully functional with 1 gallery and 15 files limit
-* Improved plugin architecture: Free plugin + optional Pro addon model
-* Updated Freemius SDK integration for better WordPress.org compliance
+* ARCHITECTURE: Simplified to single-plugin model (no separate Pro addon required)
+* Pro version is now the same plugin with premium features unlocked via Freemius license
+* Users upgrade by installing the Pro ZIP which replaces the Free version
+* Free version: 1 gallery, 15 files max, single-file upload
+* Pro version: Unlimited galleries and files, bulk upload, priority support
+* Build system generates Free and Pro ZIPs from the same codebase
+* Removed separate kindpixels-pdf-gallery-pro addon plugin
+* Freemius SDK now auto-detects build variant for proper license handling
 
 = 2.3.8 =
 * WordPress.org compliance: Renamed JavaScript global from wpPDFGallery to kindpdfgData
-* WordPress.org compliance: All DOM IDs and CSS classes prefixed with kindpdfg (e.g., #kindpdfg-root, .kindpdfg-admin-page)
+* WordPress.org compliance: All DOM IDs and CSS classes prefixed with kindpdfg
 * WordPress.org compliance: All localStorage keys prefixed with kindpdfg_
 * WordPress.org compliance: All postMessage types prefixed with kindpdfg:
-* Shortcode is now [kindpdfg_gallery] (legacy [pdf_gallery] removed per WordPress.org guidelines)
+* Shortcode is now [kindpdfg_gallery] (legacy [pdf_gallery] removed)
 
 = 2.3.7 =
 * WordPress.org compliance: All PHP functions, classes, constants, options, and AJAX actions prefixed with kindpdfg_
