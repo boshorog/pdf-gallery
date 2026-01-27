@@ -355,6 +355,11 @@ Major update with new features. Please backup before upgrading.
 
 `[kindpdfg_gallery animation="glow" show_search="false"]` – Gallery with glow animation, no search
 
+= Source Code =
+
+The full source code for this plugin is available on GitHub:
+https://github.com/boshorog/pdf-gallery
+
 = Support =
 
 For support questions, please visit our support forum or contact us through our website.
