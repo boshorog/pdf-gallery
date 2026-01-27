@@ -19,7 +19,7 @@ import { useLicense } from '@/hooks/useLicense';
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pdfGalleryLogo from '@/assets/pdf-gallery-logo.svg';
 
-const PLUGIN_VERSION = '2.4.0';
+const PLUGIN_VERSION = '2.4.1';
 
 // Kind Pixels Logo SVG Component
 const KindPixelsLogo = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
