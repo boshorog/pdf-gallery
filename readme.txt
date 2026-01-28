@@ -72,7 +72,6 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.4.10 =
-* Security fix: "Activate Free Version" link no longer incorrectly unlocks Pro features
 * Fixed Pro welcome banner not showing after upgrade
 * Bug fixes
 
