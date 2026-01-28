@@ -46,13 +46,13 @@ interface AnalyticsModalProps {
   onGallerySelect?: (galleryId: string) => void;
 }
 
-// Check if gallery is less than 7 days old
+// Check if gallery is less than 7 days old (show notice for first 7 days)
 const isGalleryNew = (createdAt?: string): boolean => {
   if (!createdAt) return false;
   const created = new Date(createdAt);
   const now = new Date();
   const diffDays = (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
-  return diffDays < 7;
+  return diffDays <= 7;
 };
 
 // LocalStorage key for dismissed notification
