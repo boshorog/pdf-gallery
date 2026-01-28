@@ -42,6 +42,7 @@ interface PDFGalleryProps {
     pdfIconPosition: string;
     defaultPlaceholder: string;
     thumbnailSize?: string;
+    gapSize?: number; // 1-5, default 3 (24px)
     showFileTypeBadges?: boolean;
     showTitlesSubtitles?: boolean;
   };
@@ -61,6 +62,7 @@ const PDFGallery = ({
     pdfIconPosition: 'top-right',
     defaultPlaceholder: 'default',
     thumbnailSize: 'four-rows',
+    gapSize: 3,
     showFileTypeBadges: true,
     showTitlesSubtitles: true
   }
@@ -82,6 +84,19 @@ const PDFGallery = ({
   const placeholderUrl = (settings?.defaultPlaceholder && settings.defaultPlaceholder !== 'default')
     ? settings.defaultPlaceholder
     : pdfPlaceholder;
+
+  // Gap size helper - converts 1-5 to pixel values
+  const getGapStyle = () => {
+    const gapMap: Record<number, string> = {
+      1: '12px',  // Extra Small
+      2: '18px',  // Small  
+      3: '24px',  // Medium (default)
+      4: '32px',  // Large
+      5: '40px',  // Extra Large
+    };
+    return gapMap[settings?.gapSize ?? 3] || '24px';
+  };
+  const gapValue = getGapStyle();
 
   // Analytics tracking (Pro only)
   const analyticsEnabled = BUILD_FLAGS.ANALYTICS && license.isPro;
@@ -715,9 +730,9 @@ const PDFGallery = ({
                   if (isMasonry) {
                     // True masonry layout using CSS columns
                     renderedItems.push(
-                      <div key={`grid-${currentGrid[0].id}`} className={`${getMasonryCols()} gap-x-6`} style={{ columnGap: '1.5rem' }}>
+                      <div key={`grid-${currentGrid[0].id}`} className={getMasonryCols()} style={{ columnGap: gapValue }}>
                         {currentGrid.map((pdf) => (
-                          <div key={pdf.id} className="mb-6 inline-block w-full" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                          <div key={pdf.id} className="inline-block w-full" style={{ breakInside: 'avoid', pageBreakInside: 'avoid', marginBottom: gapValue }}>
                             {renderThumbnail(pdf)}
                           </div>
                         ))}
@@ -726,7 +741,7 @@ const PDFGallery = ({
                   } else {
                     // Regular grid layout
                     renderedItems.push(
-                      <div key={`grid-${currentGrid[0].id}`} className={`grid ${getGridCols()} gap-6`}>
+                      <div key={`grid-${currentGrid[0].id}`} className={`grid ${getGridCols()}`} style={{ gap: gapValue }}>
                         {currentGrid.map((pdf) => (
                           <div key={pdf.id}>
                             {renderThumbnail(pdf)}
@@ -762,9 +777,9 @@ const PDFGallery = ({
               if (isMasonry) {
                 // True masonry layout using CSS columns
                 renderedItems.push(
-                  <div key={`grid-final`} className={`${getMasonryCols()} gap-x-6`} style={{ columnGap: '1.5rem' }}>
+                  <div key={`grid-final`} className={getMasonryCols()} style={{ columnGap: gapValue }}>
                     {currentGrid.map((pdf) => (
-                      <div key={pdf.id} className="mb-6 inline-block w-full" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                      <div key={pdf.id} className="inline-block w-full" style={{ breakInside: 'avoid', pageBreakInside: 'avoid', marginBottom: gapValue }}>
                         {renderThumbnail(pdf)}
                       </div>
                     ))}
@@ -773,7 +788,7 @@ const PDFGallery = ({
               } else {
                 // Regular grid layout
                 renderedItems.push(
-                  <div key={`grid-final`} className={`grid ${getGridCols()} gap-6`}>
+                  <div key={`grid-final`} className={`grid ${getGridCols()}`} style={{ gap: gapValue }}>
                     {currentGrid.map((pdf) => (
                       <div key={pdf.id}>
                         {renderThumbnail(pdf)}

@@ -66,6 +66,7 @@ interface PDFSettingsProps {
     defaultPlaceholder: string;
     thumbnailSize?: string;
     showRatings?: boolean;
+    gapSize?: number; // 1-5, default 3 (24px)
     officeApiProvider?: 'cloudconvert' | 'convertapi' | 'none';
     cloudConvertApiKey?: string;
     convertApiKey?: string;
@@ -108,6 +109,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
     thumbnailSize: settings.thumbnailSize || 'four-rows',
     thumbnailShape: normalizeThumbnailShape(settings.thumbnailShape),
     showRatings: settings.showRatings !== false,
+    gapSize: settings.gapSize ?? 3,
     officeApiProvider: settings.officeApiProvider || 'none',
     cloudConvertApiKey: settings.cloudConvertApiKey || '',
     convertApiKey: settings.convertApiKey || ''
@@ -127,6 +129,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
       thumbnailSize: settings.thumbnailSize || 'four-rows',
       thumbnailShape: normalizeThumbnailShape(settings.thumbnailShape),
       showRatings: settings.showRatings !== false,
+      gapSize: settings.gapSize ?? 3,
       officeApiProvider: settings.officeApiProvider || 'none',
       cloudConvertApiKey: settings.cloudConvertApiKey || '',
       convertApiKey: settings.convertApiKey || ''
@@ -687,6 +690,48 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                 </div>
               </div>
             </RadioGroup>
+          </div>
+
+          {/* Gap Size */}
+          <div className="space-y-4 pt-4 border-t border-border">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">Gap Size</Label>
+              <span className="text-xs text-muted-foreground">
+                {localSettings.gapSize === 1 ? 'Extra Small (12px)' :
+                 localSettings.gapSize === 2 ? 'Small (18px)' :
+                 localSettings.gapSize === 3 ? 'Medium (24px)' :
+                 localSettings.gapSize === 4 ? 'Large (32px)' :
+                 'Extra Large (40px)'}
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-xs text-muted-foreground">Tight</span>
+              <input
+                type="range"
+                min="1"
+                max="5"
+                value={localSettings.gapSize ?? 3}
+                onChange={(e) => setLocalSettings(prev => ({ ...prev, gapSize: parseInt(e.target.value) }))}
+                className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+              />
+              <span className="text-xs text-muted-foreground">Spacious</span>
+            </div>
+            <div className="flex justify-between px-1">
+              {[1, 2, 3, 4, 5].map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setLocalSettings(prev => ({ ...prev, gapSize: val }))}
+                  className={`w-6 h-6 rounded-full text-xs font-medium transition-colors ${
+                    localSettings.gapSize === val 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-muted hover:bg-muted-foreground/20'
+                  }`}
+                >
+                  {val}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="text-xs text-muted-foreground mt-4 p-3 bg-muted/50 rounded">
