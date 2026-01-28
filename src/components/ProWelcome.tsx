@@ -169,13 +169,16 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
         </div>
 
         {/* CTA */}
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-3">
           <Button
             onClick={handleDismiss}
             className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-medium px-8"
           >
             Get Started
           </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            If you don't see the new features, a hard refresh may be needed: <span className="font-medium">Ctrl+Shift+R</span> (Windows) or <span className="font-medium">Cmd+Shift+R</span> (Mac)
+          </p>
         </div>
       </CardContent>
     </Card>
