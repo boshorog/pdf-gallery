@@ -917,6 +917,12 @@ public function display_gallery_shortcode($atts) {
             case 'save_galleries':
                 $this->handle_save_galleries();
                 break;
+            case 'track_analytics':
+                $this->handle_track_analytics();
+                break;
+            case 'get_analytics':
+                $this->handle_get_analytics();
+                break;
             default:
                 wp_send_json_error('Invalid action');
         }
@@ -1668,6 +1674,186 @@ public function display_gallery_shortcode($atts) {
             'attachment_id' => $attachment_id,
             'filename' => basename($uploaded_file['file'])
         ));
+    }
+
+    /**
+     * Handle analytics tracking (Pro feature)
+     * Stores view/click events in wp_options
+     */
+    private function handle_track_analytics() {
+        // Only Pro users can track analytics
+        $is_pro = false;
+        if ( function_exists( 'kindpdfg_fs' ) ) {
+            $fs = kindpdfg_fs();
+            if ( is_object( $fs ) ) {
+                if ( ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) ||
+                     ( method_exists( $fs, 'is_paying' ) && $fs->is_paying() ) ||
+                     ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) ) {
+                    $is_pro = true;
+                }
+            }
+        }
+
+        if ( ! $is_pro ) {
+            wp_send_json_error( 'Pro feature required' );
+            return;
+        }
+
+        $gallery_id = isset( $_POST['gallery_id'] ) ? sanitize_text_field( wp_unslash( $_POST['gallery_id'] ) ) : '';
+        $event_type = isset( $_POST['event_type'] ) ? sanitize_text_field( wp_unslash( $_POST['event_type'] ) ) : '';
+        $document_id = isset( $_POST['document_id'] ) ? sanitize_text_field( wp_unslash( $_POST['document_id'] ) ) : '';
+        $visitor_id = isset( $_POST['visitor_id'] ) ? sanitize_text_field( wp_unslash( $_POST['visitor_id'] ) ) : '';
+
+        if ( empty( $gallery_id ) || empty( $event_type ) || empty( $visitor_id ) ) {
+            wp_send_json_error( 'Missing required fields' );
+            return;
+        }
+
+        if ( ! in_array( $event_type, array( 'view', 'click' ), true ) ) {
+            wp_send_json_error( 'Invalid event type' );
+            return;
+        }
+
+        // Get existing analytics data
+        $analytics = get_option( 'kindpdfg_analytics', array() );
+        if ( ! is_array( $analytics ) ) {
+            $analytics = array();
+        }
+
+        // Create event record
+        $event = array(
+            'gallery_id'  => $gallery_id,
+            'event_type'  => $event_type,
+            'document_id' => $document_id,
+            'visitor_id'  => $visitor_id,
+            'timestamp'   => gmdate( 'Y-m-d H:i:s' ),
+            'date'        => gmdate( 'Y-m-d' ),
+        );
+
+        // Append event (limit to last 10000 events to prevent bloat)
+        $analytics[] = $event;
+        if ( count( $analytics ) > 10000 ) {
+            $analytics = array_slice( $analytics, -10000 );
+        }
+
+        update_option( 'kindpdfg_analytics', $analytics, false );
+
+        wp_send_json_success( array( 'tracked' => true ) );
+    }
+
+    /**
+     * Handle fetching analytics data (Pro feature)
+     */
+    private function handle_get_analytics() {
+        // Only Pro users can view analytics
+        $is_pro = false;
+        if ( function_exists( 'kindpdfg_fs' ) ) {
+            $fs = kindpdfg_fs();
+            if ( is_object( $fs ) ) {
+                if ( ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) ||
+                     ( method_exists( $fs, 'is_paying' ) && $fs->is_paying() ) ||
+                     ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) ) {
+                    $is_pro = true;
+                }
+            }
+        }
+
+        if ( ! $is_pro ) {
+            wp_send_json_error( 'Pro feature required' );
+            return;
+        }
+
+        $gallery_id = isset( $_POST['gallery_id'] ) ? sanitize_text_field( wp_unslash( $_POST['gallery_id'] ) ) : '';
+
+        if ( empty( $gallery_id ) ) {
+            wp_send_json_error( 'Gallery ID required' );
+            return;
+        }
+
+        // Get analytics data
+        $all_analytics = get_option( 'kindpdfg_analytics', array() );
+        if ( ! is_array( $all_analytics ) ) {
+            $all_analytics = array();
+        }
+
+        // Filter by gallery
+        $gallery_events = array_filter( $all_analytics, function( $event ) use ( $gallery_id ) {
+            return isset( $event['gallery_id'] ) && $event['gallery_id'] === $gallery_id;
+        } );
+
+        // Calculate stats
+        $views = array_filter( $gallery_events, function( $e ) { return $e['event_type'] === 'view'; } );
+        $clicks = array_filter( $gallery_events, function( $e ) { return $e['event_type'] === 'click'; } );
+
+        $unique_view_visitors = array_unique( array_column( $views, 'visitor_id' ) );
+        $unique_click_visitors = array_unique( array_column( $clicks, 'visitor_id' ) );
+
+        // Document breakdown
+        $doc_clicks = array();
+        foreach ( $clicks as $click ) {
+            $doc_id = $click['document_id'] ?? '';
+            if ( empty( $doc_id ) ) continue;
+            if ( ! isset( $doc_clicks[ $doc_id ] ) ) {
+                $doc_clicks[ $doc_id ] = array( 'total' => 0, 'visitors' => array() );
+            }
+            $doc_clicks[ $doc_id ]['total']++;
+            $doc_clicks[ $doc_id ]['visitors'][ $click['visitor_id'] ] = true;
+        }
+
+        // Get document titles from galleries
+        $galleries = get_option( 'kindpdfg_galleries', array() );
+        $doc_titles = array();
+        foreach ( $galleries as $gallery ) {
+            if ( isset( $gallery['items'] ) && is_array( $gallery['items'] ) ) {
+                foreach ( $gallery['items'] as $item ) {
+                    if ( isset( $item['id'], $item['title'] ) ) {
+                        $doc_titles[ $item['id'] ] = $item['title'];
+                    }
+                }
+            }
+        }
+
+        $documents = array();
+        foreach ( $doc_clicks as $doc_id => $data ) {
+            $documents[] = array(
+                'document_id'   => $doc_id,
+                'document_title' => $doc_titles[ $doc_id ] ?? $doc_id,
+                'total_clicks'  => $data['total'],
+                'unique_clicks' => count( $data['visitors'] ),
+            );
+        }
+
+        // Sort by total clicks descending
+        usort( $documents, function( $a, $b ) {
+            return $b['total_clicks'] - $a['total_clicks'];
+        } );
+
+        // Daily stats (last 14 days)
+        $daily_stats = array();
+        for ( $i = 13; $i >= 0; $i-- ) {
+            $date = gmdate( 'Y-m-d', strtotime( "-{$i} days" ) );
+            $day_views = array_filter( $views, function( $e ) use ( $date ) {
+                return isset( $e['date'] ) && $e['date'] === $date;
+            } );
+            $day_clicks = array_filter( $clicks, function( $e ) use ( $date ) {
+                return isset( $e['date'] ) && $e['date'] === $date;
+            } );
+            $daily_stats[] = array(
+                'date'   => $date,
+                'views'  => count( $day_views ),
+                'clicks' => count( $day_clicks ),
+            );
+        }
+
+        wp_send_json_success( array(
+            'gallery_id'    => $gallery_id,
+            'total_views'   => count( $views ),
+            'unique_views'  => count( $unique_view_visitors ),
+            'total_clicks'  => count( $clicks ),
+            'unique_clicks' => count( $unique_click_visitors ),
+            'documents'     => $documents,
+            'daily_stats'   => $daily_stats,
+        ) );
     }
 }
 

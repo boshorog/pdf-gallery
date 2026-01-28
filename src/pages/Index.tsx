@@ -14,6 +14,7 @@ import GalleryNotFoundShowcase from '@/components/GalleryNotFoundShowcase';
 import GalleryNotFound from '@/components/GalleryNotFound';
 import SettingsScopeSelectorShowcase from '@/components/SettingsScopeSelectorShowcase';
 import LightboxShowcase from '@/components/LightboxShowcase';
+import { DevLicenseSelector } from '@/components/DevLicenseSelector';
 import { useLicense } from '@/hooks/useLicense';
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
@@ -634,6 +635,9 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* Dev Mode Selector - only in Lovable preview */}
+      {license.isDevMode && <DevLicenseSelector />}
     </div>
   );
 };

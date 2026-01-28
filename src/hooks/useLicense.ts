@@ -6,7 +6,16 @@ export interface LicenseInfo {
   status: 'free' | 'pro' | 'expired' | 'invalid';
   expiryDate?: string;
   checked: boolean; // true when status has been conclusively determined
+  isDevMode?: boolean; // true when using dev mode selector (Lovable preview)
 }
+
+const DEV_LICENSE_KEY = 'kindpdfg_dev_license_mode';
+
+// Check if running in Lovable preview
+const isLovablePreview = () => {
+  const hostname = window.location.hostname;
+  return hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
+};
 
 export const useLicense = (): LicenseInfo => {
   const [license, setLicense] = useState<LicenseInfo>({
@@ -20,6 +29,29 @@ export const useLicense = (): LicenseInfo => {
     let cancelled = false;
     let finished = false;
     let intervalId: number | null = null;
+
+    // In Lovable preview, use dev mode selector
+    if (isLovablePreview()) {
+      try {
+        const devMode = localStorage.getItem(DEV_LICENSE_KEY) === 'pro';
+        setLicense({
+          isValid: true,
+          isPro: devMode,
+          status: devMode ? 'pro' : 'free',
+          checked: true,
+          isDevMode: true,
+        });
+      } catch {
+        setLicense({
+          isValid: true,
+          isPro: false,
+          status: 'free',
+          checked: true,
+          isDevMode: true,
+        });
+      }
+      return;
+    }
 
     const commit = (next: Partial<LicenseInfo>) => {
       if (cancelled) return;
