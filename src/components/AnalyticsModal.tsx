@@ -28,11 +28,20 @@ import {
   Legend,
 } from 'recharts';
 
+interface GallerySummary {
+  id: string;
+  name: string;
+  totalViews: number;
+  totalClicks: number;
+}
+
 interface AnalyticsModalProps {
   isOpen: boolean;
   onClose: () => void;
   galleryId: string;
   galleryName: string;
+  allGalleries?: Array<{ id: string; name: string }>;
+  onGallerySelect?: (galleryId: string) => void;
 }
 
 export const AnalyticsModal = ({
@@ -40,6 +49,8 @@ export const AnalyticsModal = ({
   onClose,
   galleryId,
   galleryName,
+  allGalleries = [],
+  onGallerySelect,
 }: AnalyticsModalProps) => {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,9 +58,12 @@ export const AnalyticsModal = ({
   const [sortBy, setSortBy] = useState<'clicks' | 'unique'>('clicks');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
+  const [gallerySummaries, setGallerySummaries] = useState<GallerySummary[]>([]);
+
   useEffect(() => {
     if (isOpen && galleryId) {
       loadAnalytics();
+      loadGallerySummaries();
     }
   }, [isOpen, galleryId]);
 
@@ -70,6 +84,45 @@ export const AnalyticsModal = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadGallerySummaries = async () => {
+    // Load summary data for all other galleries
+    const summaries: GallerySummary[] = [];
+    
+    for (const gallery of allGalleries) {
+      if (gallery.id === galleryId) continue; // Skip current gallery
+      
+      try {
+        const data = await fetchAnalytics(gallery.id);
+        if (data) {
+          summaries.push({
+            id: gallery.id,
+            name: gallery.name,
+            totalViews: data.total_views,
+            totalClicks: data.total_clicks,
+          });
+        } else {
+          // Demo data for preview
+          summaries.push({
+            id: gallery.id,
+            name: gallery.name,
+            totalViews: Math.floor(Math.random() * 500) + 100,
+            totalClicks: Math.floor(Math.random() * 1000) + 200,
+          });
+        }
+      } catch {
+        // Use demo data on error
+        summaries.push({
+          id: gallery.id,
+          name: gallery.name,
+          totalViews: Math.floor(Math.random() * 500) + 100,
+          totalClicks: Math.floor(Math.random() * 1000) + 200,
+        });
+      }
+    }
+    
+    setGallerySummaries(summaries);
   };
 
   const getDemoData = (): AnalyticsData => ({
@@ -282,6 +335,40 @@ export const AnalyticsModal = ({
                 </Table>
               </CardContent>
             </Card>
+
+            {/* Other Galleries Section */}
+            {gallerySummaries.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Other Galleries</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {gallerySummaries.map((gallery) => (
+                      <button
+                        key={gallery.id}
+                        onClick={() => onGallerySelect?.(gallery.id)}
+                        className="p-4 rounded-lg border border-border bg-card hover:bg-accent hover:border-primary/50 transition-colors text-left group"
+                      >
+                        <div className="font-medium text-sm truncate group-hover:text-primary">
+                          {gallery.name}
+                        </div>
+                        <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Eye className="h-3 w-3" />
+                            {gallery.totalViews.toLocaleString()}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MousePointerClick className="h-3 w-3" />
+                            {gallery.totalClicks.toLocaleString()}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         ) : null}
       </DialogContent>

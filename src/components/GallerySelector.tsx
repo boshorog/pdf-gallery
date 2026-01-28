@@ -55,12 +55,26 @@ export const GallerySelector = ({
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const [analyticsGalleryId, setAnalyticsGalleryId] = useState(currentGalleryId);
   const [newGalleryName, setNewGalleryName] = useState('');
   const [renameGalleryName, setRenameGalleryName] = useState('');
   const [shortcodeCopied, setShortcodeCopied] = useState(false);
   const { toast } = useToast();
 
   const currentGallery = galleries.find(g => g.id === currentGalleryId);
+  const analyticsGallery = galleries.find(g => g.id === analyticsGalleryId);
+
+  // Update analytics gallery when current gallery changes
+  useEffect(() => {
+    if (!isAnalyticsOpen) {
+      setAnalyticsGalleryId(currentGalleryId);
+    }
+  }, [currentGalleryId, isAnalyticsOpen]);
+
+  const handleAnalyticsGallerySelect = (galleryId: string) => {
+    setAnalyticsGalleryId(galleryId);
+  };
+
 
   // Ensure a default gallery is selected when none is set
   useEffect(() => {
@@ -301,8 +315,10 @@ export const GallerySelector = ({
           <AnalyticsModal
             isOpen={isAnalyticsOpen}
             onClose={() => setIsAnalyticsOpen(false)}
-            galleryId={currentGalleryId}
-            galleryName={currentGallery?.name || 'Gallery'}
+            galleryId={analyticsGalleryId}
+            galleryName={analyticsGallery?.name || 'Gallery'}
+            allGalleries={galleries.map(g => ({ id: g.id, name: g.name }))}
+            onGallerySelect={handleAnalyticsGallerySelect}
           />
         )}
       </>
@@ -365,8 +381,10 @@ export const GallerySelector = ({
         <AnalyticsModal
           isOpen={isAnalyticsOpen}
           onClose={() => setIsAnalyticsOpen(false)}
-          galleryId={currentGalleryId}
-          galleryName={currentGallery?.name || 'Gallery'}
+          galleryId={analyticsGalleryId}
+          galleryName={analyticsGallery?.name || 'Gallery'}
+          allGalleries={galleries.map(g => ({ id: g.id, name: g.name }))}
+          onGallerySelect={handleAnalyticsGallerySelect}
         />
       )}
     </>

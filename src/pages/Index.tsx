@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,11 +14,16 @@ import GalleryNotFoundShowcase from '@/components/GalleryNotFoundShowcase';
 import GalleryNotFound from '@/components/GalleryNotFound';
 import SettingsScopeSelectorShowcase from '@/components/SettingsScopeSelectorShowcase';
 import LightboxShowcase from '@/components/LightboxShowcase';
-import { DevLicenseSelector } from '@/components/DevLicenseSelector';
 import { useLicense } from '@/hooks/useLicense';
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pdfGalleryLogo from '@/assets/pdf-gallery-logo.svg';
+
+// DevLicenseSelector is lazy-loaded only in dev environments to exclude from production builds
+const DevLicenseSelector = import.meta.env.DEV 
+  ? lazy(() => import('@/components/DevLicenseSelector').then(m => ({ default: m.DevLicenseSelector })))
+  : null;
+
 
 const PLUGIN_VERSION = '2.4.1';
 
@@ -637,8 +642,12 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Dev Mode Selector - only in Lovable preview */}
-      {license.isDevMode && <DevLicenseSelector />}
+      {/* Dev Mode Selector - only in Lovable preview, excluded from production builds */}
+      {import.meta.env.DEV && license.isDevMode && DevLicenseSelector && (
+        <Suspense fallback={null}>
+          <DevLicenseSelector />
+        </Suspense>
+      )}
     </div>
   );
 };
