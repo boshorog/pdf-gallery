@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, Download, TrendingUp, Users, MousePointerClick, Eye, Loader2, X, Info } from 'lucide-react';
+import { BarChart3, Download, TrendingUp, Users, MousePointerClick, Eye, Loader2, Info } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -55,8 +55,14 @@ const isGalleryNew = (createdAt?: string): boolean => {
   return diffDays <= 7;
 };
 
-// LocalStorage key for dismissed notification
-const ANALYTICS_NOTICE_DISMISSED_KEY = 'kindpdfg_analytics_notice_dismissed';
+// Format remaining days until real data appears
+const getDaysUntilRealData = (createdAt?: string): number => {
+  if (!createdAt) return 7;
+  const created = new Date(createdAt);
+  const now = new Date();
+  const diffDays = (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+  return Math.max(1, Math.ceil(7 - diffDays));
+};
 
 export const AnalyticsModal = ({
   isOpen,
@@ -72,24 +78,11 @@ export const AnalyticsModal = ({
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'clicks' | 'unique'>('clicks');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [noticeDismissed, setNoticeDismissed] = useState(() => {
-    try {
-      return localStorage.getItem(ANALYTICS_NOTICE_DISMISSED_KEY) === 'true';
-    } catch {
-      return false;
-    }
-  });
 
   const [gallerySummaries, setGallerySummaries] = useState<GallerySummary[]>([]);
   
-  const showNewGalleryNotice = isGalleryNew(galleryCreatedAt) && !noticeDismissed;
-  
-  const handleDismissNotice = () => {
-    setNoticeDismissed(true);
-    try {
-      localStorage.setItem(ANALYTICS_NOTICE_DISMISSED_KEY, 'true');
-    } catch {}
-  };
+  const showNewGalleryNotice = isGalleryNew(galleryCreatedAt);
+  const daysRemaining = getDaysUntilRealData(galleryCreatedAt);
 
   useEffect(() => {
     if (isOpen && galleryId) {
@@ -219,25 +212,6 @@ export const AnalyticsModal = ({
           </DialogTitle>
         </DialogHeader>
 
-        {/* New gallery notice */}
-        {showNewGalleryNotice && (
-          <Alert className="bg-primary/5 border-primary/20">
-            <Info className="h-4 w-4 text-primary" />
-            <AlertDescription className="flex items-center justify-between">
-              <span className="text-sm">
-                Real data will appear here 7 days after gallery creation – don't worry, we're already collecting your stats!
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 ml-2 shrink-0"
-                onClick={handleDismissNotice}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -246,9 +220,26 @@ export const AnalyticsModal = ({
         ) : error ? (
           <div className="text-center py-12 text-destructive">{error}</div>
         ) : analytics ? (
-          <div className="space-y-6">
+          <div className="space-y-6 relative">
+            {/* New Gallery Overlay */}
+            {showNewGalleryNotice && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[2px] rounded-lg">
+                <div className="bg-card border border-primary/30 rounded-xl p-6 shadow-lg max-w-md text-center">
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Info className="h-6 w-6 text-primary" />
+                    <span className="text-lg font-semibold text-foreground">Collecting Data</span>
+                  </div>
+                  <p className="text-muted-foreground">
+                    Real analytics will appear in <span className="font-semibold text-foreground">{daysRemaining} day{daysRemaining !== 1 ? 's' : ''}</span>.
+                    <br />
+                    <span className="text-sm">Don't worry, we're already collecting your stats!</span>
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 ${showNewGalleryNotice ? 'opacity-40 pointer-events-none' : ''}`}>
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
@@ -300,7 +291,7 @@ export const AnalyticsModal = ({
             </div>
 
             {/* Chart */}
-            <Card>
+            <Card className={showNewGalleryNotice ? 'opacity-40 pointer-events-none' : ''}>
               <CardHeader>
                 <CardTitle className="text-base">Last 14 Days</CardTitle>
               </CardHeader>
@@ -337,7 +328,7 @@ export const AnalyticsModal = ({
             </Card>
 
             {/* Documents Table */}
-            <Card>
+            <Card className={showNewGalleryNotice ? 'opacity-40 pointer-events-none' : ''}>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-base">Document Clicks</CardTitle>
                 <Button variant="outline" size="sm" onClick={handleExport}>
@@ -389,7 +380,7 @@ export const AnalyticsModal = ({
 
             {/* Other Galleries Section */}
             {gallerySummaries.length > 0 && (
-              <Card>
+              <Card className={showNewGalleryNotice ? 'opacity-40 pointer-events-none' : ''}>
                 <CardHeader>
                   <CardTitle className="text-base">Other Galleries</CardTitle>
                 </CardHeader>
