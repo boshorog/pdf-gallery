@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.4.7
+Stable tag: 2.4.8
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,11 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Changelog ==
+
+= 2.4.8 =
+* Fixed Pro activation edge case where clicking "Activate Free Version" could unlock Pro UI without a valid license
+* Improved post-activation auto-refresh (reduces need for hard refresh)
+* Bug fixes
 
 = 2.4.7 =
 * Fixed activation flow

@@ -61,6 +61,18 @@ export const useLicense = (): LicenseInfo => {
     let cancelled = false;
     let finished = false;
     let intervalId: number | null = null;
+    const startedAt = Date.now();
+
+    // NOTE: Freemius can report statuses other than "free" even when the user is NOT Pro
+    // (e.g. pending/expired/active). We only treat a small allowlist as “Pro-like”.
+    const PRO_LIKE_STATUSES = new Set([
+      'pro',
+      'paid',
+      'premium',
+      'trial',
+      'active_trial',
+      'trialing',
+    ]);
 
     // In dev preview, use dev mode selector
     if (isDevPreview()) {
@@ -95,9 +107,24 @@ export const useLicense = (): LicenseInfo => {
       // - we're NOT in a license-change flow, OR
       // - the resolved status is not "free" (or is explicitly Pro).
       const nextStatus = String((next as any).status ?? '').toLowerCase();
-      const shouldFinish =
-        next.isPro === true ||
-        (next.checked === true && (!hasLicenseChangeParam || (nextStatus && nextStatus !== 'free')));
+      const isProLikeStatus = PRO_LIKE_STATUSES.has(nextStatus);
+
+      // During license-change flows, "free" can be stale for a few seconds. However,
+      // if the user *actually* activated Free, we still want to converge and stop.
+      const elapsedMs = Date.now() - startedAt;
+
+      const shouldFinish = (() => {
+        if (next.isPro === true) return true;
+        if (next.checked !== true) return false;
+
+        // Outside redirect flows, any checked state is final.
+        if (!hasLicenseChangeParam) return true;
+
+        // Inside redirect flows: finish only on Pro-like, or on Free after a short grace period.
+        if (isProLikeStatus) return true;
+        if (nextStatus === 'free' && elapsedMs > 8000) return true;
+        return false;
+      })();
 
       if (shouldFinish) {
         finished = true;
@@ -153,8 +180,9 @@ export const useLicense = (): LicenseInfo => {
       const wpGlobal = getWPGlobal();
       const status = String(wpGlobal?.fsStatus ?? '').toLowerCase();
       const fsIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1));
-      const proFlag = fsIsPro || (!!status && status !== 'free');
-      if (proFlag) {
+      const isProLike = fsIsPro || PRO_LIKE_STATUSES.has(status);
+
+      if (isProLike) {
         commit({ isValid: true, isPro: true, status: (status || 'pro') as any, checked: true });
         return true;
       }
@@ -191,8 +219,7 @@ export const useLicense = (): LicenseInfo => {
             const remoteStatus = String(lic.status ?? '').toLowerCase();
             const remoteIsPro =
               lic.isPro === true ||
-              remoteStatus === 'pro' ||
-              (!!remoteStatus && remoteStatus !== 'free');
+              PRO_LIKE_STATUSES.has(remoteStatus);
 
             commit({ ...lic, isPro: remoteIsPro, isValid: remoteIsPro || remoteStatus === 'free', checked: true });
           } else {
@@ -210,7 +237,8 @@ export const useLicense = (): LicenseInfo => {
     // 2) Wait for Freemius globals to become available.
     // After activation the SDK can take longer to attach to window, so we poll longer.
     let attempts = 0;
-    const maxAttempts = hasLicenseChangeParam ? 120 : 20; // 12s vs 2s
+    // After activation, Freemius globals can take longer to reflect the new plan.
+    const maxAttempts = hasLicenseChangeParam ? 300 : 20; // 30s vs 2s
     intervalId = window.setInterval(() => {
       if (cancelled || finished) {
         if (intervalId) clearInterval(intervalId);
@@ -224,9 +252,8 @@ export const useLicense = (): LicenseInfo => {
       }
 
       // Try remote checks a few times (especially after activation) in case globals lag.
-      if (attempts === 10 || (hasLicenseChangeParam && (attempts === 30 || attempts === 60))) {
-        doRemoteCheck();
-      }
+      if (attempts === 10) doRemoteCheck();
+      if (hasLicenseChangeParam && [30, 60, 120, 180, 240].includes(attempts)) doRemoteCheck();
 
       if (attempts >= maxAttempts) {
         if (intervalId) clearInterval(intervalId);
