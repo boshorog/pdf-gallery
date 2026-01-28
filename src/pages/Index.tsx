@@ -409,15 +409,15 @@ const Index = () => {
   const galleryLightboxEnabled = toBoolean((settings as any)?.lightboxEnabled, true);
 
 
-  // Check if we should show admin interface (Lovable preview or WordPress admin)
+  // Check if we should show admin interface (dev preview or WordPress admin)
   const urlParams = new URLSearchParams(window.location.search);
   const wp = (typeof window !== 'undefined' && ((window as any).kindpdfgData || (window as any).wpPDFGallery)) ? ((window as any).kindpdfgData || (window as any).wpPDFGallery) : null;
   const isWordPressAdmin = !!wp?.isAdmin || urlParams.get('admin') === 'true';
   const hostname = window.location.hostname;
-  const isLovablePreview = hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
+  const isDevPreview = hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
 
-  // Show admin interface only in WordPress admin area or Lovable preview
-  const showAdmin = isLovablePreview || isWordPressAdmin;
+  // Show admin interface only in WordPress admin area or dev preview
+  const showAdmin = isDevPreview || isWordPressAdmin;
 
   // DEV: Show showcase for gallery not found designs
   const showGalleryNotFoundShowcase = urlParams.get('showcase') === 'gallery-not-found';
@@ -642,7 +642,7 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Dev Mode Selector - only in Lovable preview, excluded from production builds */}
+      {/* Dev Mode Selector - only in dev preview, excluded from production builds */}
       {import.meta.env.DEV && license.isDevMode && DevLicenseSelector && (
         <Suspense fallback={null}>
           <DevLicenseSelector />

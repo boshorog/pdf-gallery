@@ -21,8 +21,8 @@ export type BuildVariant = 'free' | 'pro';
 
 const DEV_LICENSE_KEY = 'kindpdfg_dev_license_mode';
 
-// Check if running in Lovable preview (dev mode)
-const isLovablePreview = () => {
+// Check if running in dev preview mode
+const isDevPreview = () => {
   if (typeof window === 'undefined') return false;
   const hostname = window.location.hostname;
   return hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
@@ -30,7 +30,7 @@ const isLovablePreview = () => {
 
 // Get dev mode Pro status from localStorage
 const getDevModePro = (): boolean => {
-  if (!isLovablePreview()) return false;
+  if (!isDevPreview()) return false;
   try {
     return localStorage.getItem(DEV_LICENSE_KEY) === 'pro';
   } catch {
