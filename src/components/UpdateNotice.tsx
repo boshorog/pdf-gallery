@@ -21,7 +21,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
 import { STORAGE_KEYS, PLUGIN_SLUG } from '@/config/pluginIdentity';
 
@@ -95,9 +95,21 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
   };
 
   const handleUpdate = () => {
-    // Navigate to WordPress plugins page
-    const pluginsUrl = window.location.origin + '/wp-admin/plugins.php';
-    window.location.href = pluginsUrl;
+    // Check if we have a direct update URL from PHP (with nonce)
+    let wpGlobal: any = null;
+    try { wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || null; } catch {}
+    if (!wpGlobal) {
+      try { wpGlobal = (window.parent && ((window.parent as any).kindpdfgData || (window.parent as any).wpPDFGallery)) || null; } catch {}
+    }
+    
+    if (wpGlobal?.updateUrl) {
+      // Direct update action URL with nonce
+      window.location.href = wpGlobal.updateUrl;
+    } else {
+      // Fallback: Navigate to WordPress plugins page
+      const pluginsUrl = window.location.origin + '/wp-admin/plugins.php';
+      window.location.href = pluginsUrl;
+    }
   };
 
   // Don't show if Pro user, loading, dismissed, no latest version, or current is up-to-date
@@ -105,9 +117,9 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
   if (compareVersions(currentVersion, latestVersion) >= 0) return null;
 
   return (
-    <div className="mb-4 flex items-center justify-between gap-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-sm dark:border-green-800 dark:bg-green-950">
-      <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
-        <RefreshCw className="h-4 w-4" />
+    <div className="mb-4 flex items-center justify-between gap-4 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50 px-4 py-2.5 text-sm">
+      <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
+        <span className="text-base">🎉</span>
         <span>
           <strong>New version ({latestVersion})</strong> is available. Update now for new features and bug fixes.
         </span>
@@ -115,8 +127,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
       <div className="flex items-center gap-2">
         <Button
           size="sm"
-          variant="default"
-          className="h-7 bg-green-600 hover:bg-green-700 text-white"
+          className="h-7 bg-slate-700 hover:bg-slate-800 text-white dark:bg-slate-600 dark:hover:bg-slate-500"
           onClick={handleUpdate}
         >
           Update
@@ -124,7 +135,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
         <Button
           size="sm"
           variant="ghost"
-          className="h-7 w-7 p-0 text-green-700 hover:bg-green-100 dark:text-green-300 dark:hover:bg-green-900"
+          className="h-7 w-7 p-0 text-slate-500 hover:bg-green-100 dark:text-slate-400 dark:hover:bg-green-900"
           onClick={handleDismiss}
         >
           <X className="h-4 w-4" />
