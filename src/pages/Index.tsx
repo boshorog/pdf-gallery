@@ -82,6 +82,9 @@ const initialPDFs: GalleryItem[] = [
 ];
 
 const Index = () => {
+  // IMPORTANT: useLicense must be called unconditionally at the top
+  const license = useLicense();
+  
   const [galleryState, setGalleryState] = useState<GalleryState>({
     galleries: [],
     currentGalleryId: ''
@@ -451,8 +454,6 @@ const Index = () => {
       </div>
     );
   }
-
-  const license = useLicense();
 
   return (
     <div className="min-h-screen bg-background">
