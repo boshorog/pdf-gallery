@@ -98,12 +98,19 @@ export const useLicense = (): LicenseInfo => {
     if (hasLicenseChangeParam) {
       try {
         const key = 'kindpdfg_post_license_reload';
-        const alreadyReloaded = sessionStorage.getItem(key) === '1';
+        const reloadTs = sessionStorage.getItem(key);
+        const now = Date.now();
+        // Only skip reload if we already reloaded within the last 10 seconds
+        const alreadyReloaded = reloadTs && (now - parseInt(reloadTs, 10)) < 10000;
         if (!alreadyReloaded) {
-          sessionStorage.setItem(key, '1');
-          const nextUrl = new URL(window.location.href);
-          nextUrl.searchParams.set('kindpdfg_reload', String(Date.now()));
-          window.location.replace(nextUrl.toString());
+          sessionStorage.setItem(key, String(now));
+          // Use a small delay to ensure the page has fully loaded before reloading
+          setTimeout(() => {
+            const nextUrl = new URL(window.location.href);
+            nextUrl.searchParams.set('kindpdfg_reload', String(now));
+            // Force a hard reload to bypass any caching
+            window.location.href = nextUrl.toString();
+          }, 100);
           return;
         }
       } catch {

@@ -1699,9 +1699,13 @@ public function display_gallery_shortcode($atts) {
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_kindpdfg_ajax().
         $gallery_id = isset( $_POST['gallery_id'] ) ? sanitize_text_field( wp_unslash( $_POST['gallery_id'] ) ) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_kindpdfg_ajax().
         $event_type = isset( $_POST['event_type'] ) ? sanitize_text_field( wp_unslash( $_POST['event_type'] ) ) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_kindpdfg_ajax().
         $document_id = isset( $_POST['document_id'] ) ? sanitize_text_field( wp_unslash( $_POST['document_id'] ) ) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_kindpdfg_ajax().
         $visitor_id = isset( $_POST['visitor_id'] ) ? sanitize_text_field( wp_unslash( $_POST['visitor_id'] ) ) : '';
 
         if ( empty( $gallery_id ) || empty( $event_type ) || empty( $visitor_id ) ) {
@@ -1763,6 +1767,7 @@ public function display_gallery_shortcode($atts) {
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_kindpdfg_ajax().
         $gallery_id = isset( $_POST['gallery_id'] ) ? sanitize_text_field( wp_unslash( $_POST['gallery_id'] ) ) : '';
 
         if ( empty( $gallery_id ) ) {
