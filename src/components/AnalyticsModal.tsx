@@ -244,15 +244,19 @@ export const AnalyticsModal = ({
           <div className="text-center py-12 text-destructive">{error}</div>
         ) : analytics ? (
           <div className="space-y-6 relative">
-            {/* New Gallery Notice - positioned at top */}
+          {/* New Gallery Overlay - positioned near top */}
             {showNewGalleryNotice && (
-              <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 flex items-center gap-3">
-                <Info className="h-5 w-5 text-primary flex-shrink-0" />
-                <div>
-                  <span className="font-semibold text-foreground">Collecting Data</span>
-                  <span className="text-muted-foreground ml-2">
-                    Real analytics will appear in {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} – don't worry, we're already collecting your stats!
-                  </span>
+              <div className="absolute inset-0 z-10 flex items-start justify-center pt-16 bg-background/60 backdrop-blur-[2px] rounded-lg">
+                <div className="bg-card border border-primary/30 rounded-xl p-6 shadow-lg max-w-md text-center">
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Info className="h-6 w-6 text-primary" />
+                    <span className="text-lg font-semibold text-foreground">Collecting Data</span>
+                  </div>
+                  <p className="text-muted-foreground">
+                    Real analytics will appear in <span className="font-semibold text-foreground">{daysRemaining} day{daysRemaining !== 1 ? 's' : ''}</span>.
+                    <br />
+                    <span className="text-sm">Don't worry, we're already collecting your stats!</span>
+                  </p>
                 </div>
               </div>
             )}
