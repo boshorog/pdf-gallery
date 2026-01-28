@@ -39,9 +39,6 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Pro users get updates via Freemius SDK - skip fetching
-    if (license.isPro) return;
-
     // Check if this version was already dismissed
     try {
       const dismissedVersion = localStorage.getItem(STORAGE_KEYS.updateDismissed);
@@ -70,7 +67,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
         // Silently fail - no update notice if API unavailable
       })
       .finally(() => setLoading(false));
-  }, [license.isPro]);
+  }, [latestVersion]);
 
   const compareVersions = (v1: string, v2: string): number => {
     const parts1 = v1.split('.').map(Number);
@@ -102,8 +99,14 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
       try { wpGlobal = (window.parent && ((window.parent as any).kindpdfgData || (window.parent as any).wpPDFGallery)) || null; } catch {}
     }
     
-    if (wpGlobal?.updateUrl) {
-      // Direct update action URL with nonce
+    // Pro users: go to plugins page (Freemius handles updates there)
+    // Free users: use direct update URL if available
+    if (license.isPro) {
+      // Navigate to plugins page with anchor to our plugin
+      const pluginsUrl = window.location.origin + '/wp-admin/plugins.php#kindpixels-pdf-gallery';
+      window.location.href = pluginsUrl;
+    } else if (wpGlobal?.updateUrl) {
+      // Direct update action URL with nonce (Free users only)
       window.location.href = wpGlobal.updateUrl;
     } else {
       // Fallback: Navigate to WordPress plugins page
@@ -112,8 +115,8 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     }
   };
 
-  // Don't show if Pro user, loading, dismissed, no latest version, or current is up-to-date
-  if (license.isPro || loading || dismissed || !latestVersion) return null;
+  // Don't show if loading, dismissed, no latest version, or current is up-to-date
+  if (loading || dismissed || !latestVersion) return null;
   if (compareVersions(currentVersion, latestVersion) >= 0) return null;
 
   return (
