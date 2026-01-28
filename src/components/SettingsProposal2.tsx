@@ -650,7 +650,46 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                       </div>
                     </div>
                   </div>
-                </RadioGroup>
+              </RadioGroup>
+              </div>
+
+              {/* Gap Size */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-base font-medium">Gap Size</Label>
+                    <p className="text-sm text-muted-foreground">Spacing between thumbnails (default is the middle)</p>
+                  </div>
+                  <span className="text-sm font-medium text-primary">
+                    {(() => {
+                      const v = localSettings.gapSize ?? 3;
+                      return v === 1
+                        ? 'Extra Small (12px)'
+                        : v === 2
+                          ? 'Small (18px)'
+                          : v === 3
+                            ? 'Medium (24px)'
+                            : v === 4
+                              ? 'Large (32px)'
+                              : 'Extra Large (40px)';
+                    })()}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-muted-foreground">Tight</span>
+                  <Slider
+                    value={[localSettings.gapSize ?? 3]}
+                    onValueChange={(value) =>
+                      setLocalSettings((prev) => ({ ...prev, gapSize: value[0] }))
+                    }
+                    min={1}
+                    max={5}
+                    step={1}
+                    className="flex-1"
+                  />
+                  <span className="text-xs text-muted-foreground">Spacious</span>
+                </div>
               </div>
 
               {/* Thumbnail Size Section */}
@@ -736,45 +775,6 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                   </div>
                 </div>
               </RadioGroup>
-              </div>
-
-              {/* Gap Size */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-base font-medium">Gap Size</Label>
-                    <p className="text-sm text-muted-foreground">Spacing between thumbnails (default is the middle)</p>
-                  </div>
-                  <span className="text-sm font-medium text-primary">
-                    {(() => {
-                      const v = localSettings.gapSize ?? 3;
-                      return v === 1
-                        ? 'Extra Small (12px)'
-                        : v === 2
-                          ? 'Small (18px)'
-                          : v === 3
-                            ? 'Medium (24px)'
-                            : v === 4
-                              ? 'Large (32px)'
-                              : 'Extra Large (40px)';
-                    })()}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground">Tight</span>
-                  <Slider
-                    value={[localSettings.gapSize ?? 3]}
-                    onValueChange={(value) =>
-                      setLocalSettings((prev) => ({ ...prev, gapSize: value[0] }))
-                    }
-                    min={1}
-                    max={5}
-                    step={1}
-                    className="flex-1"
-                  />
-                  <span className="text-xs text-muted-foreground">Spacious</span>
-                </div>
               </div>
 
               <div className="text-xs text-muted-foreground p-3 bg-muted/30 rounded border-l-4 border-primary/50">
