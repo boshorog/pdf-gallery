@@ -74,6 +74,7 @@ Once you install the plugin, head over to the Documentation tab where we have an
 = 2.4.9 =
 * Update notifications now visible for Pro users inside the plugin dashboard
 * Minor improvements
+* Bug fixes
 
 = 2.4.8 =
 * Improved post-activation auto-refresh (reduces need for hard refresh)
