@@ -11,6 +11,7 @@ import PluginDocumentation from '@/components/PluginDocumentation';
 import ProBanner from '@/components/ProBanner';
 import ProWelcome from '@/components/ProWelcome';
 import GalleryNotFoundShowcase from '@/components/GalleryNotFoundShowcase';
+import UpdateNoticeShowcase from '@/components/UpdateNoticeShowcase';
 import GalleryNotFound from '@/components/GalleryNotFound';
 import SettingsScopeSelectorShowcase from '@/components/SettingsScopeSelectorShowcase';
 import LightboxShowcase from '@/components/LightboxShowcase';
@@ -477,6 +478,12 @@ const Index = () => {
   const showLightboxShowcase = urlParams.get('showcase') === 'lightbox';
   if (showLightboxShowcase) {
     return <LightboxShowcase />;
+  }
+
+  // DEV: Show showcase for update notice designs
+  const showUpdateNoticeShowcase = urlParams.get('showcase') === 'update-notice';
+  if (showUpdateNoticeShowcase) {
+    return <UpdateNoticeShowcase />;
   }
 
   if (!showAdmin) {
