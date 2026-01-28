@@ -5,10 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
-import { Upload, X, FileText, Pause, Play, RotateCcw } from 'lucide-react';
+import { Upload, X, FileText, Pause, Play, RotateCcw, Link, FolderOpen } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
 import { useToast } from '@/hooks/use-toast';
 import { BUILD_FLAGS } from '@/config/buildFlags';
+
+type UploadMode = 'upload' | 'media' | 'url';
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
 const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB max
@@ -34,10 +36,15 @@ interface AddDocumentModalProps {
 }
 
 const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => {
+  const [uploadMode, setUploadMode] = useState<UploadMode>('upload');
   const [files, setFiles] = useState<FileUpload[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [pausedUploads, setPausedUploads] = useState<Set<string>>(new Set());
+  const [urlInput, setUrlInput] = useState('');
+  const [urlTitle, setUrlTitle] = useState('');
+  const [urlFileType, setUrlFileType] = useState('pdf');
+  const [isAddingUrl, setIsAddingUrl] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const license = useLicense();
@@ -318,6 +325,161 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
   };
 
+  // Detect file type from URL
+  const getFileTypeFromUrl = (url: string): string => {
+    // Check for YouTube
+    if (url.includes('youtube.com/') || url.includes('youtu.be/')) {
+      return 'youtube';
+    }
+    // Check extension
+    const extension = url.split('.').pop()?.toLowerCase()?.split('?')[0];
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico'].includes(extension || '')) return 'img';
+    if (extension === 'pdf') return 'pdf';
+    if (['doc', 'docx', 'odt', 'rtf', 'txt'].includes(extension || '')) return 'doc';
+    if (['ppt', 'pptx', 'odp'].includes(extension || '')) return 'ppt';
+    if (['xls', 'xlsx', 'ods', 'csv'].includes(extension || '')) return 'xls';
+    if (['zip', 'rar', '7z'].includes(extension || '')) return 'zip';
+    if (['epub', 'mobi'].includes(extension || '')) return 'epub';
+    if (['mp3', 'wav', 'ogg', 'm4a', 'flac'].includes(extension || '')) return 'audio';
+    if (['mp4', 'mov', 'webm', 'avi'].includes(extension || '')) return 'video';
+    return 'file';
+  };
+
+  // Fetch YouTube title via oEmbed
+  const fetchYouTubeTitle = async (url: string): Promise<string | null> => {
+    try {
+      const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+      const response = await fetch(oembedUrl);
+      if (response.ok) {
+        const data = await response.json();
+        return data.title || null;
+      }
+    } catch {}
+    return null;
+  };
+
+  // Handle URL input change with auto-detection
+  const handleUrlChange = async (url: string) => {
+    setUrlInput(url);
+    const detectedType = getFileTypeFromUrl(url);
+    setUrlFileType(detectedType);
+
+    // Auto-fetch YouTube title
+    if (detectedType === 'youtube' && url.trim()) {
+      const title = await fetchYouTubeTitle(url);
+      if (title) {
+        setUrlTitle(title);
+      }
+    }
+  };
+
+  // Add file via URL
+  const handleAddUrl = async () => {
+    if (!urlInput.trim()) {
+      toast({
+        title: 'URL Required',
+        description: 'Please enter a valid URL.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsAddingUrl(true);
+    try {
+      const fileType = getFileTypeFromUrl(urlInput);
+      let title = urlTitle.trim();
+
+      // Auto-fetch title for YouTube if not provided
+      if (!title && fileType === 'youtube') {
+        const fetchedTitle = await fetchYouTubeTitle(urlInput);
+        title = fetchedTitle || 'YouTube Video';
+      }
+
+      if (!title) {
+        // Extract filename from URL as fallback
+        const urlParts = urlInput.split('/');
+        title = urlParts[urlParts.length - 1]?.split('?')[0] || 'Untitled';
+        title = title.replace(/\.[^/.]+$/, ''); // Remove extension
+      }
+
+      onAdd({
+        title,
+        date: '',
+        pdfUrl: urlInput,
+        fileType,
+      });
+
+      toast({
+        title: 'File Added',
+        description: `"${title}" has been added to the gallery.`,
+      });
+
+      // Reset and close
+      setUrlInput('');
+      setUrlTitle('');
+      setUrlFileType('pdf');
+      onClose();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to add file. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAddingUrl(false);
+    }
+  };
+
+  // Open WordPress Media Library
+  const openMediaLibrary = () => {
+    const wp = (window as any).wp;
+    if (!wp?.media) {
+      toast({
+        title: 'Media Library Unavailable',
+        description: 'WordPress Media Library is not available in this context.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const mediaFrame = wp.media({
+      title: 'Select Files',
+      button: { text: 'Add to Gallery' },
+      multiple: BUILD_FLAGS.BULK_UPLOAD_UI && license.isPro,
+    });
+
+    mediaFrame.on('select', () => {
+      const selection = mediaFrame.state().get('selection');
+      selection.each((attachment: any) => {
+        const data = attachment.toJSON();
+        const extension = data.filename?.split('.').pop()?.toLowerCase() || '';
+        let fileType = 'file';
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico'].includes(extension)) fileType = 'img';
+        else if (extension === 'pdf') fileType = 'pdf';
+        else if (['doc', 'docx'].includes(extension)) fileType = 'doc';
+        else if (['ppt', 'pptx'].includes(extension)) fileType = 'ppt';
+        else if (['xls', 'xlsx'].includes(extension)) fileType = 'xls';
+        else if (['mp3', 'wav', 'ogg'].includes(extension)) fileType = 'audio';
+        else if (['mp4', 'mov', 'webm'].includes(extension)) fileType = 'video';
+
+        onAdd({
+          title: data.title || data.filename?.replace(/\.[^/.]+$/, '') || 'Untitled',
+          date: '',
+          pdfUrl: data.url,
+          fileType,
+        });
+      });
+
+      toast({
+        title: 'Files Added',
+        description: 'Selected files have been added to the gallery.',
+      });
+      onClose();
+    });
+
+    mediaFrame.open();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -325,65 +487,178 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
           <DialogTitle>Add Files</DialogTitle>
         </DialogHeader>
         <form className="space-y-6">
-          {/* Upload Area */}
-          <div
-            className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              isDragDropEnabled && isDragOver 
-                ? 'bg-primary border-primary text-primary-foreground' 
-                : 'border-muted-foreground/25 hover:border-muted-foreground/50'
-            }`}
-            onDrop={isDragDropEnabled ? handleDrop : undefined}
-            onDragOver={isDragDropEnabled ? handleDragOver : undefined}
-            onDragLeave={isDragDropEnabled ? handleDragLeave : undefined}
-            onDragEnter={isDragDropEnabled ? (e) => { e.preventDefault(); setIsDragOver(true); } : undefined}
-          >
-            {isDragDropEnabled && isDragOver ? (
-              <div className="flex flex-col items-center justify-center gap-2 py-6">
-                <Upload className="mx-auto h-12 w-12 text-primary-foreground/90" />
-                <p className="text-lg font-semibold">Drop your files here</p>
-                <p className="text-sm opacity-90">Release to upload</p>
+          {/* Mode Selector Tabs */}
+          <div className="flex gap-2 border-b border-border pb-4">
+            <Button
+              type="button"
+              variant={uploadMode === 'upload' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setUploadMode('upload')}
+              className="flex items-center gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              Upload Files
+            </Button>
+            <Button
+              type="button"
+              variant={uploadMode === 'media' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setUploadMode('media');
+                openMediaLibrary();
+              }}
+              className="flex items-center gap-2"
+            >
+              <FolderOpen className="h-4 w-4" />
+              Media Library
+            </Button>
+            <Button
+              type="button"
+              variant={uploadMode === 'url' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setUploadMode('url')}
+              className="flex items-center gap-2"
+            >
+              <Link className="h-4 w-4" />
+              Add via Link
+            </Button>
+          </div>
+
+          {/* Upload Mode - File Upload Area */}
+          {uploadMode === 'upload' && (
+            <>
+              <div
+                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                  isDragDropEnabled && isDragOver 
+                    ? 'bg-primary border-primary text-primary-foreground' 
+                    : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                }`}
+                onDrop={isDragDropEnabled ? handleDrop : undefined}
+                onDragOver={isDragDropEnabled ? handleDragOver : undefined}
+                onDragLeave={isDragDropEnabled ? handleDragLeave : undefined}
+                onDragEnter={isDragDropEnabled ? (e) => { e.preventDefault(); setIsDragOver(true); } : undefined}
+              >
+                {isDragDropEnabled && isDragOver ? (
+                  <div className="flex flex-col items-center justify-center gap-2 py-6">
+                    <Upload className="mx-auto h-12 w-12 text-primary-foreground/90" />
+                    <p className="text-lg font-semibold">Drop your files here</p>
+                    <p className="text-sm opacity-90">Release to upload</p>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                    <div className="space-y-2">
+                      <p className="text-lg font-medium">
+                        Click to browse files
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Supports PDF, Office files, images, audio, video, archives, and eBooks
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Max file size: 1GB (chunked upload)
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="mt-4"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Browse Files
+                    </Button>
+                  </>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple={BUILD_FLAGS.BULK_UPLOAD_UI && license.isPro}
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,.odt,.ods,.odp,.rtf,.txt,.csv,.svg,.ico,.zip,.rar,.7z,.epub,.mobi,.mp3,.wav,.ogg,.mp4,.mov,.webm,.avi,.mkv,.flv,.wmv,.m4v,.m4a,.flac,.aac,video/*,audio/*"
+                  onChange={handleFileInput}
+                  className="hidden"
+                />
+                {isUploading && (
+                  <div className="absolute left-0 right-0 bottom-0">
+                    <Progress
+                      value={Math.round(files.reduce((sum, f) => sum + (f.progress || 0), 0) / Math.max(files.length || 1, 1))}
+                      className="h-1 rounded-none"
+                    />
+                  </div>
+                )}
               </div>
-            ) : (
-              <>
-                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <div className="space-y-2">
-                  <p className="text-lg font-medium">
-                    Click to browse files
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Supports PDF, Office files, images, audio, video, archives, and eBooks
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Max file size: 1GB (chunked upload)
-                  </p>
+            </>
+          )}
+
+          {/* URL Mode - Add via Link */}
+          {uploadMode === 'url' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="file-url">File URL or YouTube Link</Label>
+                <Input
+                  id="file-url"
+                  type="url"
+                  placeholder="https://example.com/file.pdf or YouTube URL"
+                  value={urlInput}
+                  onChange={(e) => handleUrlChange(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Paste a direct link to a file or a YouTube video URL
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="url-title">Title (optional)</Label>
+                <Input
+                  id="url-title"
+                  type="text"
+                  placeholder="Enter a title for this file"
+                  value={urlTitle}
+                  onChange={(e) => setUrlTitle(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {urlFileType === 'youtube' ? 'YouTube titles are fetched automatically' : 'Leave empty to use filename from URL'}
+                </p>
+              </div>
+
+              {urlFileType && urlInput && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Detected type:</span>
+                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                    {urlFileType.toUpperCase()}
+                  </span>
                 </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button type="button" variant="outline" onClick={onClose}>
+                  Cancel
+                </Button>
                 <Button
                   type="button"
-                  variant="outline"
-                  className="mt-4"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={handleAddUrl}
+                  disabled={!urlInput.trim() || isAddingUrl}
                 >
-                  Browse Files
+                  {isAddingUrl ? 'Adding...' : 'Add to Gallery'}
                 </Button>
-              </>
-            )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple={BUILD_FLAGS.BULK_UPLOAD_UI && license.isPro}
-              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp,.odt,.ods,.odp,.rtf,.txt,.csv,.svg,.ico,.zip,.rar,.7z,.epub,.mobi,.mp3,.wav,.ogg,.mp4,.mov,.webm,.avi,.mkv,.flv,.wmv,.m4v,.m4a,.flac,.aac,video/*,audio/*"
-              onChange={handleFileInput}
-              className="hidden"
-            />
-            {isUploading && (
-              <div className="absolute left-0 right-0 bottom-0">
-                <Progress
-                  value={Math.round(files.reduce((sum, f) => sum + (f.progress || 0), 0) / Math.max(files.length || 1, 1))}
-                  className="h-1 rounded-none"
-                />
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Media Library Mode - Show instructions */}
+          {uploadMode === 'media' && (
+            <div className="text-center py-8 text-muted-foreground">
+              <FolderOpen className="mx-auto h-12 w-12 mb-4 opacity-50" />
+              <p>The WordPress Media Library should have opened.</p>
+              <p className="text-sm mt-2">Select files and click "Add to Gallery".</p>
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-4"
+                onClick={openMediaLibrary}
+              >
+                Open Media Library
+              </Button>
+            </div>
+          )}
 
           {/* File List */}
           {files.length > 0 && (
