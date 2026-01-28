@@ -107,6 +107,19 @@ const Index = () => {
   useEffect(() => {
     const wp = (typeof window !== 'undefined' && ((window as any).kindpdfgData || (window as any).wpPDFGallery)) ? ((window as any).kindpdfgData || (window as any).wpPDFGallery) : null;
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // Debug: Reset galleries if ?reset_galleries=1 is present
+    if (urlParams.get('reset_galleries') === '1') {
+      console.log('[PDF Gallery] Resetting galleries...');
+      localStorage.removeItem('kindpdfg_backup');
+      localStorage.removeItem('kindpdfg_galleries');
+      // Remove the param and reload
+      urlParams.delete('reset_galleries');
+      const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+      window.location.replace(newUrl);
+      return;
+    }
+    
     const ajaxUrl = wp?.ajaxUrl || urlParams.get('ajax');
     const nonce = wp?.nonce || urlParams.get('nonce') || '';
     const requestedGalleryName = urlParams.get('name') || '';
