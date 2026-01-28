@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.4.4
+Stable tag: 2.4.5
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -71,6 +71,10 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Changelog ==
 
+= 2.4.5 =
+* Added update notification when new version available
+* Minor improvements
+
 = 2.4.4 =
 * Bug fixes and improvements
 
@@ -122,6 +126,9 @@ Once you install the plugin, head over to the Documentation tab where we have an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.4.5 =
+Added update notification in admin UI.
 
 = 2.4.4 =
 Bug fixes and improvements.
