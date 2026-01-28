@@ -71,6 +71,10 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Changelog ==
 
+= 2.4.6 =
+* Added upload via link feature
+* Bug fixes
+
 = 2.4.5 =
 * Added update notification when new version available
 * Minor improvements
