@@ -10,29 +10,28 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Create beautiful, interactive PDF and document galleries with customizable layouts, lightbox viewer, and drag-and-drop management.
+Create beautiful galleries from PDFs (and other files), with customizable layouts, lightbox viewer, and drag-and-drop management.
 
 == Description ==
 
-KindPixels PDF Gallery is a powerful WordPress plugin that allows you to create stunning document galleries with ease. Display PDFs, images, videos, audio files, and Office documents in beautiful grid, list, or masonry layouts with a built-in lightbox viewer.
+PDF Gallery is a plugin that allows you to create stunning document galleries with ease. Display PDF files, Office documents, images, videos, audio files (and even YouTube videos!) in beautiful grid or masonry layouts, with a built-in lightbox viewer. Give it a try!
 
 = Key Features =
 
-* **Multiple Gallery Support** – Create unlimited galleries for different pages or sections
-* **Flexible Layouts** – Choose from Grid, List, or Masonry display styles
-* **Built-in Lightbox** – Professional document viewer with zoom and navigation
-* **Drag & Drop Ordering** – Easily reorder documents with intuitive drag and drop
-* **Section Dividers** – Organize documents into logical sections with customizable dividers
-* **Thumbnail Styles** – Multiple thumbnail presentation options (Flat, Shadow, Lifted, Curled, Stacked)
-* **Hover Animations** – Engaging animations (Lift, Grow, Tilt, Glow, Float)
-* **Responsive Design** – Looks great on all devices and screen sizes
-* **Shortcode Support** – Easy embedding with customizable shortcode parameters
+* **Create File Galleries** – Turn your files into clean, visual galleries.
+* **Built-in Lightbox** – Full-screen document viewer with zoom and navigation.
+* **Responsive Design** – Galleries look great on all devices.
+* **Thumbnail Styles** – Choose from multiple thumbnail layouts.
+* **Advanced Customization** – Fine-tune gallery design and behavior.
+* **Section Dividers** – Organize documents into logical sections using dividers and labels.
+* **Drag & Drop Ordering** – Reorder documents with simple drag and drop.
+* **Shortcode Support** – Embed galleries anywhere on your website using a shortcode.
 
 = Supported File Types =
 
 * PDF documents
 * Images (JPG, PNG, GIF, WebP)
-* Videos (MP4, WebM, YouTube)
+* Videos (MP4, YouTube links)
 * Audio files (MP3, WAV, OGG)
 * Microsoft Office (Word, Excel, PowerPoint)
 * Archives (ZIP, RAR, 7Z)
@@ -41,22 +40,24 @@ KindPixels PDF Gallery is a powerful WordPress plugin that allows you to create 
 = Free vs Pro =
 
 **Free version includes:**
-* 1 gallery with unlimited files
+* One gallery with unlimited files
 * All display settings and styling options
-* Single file upload
+* Files uploaded one by one
 
 **Pro version adds:**
 * Unlimited galleries
-* Batch upload of multiple files
-* File analytics
+* Batch upload for multiple files at once
+* File analytics (coming soon)
 * Priority support
+
+For a complete comparison, see [the full feature table](https://kindpixels.com/plugins/pdf-gallery#comparison).
 
 == Installation ==
 
-1. Upload the `kindpixels-pdf-gallery` folder to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to 'PDF Gallery' in your admin menu to start creating galleries
-4. Each gallery has a unique shortcode starting with `[kindpdfg_gallery]` - copy and paste it on any page or post
+1. In your WordPress dashboard, go to "Plugins → Add New" and search for "KindPixels PDF Gallery" then click "Install Now" and "Activate".
+2. Alternatively, upload the `kindpixels-pdf-gallery` folder to the `/wp-content/plugins/` directory via FTP, then activate it from the "Plugins" menu.
+3. Go to "PDF Gallery" in your admin menu to create your first gallery.
+4. Each gallery has a unique shortcode starting with `[kindpdfg_gallery]` – copy and paste it into any page or post.
 
 == Frequently Asked Questions ==
 
@@ -67,14 +68,6 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 = What if I have more questions? =
 
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
-
-== Screenshots ==
-
-1. Gallery grid view with shadow thumbnails
-2. Admin management interface
-3. Lightbox document viewer
-4. Settings panel with customization options
-5. Drag and drop reordering
 
 == Changelog ==
 
