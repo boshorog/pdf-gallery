@@ -112,12 +112,18 @@ export const AnalyticsModal = ({
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchAnalytics(galleryId);
-      if (data) {
-        setAnalytics(data);
-      } else {
-        // Show demo data when no WP context
+      // For new galleries (< 7 days old), always show demo data
+      // Real data will be shown once the gallery is older than 7 days
+      if (isGalleryNew(galleryCreatedAt)) {
         setAnalytics(getDemoData());
+      } else {
+        const data = await fetchAnalytics(galleryId);
+        if (data) {
+          setAnalytics(data);
+        } else {
+          // Show demo data when no WP context
+          setAnalytics(getDemoData());
+        }
       }
     } catch (err) {
       setError('Failed to load analytics');
@@ -246,7 +252,7 @@ export const AnalyticsModal = ({
           <div className="space-y-6 relative">
           {/* New Gallery Overlay - positioned near top */}
             {showNewGalleryNotice && (
-              <div className="absolute inset-0 z-10 flex items-start justify-center pt-16 bg-background/60 backdrop-blur-[2px] rounded-lg">
+              <div className="absolute inset-0 z-10 flex items-start justify-center pt-28 bg-background/60 backdrop-blur-[2px] rounded-lg">
                 <div className="bg-card border border-primary/30 rounded-xl p-6 shadow-lg max-w-md text-center">
                   <div className="flex items-center justify-center gap-2 mb-3">
                     <Info className="h-6 w-6 text-primary" />
