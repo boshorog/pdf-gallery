@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import fs from "fs";
-import { componentTagger } from "lovable-tagger";
 
 /**
  * Custom plugin to create .pro-build marker file for Pro builds
@@ -60,7 +59,6 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger(),
     mode === 'production' && proBuildMarker(),
   ].filter(Boolean),
   resolve: {
