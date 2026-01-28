@@ -1,4 +1,44 @@
+/**
+ * ============================================================================
+ * LICENSE MANAGEMENT HOOK
+ * ============================================================================
+ * 
+ * This hook manages Freemius license validation and Pro feature access.
+ * 
+ * ARCHITECTURE:
+ * ┌─────────────────────────────────────────────────────────────────────────┐
+ * │  1. Check dev mode (localStorage override for testing)                  │
+ * │  2. Poll Freemius globals (window.kindpdfgData.fsIsPro)                │
+ * │  3. Fallback to AJAX check if globals not available                     │
+ * │  4. Handle license activation redirect flow                             │
+ * │  5. Re-check on window focus (cross-tab activation)                     │
+ * └─────────────────────────────────────────────────────────────────────────┘
+ * 
+ * USAGE:
+ * ```typescript
+ * const license = useLicense();
+ * if (license.isPro) {
+ *   // Show pro feature
+ * }
+ * ```
+ * 
+ * REUSE NOTES:
+ * - Copy this file when forking
+ * - Update imports to use your pluginIdentity config
+ * - The hook is framework-agnostic (works with any Freemius setup)
+ * 
+ * @module useLicense
+ * @see MODULE_ARCHITECTURE.md for dependency details
+ * ============================================================================
+ */
+
 import { useState, useEffect } from 'react';
+import { 
+  STORAGE_KEYS, 
+  AJAX_FREEMIUS_CHECK, 
+  getWPGlobal, 
+  isDevPreview 
+} from '@/config/pluginIdentity';
 
 export interface LicenseInfo {
   isValid: boolean;
@@ -8,14 +48,6 @@ export interface LicenseInfo {
   checked: boolean; // true when status has been conclusively determined
   isDevMode?: boolean; // true when using dev mode selector
 }
-
-const DEV_LICENSE_KEY = 'kindpdfg_dev_license_mode';
-
-// Check if running in dev preview
-const isDevPreview = () => {
-  const hostname = window.location.hostname;
-  return hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
-};
 
 export const useLicense = (): LicenseInfo => {
   const [license, setLicense] = useState<LicenseInfo>({
@@ -33,7 +65,7 @@ export const useLicense = (): LicenseInfo => {
     // In dev preview, use dev mode selector
     if (isDevPreview()) {
       try {
-        const devMode = localStorage.getItem(DEV_LICENSE_KEY) === 'pro';
+        const devMode = localStorage.getItem(STORAGE_KEYS.devLicenseMode) === 'pro';
         setLicense({
           isValid: true,
           isPro: devMode,
@@ -77,14 +109,9 @@ export const useLicense = (): LicenseInfo => {
       setLicense((prev) => ({ ...prev, ...next }));
     };
 
-    const getWPGlobal = () => {
-      let wpGlobal: any = null;
-      try { wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || null; } catch {}
-      if (!wpGlobal) {
-        try { wpGlobal = (window.parent && ((window.parent as any).kindpdfgData || (window.parent as any).wpPDFGallery)) || null; } catch {}
-      }
-      return wpGlobal;
-    };
+    // Note: We use the imported getWPGlobal from pluginIdentity, but rename it locally
+    // to avoid confusion with the import. The hook needs a local reference for closure.
+    const getWPGlobalLocal = getWPGlobal;
 
     // Check for license activation URL params and trigger refresh if needed
     const urlParams = new URLSearchParams(window.location.search);
@@ -97,13 +124,12 @@ export const useLicense = (): LicenseInfo => {
     // re-evaluates localized WP globals and fetches freshly cache-busted assets.
     if (hasLicenseChangeParam) {
       try {
-        const key = 'kindpdfg_post_license_reload';
-        const reloadTs = sessionStorage.getItem(key);
+        const reloadTs = sessionStorage.getItem(STORAGE_KEYS.postLicenseReload);
         const now = Date.now();
         // Only skip reload if we already reloaded within the last 10 seconds
         const alreadyReloaded = reloadTs && (now - parseInt(reloadTs, 10)) < 10000;
         if (!alreadyReloaded) {
-          sessionStorage.setItem(key, String(now));
+          sessionStorage.setItem(STORAGE_KEYS.postLicenseReload, String(now));
           // Use a small delay to ensure the page has fully loaded before reloading
           setTimeout(() => {
             const nextUrl = new URL(window.location.href);
@@ -120,7 +146,7 @@ export const useLicense = (): LicenseInfo => {
 
     if (hasLicenseChangeParam) {
       // Clear localStorage suppression to ensure Pro features show
-      try { localStorage.removeItem('kindpdfg_pro_welcome_dismissed'); } catch {}
+      try { localStorage.removeItem(STORAGE_KEYS.proWelcomeDismissed); } catch {}
     }
 
     const resolveFromGlobal = () => {
@@ -145,7 +171,7 @@ export const useLicense = (): LicenseInfo => {
         return;
       }
       const form = new FormData();
-      form.append('action', 'kindpdfg_freemius_check');
+      form.append('action', AJAX_FREEMIUS_CHECK);
       form.append('nonce', nonce);
 
       fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form })

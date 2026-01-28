@@ -1,14 +1,36 @@
+/**
+ * ============================================================================
+ * UPDATE NOTICE COMPONENT
+ * ============================================================================
+ * 
+ * Displays a notification when a new plugin version is available on WordPress.org.
+ * 
+ * FEATURES:
+ * - Fetches latest version from WordPress.org API
+ * - Compares with current version
+ * - Dismissible per version
+ * - Hidden for Pro users (Freemius handles updates)
+ * 
+ * REUSE NOTES:
+ * - Update WP_API_URL to point to your plugin's WordPress.org JSON
+ * - Uses STORAGE_KEYS from pluginIdentity for localStorage
+ * 
+ * @module UpdateNotice
+ * ============================================================================
+ */
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, X } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
+import { STORAGE_KEYS, PLUGIN_SLUG } from '@/config/pluginIdentity';
 
 interface UpdateNoticeProps {
   currentVersion: string;
 }
 
-const DISMISS_KEY = 'kindpdfg_update_dismissed';
-const WP_API_URL = 'https://api.wordpress.org/plugins/info/1.0/kindpixels-pdf-gallery.json';
+// WordPress.org plugin info API URL - update this for your plugin
+const WP_API_URL = `https://api.wordpress.org/plugins/info/1.0/${PLUGIN_SLUG}.json`;
 
 export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
   const license = useLicense();
@@ -22,7 +44,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
 
     // Check if this version was already dismissed
     try {
-      const dismissedVersion = localStorage.getItem(DISMISS_KEY);
+      const dismissedVersion = localStorage.getItem(STORAGE_KEYS.updateDismissed);
       if (dismissedVersion && dismissedVersion === latestVersion) {
         setDismissed(true);
         return;
@@ -37,7 +59,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
           setLatestVersion(data.version);
           // Check if dismissed for this specific version
           try {
-            const dismissedVersion = localStorage.getItem(DISMISS_KEY);
+            const dismissedVersion = localStorage.getItem(STORAGE_KEYS.updateDismissed);
             setDismissed(dismissedVersion === data.version);
           } catch {
             setDismissed(false);
@@ -67,7 +89,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     setDismissed(true);
     try {
       if (latestVersion) {
-        localStorage.setItem(DISMISS_KEY, latestVersion);
+        localStorage.setItem(STORAGE_KEYS.updateDismissed, latestVersion);
       }
     } catch {}
   };
