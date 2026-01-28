@@ -16,6 +16,7 @@ import SettingsScopeSelectorShowcase from '@/components/SettingsScopeSelectorSho
 import LightboxShowcase from '@/components/LightboxShowcase';
 import { UpdateNotice } from '@/components/UpdateNotice';
 import { useLicense } from '@/hooks/useLicense';
+import { PLUGIN_VERSION } from '@/config/pluginIdentity';
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pdfGalleryLogo from '@/assets/pdf-gallery-logo.svg';
@@ -25,8 +26,6 @@ const DevLicenseSelector = import.meta.env.DEV
   ? lazy(() => import('@/components/DevLicenseSelector').then(m => ({ default: m.DevLicenseSelector })))
   : null;
 
-
-const PLUGIN_VERSION = '2.4.7';
 
 // Kind Pixels Logo SVG Component
 const KindPixelsLogo = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (

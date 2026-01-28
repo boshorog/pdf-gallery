@@ -46,7 +46,7 @@ PLUGIN_PREFIX        // 'kindpdfg'
 JS_GLOBAL_NAME       // 'kindpdfgData'
 PLUGIN_NAME          // 'PDF Gallery'
 PRO_NAME             // 'PDF Gallery Pro'
-PLUGIN_VERSION       // '2.4.5'
+PLUGIN_VERSION       // '2.4.8'
 
 // Branding
 BRANDING.author      // 'Kind Pixels'

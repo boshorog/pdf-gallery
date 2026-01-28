@@ -39,7 +39,10 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
       wpGlobal &&
       (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1)
     );
-    const isProLike = wpIsPro || (!!wpStatus && wpStatus !== 'free');
+    // Only treat a small allowlist of statuses as Pro-like; Freemius may return other
+    // non-free statuses (pending/expired/etc.) that must NOT unlock Pro.
+    const PRO_LIKE_STATUSES = new Set(['pro', 'paid', 'premium', 'trial', 'active_trial', 'trialing']);
+    const isProLike = wpIsPro || PRO_LIKE_STATUSES.has(wpStatus);
 
     // localStorage flags
     const dismissed = localStorage.getItem('kindpdfg_pro_welcome_dismissed');
@@ -66,7 +69,8 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
     if (licenseUpdated || licenseActivated) {
       let reloadAttempted = false;
       try {
-        reloadAttempted = sessionStorage.getItem('kindpdfg_post_license_reload') === '1';
+        // useLicense stores a timestamp, not a boolean.
+        reloadAttempted = !!sessionStorage.getItem('kindpdfg_post_license_reload');
       } catch {
         // ignore
       }

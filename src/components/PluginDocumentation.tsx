@@ -7,8 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Crown, Check, X, Shield, Trash2, BookOpen, FileText, Settings, Upload, Layout, Palette, HelpCircle, Zap } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
 import { useToast } from '@/hooks/use-toast';
-
-const PLUGIN_VERSION = '2.4.7';
+import { PLUGIN_VERSION } from '@/config/pluginIdentity';
 
 interface PluginDocumentationProps {
   className?: string;
