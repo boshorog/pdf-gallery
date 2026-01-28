@@ -376,6 +376,19 @@ class KindPDFG_Plugin {
             }
         }
         
+        // Generate direct update URL if an update is available
+        $update_url = '';
+        if ( current_user_can( 'update_plugins' ) ) {
+            $plugin_file = plugin_basename( __FILE__ );
+            $update_plugins = get_site_transient( 'update_plugins' );
+            if ( isset( $update_plugins->response[ $plugin_file ] ) ) {
+                $update_url = wp_nonce_url(
+                    self_admin_url( 'update.php?action=upgrade-plugin&plugin=' . urlencode( $plugin_file ) ),
+                    'upgrade-plugin_' . $plugin_file
+                );
+            }
+        }
+        
         wp_localize_script('kindpdfg-admin', 'kindpdfgData', array(
             'isAdmin' => current_user_can('manage_options'),
             'nonce' => wp_create_nonce('kindpdfg_nonce'),
@@ -387,6 +400,7 @@ class KindPDFG_Plugin {
             'fsStatus' => $fs_status,
             'fsAvailable' => $fs_available,
             'licensedTo' => $fs_licensed_to,
+            'updateUrl' => $update_url,
         ));
     }
     public function assets_not_found_notice() {
