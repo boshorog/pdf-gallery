@@ -26,7 +26,7 @@ const DevLicenseSelector = import.meta.env.DEV
   : null;
 
 
-const PLUGIN_VERSION = '2.4.5';
+const PLUGIN_VERSION = '2.4.6';
 
 // Kind Pixels Logo SVG Component
 const KindPixelsLogo = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
