@@ -72,7 +72,7 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.4.7 =
-* Fixed activation flow for free version (no longer shows license screen)
+* Fixed activation flow
 * Added gap size setting for gallery spacing customization
 * Bug fixes
 
