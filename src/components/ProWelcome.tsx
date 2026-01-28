@@ -45,16 +45,31 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
     // localStorage flags
     const dismissed = localStorage.getItem('kindpdfg_pro_welcome_dismissed');
     const shown = localStorage.getItem('kindpdfg_pro_welcome_shown');
+    
+    // Has license activation params (coming from Freemius activation flow)
+    const hasLicenseParams = !!licenseUpdated || !!licenseActivated;
 
     // Only show welcome banner if user is ACTUALLY Pro (verified by PHP)
     // The redirect params alone are NOT enough - user could have clicked "Activate Free Version"
+    // 
+    // Priority 1: If coming from license activation flow AND user is Pro, ALWAYS show
+    //             (ignore dismissed/shown flags - this is a fresh activation)
+    // Priority 2: First time Pro detection without redirect params
     const shouldTrigger =
       wpIsPro && (
-        (!!licenseUpdated || !!licenseActivated) ||
+        hasLicenseParams ||
         (!dismissed && !shown)
       );
 
     if (!shouldTrigger) return;
+    
+    // If this is a fresh license activation, clear the old dismissed flag
+    // so the welcome banner can show again (user might have dismissed it during a trial)
+    if (hasLicenseParams) {
+      try {
+        localStorage.removeItem('kindpdfg_pro_welcome_dismissed');
+      } catch {}
+    }
 
     // Mark as shown immediately (so even if user navigates away quickly it won't re-trigger)
     try {
