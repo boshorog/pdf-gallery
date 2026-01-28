@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, X } from 'lucide-react';
+import { useLicense } from '@/hooks/useLicense';
 
 interface UpdateNoticeProps {
   currentVersion: string;
@@ -10,9 +11,13 @@ const DISMISS_KEY = 'kindpdfg_update_dismissed';
 const WP_API_URL = 'https://api.wordpress.org/plugins/info/1.0/kindpixels-pdf-gallery.json';
 
 export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
+  const license = useLicense();
   const [latestVersion, setLatestVersion] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState(true);
   const [loading, setLoading] = useState(true);
+
+  // Pro users get updates via Freemius SDK - don't show this notice
+  if (license.isPro) return null;
 
   useEffect(() => {
     // Check if this version was already dismissed
