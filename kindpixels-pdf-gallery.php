@@ -54,7 +54,33 @@ if ( ! function_exists( 'kindpdfg_fs' ) ) {
             if ( $sdk_loaded && function_exists( 'fs_dynamic_init' ) ) {
                 // Determine if this is a Pro build (set at compile time via VITE_BUILD_VARIANT)
                 // The dist/assets will contain either free or pro code based on npm run build:free/pro
+                //
+                // IMPORTANT HARDENING:
+                // We use a marker file for Pro builds, but if that marker ever leaks into a WP.org
+                // (free) package, Freemius will incorrectly show the license screen and the UI can
+                // unlock Pro. To prevent this, we *also* require the plugin header name to contain
+                // "Pro" before treating it as a premium build.
                 $is_premium_build = file_exists( dirname( __FILE__ ) . '/dist/.pro-build' );
+                if ( $is_premium_build ) {
+                    try {
+                        if ( ! function_exists( 'get_file_data' ) ) {
+                            $plugin_php = ABSPATH . 'wp-admin/includes/plugin.php';
+                            if ( file_exists( $plugin_php ) ) {
+                                require_once $plugin_php;
+                            }
+                        }
+                        if ( function_exists( 'get_file_data' ) ) {
+                            $header = get_file_data( __FILE__, array( 'Name' => 'Plugin Name' ), 'plugin' );
+                            $plugin_name = isset( $header['Name'] ) ? (string) $header['Name'] : '';
+                            if ( stripos( $plugin_name, 'pro' ) === false ) {
+                                $is_premium_build = false;
+                            }
+                        }
+                    } catch ( Throwable $e ) {
+                        // If header detection fails for any reason, fail closed to free.
+                        $is_premium_build = false;
+                    }
+                }
                 
                 $kindpdfg_fs_instance = fs_dynamic_init( array(
                     'id'                => '20814',
@@ -325,9 +351,9 @@ class KindPDFG_Plugin {
                     method_exists( $fs, 'is_trial' )
                 );
                 // Determine Pro status server-side for immediate UI correctness
+                // NOTE: `is_premium()` only means the *package* is premium, not that the user has
+                // an active license. Using it here can incorrectly unlock Pro.
                 if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
-                    $fs_is_pro = true; $fs_status = 'pro';
-                } elseif ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) {
                     $fs_is_pro = true; $fs_status = 'pro';
                 } elseif ( method_exists( $fs, 'is_paying' ) && $fs->is_paying() ) {
                     $fs_is_pro = true; $fs_status = 'pro';
