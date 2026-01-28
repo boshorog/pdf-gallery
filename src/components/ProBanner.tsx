@@ -84,12 +84,12 @@ const ProBanner = ({ className = '', showComparison = false }: ProBannerProps) =
     return null;
   }
   
-  // Check if in Lovable preview environment
+  // Check if in dev preview environment
   const hostname = window.location.hostname;
-  const isLovablePreview = hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
+  const isDevPreview = hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
   
-  // Only show in admin or Lovable preview
-  if (!isAdmin && !isLovablePreview) {
+  // Only show in admin or dev preview
+  if (!isAdmin && !isDevPreview) {
     console.debug('[PDF Gallery] ProBanner hidden: not admin');
     return null;
   }

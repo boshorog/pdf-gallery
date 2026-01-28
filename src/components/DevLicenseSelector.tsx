@@ -15,7 +15,7 @@ const DEV_LICENSE_KEY = 'kindpdfg_dev_license_mode';
 
 /**
  * Development-only license mode selector
- * Allows switching between Free and Pro modes in Lovable preview
+ * Allows switching between Free and Pro modes in dev preview
  */
 export const DevLicenseSelector = () => {
   const [mode, setMode] = useState<DevLicenseMode>(() => {

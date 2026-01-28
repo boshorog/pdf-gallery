@@ -6,13 +6,13 @@ export interface LicenseInfo {
   status: 'free' | 'pro' | 'expired' | 'invalid';
   expiryDate?: string;
   checked: boolean; // true when status has been conclusively determined
-  isDevMode?: boolean; // true when using dev mode selector (Lovable preview)
+  isDevMode?: boolean; // true when using dev mode selector
 }
 
 const DEV_LICENSE_KEY = 'kindpdfg_dev_license_mode';
 
-// Check if running in Lovable preview
-const isLovablePreview = () => {
+// Check if running in dev preview
+const isDevPreview = () => {
   const hostname = window.location.hostname;
   return hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
 };
@@ -30,8 +30,8 @@ export const useLicense = (): LicenseInfo => {
     let finished = false;
     let intervalId: number | null = null;
 
-    // In Lovable preview, use dev mode selector
-    if (isLovablePreview()) {
+    // In dev preview, use dev mode selector
+    if (isDevPreview()) {
       try {
         const devMode = localStorage.getItem(DEV_LICENSE_KEY) === 'pro';
         setLicense({

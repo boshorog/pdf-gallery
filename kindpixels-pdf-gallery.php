@@ -637,7 +637,7 @@ public function display_gallery_shortcode($atts) {
      * Seed the default Test Gallery.
      */
     private static function seed_test_gallery() {
-        // Unified sample items for the Test Gallery (matches Lovable preview)
+        // Unified sample items for the Test Gallery
         $sample_items = array(
             array('id' => 'div-1', 'type' => 'divider', 'text' => 'First Section'),
             array('id' => 'pdf-1', 'title' => 'Sample Document 1', 'date' => 'January 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),
@@ -1271,7 +1271,7 @@ public function display_gallery_shortcode($atts) {
 
         // Only seed Test Gallery if NO galleries exist at all (fresh install)
         if (!is_array($galleries) || count($galleries) === 0) {
-            // Unified sample items for the Test Gallery (matches Lovable preview)
+            // Unified sample items for the Test Gallery
             $sample_items = array(
                 array('id' => 'div-1', 'type' => 'divider', 'text' => 'First Section'),
                 array('id' => 'pdf-1', 'title' => 'Sample Document 1', 'date' => 'January 2025', 'pdfUrl' => 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf', 'thumbnail' => '', 'fileType' => 'pdf'),

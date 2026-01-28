@@ -11,11 +11,11 @@ This document describes how to build and release both Free and Pro variants of P
 
 ```bash
 # Build and package both variants
-node scripts/build-plugin.js
+node scripts/build-plugin.cjs
 
 # Or build individually
-node scripts/build-plugin.js free
-node scripts/build-plugin.js pro
+node scripts/build-plugin.cjs free
+node scripts/build-plugin.cjs pro
 ```
 
 Output files are created in the `releases/` folder:
@@ -49,7 +49,7 @@ Add release notes to `readme.txt`:
 ### 3. Build Plugin
 
 ```bash
-node scripts/build-plugin.js
+node scripts/build-plugin.cjs
 ```
 
 ### 4. Test Locally

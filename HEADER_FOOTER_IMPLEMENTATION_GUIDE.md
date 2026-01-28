@@ -1,6 +1,6 @@
 # WordPress Plugin Header & Footer Implementation Guide
 
-This guide documents the header and footer structure used in Kind Pixels WordPress plugins, designed for reuse across multiple Lovable projects.
+This guide documents the header and footer structure used in Kind Pixels WordPress plugins.
 
 ---
 
