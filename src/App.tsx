@@ -1,6 +1,29 @@
+/**
+ * ============================================================================
+ * APP ENTRY COMPONENT
+ * ============================================================================
+ * 
+ * Root component that sets up providers and handles iframe height sync
+ * for WordPress embedding.
+ * 
+ * FEATURES:
+ * - Query client provider for React Query
+ * - Tooltip provider for accessible tooltips
+ * - Toast notifications
+ * - Iframe height synchronization with parent WordPress page
+ * 
+ * REUSE NOTES:
+ * - This is a framework component, minimal customization needed
+ * - Update POST_MESSAGE_HEIGHT if plugin prefix changes
+ * 
+ * @module App
+ * ============================================================================
+ */
+
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { POST_MESSAGE_HEIGHT } from "@/config/pluginIdentity";
 import Index from "./pages/Index";
 import { useEffect } from "react";
 
@@ -47,7 +70,7 @@ const App = () => {
         isUpdating = true;
         lastHeight = contentHeight;
         lastSentAt = now;
-        window.parent?.postMessage({ type: 'kindpdfg:height', height: contentHeight, token }, '*');
+        window.parent?.postMessage({ type: POST_MESSAGE_HEIGHT, height: contentHeight, token }, '*');
         setTimeout(() => {
           isUpdating = false;
         }, 250);

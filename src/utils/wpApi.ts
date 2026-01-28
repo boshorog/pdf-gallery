@@ -1,5 +1,27 @@
-// Utility functions to interact with WordPress AJAX for the Newsletter Gallery
-// Uses wp_localize_script data injected as window.wpNewsletterGallery
+/**
+ * ============================================================================
+ * WORDPRESS API BRIDGE
+ * ============================================================================
+ * 
+ * Utility functions for AJAX communication with WordPress backend.
+ * Uses wp_localize_script data injected as window.kindpdfgData.
+ * 
+ * PATTERN:
+ * 1. Get WP context using getWPGlobal()
+ * 2. Create FormData with action, action_type, and nonce
+ * 3. POST to ajaxUrl
+ * 4. Parse JSON response
+ * 
+ * REUSE NOTES:
+ * - Import getWPGlobal and AJAX_ACTION from pluginIdentity
+ * - Update interface types for your data structures
+ * 
+ * @module wpApi
+ * @see MODULE_ARCHITECTURE.md for usage patterns
+ * ============================================================================
+ */
+
+import { getWPGlobal, AJAX_ACTION } from '@/config/pluginIdentity';
 
 export interface WPNewsletter {
   id: string;
@@ -9,14 +31,12 @@ export interface WPNewsletter {
   thumbnail: string;
 }
 
-const getWPContext = () => (typeof window !== 'undefined' ? ((window as any).kindpdfgData || (window as any).wpPDFGallery || (window as any).wpNewsletterGallery) : undefined);
-
 export const fetchNewsletters = async (): Promise<WPNewsletter[] | null> => {
-  const wp = getWPContext();
+  const wp = getWPGlobal();
   if (!wp?.ajaxUrl || !wp?.nonce) return null;
 
   const form = new FormData();
-  form.append('action', 'kindpdfg_action');
+  form.append('action', AJAX_ACTION);
   form.append('action_type', 'get_newsletters');
   form.append('nonce', wp.nonce);
 
@@ -29,11 +49,11 @@ export const fetchNewsletters = async (): Promise<WPNewsletter[] | null> => {
 };
 
 export const saveNewsletters = async (newsletters: WPNewsletter[]): Promise<boolean> => {
-  const wp = getWPContext();
+  const wp = getWPGlobal();
   if (!wp?.ajaxUrl || !wp?.nonce) return false;
 
   const form = new FormData();
-  form.append('action', 'kindpdfg_action');
+  form.append('action', AJAX_ACTION);
   form.append('action_type', 'save_newsletters');
   form.append('nonce', wp.nonce);
   form.append('newsletters', JSON.stringify(newsletters));
