@@ -230,66 +230,75 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                       <li>Paste the shortcode into any page or post</li>
                     </ol>
                   </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Supported File Types */}
+            <AccordionItem value="file-types">
+              <AccordionTrigger className="text-base font-semibold">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-cyan-500" />
+                  Supported File Types
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3 text-sm">
                   <div>
-                    <h4 className="font-medium mb-2">Supported File Types</h4>
-                    <div className="space-y-2">
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Documents</p>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline">PDF</Badge>
-                          <Badge variant="outline">DOC/DOCX</Badge>
-                          <Badge variant="outline">PPT/PPTX</Badge>
-                          <Badge variant="outline">XLS/XLSX</Badge>
-                          <Badge variant="outline">TXT</Badge>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Images</p>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline">JPG/JPEG</Badge>
-                          <Badge variant="outline">PNG</Badge>
-                          <Badge variant="outline">GIF</Badge>
-                          <Badge variant="outline">WEBP</Badge>
-                          <Badge variant="outline">SVG</Badge>
-                          <Badge variant="outline">BMP</Badge>
-                          <Badge variant="outline">ICO</Badge>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Audio</p>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline">MP3</Badge>
-                          <Badge variant="outline">WAV</Badge>
-                          <Badge variant="outline">OGG</Badge>
-                          <Badge variant="outline">M4A</Badge>
-                          <Badge variant="outline">FLAC</Badge>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Video</p>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline">MP4</Badge>
-                          <Badge variant="outline">WEBM</Badge>
-                          <Badge variant="outline">OGV</Badge>
-                          <Badge variant="outline">MOV</Badge>
-                          <Badge variant="outline">AVI</Badge>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Archives</p>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline">ZIP</Badge>
-                          <Badge variant="outline">RAR</Badge>
-                          <Badge variant="outline">7Z</Badge>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">eBooks</p>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline">EPUB</Badge>
-                          <Badge variant="outline">MOBI</Badge>
-                        </div>
-                      </div>
+                    <p className="text-xs text-muted-foreground mb-1">Documents</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">PDF</Badge>
+                      <Badge variant="outline">DOC/DOCX</Badge>
+                      <Badge variant="outline">PPT/PPTX</Badge>
+                      <Badge variant="outline">XLS/XLSX</Badge>
+                      <Badge variant="outline">TXT</Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Images</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">JPG/JPEG</Badge>
+                      <Badge variant="outline">PNG</Badge>
+                      <Badge variant="outline">GIF</Badge>
+                      <Badge variant="outline">WEBP</Badge>
+                      <Badge variant="outline">SVG</Badge>
+                      <Badge variant="outline">BMP</Badge>
+                      <Badge variant="outline">ICO</Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Audio</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">MP3</Badge>
+                      <Badge variant="outline">WAV</Badge>
+                      <Badge variant="outline">OGG</Badge>
+                      <Badge variant="outline">M4A</Badge>
+                      <Badge variant="outline">FLAC</Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Video</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">MP4</Badge>
+                      <Badge variant="outline">WEBM</Badge>
+                      <Badge variant="outline">OGV</Badge>
+                      <Badge variant="outline">MOV</Badge>
+                      <Badge variant="outline">AVI</Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Archives</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">ZIP</Badge>
+                      <Badge variant="outline">RAR</Badge>
+                      <Badge variant="outline">7Z</Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">eBooks</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">EPUB</Badge>
+                      <Badge variant="outline">MOBI</Badge>
                     </div>
                   </div>
                 </div>
@@ -317,7 +326,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                   <div>
                     <h4 className="font-medium mb-2">Thumbnails</h4>
                     <p className="text-muted-foreground">
-                      Thumbnails are automatically generated for PDF files. For other file types, a placeholder icon is displayed. 
+                      Thumbnails are automatically generated for PDF and image files. For other file types, a placeholder icon is displayed. 
                       You can also upload custom thumbnails for any document.
                     </p>
                   </div>
@@ -387,14 +396,6 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                     </code>
                     <p className="text-muted-foreground mt-2">Displays a specific gallery by name (use lowercase with hyphens).</p>
                   </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Available Parameters</h4>
-                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                      <li><code className="bg-muted px-1 rounded">name</code> - Gallery name (slug format)</li>
-                      <li><code className="bg-muted px-1 rounded">columns</code> - Number of columns (1-6)</li>
-                      <li><code className="bg-muted px-1 rounded">style</code> - Thumbnail style override</li>
-                    </ul>
-                  </div>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -412,7 +413,6 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                   <div>
                     <h4 className="font-medium mb-2">Layout Options</h4>
                     <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                      <li><strong>Columns:</strong> Choose 1-6 columns for the grid layout</li>
                       <li><strong>Thumbnail Shape:</strong> Square, landscape, or portrait aspect ratios</li>
                       <li><strong>Gap Size:</strong> Spacing between gallery items</li>
                     </ul>
@@ -423,8 +423,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                   <div>
                     <h4 className="font-medium mb-2">Thumbnail Styles</h4>
                     <p className="text-muted-foreground">
-                      Choose from various thumbnail styles including bordered, shadowed, rounded corners, 
-                      and more. Pro users have access to all available styles.
+                      Choose from various thumbnail styles including bordered, shadowed, rounded corners, and more.
                     </p>
                   </div>
                 </div>
@@ -446,13 +445,6 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                     <p className="text-muted-foreground">
                       Customize the accent color to match your website's branding. This affects buttons, 
                       links, and interactive elements.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Hover Animations</h4>
-                    <p className="text-muted-foreground">
-                      Add visual feedback when users hover over gallery items. Choose from fade, slide, 
-                      zoom, and other animation effects.
                     </p>
                   </div>
                   <div>
@@ -506,7 +498,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                   <div className="mt-4 p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-lg border border-amber-500/20">
                     <p className="text-sm text-center">
                       <a 
-                        href="https://kindpixels.com/plugins/kindpixels-pdf-gallery-pro" 
+                        href="https://checkout.freemius.com/plugin/20814/plan/34946/" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-primary hover:underline font-medium"
@@ -578,12 +570,12 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                     <h4 className="font-medium mb-2">Useful Links</h4>
                     <ul className="space-y-2">
                       <li>
-                        <a href="https://kindpixels.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                        <a href="https://kindpixels.com/plugins/pdf-gallery/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                           Plugin Website →
                         </a>
                       </li>
                       <li>
-                        <a href="https://kindpixels.com/plugins/kindpixels-pdf-gallery-pro" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                        <a href="https://checkout.freemius.com/plugin/20814/plan/34946/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                           Upgrade to Pro →
                         </a>
                       </li>
@@ -591,7 +583,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                   </div>
                   <div className="pt-2 border-t">
                     <p className="text-xs text-muted-foreground">
-                      PDF Gallery v{PLUGIN_VERSION} • Made with ❤️ by Kind Pixels
+                      PDF Gallery v{PLUGIN_VERSION} • Made in Romania 🇷🇴 by Kind Pixels
                     </p>
                   </div>
                 </div>
