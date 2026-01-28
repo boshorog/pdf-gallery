@@ -14,6 +14,7 @@ import GalleryNotFoundShowcase from '@/components/GalleryNotFoundShowcase';
 import GalleryNotFound from '@/components/GalleryNotFound';
 import SettingsScopeSelectorShowcase from '@/components/SettingsScopeSelectorShowcase';
 import LightboxShowcase from '@/components/LightboxShowcase';
+import { UpdateNotice } from '@/components/UpdateNotice';
 import { useLicense } from '@/hooks/useLicense';
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
@@ -25,7 +26,7 @@ const DevLicenseSelector = import.meta.env.DEV
   : null;
 
 
-const PLUGIN_VERSION = '2.4.4';
+const PLUGIN_VERSION = '2.4.5';
 
 // Kind Pixels Logo SVG Component
 const KindPixelsLogo = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
@@ -513,6 +514,11 @@ const Index = () => {
               <span className="text-xs text-slate-400">v{PLUGIN_VERSION}</span>
             </div>
           </div>
+        </div>
+
+        {/* Update Notice - shows when new version available */}
+        <div className="px-6">
+          <UpdateNotice currentVersion={PLUGIN_VERSION} />
         </div>
 
         {/* Pro Welcome Message - shows after license activation */}
