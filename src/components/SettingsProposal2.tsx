@@ -68,6 +68,7 @@ interface SettingsProposal2Props {
     pdfIconPosition: string;
     defaultPlaceholder: string;
     thumbnailSize?: string;
+    gapSize?: number; // 1-5, default 3
     settingsScope?: string;
     enableThumbnailCache?: boolean;
     autoRefreshCache?: boolean;
@@ -85,7 +86,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
     ...settings,
     thumbnailSize: settings.thumbnailSize || 'four-rows',
     thumbnailShape: settings.thumbnailShape || '3:2',
-    accentColor: settings.accentColor || '#7FB3DC'
+    accentColor: settings.accentColor || '#7FB3DC',
+    gapSize: settings.gapSize ?? 3,
   });
   const [activeSection, setActiveSection] = useState('style');
   const [saveScope, setSaveScope] = useState<'current' | 'all'>('current');
@@ -97,7 +99,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
       ...settings,
       thumbnailSize: settings.thumbnailSize || 'four-rows',
       thumbnailShape: settings.thumbnailShape || '3:2',
-      accentColor: settings.accentColor || '#7FB3DC'
+      accentColor: settings.accentColor || '#7FB3DC',
+      gapSize: settings.gapSize ?? 3,
     });
   }, [settings]);
 
@@ -734,6 +737,46 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                 </div>
               </RadioGroup>
               </div>
+
+              {/* Gap Size */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-base font-medium">Gap Size</Label>
+                    <p className="text-sm text-muted-foreground">Spacing between thumbnails (default is the middle)</p>
+                  </div>
+                  <span className="text-sm font-medium text-primary">
+                    {(() => {
+                      const v = localSettings.gapSize ?? 3;
+                      return v === 1
+                        ? 'Extra Small (12px)'
+                        : v === 2
+                          ? 'Small (18px)'
+                          : v === 3
+                            ? 'Medium (24px)'
+                            : v === 4
+                              ? 'Large (32px)'
+                              : 'Extra Large (40px)';
+                    })()}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-muted-foreground">Tight</span>
+                  <Slider
+                    value={[localSettings.gapSize ?? 3]}
+                    onValueChange={(value) =>
+                      setLocalSettings((prev) => ({ ...prev, gapSize: value[0] }))
+                    }
+                    min={1}
+                    max={5}
+                    step={1}
+                    className="flex-1"
+                  />
+                  <span className="text-xs text-muted-foreground">Spacious</span>
+                </div>
+              </div>
+
               <div className="text-xs text-muted-foreground p-3 bg-muted/30 rounded border-l-4 border-primary/50">
                 <strong>Mobile Note:</strong> On mobile devices, thumbnails automatically display in a single column for optimal viewing experience.
               </div>
