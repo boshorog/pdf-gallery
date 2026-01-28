@@ -307,10 +307,11 @@ class KindPDFG_Plugin {
         }
         
         // Enqueue the React app's JS and CSS with version for cache busting
+        // Include 'updates' dependency to enable wp.updates.updatePlugin for in-page updates
         wp_enqueue_script(
             'kindpdfg-admin', 
             $js_file, 
-            array(), 
+            array( 'updates' ), 
             $cache_bust,
             true
         );
@@ -401,6 +402,7 @@ class KindPDFG_Plugin {
             'fsAvailable' => $fs_available,
             'licensedTo' => $fs_licensed_to,
             'updateUrl' => $update_url,
+            'pluginBasename' => plugin_basename( __FILE__ ),
         ));
     }
     public function assets_not_found_notice() {
