@@ -244,8 +244,10 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-3 text-sm">
+                  <p className="text-muted-foreground">
+                    The following file types are currently supported. You can also add YouTube links to display YouTube videos.
+                  </p>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Documents</p>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="outline">PDF</Badge>
                       <Badge variant="outline">DOC/DOCX</Badge>
@@ -583,7 +585,7 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                   </div>
                   <div className="pt-2 border-t">
                     <p className="text-xs text-muted-foreground">
-                      PDF Gallery v{PLUGIN_VERSION} • Made in Romania 🇷🇴 by Kind Pixels
+                      PDF Gallery v{PLUGIN_VERSION} • Made in Romania by Kind Pixels
                     </p>
                   </div>
                 </div>
