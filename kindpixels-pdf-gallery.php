@@ -1031,10 +1031,11 @@ public function display_gallery_shortcode($atts) {
                 // Check various Pro indicators below
                 
                 // Check various Pro indicators
+                // IMPORTANT: Do NOT use `is_premium()` here.
+                // `is_premium()` only means the installed package is a premium ZIP,
+                // not that the user has an active license. Using it would unlock Pro
+                // after clicking "Activate Free Version".
                 if ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) {
-                    $license_info['isPro'] = true;
-                    $license_info['status'] = 'pro';
-                } elseif ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) {
                     $license_info['isPro'] = true;
                     $license_info['status'] = 'pro';
                 } elseif ( method_exists( $fs, 'is_paying' ) && $fs->is_paying() ) {
@@ -1751,9 +1752,10 @@ public function display_gallery_shortcode($atts) {
         if ( function_exists( 'kindpdfg_fs' ) ) {
             $fs = kindpdfg_fs();
             if ( is_object( $fs ) ) {
+                // IMPORTANT: Do NOT use `is_premium()` here.
+                // `is_premium()` only indicates a premium package ZIP, not an active license.
                 if ( ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) ||
-                     ( method_exists( $fs, 'is_paying' ) && $fs->is_paying() ) ||
-                     ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) ) {
+                     ( method_exists( $fs, 'is_paying' ) && $fs->is_paying() ) ) {
                     $is_pro = true;
                 }
             }
@@ -1819,9 +1821,10 @@ public function display_gallery_shortcode($atts) {
         if ( function_exists( 'kindpdfg_fs' ) ) {
             $fs = kindpdfg_fs();
             if ( is_object( $fs ) ) {
+                // IMPORTANT: Do NOT use `is_premium()` here.
+                // `is_premium()` only indicates a premium package ZIP, not an active license.
                 if ( ( method_exists( $fs, 'can_use_premium_code' ) && $fs->can_use_premium_code() ) ||
-                     ( method_exists( $fs, 'is_paying' ) && $fs->is_paying() ) ||
-                     ( method_exists( $fs, 'is_premium' ) && $fs->is_premium() ) ) {
+                     ( method_exists( $fs, 'is_paying' ) && $fs->is_paying() ) ) {
                     $is_pro = true;
                 }
             }
