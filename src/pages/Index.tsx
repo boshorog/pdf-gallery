@@ -100,7 +100,8 @@ const Index = () => {
     accentColor: '#7FB3DC',
     thumbnailShape: '3-2',
     pdfIconPosition: 'top-right',
-    defaultPlaceholder: 'default'
+    defaultPlaceholder: 'default',
+    gapSize: 3
   });
   const [shortcodeCopied, setShortcodeCopied] = useState(false);
   const [galleryNotFound, setGalleryNotFound] = useState(false);
