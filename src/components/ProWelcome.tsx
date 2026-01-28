@@ -14,7 +14,7 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
 
   useEffect(() => {
     // Show criteria:
-    // 1) Explicit redirect params (license_updated / license_activated)
+    // 1) Explicit redirect params (license_updated / license_activated) AND user is actually Pro
     // 2) Fallback: first time we detect Pro in this browser (covers cases where Freemius
     //    returns to the page without params and users previously needed a hard refresh)
 
@@ -34,23 +34,25 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
       } catch {}
     }
 
-    const wpStatus = String(wpGlobal?.fsStatus ?? '').toLowerCase();
+    // CRITICAL: Only trust fsIsPro from PHP - it uses can_use_premium_code() which is the
+    // authoritative source. DO NOT infer Pro status from fsStatus strings, as Freemius can
+    // return various statuses (e.g., when clicking "Activate Free Version") that are NOT Pro.
     const wpIsPro = !!(
       wpGlobal &&
       (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1)
     );
-    // Only treat a small allowlist of statuses as Pro-like; Freemius may return other
-    // non-free statuses (pending/expired/etc.) that must NOT unlock Pro.
-    const PRO_LIKE_STATUSES = new Set(['pro', 'paid', 'premium', 'trial', 'active_trial', 'trialing']);
-    const isProLike = wpIsPro || PRO_LIKE_STATUSES.has(wpStatus);
 
     // localStorage flags
     const dismissed = localStorage.getItem('kindpdfg_pro_welcome_dismissed');
     const shown = localStorage.getItem('kindpdfg_pro_welcome_shown');
 
+    // Only show welcome banner if user is ACTUALLY Pro (verified by PHP)
+    // The redirect params alone are NOT enough - user could have clicked "Activate Free Version"
     const shouldTrigger =
-      (!!licenseUpdated || !!licenseActivated) ||
-      (isProLike && !dismissed && !shown);
+      wpIsPro && (
+        (!!licenseUpdated || !!licenseActivated) ||
+        (!dismissed && !shown)
+      );
 
     if (!shouldTrigger) return;
 

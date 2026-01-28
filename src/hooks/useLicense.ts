@@ -63,17 +63,6 @@ export const useLicense = (): LicenseInfo => {
     let intervalId: number | null = null;
     const startedAt = Date.now();
 
-    // NOTE: Freemius can report statuses other than "free" even when the user is NOT Pro
-    // (e.g. pending/expired/active). We only treat a small allowlist as “Pro-like”.
-    const PRO_LIKE_STATUSES = new Set([
-      'pro',
-      'paid',
-      'premium',
-      'trial',
-      'active_trial',
-      'trialing',
-    ]);
-
     // In dev preview, use dev mode selector
     if (isDevPreview()) {
       try {
@@ -107,7 +96,6 @@ export const useLicense = (): LicenseInfo => {
       // - we're NOT in a license-change flow, OR
       // - the resolved status is not "free" (or is explicitly Pro).
       const nextStatus = String((next as any).status ?? '').toLowerCase();
-      const isProLikeStatus = PRO_LIKE_STATUSES.has(nextStatus);
 
       // During license-change flows, "free" can be stale for a few seconds. However,
       // if the user *actually* activated Free, we still want to converge and stop.
@@ -120,8 +108,8 @@ export const useLicense = (): LicenseInfo => {
         // Outside redirect flows, any checked state is final.
         if (!hasLicenseChangeParam) return true;
 
-        // Inside redirect flows: finish only on Pro-like, or on Free after a short grace period.
-        if (isProLikeStatus) return true;
+        // Inside redirect flows: finish only on Pro, or on Free after a short grace period.
+        if (nextStatus === 'pro') return true;
         if (nextStatus === 'free' && elapsedMs > 8000) return true;
         return false;
       })();
@@ -179,11 +167,18 @@ export const useLicense = (): LicenseInfo => {
     const resolveFromGlobal = () => {
       const wpGlobal = getWPGlobal();
       const status = String(wpGlobal?.fsStatus ?? '').toLowerCase();
+      // CRITICAL: Only trust fsIsPro from PHP - it uses can_use_premium_code() which is the
+      // authoritative source. DO NOT infer Pro status from fsStatus strings, as Freemius can
+      // return various statuses (e.g., when clicking "Activate Free Version") that are NOT Pro.
       const fsIsPro = !!(wpGlobal && (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1));
-      const isProLike = fsIsPro || PRO_LIKE_STATUSES.has(status);
 
-      if (isProLike) {
+      if (fsIsPro) {
         commit({ isValid: true, isPro: true, status: (status || 'pro') as any, checked: true });
+        return true;
+      }
+      // If fsIsPro is explicitly false and we have a global, mark as free (checked)
+      if (wpGlobal && wpGlobal.fsIsPro === false) {
+        commit({ isValid: true, isPro: false, status: 'free', checked: true });
         return true;
       }
       return false;
@@ -215,11 +210,10 @@ export const useLicense = (): LicenseInfo => {
               return; // keep hidden; avoid false-positive free when FS SDK missing
             }
 
-            // Normalize remote result shape (defensive): some responses may only provide `status`.
+            // CRITICAL: Only trust explicit isPro boolean from server response.
+            // DO NOT infer Pro from status strings to prevent unauthorized access.
             const remoteStatus = String(lic.status ?? '').toLowerCase();
-            const remoteIsPro =
-              lic.isPro === true ||
-              PRO_LIKE_STATUSES.has(remoteStatus);
+            const remoteIsPro = lic.isPro === true;
 
             commit({ ...lic, isPro: remoteIsPro, isValid: remoteIsPro || remoteStatus === 'free', checked: true });
           } else {
