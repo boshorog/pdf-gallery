@@ -21,7 +21,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
 import { STORAGE_KEYS, PLUGIN_SLUG } from '@/config/pluginIdentity';
 
@@ -37,6 +37,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
   const [latestVersion, setLatestVersion] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     // Check if this version was already dismissed
@@ -92,7 +93,10 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
   };
 
   const handleUpdate = () => {
-    // Check if we have a direct update URL from PHP (with nonce)
+    // Start updating animation
+    setUpdating(true);
+    
+    // Check if we have WordPress globals
     let wpGlobal: any = null;
     try { wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || null; } catch {}
     if (!wpGlobal) {
@@ -100,18 +104,40 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     }
     
     // Pro users: go to plugins page (Freemius handles updates there)
-    // Free users: use direct update URL if available
     if (license.isPro) {
-      // Navigate to plugins page with anchor to our plugin
       const pluginsUrl = window.location.origin + '/wp-admin/plugins.php#kindpixels-pdf-gallery';
       window.location.href = pluginsUrl;
-    } else if (wpGlobal?.updateUrl) {
-      // Direct update action URL with nonce (Free users only)
+      return;
+    }
+    
+    // Free users: Use WordPress AJAX update if available
+    const wpUpdates = (window as any).wp?.updates;
+    if (wpUpdates && typeof wpUpdates.updatePlugin === 'function') {
+      // Use WordPress's built-in AJAX update mechanism
+      wpUpdates.updatePlugin({
+        plugin: wpGlobal?.pluginBasename || 'kindpixels-pdf-gallery/kindpixels-pdf-gallery.php',
+        slug: PLUGIN_SLUG,
+        success: () => {
+          setUpdating(false);
+          setDismissed(true);
+          // Show success and reload after brief delay
+          setTimeout(() => window.location.reload(), 1000);
+        },
+        error: (response: any) => {
+          setUpdating(false);
+          console.error('Update failed:', response);
+          // Fallback to plugins page
+          window.location.href = window.location.origin + '/wp-admin/plugins.php';
+        }
+      });
+      return;
+    }
+    
+    // Fallback: Use direct update URL if available, otherwise go to plugins page
+    if (wpGlobal?.updateUrl) {
       window.location.href = wpGlobal.updateUrl;
     } else {
-      // Fallback: Navigate to WordPress plugins page
-      const pluginsUrl = window.location.origin + '/wp-admin/plugins.php';
-      window.location.href = pluginsUrl;
+      window.location.href = window.location.origin + '/wp-admin/plugins.php';
     }
   };
 
@@ -130,10 +156,18 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
       <div className="flex items-center gap-2">
         <Button
           size="sm"
-          className="h-7 bg-slate-700 hover:bg-slate-800 text-white dark:bg-slate-600 dark:hover:bg-slate-500"
+          className="h-7 bg-slate-700 hover:bg-slate-800 text-white dark:bg-slate-600 dark:hover:bg-slate-500 min-w-[70px]"
           onClick={handleUpdate}
+          disabled={updating}
         >
-          Update
+          {updating ? (
+            <>
+              <Loader2 className="h-3 w-3 animate-spin" />
+              <span>Updating...</span>
+            </>
+          ) : (
+            'Update'
+          )}
         </Button>
         <Button
           size="sm"
