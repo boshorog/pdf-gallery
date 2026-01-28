@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, ChevronDown, Copy, Check } from 'lucide-react';
+import { Plus, Edit2, Trash2, Copy, Check, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,6 +31,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Gallery } from '@/types/gallery';
 import { BUILD_FLAGS } from '@/config/buildFlags';
+import { AnalyticsModal } from '@/components/AnalyticsModal';
 
 interface GallerySelectorProps {
   galleries: Gallery[];
@@ -53,6 +54,7 @@ export const GallerySelector = ({
 }: GallerySelectorProps) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   const [newGalleryName, setNewGalleryName] = useState('');
   const [renameGalleryName, setRenameGalleryName] = useState('');
   const [shortcodeCopied, setShortcodeCopied] = useState(false);
@@ -61,16 +63,13 @@ export const GallerySelector = ({
   const currentGallery = galleries.find(g => g.id === currentGalleryId);
 
   // Ensure a default gallery is selected when none is set
-  // Only run when there's no valid selection (not when galleries change during create)
   useEffect(() => {
     if (galleries.length > 0 && (!currentGalleryId || !galleries.some(g => g.id === currentGalleryId))) {
       onGalleryChange(galleries[0].id);
     }
-  }, [galleries.length, currentGalleryId]); // Removed galleries and onGalleryChange from deps to prevent loops
+  }, [galleries.length, currentGalleryId]);
 
   const handleCreateGallery = () => {
-    // In free build, multi-gallery is not available at all
-    // In pro build, check runtime license for edge cases
     if (!BUILD_FLAGS.MULTI_GALLERY_UI || (!isPro && galleries.length >= 1)) {
       toast({
         title: "Pro Feature Required",
@@ -172,247 +171,204 @@ export const GallerySelector = ({
     }
   };
 
-  // If only one gallery exists, show just the name with management buttons
-  if (galleries.length === 1) {
-    return (
-      <div className="flex items-center gap-2">
-        <span className="font-medium text-foreground">{currentGallery?.name || 'Main Gallery'}</span>
-        <div className="flex items-center gap-1">
-          <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
-            <DialogTrigger asChild>
-               <Button
-                 variant="ghost"
-                 size="sm"
-                 className="h-8 w-8 p-0"
-                 aria-label="Rename Gallery"
-                 title="Rename Gallery"
-                 onClick={() => setRenameGalleryName(currentGallery?.name || '')}
-               >
-                <Edit2 className="h-3 w-3" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Rename Gallery</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-               <div className="space-y-3">
-                  <Label htmlFor="rename-gallery">Gallery Name</Label>
-                 <Input
-                    id="rename-gallery"
-                    value={renameGalleryName}
-                    onChange={(e) => setRenameGalleryName(e.target.value)}
-                    placeholder="Enter gallery name"
-                    onKeyDown={(e) => e.key === 'Enter' && handleRenameGallery()}
-                  />
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setIsRenameDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleRenameGallery}>
-                    Rename
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-
+  // Shared buttons for gallery management
+  const renderManagementButtons = () => (
+    <>
+      {/* Rename Dialog */}
+      <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
+        <DialogTrigger asChild>
           <Button
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0"
-            aria-label="Copy Shortcode"
-            title="Copy Shortcode"
-            onClick={handleCopyShortcode}
+            aria-label="Rename Gallery"
+            title="Rename Gallery"
+            onClick={() => setRenameGalleryName(currentGallery?.name || '')}
           >
-            {shortcodeCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+            <Edit2 className="h-3 w-3" />
           </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename Gallery</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-3">
+              <Label htmlFor="rename-gallery">Gallery Name</Label>
+              <Input
+                id="rename-gallery"
+                value={renameGalleryName}
+                onChange={(e) => setRenameGalleryName(e.target.value)}
+                placeholder="Enter gallery name"
+                onKeyDown={(e) => e.key === 'Enter' && handleRenameGallery()}
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setIsRenameDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleRenameGallery}>
+                Rename
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-          {/* Add Gallery button - shown in Pro build when license is active */}
-          {BUILD_FLAGS.MULTI_GALLERY_UI && isPro && (
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                 <Button
-                   variant="ghost"
-                   size="sm"
-                   className="h-8 w-8 p-0"
-                   aria-label="Add Gallery"
-                   title="Add Gallery"
-                 >
-                  <Plus className="h-3 w-3" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Gallery</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                 <div className="space-y-3">
-                    <Label htmlFor="new-gallery">Gallery Name</Label>
-                   <Input
-                      id="new-gallery"
-                      value={newGalleryName}
-                      onChange={(e) => setNewGalleryName(e.target.value)}
-                      placeholder="Enter gallery name"
-                      onKeyDown={(e) => e.key === 'Enter' && handleCreateGallery()}
-                    />
-                  </div>
-                  <div className="flex gap-2 justify-end">
-                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleCreateGallery}>
-                      Create Gallery
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
-        </div>
-      </div>
-    );
-  }
+      {/* Copy Shortcode */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 p-0"
+        aria-label="Copy Shortcode"
+        title="Copy Shortcode"
+        onClick={handleCopyShortcode}
+      >
+        {shortcodeCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+      </Button>
 
-  // Multiple galleries - show dropdown selector with management buttons
-  return (
-    <div className="flex items-center gap-2">
-      <Select value={currentGalleryId || (galleries[0]?.id ?? '')} onValueChange={onGalleryChange}>
-        <SelectTrigger className="w-56">
-          <SelectValue placeholder={currentGallery?.name || galleries[0]?.name || 'Select gallery'} />
-        </SelectTrigger>
-        <SelectContent>
-          {galleries.map((gallery) => (
-            <SelectItem key={gallery.id} value={gallery.id}>
-              {gallery.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {/* Analytics button - Pro only */}
+      {BUILD_FLAGS.ANALYTICS && isPro && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0"
+          aria-label="View Analytics"
+          title="View Analytics"
+          onClick={() => setIsAnalyticsOpen(true)}
+        >
+          <BarChart3 className="h-3 w-3" />
+        </Button>
+      )}
 
-      <div className="flex items-center gap-1">
-        <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
+      {/* Add Gallery button - Pro only */}
+      {BUILD_FLAGS.MULTI_GALLERY_UI && isPro && (
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-             <Button
-               variant="ghost"
-               size="sm"
-               className="h-8 w-8 p-0"
-               aria-label="Rename Gallery"
-               title="Rename Gallery"
-               onClick={() => setRenameGalleryName(currentGallery?.name || '')}
-             >
-              <Edit2 className="h-3 w-3" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              aria-label="Add Gallery"
+              title="Add Gallery"
+            >
+              <Plus className="h-3 w-3" />
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Rename Gallery</DialogTitle>
+              <DialogTitle>Create New Gallery</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-               <div className="space-y-3">
-                  <Label htmlFor="rename-gallery">Gallery Name</Label>
-                 <Input
-                  id="rename-gallery"
-                  value={renameGalleryName}
-                  onChange={(e) => setRenameGalleryName(e.target.value)}
+              <div className="space-y-3">
+                <Label htmlFor="new-gallery">Gallery Name</Label>
+                <Input
+                  id="new-gallery"
+                  value={newGalleryName}
+                  onChange={(e) => setNewGalleryName(e.target.value)}
                   placeholder="Enter gallery name"
-                  onKeyDown={(e) => e.key === 'Enter' && handleRenameGallery()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreateGallery()}
                 />
               </div>
               <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setIsRenameDialogOpen(false)}>
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleRenameGallery}>
-                  Rename
+                <Button onClick={handleCreateGallery}>
+                  Create Gallery
                 </Button>
               </div>
             </div>
           </DialogContent>
         </Dialog>
+      )}
+    </>
+  );
 
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-             <Button
-               variant="ghost"
-               size="sm"
-               className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-               aria-label="Delete Gallery"
-               title="Delete Gallery"
-             >
-              <Trash2 className="h-3 w-3" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Gallery</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete the gallery "{currentGallery?.name}"? This action cannot be undone and will permanently delete all documents in this gallery.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex items-center gap-2">
-              <AlertDialogCancel className="h-9 mt-0">Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteGallery} className="h-9 bg-destructive text-destructive-foreground hover:bg-destructive/90 mt-0">
-                Delete Gallery
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+  // Single gallery view
+  if (galleries.length === 1) {
+    return (
+      <>
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-foreground">{currentGallery?.name || 'Main Gallery'}</span>
+          <div className="flex items-center gap-1">
+            {renderManagementButtons()}
+          </div>
+        </div>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0"
-          aria-label="Copy Shortcode"
-          title="Copy Shortcode"
-          onClick={handleCopyShortcode}
-        >
-          {shortcodeCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-        </Button>
-
-        {/* Add Gallery button - shown in Pro build when license is active */}
-        {BUILD_FLAGS.MULTI_GALLERY_UI && isPro && (
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-               <Button
-                 variant="ghost"
-                 size="sm"
-                 className="h-8 w-8 p-0"
-                 aria-label="Add Gallery"
-                 title="Add Gallery"
-               >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Gallery</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                 <div className="space-y-3">
-                    <Label htmlFor="new-gallery">Gallery Name</Label>
-                   <Input
-                    id="new-gallery"
-                    value={newGalleryName}
-                    onChange={(e) => setNewGalleryName(e.target.value)}
-                    placeholder="Enter gallery name"
-                    onKeyDown={(e) => e.key === 'Enter' && handleCreateGallery()}
-                  />
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleCreateGallery}>
-                    Create Gallery
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+        {/* Analytics Modal */}
+        {BUILD_FLAGS.ANALYTICS && isPro && (
+          <AnalyticsModal
+            isOpen={isAnalyticsOpen}
+            onClose={() => setIsAnalyticsOpen(false)}
+            galleryId={currentGalleryId}
+            galleryName={currentGallery?.name || 'Gallery'}
+          />
         )}
+      </>
+    );
+  }
+
+  // Multiple galleries - show dropdown selector
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <Select value={currentGalleryId || (galleries[0]?.id ?? '')} onValueChange={onGalleryChange}>
+          <SelectTrigger className="w-56">
+            <SelectValue placeholder={currentGallery?.name || galleries[0]?.name || 'Select gallery'} />
+          </SelectTrigger>
+          <SelectContent>
+            {galleries.map((gallery) => (
+              <SelectItem key={gallery.id} value={gallery.id}>
+                {gallery.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <div className="flex items-center gap-1">
+          {renderManagementButtons()}
+
+          {/* Delete Gallery - only for multiple galleries */}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                aria-label="Delete Gallery"
+                title="Delete Gallery"
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Gallery</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete the gallery "{currentGallery?.name}"? This action cannot be undone and will permanently delete all documents in this gallery.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="flex items-center gap-2">
+                <AlertDialogCancel className="h-9 mt-0">Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteGallery} className="h-9 bg-destructive text-destructive-foreground hover:bg-destructive/90 mt-0">
+                  Delete Gallery
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
-    </div>
+
+      {/* Analytics Modal */}
+      {BUILD_FLAGS.ANALYTICS && isPro && (
+        <AnalyticsModal
+          isOpen={isAnalyticsOpen}
+          onClose={() => setIsAnalyticsOpen(false)}
+          galleryId={currentGalleryId}
+          galleryName={currentGallery?.name || 'Gallery'}
+        />
+      )}
+    </>
   );
 };
