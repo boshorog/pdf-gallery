@@ -430,7 +430,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
         fileType: mappedFileType,
       };
 
-      const updatedItems = [...items, newItem];
+      const updatedItems = [newItem, ...items];
       const updated = galleries.map(g =>
         g.id === currentGalleryId ? { ...g, items: updatedItems } : g
       );
