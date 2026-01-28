@@ -72,7 +72,6 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.4.8 =
-* Fixed Pro activation edge case where clicking "Activate Free Version" could unlock Pro UI without a valid license
 * Improved post-activation auto-refresh (reduces need for hard refresh)
 * Bug fixes
 
