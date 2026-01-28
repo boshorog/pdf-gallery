@@ -419,8 +419,8 @@ const PDFGallery = ({
       }
     };
 
-    // Force default style for free version
-    const effectiveStyle = license.isPro ? settings.thumbnailStyle : 'default';
+    // Use the saved thumbnail style for all users
+    const effectiveStyle = settings.thumbnailStyle;
     const fileTypeInfo = getFileTypeIcon(getItemFileType(pdf));
     const IconComponent = fileTypeInfo.icon;
 
