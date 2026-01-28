@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation, Image, X, Star, Maximize2, FolderOpen, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation, Image, X, Star, Maximize2, FolderOpen, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown, Link } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -291,6 +291,11 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   }>>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [showUrlForm, setShowUrlForm] = useState(false);
+  const [urlInput, setUrlInput] = useState('');
+  const [urlTitle, setUrlTitle] = useState('');
+  const [urlFileType, setUrlFileType] = useState('pdf');
+  const [isAddingUrl, setIsAddingUrl] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dividerFormData, setDividerFormData] = useState({
     text: ''
@@ -327,6 +332,130 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
     if (['mp4', 'mov', 'webm', 'avi', 'mkv', 'flv', 'wmv', 'm4v'].includes(extension)) return 'video';
     // Return extension if known, otherwise 'file'
     return extension || 'file';
+  };
+
+  // Detect file type from URL
+  const getFileTypeFromUrl = (url: string): string => {
+    // Check for YouTube
+    if (url.includes('youtube.com/') || url.includes('youtu.be/')) {
+      return 'youtube';
+    }
+    // Check extension
+    const extension = url.split('.').pop()?.toLowerCase()?.split('?')[0];
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico'].includes(extension || '')) return 'img';
+    if (extension === 'pdf') return 'pdf';
+    if (['doc', 'docx', 'odt', 'rtf', 'txt'].includes(extension || '')) return 'doc';
+    if (['ppt', 'pptx', 'odp'].includes(extension || '')) return 'ppt';
+    if (['xls', 'xlsx', 'ods', 'csv'].includes(extension || '')) return 'xls';
+    if (['zip', 'rar', '7z'].includes(extension || '')) return 'zip';
+    if (['epub', 'mobi'].includes(extension || '')) return 'epub';
+    if (['mp3', 'wav', 'ogg', 'm4a', 'flac'].includes(extension || '')) return 'audio';
+    if (['mp4', 'mov', 'webm', 'avi'].includes(extension || '')) return 'video';
+    return 'file';
+  };
+
+  // Fetch YouTube title via oEmbed
+  const fetchYouTubeTitle = async (url: string): Promise<string | null> => {
+    try {
+      const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+      const response = await fetch(oembedUrl);
+      if (response.ok) {
+        const data = await response.json();
+        return data.title || null;
+      }
+    } catch {}
+    return null;
+  };
+
+  // Handle URL input change with auto-detection
+  const handleUrlInputChange = async (url: string) => {
+    setUrlInput(url);
+    const detectedType = getFileTypeFromUrl(url);
+    setUrlFileType(detectedType);
+
+    // Auto-fetch YouTube title
+    if (detectedType === 'youtube' && url.trim()) {
+      const title = await fetchYouTubeTitle(url);
+      if (title) {
+        setUrlTitle(title);
+      }
+    }
+  };
+
+  // Add file via URL
+  const handleAddUrl = async () => {
+    if (!urlInput.trim()) {
+      toast({
+        title: 'URL Required',
+        description: 'Please enter a valid URL.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsAddingUrl(true);
+    try {
+      const fileType = getFileTypeFromUrl(urlInput);
+      let title = urlTitle.trim();
+
+      // Auto-fetch title for YouTube if not provided
+      if (!title && fileType === 'youtube') {
+        const fetchedTitle = await fetchYouTubeTitle(urlInput);
+        title = fetchedTitle || 'YouTube Video';
+      }
+
+      if (!title) {
+        // Extract filename from URL as fallback
+        const urlParts = urlInput.split('/');
+        title = urlParts[urlParts.length - 1]?.split('?')[0] || 'Untitled';
+        title = title.replace(/\.[^/.]+$/, ''); // Remove extension
+      }
+
+      // Map generic types to valid PDF fileType values
+      let mappedFileType: PDF['fileType'] = 'pdf';
+      if (fileType === 'youtube') mappedFileType = 'youtube';
+      else if (fileType === 'img') mappedFileType = 'jpg';
+      else if (fileType === 'audio') mappedFileType = 'mp3';
+      else if (fileType === 'video') mappedFileType = 'mp4';
+      else if (['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'zip', 'rar', '7z', 'epub', 'mobi', 'mp3', 'wav', 'ogg', 'mp4', 'mov', 'webm'].includes(fileType)) {
+        mappedFileType = fileType as PDF['fileType'];
+      }
+
+      const newItem: PDF = {
+        id: crypto.randomUUID(),
+        title,
+        date: '',
+        pdfUrl: urlInput,
+        thumbnail: '',
+        fileType: mappedFileType,
+      };
+
+      const updatedItems = [...items, newItem];
+      const updated = galleries.map(g =>
+        g.id === currentGalleryId ? { ...g, items: updatedItems } : g
+      );
+      onGalleriesChange(updated);
+
+      toast({
+        title: 'File Added',
+        description: `"${title}" has been added to the gallery.`,
+      });
+
+      // Reset form
+      setUrlInput('');
+      setUrlTitle('');
+      setUrlFileType('pdf');
+      setShowUrlForm(false);
+      setIsAddingDocument(false);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to add file. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAddingUrl(false);
+    }
   };
 
   const handleFiles = useCallback((fileList: FileList) => {
@@ -1475,7 +1604,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                           Supports PDF, Office files, images, audio, video, archives, and eBooks
                         </p>
                       </div>
-                      <div className="flex justify-center gap-3 mt-4">
+                      <div className="flex flex-wrap justify-center gap-3 mt-4">
                         <Button
                           type="button"
                           variant="outline"
@@ -1490,7 +1619,15 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                           onClick={openWordPressMediaLibrary}
                         >
                           <FolderOpen className="w-4 h-4 mr-2" />
-                          WordPress Media Library
+                          Media Library
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowUrlForm(true)}
+                        >
+                          <Link className="w-4 h-4 mr-2" />
+                          Add via Link
                         </Button>
                       </div>
                     </>
@@ -1512,6 +1649,86 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                     </div>
                   )}
                 </div>
+
+                {/* URL Form */}
+                {showUrlForm && (
+                  <div className="border rounded-lg p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-base font-medium">Add via Link</Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowUrlForm(false);
+                          setUrlInput('');
+                          setUrlTitle('');
+                        }}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="file-url">File URL or YouTube Link</Label>
+                        <Input
+                          id="file-url"
+                          type="url"
+                          placeholder="https://example.com/file.pdf or YouTube URL"
+                          value={urlInput}
+                          onChange={(e) => handleUrlInputChange(e.target.value)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Paste a direct link to a file or a YouTube video URL
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="url-title">Title (optional)</Label>
+                        <Input
+                          id="url-title"
+                          type="text"
+                          placeholder="Enter a title for this file"
+                          value={urlTitle}
+                          onChange={(e) => setUrlTitle(e.target.value)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {urlFileType === 'youtube' ? 'YouTube titles are fetched automatically' : 'Leave empty to use filename from URL'}
+                        </p>
+                      </div>
+
+                      {urlFileType && urlInput && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span>Detected type:</span>
+                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                            {urlFileType.toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-end gap-2 pt-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setShowUrlForm(false);
+                            setUrlInput('');
+                            setUrlTitle('');
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleAddUrl}
+                          disabled={!urlInput.trim() || isAddingUrl}
+                        >
+                          {isAddingUrl ? 'Adding...' : 'Add to Gallery'}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                  {/* File List - Only show during upload process */}
                 {(files.length > 0 || isUploading) && (
