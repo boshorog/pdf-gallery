@@ -225,7 +225,7 @@ export const AnalyticsModal = ({
             <Info className="h-4 w-4 text-primary" />
             <AlertDescription className="flex items-center justify-between">
               <span className="text-sm">
-                Analytics data will appear here after 7 days. Don't worry — we're already collecting your stats!
+                Real data will appear here after 7 days – don't worry, we're already collecting your stats!
               </span>
               <Button
                 variant="ghost"
