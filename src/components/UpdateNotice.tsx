@@ -16,10 +16,10 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
   const [dismissed, setDismissed] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  // Pro users get updates via Freemius SDK - don't show this notice
-  if (license.isPro) return null;
-
   useEffect(() => {
+    // Pro users get updates via Freemius SDK - skip fetching
+    if (license.isPro) return;
+
     // Check if this version was already dismissed
     try {
       const dismissedVersion = localStorage.getItem(DISMISS_KEY);
@@ -48,7 +48,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
         // Silently fail - no update notice if API unavailable
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [license.isPro]);
 
   const compareVersions = (v1: string, v2: string): number => {
     const parts1 = v1.split('.').map(Number);
@@ -78,8 +78,8 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     window.location.href = pluginsUrl;
   };
 
-  // Don't show if loading, dismissed, no latest version, or current is up-to-date
-  if (loading || dismissed || !latestVersion) return null;
+  // Don't show if Pro user, loading, dismissed, no latest version, or current is up-to-date
+  if (license.isPro || loading || dismissed || !latestVersion) return null;
   if (compareVersions(currentVersion, latestVersion) >= 0) return null;
 
   return (
