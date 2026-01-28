@@ -68,7 +68,7 @@ export const PRO_NAME = 'PDF Gallery Pro';
  * Plugin version - update this for each release
  * Also update in: kindpixels-pdf-gallery.php, readme.txt
  */
-export const PLUGIN_VERSION = '2.4.8';
+export const PLUGIN_VERSION = '2.4.9';
 
 /**
  * Short description for meta/SEO
