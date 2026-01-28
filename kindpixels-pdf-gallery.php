@@ -923,6 +923,9 @@ public function display_gallery_shortcode($atts) {
             case 'get_analytics':
                 $this->handle_get_analytics();
                 break;
+            case 'reset_galleries':
+                $this->handle_reset_galleries();
+                break;
             default:
                 wp_send_json_error('Invalid action');
         }
@@ -1377,6 +1380,26 @@ public function display_gallery_shortcode($atts) {
         } else {
             wp_send_json_error('Invalid galleries data');
         }
+    }
+
+    /**
+     * Handle reset galleries AJAX request (debug feature for testing)
+     * Clears all gallery data so the Test Gallery is re-seeded on next load
+     */
+    private function handle_reset_galleries() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+
+        // Delete all gallery-related options
+        delete_option('kindpdfg_galleries');
+        delete_option('kindpdfg_current_gallery_id');
+        delete_option('kindpdfg_galleries_backup');
+        
+        // Optionally reset analytics too
+        delete_option('kindpdfg_analytics');
+
+        wp_send_json_success('Galleries reset successfully. Test Gallery will be re-seeded on next load.');
     }
 
     private function handle_upload_chunk() {

@@ -111,9 +111,37 @@ const Index = () => {
     // Debug: Reset galleries if ?reset_galleries=1 is present
     if (urlParams.get('reset_galleries') === '1') {
       console.log('[PDF Gallery] Resetting galleries...');
+      
+      // Clear localStorage first
       localStorage.removeItem('kindpdfg_backup');
       localStorage.removeItem('kindpdfg_galleries');
-      // Remove the param and reload
+      
+      // If in WordPress, also reset via AJAX
+      if (wp?.ajaxUrl && wp?.nonce) {
+        const form = new FormData();
+        form.append('action', 'kindpdfg_action');
+        form.append('action_type', 'reset_galleries');
+        form.append('nonce', wp.nonce);
+        
+        fetch(wp.ajaxUrl, {
+          method: 'POST',
+          credentials: 'same-origin',
+          body: form,
+        }).then(() => {
+          // Remove the param and reload after AJAX completes
+          urlParams.delete('reset_galleries');
+          const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+          window.location.replace(newUrl);
+        }).catch(() => {
+          // Even on error, reload
+          urlParams.delete('reset_galleries');
+          const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+          window.location.replace(newUrl);
+        });
+        return;
+      }
+      
+      // Not in WordPress - just reload
       urlParams.delete('reset_galleries');
       const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
       window.location.replace(newUrl);
