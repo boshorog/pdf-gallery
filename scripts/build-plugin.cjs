@@ -32,6 +32,7 @@ const INCLUDE_FILES = [
   'readme.txt',
   'dist/',
   'freemius/',  // Freemius SDK (if exists)
+  'vendor/',    // Freemius SDK alternate location
 ];
 
 // Files/folders to exclude

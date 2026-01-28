@@ -16,7 +16,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { AnalyticsData, fetchAnalytics, exportAnalyticsCSV } from '@/utils/analyticsApi';
 import {
   BarChart,
@@ -35,6 +41,8 @@ interface GallerySummary {
   totalViews: number;
   totalClicks: number;
 }
+
+type DateRange = '24h' | '7d' | '30d' | '365d' | 'all';
 
 interface AnalyticsModalProps {
   isOpen: boolean;
@@ -64,6 +72,14 @@ const getDaysUntilRealData = (createdAt?: string): number => {
   return Math.max(1, Math.ceil(7 - diffDays));
 };
 
+const DATE_RANGE_OPTIONS: { value: DateRange; label: string }[] = [
+  { value: '24h', label: '24 hours' },
+  { value: '7d', label: '7 days' },
+  { value: '30d', label: '30 days' },
+  { value: '365d', label: '365 days' },
+  { value: 'all', label: 'All time' },
+];
+
 export const AnalyticsModal = ({
   isOpen,
   onClose,
@@ -78,6 +94,7 @@ export const AnalyticsModal = ({
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'clicks' | 'unique'>('clicks');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [dateRange, setDateRange] = useState<DateRange>('7d');
 
   const [gallerySummaries, setGallerySummaries] = useState<GallerySummary[]>([]);
   
@@ -196,6 +213,12 @@ export const AnalyticsModal = ({
     }
   };
 
+  // Get the label for the selected date range
+  const getDateRangeLabel = () => {
+    const option = DATE_RANGE_OPTIONS.find(opt => opt.value === dateRange);
+    return option?.label || '7 days';
+  };
+
   // Format chart data with shorter date labels
   const chartData = analytics?.daily_stats.map(stat => ({
     ...stat,
@@ -221,19 +244,15 @@ export const AnalyticsModal = ({
           <div className="text-center py-12 text-destructive">{error}</div>
         ) : analytics ? (
           <div className="space-y-6 relative">
-            {/* New Gallery Overlay */}
+            {/* New Gallery Notice - positioned at top */}
             {showNewGalleryNotice && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[2px] rounded-lg">
-                <div className="bg-card border border-primary/30 rounded-xl p-6 shadow-lg max-w-md text-center">
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <Info className="h-6 w-6 text-primary" />
-                    <span className="text-lg font-semibold text-foreground">Collecting Data</span>
-                  </div>
-                  <p className="text-muted-foreground">
-                    Real analytics will appear in <span className="font-semibold text-foreground">{daysRemaining} day{daysRemaining !== 1 ? 's' : ''}</span>.
-                    <br />
-                    <span className="text-sm">Don't worry, we're already collecting your stats!</span>
-                  </p>
+              <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 flex items-center gap-3">
+                <Info className="h-5 w-5 text-primary flex-shrink-0" />
+                <div>
+                  <span className="font-semibold text-foreground">Collecting Data</span>
+                  <span className="text-muted-foreground ml-2">
+                    Real analytics will appear in {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} – don't worry, we're already collecting your stats!
+                  </span>
                 </div>
               </div>
             )}
@@ -292,8 +311,20 @@ export const AnalyticsModal = ({
 
             {/* Chart */}
             <Card className={showNewGalleryNotice ? 'opacity-40 pointer-events-none' : ''}>
-              <CardHeader>
-                <CardTitle className="text-base">Last 14 Days</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-base">Activity</CardTitle>
+                <Select value={dateRange} onValueChange={(value: DateRange) => setDateRange(value)}>
+                  <SelectTrigger className="w-[130px] h-8">
+                    <SelectValue placeholder="Select range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DATE_RANGE_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </CardHeader>
               <CardContent>
                 <div className="h-64">
