@@ -8,6 +8,8 @@ import { useLicense } from '@/hooks/useLicense';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DocumentRating } from '@/components/DocumentRating';
 import DocumentLightbox from '@/components/DocumentLightbox';
+import { useGalleryViewTracking, useFileClickTracking } from '@/hooks/useAnalyticsTracking';
+import { BUILD_FLAGS } from '@/config/buildFlags';
 
 interface PDF {
   id: string;
@@ -80,6 +82,11 @@ const PDFGallery = ({
   const placeholderUrl = (settings?.defaultPlaceholder && settings.defaultPlaceholder !== 'default')
     ? settings.defaultPlaceholder
     : pdfPlaceholder;
+
+  // Analytics tracking (Pro only)
+  const analyticsEnabled = BUILD_FLAGS.ANALYTICS && license.isPro;
+  const galleryViewRef = useGalleryViewTracking(galleryId, analyticsEnabled);
+  const trackFileClick = useFileClickTracking(galleryId, analyticsEnabled);
 
   // Get only PDF items (not dividers) for lightbox navigation
   const pdfItems = (itemsWithThumbnails.length > 0 ? itemsWithThumbnails : items).filter(
@@ -382,6 +389,10 @@ const PDFGallery = ({
       onClick: (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        
+        // Track file click (analytics)
+        trackFileClick(pdf.id);
+        
         // Lightbox is desktop-only; on mobile, fall through to open in new tab
         if (lightboxEnabled && !isMobile) {
           openLightbox(pdf.id);
@@ -674,7 +685,7 @@ const PDFGallery = ({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-2 bg-transparent" style={{ ['--accent-color' as any]: settings.accentColor, backgroundColor: 'transparent' }}>
+    <div ref={galleryViewRef} className="w-full max-w-7xl mx-auto px-2 bg-transparent" style={{ ['--accent-color' as any]: settings.accentColor, backgroundColor: 'transparent' }}>
       {isGeneratingThumbnails && (
         <div className="sticky top-4 z-50 flex justify-center mb-4">
           <div className="bg-card border border-border rounded-lg shadow-lg px-6 py-4 flex items-center gap-3">
