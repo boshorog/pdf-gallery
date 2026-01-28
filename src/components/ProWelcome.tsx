@@ -23,82 +23,109 @@ const ProWelcome = ({ className = '', onDismiss }: ProWelcomeProps) => {
     const licenseActivated = urlParams.get('license_activated');
     const reloadParam = urlParams.get('kindpdfg_reload');
 
-    // Check WP localized globals for Pro state (server-side truth)
-    let wpGlobal: any = null;
-    try {
-      wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || null;
-    } catch {}
-    if (!wpGlobal) {
+    const getWpGlobalSafe = () => {
+      let wpGlobal: any = null;
       try {
-        wpGlobal = (window.parent && ((window.parent as any).kindpdfgData || (window.parent as any).wpPDFGallery)) || null;
+        wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || null;
       } catch {}
-    }
+      if (!wpGlobal) {
+        try {
+          wpGlobal = (window.parent && ((window.parent as any).kindpdfgData || (window.parent as any).wpPDFGallery)) || null;
+        } catch {}
+      }
+      return wpGlobal;
+    };
 
-    // CRITICAL: Only trust fsIsPro from PHP - it uses can_use_premium_code() which is the
-    // authoritative source. DO NOT infer Pro status from fsStatus strings, as Freemius can
-    // return various statuses (e.g., when clicking "Activate Free Version") that are NOT Pro.
-    const wpIsPro = !!(
-      wpGlobal &&
-      (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1)
-    );
+    const isWpProFromGlobal = (wpGlobal: any) =>
+      !!(
+        wpGlobal &&
+        (wpGlobal.fsIsPro === true || wpGlobal.fsIsPro === 'true' || wpGlobal.fsIsPro === '1' || wpGlobal.fsIsPro === 1)
+      );
 
     // localStorage flags
-    const dismissed = localStorage.getItem('kindpdfg_pro_welcome_dismissed');
-    const shown = localStorage.getItem('kindpdfg_pro_welcome_shown');
-    
+    let dismissed: string | null = null;
+    let shown: string | null = null;
+    try {
+      dismissed = localStorage.getItem('kindpdfg_pro_welcome_dismissed');
+      shown = localStorage.getItem('kindpdfg_pro_welcome_shown');
+    } catch {}
+
     // Has license activation params (coming from Freemius activation flow)
     const hasLicenseParams = !!licenseUpdated || !!licenseActivated;
 
-    // Only show welcome banner if user is ACTUALLY Pro (verified by PHP)
-    // The redirect params alone are NOT enough - user could have clicked "Activate Free Version"
-    // 
-    // Priority 1: If coming from license activation flow AND user is Pro, ALWAYS show
-    //             (ignore dismissed/shown flags - this is a fresh activation)
-    // Priority 2: First time Pro detection without redirect params
-    const shouldTrigger =
-      wpIsPro && (
-        hasLicenseParams ||
-        (!dismissed && !shown)
-      );
+    const triggerIfEligible = () => {
+      const wpGlobal = getWpGlobalSafe();
+      // CRITICAL: Only trust fsIsPro from PHP (derived from can_use_premium_code())
+      // Never infer Pro from fsStatus strings.
+      const wpIsPro = isWpProFromGlobal(wpGlobal);
 
-    if (!shouldTrigger) return;
-    
-    // If this is a fresh license activation, clear the old dismissed flag
-    // so the welcome banner can show again (user might have dismissed it during a trial)
-    if (hasLicenseParams) {
+      const shouldTrigger =
+        wpIsPro && (
+          hasLicenseParams ||
+          (!dismissed && !shown)
+        );
+
+      if (!shouldTrigger) return false;
+
+      // If this is a fresh license activation, clear the old dismissed flag
+      // so the welcome banner can show again (user might have dismissed it during a trial)
+      if (hasLicenseParams) {
+        try {
+          localStorage.removeItem('kindpdfg_pro_welcome_dismissed');
+        } catch {}
+      }
+
+      // Mark as shown immediately (so even if user navigates away quickly it won't re-trigger)
       try {
-        localStorage.removeItem('kindpdfg_pro_welcome_dismissed');
+        localStorage.setItem('kindpdfg_pro_welcome_shown', '1');
       } catch {}
-    }
 
-    // Mark as shown immediately (so even if user navigates away quickly it won't re-trigger)
-    try {
-      localStorage.setItem('kindpdfg_pro_welcome_shown', '1');
-    } catch {}
+      setShouldRender(true);
+      setTimeout(() => setIsVisible(true), 100);
 
-    setShouldRender(true);
-    setTimeout(() => setIsVisible(true), 100);
+      // Clean up URL params after showing (if present)
+      // IMPORTANT: Only clean after the post-license reload attempt ran.
+      if (licenseUpdated || licenseActivated) {
+        let reloadAttempted = false;
+        try {
+          // useLicense stores a timestamp, not a boolean.
+          reloadAttempted = !!sessionStorage.getItem('kindpdfg_post_license_reload');
+        } catch {
+          // ignore
+        }
 
-    // Clean up URL params after showing (if present)
-    // IMPORTANT: Only clean after the post-license reload attempt ran.
-    // Otherwise we can remove the params before useLicense sees them,
-    // which prevents the auto-reload needed to pick up the Pro bundle.
-    if (licenseUpdated || licenseActivated) {
-      let reloadAttempted = false;
-      try {
-        // useLicense stores a timestamp, not a boolean.
-        reloadAttempted = !!sessionStorage.getItem('kindpdfg_post_license_reload');
-      } catch {
-        // ignore
+        if (reloadAttempted || !!reloadParam) {
+          const newUrl = new URL(window.location.href);
+          newUrl.searchParams.delete('license_updated');
+          newUrl.searchParams.delete('license_activated');
+          window.history.replaceState({}, '', newUrl.toString());
+        }
       }
 
-      if (reloadAttempted || !!reloadParam) {
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.delete('license_updated');
-        newUrl.searchParams.delete('license_activated');
-        window.history.replaceState({}, '', newUrl.toString());
+      return true;
+    };
+
+    // Try immediately
+    if (triggerIfEligible()) return;
+
+    // If Pro status isn't ready yet (Freemius globals can lag after activation),
+    // poll briefly so the welcome banner still appears once the server-side fsIsPro flips.
+    const shouldPoll = hasLicenseParams || (!dismissed && !shown);
+    if (!shouldPoll) return;
+
+    const maxMs = hasLicenseParams ? 30000 : 5000;
+    const startedAt = Date.now();
+    const intervalId = window.setInterval(() => {
+      if (triggerIfEligible()) {
+        clearInterval(intervalId);
+        return;
       }
-    }
+      if (Date.now() - startedAt > maxMs) {
+        clearInterval(intervalId);
+      }
+    }, 250);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleDismiss = () => {
