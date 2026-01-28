@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.4.2
+Stable tag: 2.4.3
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -77,6 +77,15 @@ Once you install the plugin, head over to the Documentation tab where we have an
 * Cross-gallery navigation in analytics modal
 * Bug fixes and improvements
 
+= 2.4.3 =
+* Improved File Analytics with date range selector (24h, 7 days, 30 days, 365 days, all time)
+* Enhanced analytics notification for new galleries
+* Build system improvements
+
+= 2.4.2 =
+* File Analytics now available for Pro users
+* Track gallery views and document clicks
+
 = 2.4.1 =
 * Improved documentation and getting started guide
 * Updated shortcode examples for clarity
@@ -114,6 +123,9 @@ Once you install the plugin, head over to the Documentation tab where we have an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.4.3 =
+Improved File Analytics with date range selector.
 
 = 2.4.2 =
 File Analytics now available for Pro users. Track gallery views and document clicks.
