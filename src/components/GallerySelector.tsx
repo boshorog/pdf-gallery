@@ -317,7 +317,8 @@ export const GallerySelector = ({
             onClose={() => setIsAnalyticsOpen(false)}
             galleryId={analyticsGalleryId}
             galleryName={analyticsGallery?.name || 'Gallery'}
-            allGalleries={galleries.map(g => ({ id: g.id, name: g.name }))}
+            galleryCreatedAt={analyticsGallery?.createdAt}
+            allGalleries={galleries.map(g => ({ id: g.id, name: g.name, createdAt: g.createdAt }))}
             onGallerySelect={handleAnalyticsGallerySelect}
           />
         )}
@@ -383,7 +384,8 @@ export const GallerySelector = ({
           onClose={() => setIsAnalyticsOpen(false)}
           galleryId={analyticsGalleryId}
           galleryName={analyticsGallery?.name || 'Gallery'}
-          allGalleries={galleries.map(g => ({ id: g.id, name: g.name }))}
+          galleryCreatedAt={analyticsGallery?.createdAt}
+          allGalleries={galleries.map(g => ({ id: g.id, name: g.name, createdAt: g.createdAt }))}
           onGallerySelect={handleAnalyticsGallerySelect}
         />
       )}

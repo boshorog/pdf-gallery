@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, Download, TrendingUp, Users, MousePointerClick, Eye, Loader2 } from 'lucide-react';
+import { BarChart3, Download, TrendingUp, Users, MousePointerClick, Eye, Loader2, X, Info } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -16,6 +16,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AnalyticsData, fetchAnalytics, exportAnalyticsCSV } from '@/utils/analyticsApi';
 import {
   BarChart,
@@ -40,15 +41,29 @@ interface AnalyticsModalProps {
   onClose: () => void;
   galleryId: string;
   galleryName: string;
-  allGalleries?: Array<{ id: string; name: string }>;
+  galleryCreatedAt?: string;
+  allGalleries?: Array<{ id: string; name: string; createdAt?: string }>;
   onGallerySelect?: (galleryId: string) => void;
 }
+
+// Check if gallery is less than 7 days old
+const isGalleryNew = (createdAt?: string): boolean => {
+  if (!createdAt) return false;
+  const created = new Date(createdAt);
+  const now = new Date();
+  const diffDays = (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+  return diffDays < 7;
+};
+
+// LocalStorage key for dismissed notification
+const ANALYTICS_NOTICE_DISMISSED_KEY = 'kindpdfg_analytics_notice_dismissed';
 
 export const AnalyticsModal = ({
   isOpen,
   onClose,
   galleryId,
   galleryName,
+  galleryCreatedAt,
   allGalleries = [],
   onGallerySelect,
 }: AnalyticsModalProps) => {
@@ -57,8 +72,24 @@ export const AnalyticsModal = ({
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'clicks' | 'unique'>('clicks');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [noticeDismissed, setNoticeDismissed] = useState(() => {
+    try {
+      return localStorage.getItem(ANALYTICS_NOTICE_DISMISSED_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   const [gallerySummaries, setGallerySummaries] = useState<GallerySummary[]>([]);
+  
+  const showNewGalleryNotice = isGalleryNew(galleryCreatedAt) && !noticeDismissed;
+  
+  const handleDismissNotice = () => {
+    setNoticeDismissed(true);
+    try {
+      localStorage.setItem(ANALYTICS_NOTICE_DISMISSED_KEY, 'true');
+    } catch {}
+  };
 
   useEffect(() => {
     if (isOpen && galleryId) {
@@ -187,6 +218,26 @@ export const AnalyticsModal = ({
             Analytics: {galleryName}
           </DialogTitle>
         </DialogHeader>
+
+        {/* New gallery notice */}
+        {showNewGalleryNotice && (
+          <Alert className="bg-primary/5 border-primary/20">
+            <Info className="h-4 w-4 text-primary" />
+            <AlertDescription className="flex items-center justify-between">
+              <span className="text-sm">
+                Analytics data will appear here after 7 days. Don't worry — we're already collecting your stats!
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 ml-2 shrink-0"
+                onClick={handleDismissNotice}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
