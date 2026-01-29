@@ -25,6 +25,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { POST_MESSAGE_HEIGHT } from "@/config/pluginIdentity";
 import Index from "./pages/Index";
+import ScrollOnboardingShowcase from "./components/ScrollOnboardingShowcase";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -112,11 +113,14 @@ const App = () => {
     };
   }, []);
 
+  // Show showcase if ?showcase=scroll-onboarding is in URL
+  const showScrollShowcase = new URLSearchParams(window.location.search).get('showcase') === 'scroll-onboarding';
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Index />
+        {showScrollShowcase ? <ScrollOnboardingShowcase /> : <Index />}
       </TooltipProvider>
     </QueryClientProvider>
   );
