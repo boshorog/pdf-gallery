@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.4.10
+Stable tag: 2.4.11
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,11 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Changelog ==
+
+= 2.4.11 =
+* Added scroll onboarding hints for multi-page PDFs in lightbox
+* Enter key now saves when editing files
+* Minor UI improvements
 
 = 2.4.10 =
 * Fixed Pro welcome banner not showing after upgrade
