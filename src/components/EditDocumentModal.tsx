@@ -79,11 +79,23 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
     }
   }, [pdfUrl]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (pdfUrl) {
       onEdit(pdf.id, { title, date, pdfUrl, fileType, thumbnail });
       onClose();
+    }
+  };
+
+  // Handle Enter key to save
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      // Don't trigger on select dropdowns or textareas
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT') {
+        e.preventDefault();
+        handleSubmit();
+      }
     }
   };
 
@@ -112,7 +124,7 @@ const EditDocumentModal = ({ isOpen, pdf, onClose, onEdit }: EditDocumentModalPr
         <DialogHeader>
           <DialogTitle>Edit File</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-4">
           <div>
             <Label htmlFor="title">File Title</Label>
             <Input

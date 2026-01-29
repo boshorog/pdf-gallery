@@ -21,12 +21,14 @@ type PdfJsViewerProps = {
   title?: string;
   onLoaded?: () => void;
   className?: string;
+  /** Called with scroll container ref and page count once PDF is loaded */
+  onPdfReady?: (scrollContainerRef: React.RefObject<HTMLDivElement>, numPages: number) => void;
 };
 
 const DEFAULT_SCALE = 1.15;
 const ZOOM_SCALE = 2.0; // 200% zoom when clicking
 
-export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsViewerProps) {
+export default function PdfJsViewer({ url, title, onLoaded, className, onPdfReady }: PdfJsViewerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRefs = useRef<Map<number, HTMLCanvasElement>>(new Map());
 
@@ -93,6 +95,13 @@ export default function PdfJsViewer({ url, title, onLoaded, className }: PdfJsVi
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [safeUrl]);
+
+  // Notify parent when PDF is ready with scroll container and page count
+  useEffect(() => {
+    if (isReady && numPages > 0 && containerRef.current) {
+      onPdfReady?.(containerRef as React.RefObject<HTMLDivElement>, numPages);
+    }
+  }, [isReady, numPages, onPdfReady]);
 
   // Render all pages when pdf or scale changes
   useEffect(() => {

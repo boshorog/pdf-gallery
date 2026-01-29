@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, Download, FileText, Loader2, ExternalLink, Minus, Plus } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 import PdfJsViewer from '@/components/PdfJsViewer';
+import ScrollOnboarding from '@/components/ScrollOnboarding';
 
 interface Document {
   id: string;
@@ -176,6 +177,17 @@ const DocumentLightbox = ({
 }: DocumentLightboxProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showControls, setShowControls] = useState(true);
+  
+  // For scroll onboarding
+  const pdfScrollContainerRef = useRef<HTMLDivElement>(null);
+  const [pdfNumPages, setPdfNumPages] = useState(0);
+  
+  const handlePdfReady = useCallback((scrollRef: React.RefObject<HTMLDivElement>, numPages: number) => {
+    if (scrollRef.current) {
+      (pdfScrollContainerRef as React.MutableRefObject<HTMLDivElement | null>).current = scrollRef.current;
+    }
+    setPdfNumPages(numPages);
+  }, []);
 
   const doc = documents[currentIndex];
 
@@ -538,8 +550,18 @@ const DocumentLightbox = ({
             onError={() => setIsLoading(false)}
           />
         ) : isPdf ? (
-          <div className={`w-full h-full max-w-5xl mx-auto flex flex-col rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-            <PdfJsViewer url={httpsUrl} title={doc.title} onLoaded={() => setIsLoading(false)} />
+          <div className={`relative w-full h-full max-w-5xl mx-auto flex flex-col rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+            <PdfJsViewer 
+              url={httpsUrl} 
+              title={doc.title} 
+              onLoaded={() => setIsLoading(false)} 
+              onPdfReady={handlePdfReady}
+            />
+            {/* Scroll onboarding for multi-page PDFs */}
+            <ScrollOnboarding 
+              isMultiPage={pdfNumPages > 1} 
+              scrollContainerRef={pdfScrollContainerRef} 
+            />
           </div>
         ) : isVideo ? (
           <div className={`w-full h-full max-w-5xl mx-auto flex flex-col items-center justify-center rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
