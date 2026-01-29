@@ -93,7 +93,7 @@ const ScrollOnboarding = ({ isMultiPage, scrollContainerRef }: ScrollOnboardingP
 
   return (
     <div
-      className={`absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 transition-all duration-500 pointer-events-none z-50 ${
+      className={`absolute right-4 sm:right-8 bottom-32 sm:bottom-36 flex flex-col items-center gap-3 transition-all duration-500 pointer-events-none z-50 ${
         dismissed ? "opacity-0 translate-x-4" : "opacity-100"
       }`}
     >

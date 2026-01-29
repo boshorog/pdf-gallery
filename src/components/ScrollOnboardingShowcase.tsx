@@ -53,9 +53,9 @@ const ScrollOnboardingShowcase = () => {
             <span className="text-zinc-400 text-sm">Multi-page Document</span>
           </div>
 
-          {/* Onboarding overlay - right side */}
+          {/* Onboarding overlay - right side, lower position to avoid nav arrows */}
           <div
-            className={`absolute right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 transition-all duration-500 ${
+            className={`absolute right-8 bottom-24 flex flex-col items-center gap-3 transition-all duration-500 ${
               simulateScroll ? "opacity-0 translate-x-4 pointer-events-none" : "opacity-100"
             }`}
           >
