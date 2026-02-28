@@ -185,9 +185,9 @@ export const AnalyticsModal = ({
       { document_id: '4', document_title: 'Company Overview.pdf', total_clicks: 245, unique_clicks: 178 },
       { document_id: '5', document_title: 'Newsletter Q4.pdf', total_clicks: 187, unique_clicks: 134 },
     ],
-    daily_stats: Array.from({ length: 14 }, (_, i) => {
+    daily_stats: Array.from({ length: 60 }, (_, i) => {
       const date = new Date();
-      date.setDate(date.getDate() - (13 - i));
+      date.setDate(date.getDate() - (59 - i));
       return {
         date: date.toISOString().split('T')[0],
         views: Math.floor(Math.random() * 100) + 50,
@@ -225,11 +225,25 @@ export const AnalyticsModal = ({
     return option?.label || '7 days';
   };
 
-  // Format chart data with shorter date labels
-  const chartData = analytics?.daily_stats.map(stat => ({
-    ...stat,
-    dateLabel: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-  })) || [];
+  // Filter chart data by selected date range
+  const chartData = (() => {
+    if (!analytics?.daily_stats) return [];
+    const now = new Date();
+    let cutoff: Date | null = null;
+    switch (dateRange) {
+      case '24h': cutoff = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000); break;
+      case '7d': cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); break;
+      case '30d': cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); break;
+      case '365d': cutoff = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000); break;
+      case 'all': cutoff = null; break;
+    }
+    return analytics.daily_stats
+      .filter(stat => !cutoff || new Date(stat.date) >= cutoff)
+      .map(stat => ({
+        ...stat,
+        dateLabel: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      }));
+  })();
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
