@@ -31,8 +31,11 @@ const INCLUDE_FILES = [
   'kindpixels-pdf-gallery.php',
   'readme.txt',
   'dist/',
-  'freemius/',  // Freemius SDK (if exists)
-  'vendor/',    // Freemius SDK alternate location
+];
+
+// Required folders - build will FAIL if missing
+const REQUIRED_FOLDERS = [
+  'vendor/',    // Freemius SDK - must exist in project root
 ];
 
 // Files/folders to exclude
@@ -106,14 +109,21 @@ async function createZip(variant, version) {
     archive.on('error', reject);
     archive.pipe(output);
     
-    // Add files with plugin slug as root folder
-    INCLUDE_FILES.forEach(file => {
+    // Check required folders exist
+    for (const folder of REQUIRED_FOLDERS) {
+      const folderPath = path.join(ROOT_DIR, folder);
+      if (!fs.existsSync(folderPath)) {
+        reject(new Error(`❌ Required folder missing: ${folder}\n   The Freemius SDK must be installed in the project root.\n   Download it from https://github.com/Freemius/wordpress-sdk and place it in ${folderPath}`));
+        return;
+      }
+    }
+
+    // Add all include files + required folders
+    const allFiles = [...INCLUDE_FILES, ...REQUIRED_FOLDERS];
+    allFiles.forEach(file => {
       const fullPath = path.join(ROOT_DIR, file);
       if (!fs.existsSync(fullPath)) {
-        // Skip missing optional files (like freemius/)
-        if (file !== 'freemius/') {
-          console.log(`   ⚠️  Skipping missing: ${file}`);
-        }
+        console.log(`   ⚠️  Skipping missing optional: ${file}`);
         return;
       }
       
