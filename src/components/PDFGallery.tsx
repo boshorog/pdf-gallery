@@ -525,8 +525,7 @@ const PDFGallery = ({
             <div className="group cursor-pointer">
               <div className="relative rounded-2xl p-[3px] transition-all duration-300"
                 style={{
-                  background: `linear-gradient(135deg, ${settings.accentColor}, #B07FDC, ${settings.accentColor})`,
-                  opacity: 0.6,
+                  background: `linear-gradient(135deg, ${settings.accentColor}99, #B07FDC99, ${settings.accentColor}99)`,
                 }}
               >
                 <div className="absolute inset-0 rounded-2xl transition-opacity duration-300 opacity-0 group-hover:opacity-100"
