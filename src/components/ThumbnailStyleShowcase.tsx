@@ -233,7 +233,7 @@ const ThumbnailStyleShowcase = () => {
                 <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
                 </svg>
-                <span className="text-xs text-muted-foreground">Download PDF</span>
+                <span className="text-xs text-muted-foreground">Download file</span>
               </div>
             </div>
           </div>
