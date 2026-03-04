@@ -340,9 +340,10 @@ const DocumentLightbox = ({
     return () => window.clearTimeout(t);
   }, [isOpen]);
 
-  // Reset loading state when document changes
+  // Reset loading state and PDF page count when document changes
   useEffect(() => {
     setIsLoading(true);
+    setPdfNumPages(0);
   }, [currentIndex]);
 
   // Safety: if an embed never fires onLoad (blocked/slow), stop the spinner

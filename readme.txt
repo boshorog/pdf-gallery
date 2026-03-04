@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.5.1
+Stable tag: 2.5.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,12 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Changelog ==
+
+= 2.5.2 =
+* Fix: Accent color now properly updates on frontend shortcode after saving in settings
+* Fix: Lightbox scroll onboarding now correctly resets when navigating between documents
+* Fix: Update button no longer hangs indefinitely - falls back to plugins page after 10 seconds
+* Improvement: Frontend settings fetch now includes gallery context for per-gallery settings
 
 = 2.5.1 =
 * New color picker for accent color settings
