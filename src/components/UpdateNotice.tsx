@@ -23,7 +23,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Loader2 } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
-import { STORAGE_KEYS, PLUGIN_SLUG } from '@/config/pluginIdentity';
+import { STORAGE_KEYS, PLUGIN_SLUG, isDevPreview } from '@/config/pluginIdentity';
 
 interface UpdateNoticeProps {
   currentVersion: string;
@@ -93,6 +93,12 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
   };
 
   const handleUpdate = () => {
+    // In dev preview, show alert instead of attempting WordPress update
+    if (isDevPreview()) {
+      alert('Update is only available in WordPress. This is a dev preview.');
+      return;
+    }
+    
     // Start updating animation
     setUpdating(true);
     
