@@ -410,7 +410,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
               </div>
             </div>
 
-            {/* Style 7: Gradient Zoom */}
+            {/* Style 7: Gradient Zoom (Dual Tone Border) */}
             <div className="space-y-3 relative">
               <div className="flex items-center space-x-2">
                 <Checkbox 
@@ -424,30 +424,24 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
               </div>
               <div className="flex justify-center">
                   <div className="group cursor-pointer w-48">
-                    <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[var(--accent-color)]/20 via-[var(--accent-color)]/10 to-[var(--accent-color)]/20 p-1 group-hover:from-[var(--accent-color)]/40 group-hover:via-[var(--accent-color)]/30 group-hover:to-[var(--accent-color)]/40 transition-all duration-300">
+                    <div className="relative rounded-2xl p-[3px] transition-all duration-300" style={{ background: 'linear-gradient(135deg, var(--accent-color), #B07FDC, var(--accent-color))', opacity: 0.6 }}>
+                      <div className="absolute inset-0 rounded-2xl transition-opacity duration-300 opacity-0 group-hover:opacity-100" style={{ background: 'linear-gradient(135deg, var(--accent-color), #B07FDC, var(--accent-color))' }} />
                       <div className="relative bg-card rounded-xl overflow-hidden">
                         <div className="aspect-video overflow-hidden bg-muted">
                           <img
                             src={pdfPlaceholder}
                             alt="Thumbnail preview"
-                            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-125"
+                            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-115"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-tr from-[var(--accent-color)]/30 via-transparent to-[var(--accent-color)]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      </div>
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 animate-pulse">
-                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(45deg, rgba(127,179,220,0.25), transparent 40%, rgba(176,127,220,0.25) 80%, transparent)' }}></div>
                         </div>
                       </div>
                     </div>
+                    <div className="mt-2 text-center">
+                      <p className="text-xs text-muted-foreground mb-1 group-hover:text-[var(--accent-color)] transition-colors">April 2025</p>
+                      <h3 className="font-semibold text-xs text-foreground group-hover:text-[var(--accent-color)] transition-all">Sample PDF Title</h3>
+                    </div>
                   </div>
-                  <div className="mt-2 text-center">
-                    <p className="text-xs text-muted-foreground mb-1 group-hover:text-[var(--accent-color)] transition-colors">April 2025</p>
-                    <h3 className="font-semibold text-xs text-foreground group-hover:text-[var(--accent-color)] transition-all">Sample PDF Title</h3>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -485,7 +479,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                         <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
                         </svg>
-                        <span className="text-xs text-muted-foreground">Download PDF</span>
+                        <span className="text-xs text-muted-foreground">Download file</span>
                       </div>
                     </div>
                   </div>

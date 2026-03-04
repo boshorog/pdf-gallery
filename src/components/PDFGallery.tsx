@@ -523,26 +523,28 @@ const PDFGallery = ({
         return (
           <div key={pdf.id} {...baseProps}>
             <div className="group cursor-pointer">
-              <div 
-                className="relative rounded-2xl overflow-hidden transition-all duration-300"
+              <div className="relative rounded-2xl p-[3px] transition-all duration-300"
                 style={{
-                  padding: '3px',
-                  background: `linear-gradient(135deg, ${settings.accentColor}, transparent, ${settings.accentColor})`,
+                  background: `linear-gradient(135deg, ${settings.accentColor}, #B07FDC, ${settings.accentColor})`,
+                  opacity: 0.6,
                 }}
               >
-                 <div className="relative bg-card rounded-xl overflow-hidden">
-                   <div className={`${isMasonry ? '' : (aspectClass || 'aspect-video')} overflow-hidden bg-muted`}>
-                     <img
-                       src={pdf.thumbnail}
-                       alt={pdf.title}
-                       className={isMasonry ? "w-full h-auto block transition-all duration-500 group-hover:scale-125" : "w-full h-full object-cover transition-all duration-500 group-hover:scale-125"}
-                       loading="lazy"
-                       onError={(e) => { e.currentTarget.src = placeholderUrl; }}
-                     />
+                <div className="absolute inset-0 rounded-2xl transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                  style={{ background: `linear-gradient(135deg, ${settings.accentColor}, #B07FDC, ${settings.accentColor})` }}
+                />
+                <div className="relative bg-card rounded-xl overflow-hidden">
+                  <div className={`${isMasonry ? '' : (aspectClass || 'aspect-video')} overflow-hidden bg-muted`}>
+                    <img
+                      src={pdf.thumbnail}
+                      alt={pdf.title}
+                      className={isMasonry ? "w-full h-auto block transition-all duration-500 group-hover:scale-115" : "w-full h-full object-cover transition-all duration-500 group-hover:scale-115"}
+                      loading="lazy"
+                      onError={(e) => { e.currentTarget.src = placeholderUrl; }}
+                    />
                     <div 
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{
-                        background: `linear-gradient(135deg, ${settings.accentColor}cc 0%, transparent 50%, ${settings.accentColor}cc 100%)`
+                        background: `linear-gradient(45deg, ${settings.accentColor}40, transparent 40%, #B07FDC40 80%, transparent)`
                       }}
                     ></div>
                   </div>
@@ -592,7 +594,7 @@ const PDFGallery = ({
                     <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
                     </svg>
-                    <span className="text-xs text-muted-foreground">View Document</span>
+                    <span className="text-xs text-muted-foreground">Download file</span>
                   </div>
                 </div>
               </div>
