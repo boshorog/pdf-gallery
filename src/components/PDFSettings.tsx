@@ -424,7 +424,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
               </div>
               <div className="flex justify-center">
                   <div className="group cursor-pointer w-48">
-                    <div className="relative rounded-2xl p-[3px] transition-all duration-300" style={{ background: 'linear-gradient(135deg, var(--accent-color), #B07FDC, var(--accent-color))', opacity: 0.6 }}>
+                    <div className="relative rounded-2xl p-[3px] transition-all duration-300" style={{ background: 'linear-gradient(135deg, var(--accent-color), #B07FDC, var(--accent-color))' }}>
                       <div className="absolute inset-0 rounded-2xl transition-opacity duration-300 opacity-0 group-hover:opacity-100" style={{ background: 'linear-gradient(135deg, var(--accent-color), #B07FDC, var(--accent-color))' }} />
                       <div className="relative bg-card rounded-xl overflow-hidden">
                         <div className="aspect-video overflow-hidden bg-muted">

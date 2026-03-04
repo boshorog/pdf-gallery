@@ -376,21 +376,30 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                       <p className="text-sm text-muted-foreground mt-1 mb-3">Colorful gradient borders with zoom effects</p>
                       <div className="flex justify-center">
                         <div className="group cursor-pointer w-48">
-                          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[var(--accent-color)]/20 via-[var(--accent-color)]/10 to-[var(--accent-color)]/20 p-1 group-hover:from-[var(--accent-color)]/40 group-hover:via-[var(--accent-color)]/30 group-hover:to-[var(--accent-color)]/40 transition-all duration-300">
+                          <div className="relative rounded-2xl p-[3px] transition-all duration-300"
+                            style={{
+                              background: `linear-gradient(135deg, ${localSettings.accentColor}99, #B07FDC99, ${localSettings.accentColor}99)`,
+                            }}
+                          >
+                            <div className="absolute inset-0 rounded-2xl transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                              style={{ background: `linear-gradient(135deg, ${localSettings.accentColor}, #B07FDC, ${localSettings.accentColor})` }}
+                            />
                             <div className="relative bg-card rounded-xl overflow-hidden">
                               <div className="aspect-video overflow-hidden bg-muted">
                                 <img
                                   src={pdfPlaceholder}
                                   alt="Thumbnail preview"
-                                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-125"
+                                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-115"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-tr from-[var(--accent-color)]/30 via-transparent to-[var(--accent-color)]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                  style={{ background: `linear-gradient(45deg, ${localSettings.accentColor}40, transparent 40%, #B07FDC40 80%, transparent)` }}
+                                ></div>
                               </div>
                             </div>
                           </div>
-                           <div className="mt-1 text-center" style={{ ['--accent-color' as any]: localSettings.accentColor }}>
-                            <h3 className="font-semibold text-xs text-foreground group-hover:text-[var(--accent-color)] transition-colors truncate">Sample PDF Title That Might Be Long</h3>
-                            <p className="text-xs text-muted-foreground mb-1 group-hover:text-[var(--accent-color)] transition-colors truncate">April 2025 Description...</p>
+                          <div className="mt-1 text-center">
+                            <h3 className="font-semibold text-xs text-foreground transition-colors truncate" style={{ color: undefined }}>Sample PDF Title That Might Be Long</h3>
+                            <p className="text-xs text-muted-foreground mb-1 transition-colors truncate">April 2025 Description...</p>
                           </div>
                         </div>
                       </div>
@@ -437,7 +446,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                                 <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3" />
                                 </svg>
-                                <span className="text-xs text-muted-foreground">Download PDF</span>
+                                <span className="text-xs text-muted-foreground">Download file</span>
                               </div>
                             </div>
                           </div>
@@ -512,25 +521,17 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
             <CardContent className="space-y-6">
               {/* Full-width Card Preview */}
               <div className="rounded-xl border border-border overflow-hidden" style={{ ['--accent-color' as any]: localSettings.accentColor }}>
-                <div className="p-6 flex items-center gap-6" style={{ background: `linear-gradient(135deg, ${localSettings.accentColor}15, ${localSettings.accentColor}05)` }}>
-                  <div className="flex-shrink-0">
-                    <div className="w-24 h-16 rounded-lg overflow-hidden border border-border bg-muted">
-                      <img src={pdfPlaceholder} alt="Preview" className="w-full h-full object-cover" />
-                    </div>
+                <div className="p-6 flex flex-col items-center justify-center gap-4" style={{ background: `linear-gradient(135deg, ${localSettings.accentColor}15, ${localSettings.accentColor}05)` }}>
+                  <div className="w-28 h-20 rounded-lg overflow-hidden border border-border bg-muted">
+                    <img src={pdfPlaceholder} alt="Preview" className="w-full h-full object-cover" />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="text-center">
                     <h4 className="font-semibold text-sm" style={{ color: localSettings.accentColor }}>Sample Document Title</h4>
                     <p className="text-xs text-muted-foreground mt-1">April 2025</p>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center justify-center gap-2 mt-2">
                       <div className="h-1.5 rounded-full w-16" style={{ backgroundColor: localSettings.accentColor }} />
                       <div className="h-1.5 rounded-full w-8" style={{ backgroundColor: `${localSettings.accentColor}40` }} />
                     </div>
-                  </div>
-                  <div className="flex-shrink-0 flex flex-col items-center gap-2">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: localSettings.accentColor }}>
-                      <ExternalLink className="w-4 h-4" />
-                    </div>
-                    <span className="text-[10px] text-muted-foreground">Button</span>
                   </div>
                 </div>
                 <div className="h-1" style={{ background: `linear-gradient(90deg, ${localSettings.accentColor}, ${localSettings.accentColor}40)` }} />
