@@ -17,6 +17,7 @@ import {
 import pdfPlaceholder from '@/assets/thumbnail-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
 import ProBanner from '@/components/ProBanner';
+import SaturationColorPicker from '@/components/SaturationColorPicker';
 
 // Custom Layers icon component with customizable layer colors
 const LayersIcon = ({ firstLayerGreen = false, allLayersGreen = false, className = "" }: { 
@@ -504,44 +505,42 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Palette className="w-5 h-5" />
-                Accent Color Configuration
+                Accent Color
               </CardTitle>
               <p className="text-sm text-muted-foreground">Customize the primary color used throughout your gallery</p>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <Label>Current Color</Label>
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="w-16 h-16 rounded-lg border border-border shadow-sm"
-                      style={{ backgroundColor: localSettings.accentColor }}
-                    />
-                    <div>
-                      <span className="text-lg font-mono font-medium">{localSettings.accentColor}</span>
-                      <p className="text-sm text-muted-foreground">HEX Color Code</p>
+              {/* Full-width Card Preview */}
+              <div className="rounded-xl border border-border overflow-hidden" style={{ ['--accent-color' as any]: localSettings.accentColor }}>
+                <div className="p-6 flex items-center gap-6" style={{ background: `linear-gradient(135deg, ${localSettings.accentColor}15, ${localSettings.accentColor}05)` }}>
+                  <div className="flex-shrink-0">
+                    <div className="w-24 h-16 rounded-lg overflow-hidden border border-border bg-muted">
+                      <img src={pdfPlaceholder} alt="Preview" className="w-full h-full object-cover" />
                     </div>
                   </div>
-                </div>
-                <div className="space-y-3">
-                  <Label htmlFor="color-picker2">Choose New Color</Label>
-                  <div className="space-y-3">
-                    <Input
-                      id="color-picker2"
-                      type="color"
-                      value={localSettings.accentColor}
-                      onChange={(e) => setLocalSettings(prev => ({ ...prev, accentColor: e.target.value }))}
-                      className="w-full h-16 rounded-lg"
-                    />
-                    <Input
-                      value={localSettings.accentColor}
-                      onChange={(e) => setLocalSettings(prev => ({ ...prev, accentColor: e.target.value }))}
-                      placeholder="#7FB3DC"
-                      className="font-mono text-center"
-                    />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm" style={{ color: localSettings.accentColor }}>Sample Document Title</h4>
+                    <p className="text-xs text-muted-foreground mt-1">April 2025</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="h-1.5 rounded-full w-16" style={{ backgroundColor: localSettings.accentColor }} />
+                      <div className="h-1.5 rounded-full w-8" style={{ backgroundColor: `${localSettings.accentColor}40` }} />
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: localSettings.accentColor }}>
+                      <ExternalLink className="w-4 h-4" />
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">Button</span>
                   </div>
                 </div>
+                <div className="h-1" style={{ background: `linear-gradient(90deg, ${localSettings.accentColor}, ${localSettings.accentColor}40)` }} />
               </div>
+
+              {/* Saturation Canvas Picker */}
+              <SaturationColorPicker
+                color={localSettings.accentColor}
+                onChange={(newColor) => setLocalSettings(prev => ({ ...prev, accentColor: newColor }))}
+              />
             </CardContent>
           </Card>
         );
