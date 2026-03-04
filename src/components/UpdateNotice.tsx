@@ -93,6 +93,12 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
   };
 
   const handleUpdate = () => {
+    // In dev preview, show alert instead of attempting WordPress update
+    if (isDevPreview()) {
+      alert('Update is only available in WordPress. This is a dev preview.');
+      return;
+    }
+    
     // Start updating animation
     setUpdating(true);
     
