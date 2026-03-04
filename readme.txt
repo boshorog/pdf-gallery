@@ -47,7 +47,7 @@ PDF Gallery is a plugin that allows you to create stunning document galleries wi
 **Pro version adds:**
 * Unlimited galleries
 * Batch upload for multiple files at once
-* File analytics (coming soon)
+* File analytics
 * Priority support
 
 For a complete comparison, see [the full feature table](https://kindpixels.com/plugins/pdf-gallery#comparison).
@@ -72,13 +72,12 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.5.1 =
-* Fixed Gradient Zoom style rendering issue
-* New saturation canvas color picker for accent color settings
+* New color picker for accent color settings
 * Minor improvements
 
 = 2.5.0 =
-* Redesigned Gradient Zoom thumbnail style with dual-tone gradient border
-* Updated Split Layout hover text to "Download file"
+* Polished Gradient Zoom thumbnail style with dual-tone gradient border
+* Redesigned the Accent Color section of Settings
 * Minor improvements
 
 = 2.4.12 =
