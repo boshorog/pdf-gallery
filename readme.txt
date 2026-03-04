@@ -71,6 +71,12 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Changelog ==
 
+= 2.5.2 =
+* Fix: Accent color now properly updates on frontend shortcode after saving in settings
+* Fix: Lightbox scroll onboarding now correctly resets when navigating between documents
+* Fix: Update button no longer hangs indefinitely - falls back to plugins page after 10 seconds
+* Improvement: Frontend settings fetch now includes gallery context for per-gallery settings
+
 = 2.5.1 =
 * New color picker for accent color settings
 * Minor improvements
