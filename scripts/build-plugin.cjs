@@ -31,8 +31,11 @@ const INCLUDE_FILES = [
   'kindpixels-pdf-gallery.php',
   'readme.txt',
   'dist/',
-  'freemius/',  // Freemius SDK (if exists)
-  'vendor/',    // Freemius SDK alternate location
+];
+
+// Required folders - build will FAIL if missing
+const REQUIRED_FOLDERS = [
+  'vendor/',    // Freemius SDK - must exist in project root
 ];
 
 // Files/folders to exclude
