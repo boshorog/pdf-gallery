@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:free": "cross-env VITE_BUILD_VARIANT=free vite build",
+    "build:pro": "cross-env VITE_BUILD_VARIANT=pro vite build",
     "build:dev": "vite build --mode development",
+    "package": "node scripts/build-plugin.cjs",
+    "package:free": "node scripts/build-plugin.cjs free",
+    "package:pro": "node scripts/build-plugin.cjs pro",
     "lint": "eslint .",
     "preview": "vite preview"
   },
