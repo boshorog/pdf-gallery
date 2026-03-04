@@ -345,6 +345,10 @@ const Index = () => {
       settingsForm.append('action', 'kindpdfg_action');
       settingsForm.append('action_type', 'get_settings');
       settingsForm.append('nonce', nonce);
+      // Pass gallery name so PHP can resolve per-gallery settings (critical for frontend shortcode)
+      if (requestedGalleryName) {
+        settingsForm.append('requested_gallery_name', requestedGalleryName);
+      }
 
       fetch(ajaxUrl, {
         method: 'POST',
