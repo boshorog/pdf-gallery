@@ -102,6 +102,14 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     // Start updating animation
     setUpdating(true);
     
+    // Safety timeout: if nothing happens in 10s, redirect to plugins page
+    const fallbackTimeout = setTimeout(() => {
+      setUpdating(false);
+      window.top
+        ? (window.top.location.href = window.location.origin + '/wp-admin/plugins.php')
+        : (window.location.href = window.location.origin + '/wp-admin/plugins.php');
+    }, 10000);
+    
     // Check if we have WordPress globals
     let wpGlobal: any = null;
     try { wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || null; } catch {}
@@ -111,6 +119,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     
     // Pro users: go to plugins page (Freemius handles updates there)
     if (license.isPro) {
+      clearTimeout(fallbackTimeout);
       const pluginsUrl = window.location.origin + '/wp-admin/plugins.php#kindpixels-pdf-gallery';
       window.location.href = pluginsUrl;
       return;
@@ -119,27 +128,27 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     // Free users: Use WordPress AJAX update if available
     const wpUpdates = (window as any).wp?.updates;
     if (wpUpdates && typeof wpUpdates.updatePlugin === 'function') {
-      // Use WordPress's built-in AJAX update mechanism
       wpUpdates.updatePlugin({
         plugin: wpGlobal?.pluginBasename || 'kindpixels-pdf-gallery/kindpixels-pdf-gallery.php',
         slug: PLUGIN_SLUG,
         success: () => {
+          clearTimeout(fallbackTimeout);
           setUpdating(false);
           setDismissed(true);
-          // Show success and reload after brief delay
           setTimeout(() => window.location.reload(), 1000);
         },
         error: (response: any) => {
+          clearTimeout(fallbackTimeout);
           setUpdating(false);
           console.error('Update failed:', response);
-          // Fallback to plugins page
           window.location.href = window.location.origin + '/wp-admin/plugins.php';
         }
       });
       return;
     }
     
-    // Fallback: Use direct update URL if available, otherwise go to plugins page
+    // Fallback: redirect to plugins page
+    clearTimeout(fallbackTimeout);
     if (wpGlobal?.updateUrl) {
       window.location.href = wpGlobal.updateUrl;
     } else {
