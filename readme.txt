@@ -72,12 +72,17 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.5.4 =
-* Fix: Accent color now properly updates on frontend shortcode after saving in settings
-* Fix: Lightbox scroll onboarding now correctly resets when navigating between documents
-* Fix: Update button no longer hangs indefinitely — falls back to plugins page after 10 seconds
 * Fix: Frontend gallery loading issue on certain themes (changed iframe to eager loading)
-* Improvement: Frontend settings fetch now includes gallery context for per-gallery settings
+* Fix: Update button no longer hangs indefinitely — falls back to plugins page after 10 seconds
 * Improvement: Vertical alignment of accent color preview in Settings
+
+= 2.5.3 =
+* Fix: Accent color now properly updates on frontend shortcode after saving
+* Improvement: Frontend settings fetch now includes gallery context for per-gallery settings
+
+= 2.5.2 =
+* Fix: Lightbox scroll onboarding now correctly resets when navigating between documents
+* Minor stability improvements
 
 = 2.5.1 =
 * New saturation-based color picker for accent color settings
