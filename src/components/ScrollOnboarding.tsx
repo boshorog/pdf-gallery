@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 
 // Version-aware key so existing users see onboarding after plugin updates
-const STORAGE_KEY = "kindpdfg_scroll_onboarding_v2";
+const STORAGE_KEY = "kindpdfg_scroll_onboarding_v3";
 
 interface ScrollOnboardingProps {
   /** Whether the document has multiple pages (needs scrolling) */
@@ -16,6 +16,8 @@ interface ScrollOnboardingProps {
  * Permanently dismissed after second viewing or on scroll.
  */
 const ScrollOnboarding = ({ isMultiPage, scrollContainerRef }: ScrollOnboardingProps) => {
+  const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [viewCount, setViewCount] = useState<number>(() => {
     try {
       return parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
@@ -23,8 +25,14 @@ const ScrollOnboarding = ({ isMultiPage, scrollContainerRef }: ScrollOnboardingP
       return 0;
     }
   });
-  const [visible, setVisible] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  // Capture initial view count at mount to determine which animation to show
+  const [initialViewCount] = useState(() => {
+    try {
+      return parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+    } catch {
+      return 0;
+    }
+  });
 
   // Show onboarding only for first two viewings of multi-page docs
   useEffect(() => {
@@ -38,31 +46,25 @@ const ScrollOnboarding = ({ isMultiPage, scrollContainerRef }: ScrollOnboardingP
     return () => clearTimeout(timer);
   }, [isMultiPage, viewCount]);
 
-  // Increment view count when onboarding is shown
+  // Increment view count once when onboarding becomes visible
   useEffect(() => {
-    if (visible && !dismissed) {
-      const newCount = viewCount + 1;
-      try {
-        localStorage.setItem(STORAGE_KEY, String(newCount));
-      } catch {
-        // localStorage unavailable
-      }
+    if (!visible || dismissed) return;
+
+    const newCount = viewCount + 1;
+    setViewCount(newCount);
+    try {
+      localStorage.setItem(STORAGE_KEY, String(newCount));
+    } catch {
+      // localStorage unavailable
     }
-  }, [visible, dismissed, viewCount]);
+    // Only run once when visible turns true
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
 
   // Dismiss on scroll
   const handleScroll = useCallback(() => {
     if (visible && !dismissed) {
       setDismissed(true);
-      setViewCount((prev) => {
-        const next = prev + 1;
-        try {
-          localStorage.setItem(STORAGE_KEY, String(next));
-        } catch {
-          // ignore
-        }
-        return next;
-      });
     }
   }, [visible, dismissed]);
 
@@ -88,9 +90,9 @@ const ScrollOnboarding = ({ isMultiPage, scrollContainerRef }: ScrollOnboardingP
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [visible, dismissed]);
 
-  if (!visible || dismissed || viewCount >= 2) return null;
+  if (!visible || dismissed || viewCount > 2) return null;
 
-  const isFirstView = viewCount === 0;
+  const isFirstView = initialViewCount === 0;
 
   return (
     <div
