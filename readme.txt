@@ -71,138 +71,76 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Changelog ==
 
-= 2.5.2 =
+= 2.5.4 =
 * Fix: Accent color now properly updates on frontend shortcode after saving in settings
 * Fix: Lightbox scroll onboarding now correctly resets when navigating between documents
-* Fix: Update button no longer hangs indefinitely - falls back to plugins page after 10 seconds
+* Fix: Update button no longer hangs indefinitely — falls back to plugins page after 10 seconds
+* Fix: Frontend gallery loading issue on certain themes (changed iframe to eager loading)
 * Improvement: Frontend settings fetch now includes gallery context for per-gallery settings
+* Improvement: Vertical alignment of accent color preview in Settings
 
 = 2.5.1 =
-* New color picker for accent color settings
-* Minor improvements
+* New saturation-based color picker for accent color settings
+* Redesigned accent color section with full-width card preview
 
 = 2.5.0 =
 * Polished Gradient Zoom thumbnail style with dual-tone gradient border
 * Redesigned the Accent Color section of Settings
-* Minor improvements
 
 = 2.4.12 =
 * Fixed analytics activity chart not updating when changing date range
 * Fixed scroll onboarding not showing for existing users after update
-* Minor improvements
 
 = 2.4.11 =
 * Added scroll onboarding hints for multi-page PDFs in lightbox
 * Enter key now saves when editing files
-* Minor UI improvements
-
-= 2.4.10 =
-* Fixed Pro welcome banner not showing after upgrade
-* Bug fixes
 
 = 2.4.9 =
 * Update notifications now visible for Pro users inside the plugin dashboard
-* Minor improvements
-* Bug fixes
-
-= 2.4.8 =
-* Improved post-activation auto-refresh (reduces need for hard refresh)
-* Bug fixes
 
 = 2.4.7 =
-* Fixed activation flow
 * Added gap size setting for gallery spacing customization
-* Bug fixes
 
 = 2.4.6 =
 * Added upload via link feature
-* Bug fixes
-
-= 2.4.5 =
-* Added update notification when new version available
-* Minor improvements
-
-= 2.4.4 =
-* Bug fixes and improvements
-
-= 2.4.3 =
-* Improved File Analytics with date range selector (24h, 7 days, 30 days, 365 days, all time)
-* Enhanced analytics notification for new galleries
-* Build system improvements
 
 = 2.4.2 =
 * Added File Analytics with views and clicks tracking (Pro)
-* Analytics data collection starts immediately, visible after 7 days
 * Cross-gallery navigation in analytics modal
-* Bug fixes and improvements
-
-= 2.4.1 =
-* Improved documentation and getting started guide
-* Updated shortcode examples for clarity
-* Minor UI polish
-
-= 2.4.0 =
-* Added Pro upgrade path with optional addon for power users
-* Improved gallery management interface
-* Enhanced file type detection and display
 
 = 2.3.0 =
-* Added YouTube video support - paste YouTube URLs directly
+* Added YouTube video support — paste YouTube URLs directly
 * YouTube thumbnails and titles fetched automatically
-* Videos play in embedded player within lightbox
 
 = 2.2.0 =
 * Added multi-select with Shift+click for bulk operations
-* Improved drag and drop with visual feedback
 * Added bulk delete functionality
 
 = 2.1.0 =
 * Added section dividers for document organization
 * Added masonry layout option
-* Improved admin interface design
-* Enhanced responsive behavior
 
 = 2.0.0 =
 * Complete redesign with modern React-based interface
 * Added lightbox document viewer with zoom and navigation
-* Added multiple thumbnail styles (Flat, Shadow, Lifted, Curled, Stacked)
-* Added hover animations (Lift, Grow, Tilt, Glow, Float)
-* Improved responsive design for all devices
+* Added multiple thumbnail styles and hover animations
 
 = 1.0.0 =
 * Initial release
 
 == Upgrade Notice ==
 
-= 2.4.9 =
-Update notifications now visible for Pro users inside the plugin.
+= 2.5.4 =
+Bug fixes for frontend rendering and accent color sync. Improved lightbox onboarding.
 
-= 2.4.8 =
-Added update notification in admin UI.
+= 2.5.0 =
+Redesigned Gradient Zoom style and Accent Color settings.
 
-= 2.4.7 =
-Bug fixes and improvements.
-
-= 2.4.3 =
-Improved File Analytics with date range selector.
+= 2.4.11 =
+Scroll onboarding for multi-page PDFs. Enter key saves edits.
 
 = 2.4.2 =
-File Analytics now available for Pro users. Track gallery views and document clicks.
-
-= 2.4.1 =
-Documentation improvements and UI polish.
-
-= 2.4.0 =
-New Pro upgrade path for power users. Enhanced gallery management.
-
-= 2.3.0 =
-YouTube video support added. Paste YouTube URLs directly into galleries.
-
-= 2.2.0 =
-Multi-select and bulk operations. Improved drag and drop experience.
-
-= 2.1.0 =
-Section dividers and masonry layout. Better admin interface.
+File Analytics now available for Pro users.
 
 = 2.0.0 =
 Major update with new features. Please backup before upgrading.
@@ -215,7 +153,7 @@ Each gallery has a unique shortcode. Simply copy it from the Galleries tab and p
 
 `[kindpdfg_gallery id="your-gallery-id"]`
 
-All display settings (columns, styles, animations) are configured in the Settings tab – no shortcode parameters needed.
+All display settings (columns, styles, animations) are configured in the Settings tab — no shortcode parameters needed.
 
 = Source Code =
 
