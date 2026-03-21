@@ -538,7 +538,7 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
           <CardTitle>Accent Color</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-end gap-4">
             <div className="flex-1">
               <Label htmlFor="accent-color">Current accent color</Label>
               <div className="flex items-center gap-2 mt-1">
@@ -546,11 +546,10 @@ const PDFSettings = ({ settings, onSettingsChange }: PDFSettingsProps) => {
                   className="w-8 h-8 rounded border border-border"
                   style={{ backgroundColor: localSettings.accentColor }}
                 />
-                <span className="text-sm font-mono">{localSettings.accentColor}</span>
               </div>
             </div>
             <div className="flex-1">
-              <Label htmlFor="color-picker">Select new color</Label>
+              <Label htmlFor="color-picker">Color code</Label>
               <div className="flex gap-2 mt-1">
                 <Input
                   id="color-picker"
