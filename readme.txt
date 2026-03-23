@@ -71,6 +71,11 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Changelog ==
 
+= 2.5.5 =
+* Fix: Update button now triggers in-page update instead of redirecting away
+* Fix: Fallback redirect now scrolls to and highlights the plugin row
+* Improved iframe-to-parent communication for WordPress AJAX updates
+
 = 2.5.4 =
 * Fix: Frontend gallery loading issue on certain themes (changed iframe to eager loading)
 * Fix: Update button no longer hangs indefinitely — falls back to plugins page after 10 seconds
