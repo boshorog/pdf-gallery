@@ -478,15 +478,37 @@ public function display_gallery_shortcode($atts) {
       var lastScrollY = 0;
       var heightBeforeFullscreen = "";
       var isFullscreen = false;
+      var receivedHeight = false;
+      var fallbackHeightTimer = 0;
 
       // Some themes (especially on mobile) apply CSS transforms to page wrappers.
       // That can cause position:fixed to behave as if confined to the wrapper.
-      // Moving an iframe in the DOM can trigger a reload in some browsers, so we ONLY
-      // re-parent to <body> when we detect a transformed ancestor that would break
+      // Moving an iframe in the DOM can trigger a reload in some browsers, so we only
+      // move it to the document body when a transformed ancestor would break
       // true fullscreen positioning.
       var originalParent = null;
       var originalNextSibling = null;
       var placeholder = document.createComment("kindpdfg-fullscreen-placeholder");
+
+      function requestHeightCheck(){
+        try{
+          if(iframe && iframe.contentWindow){
+            iframe.contentWindow.postMessage({type:"kindpdfg:height-check", token: token}, "*");
+          }
+        }catch(err){}
+      }
+
+      function scheduleFallbackHeight(){
+        clearTimeout(fallbackHeightTimer);
+        fallbackHeightTimer = setTimeout(function(){
+          if(receivedHeight || isFullscreen) return;
+          var currentHeight = parseInt(iframe.style.height || "0", 10) || 0;
+          if(currentHeight > 24) return;
+          var fallbackHeight = Math.max(Math.min(window.innerHeight || 0, 900), 520);
+          iframe.style.height = fallbackHeight + "px";
+          iframe.style.minHeight = fallbackHeight + "px";
+        }, 1800);
+      }
 
       // Mobile browsers (especially iOS Safari) often reload iframes when moved in the DOM.
       // Skip re-parenting entirely on mobile to avoid page refresh issues.
@@ -624,6 +646,8 @@ public function display_gallery_shortcode($atts) {
           if(d.type === "kindpdfg:height" && typeof d.height === "number"){
             if(isFullscreen) return;
             var minH = 1;
+            receivedHeight = true;
+            clearTimeout(fallbackHeightTimer);
             iframe.style.height = Math.max(d.height, minH) + "px";
           }
 
@@ -633,13 +657,16 @@ public function display_gallery_shortcode($atts) {
       }
 
       window.addEventListener("message", onMsg, false);
+      iframe.addEventListener("load", function(){
+        requestHeightCheck();
+        scheduleFallbackHeight();
+      });
 
       // Trigger a height check after a short delay to avoid clipping
       setTimeout(function(){
-        if(iframe && iframe.contentWindow){
-          iframe.contentWindow.postMessage({type:"kindpdfg:height-check", token: token}, "*");
-        }
+        requestHeightCheck();
       }, 700);
+      scheduleFallbackHeight();
     })();</script>';
 
     return $html;
