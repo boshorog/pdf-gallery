@@ -27,6 +27,7 @@ import { POST_MESSAGE_HEIGHT } from "@/config/pluginIdentity";
 import Index from "./pages/Index";
 import ScrollOnboardingShowcase from "./components/ScrollOnboardingShowcase";
 import GradientZoomShowcase from "./components/GradientZoomShowcase";
+import ColorSettingsShowcase from "./components/ColorSettingsShowcase";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -120,6 +121,7 @@ const App = () => {
   const renderContent = () => {
     if (showcase === 'scroll-onboarding') return <ScrollOnboardingShowcase />;
     if (showcase === 'gradient-zoom') return <GradientZoomShowcase />;
+    if (showcase === 'color-settings') return <ColorSettingsShowcase />;
     return <Index />;
   };
 
