@@ -3,7 +3,7 @@
  * Plugin Name: KindPixels PDF Gallery
  * Plugin URI: https://kindpixels.com/plugins/kindpixels-pdf-gallery/
  * Description: Create visually stunning galleries from PDF, video, audio, and document files. Easily organize, sort, and showcase your files in beautiful grid layouts.
- * Version: 2.5.4
+ * Version: 2.5.5
  * Author: KIND PIXELS
  * Author URI: https://kindpixels.com
  * License: GPL v2 or later
