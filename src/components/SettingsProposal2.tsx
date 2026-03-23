@@ -139,8 +139,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
   const sidebarItems = [
     { id: 'style', label: 'Thumbnail Style', icon: LayoutGrid },
     { id: 'placeholder', label: 'Placeholder Image', icon: Image },
-    { id: 'color', label: 'Accent Color', icon: Palette },
     { id: 'size', label: 'Thumbnail Shape & Size', icon: Maximize2 },
+    { id: 'color', label: 'Color Settings', icon: Palette },
     { id: 'other', label: 'Other Settings', icon: Settings },
   ];
 
