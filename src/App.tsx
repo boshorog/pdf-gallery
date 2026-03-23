@@ -121,6 +121,7 @@ const App = () => {
   const renderContent = () => {
     if (showcase === 'scroll-onboarding') return <ScrollOnboardingShowcase />;
     if (showcase === 'gradient-zoom') return <GradientZoomShowcase />;
+    if (showcase === 'color-settings') return <ColorSettingsShowcase />;
     return <Index />;
   };
 
