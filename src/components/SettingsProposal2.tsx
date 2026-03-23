@@ -18,6 +18,7 @@ import pdfPlaceholder from '@/assets/thumbnail-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
 import ProBanner from '@/components/ProBanner';
 import SaturationColorPicker from '@/components/SaturationColorPicker';
+import ColorSettings, { ColorSettingsValues, COLOR_DEFAULTS } from '@/components/ColorSettings';
 
 // Custom Layers icon component with customizable layer colors
 const LayersIcon = ({ firstLayerGreen = false, allLayersGreen = false, className = "" }: { 
@@ -78,6 +79,13 @@ interface SettingsProposal2Props {
     lightboxEnabled?: boolean;
     showFileTypeBadges?: boolean;
     showTitlesSubtitles?: boolean;
+    galleryBackground?: string;
+    cardBackground?: string;
+    titleColor?: string;
+    subtitleColor?: string;
+    borderColor?: string;
+    dividerLineColor?: string;
+    dividerTextColor?: string;
   };
   onSettingsChange: (settings: any) => void;
 }
@@ -138,8 +146,8 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
   const sidebarItems = [
     { id: 'style', label: 'Thumbnail Style', icon: LayoutGrid },
     { id: 'placeholder', label: 'Placeholder Image', icon: Image },
-    { id: 'color', label: 'Accent Color', icon: Palette },
     { id: 'size', label: 'Thumbnail Shape & Size', icon: Maximize2 },
+    { id: 'color', label: 'Color Settings', icon: Palette },
     { id: 'other', label: 'Other Settings', icon: Settings },
   ];
 
@@ -510,42 +518,19 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
 
       case 'color':
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Palette className="w-5 h-5" />
-                Accent Color
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">Customize the primary color used throughout your gallery</p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Full-width Card Preview */}
-              <div className="rounded-xl border border-border overflow-hidden" style={{ ['--accent-color' as any]: localSettings.accentColor }}>
-                <div className="p-6 flex items-center gap-6" style={{ background: `linear-gradient(135deg, ${localSettings.accentColor}15, ${localSettings.accentColor}05)` }}>
-                  <div className="flex-shrink-0">
-                    <div className="w-24 h-16 rounded-lg overflow-hidden border border-border bg-muted">
-                      <img src={pdfPlaceholder} alt="Preview" className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-sm" style={{ color: localSettings.accentColor }}>Sample Document Title</h4>
-                    <p className="text-xs text-muted-foreground mt-1">April 2025</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <div className="h-1.5 rounded-full w-16" style={{ backgroundColor: localSettings.accentColor }} />
-                      <div className="h-1.5 rounded-full w-8" style={{ backgroundColor: `${localSettings.accentColor}40` }} />
-                    </div>
-                  </div>
-                </div>
-                <div className="h-1" style={{ background: `linear-gradient(90deg, ${localSettings.accentColor}, ${localSettings.accentColor}40)` }} />
-              </div>
-
-              {/* Saturation Canvas Picker */}
-              <SaturationColorPicker
-                color={localSettings.accentColor}
-                onChange={(newColor) => setLocalSettings(prev => ({ ...prev, accentColor: newColor }))}
-              />
-            </CardContent>
-          </Card>
+          <ColorSettings
+            colors={{
+              accentColor: localSettings.accentColor || COLOR_DEFAULTS.accentColor,
+              galleryBackground: localSettings.galleryBackground || COLOR_DEFAULTS.galleryBackground,
+              cardBackground: localSettings.cardBackground || COLOR_DEFAULTS.cardBackground,
+              titleColor: localSettings.titleColor || COLOR_DEFAULTS.titleColor,
+              subtitleColor: localSettings.subtitleColor || COLOR_DEFAULTS.subtitleColor,
+              borderColor: localSettings.borderColor || COLOR_DEFAULTS.borderColor,
+              dividerLineColor: localSettings.dividerLineColor || COLOR_DEFAULTS.dividerLineColor,
+              dividerTextColor: localSettings.dividerTextColor || COLOR_DEFAULTS.dividerTextColor,
+            }}
+            onChange={(newColors) => setLocalSettings(prev => ({ ...prev, ...newColors }))}
+          />
         );
 
       case 'size':
