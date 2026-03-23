@@ -79,6 +79,13 @@ interface SettingsProposal2Props {
     lightboxEnabled?: boolean;
     showFileTypeBadges?: boolean;
     showTitlesSubtitles?: boolean;
+    galleryBackground?: string;
+    cardBackground?: string;
+    titleColor?: string;
+    subtitleColor?: string;
+    borderColor?: string;
+    dividerLineColor?: string;
+    dividerTextColor?: string;
   };
   onSettingsChange: (settings: any) => void;
 }
