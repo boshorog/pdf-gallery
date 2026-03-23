@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.5.4
+Stable tag: 2.5.5
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,11 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Changelog ==
+
+= 2.5.5 =
+* Fix: Update button now triggers in-page update instead of redirecting away
+* Fix: Fallback redirect now scrolls to and highlights the plugin row
+* Improved iframe-to-parent communication for WordPress AJAX updates
 
 = 2.5.4 =
 * Fix: Frontend gallery loading issue on certain themes (changed iframe to eager loading)
