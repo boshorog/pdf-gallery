@@ -23,7 +23,7 @@ if ( defined( 'KINDPDFG_PLUGIN_LOADED' ) ) {
 }
 define( 'KINDPDFG_PLUGIN_LOADED', true );
 
-define( 'KINDPDFG_VERSION', '2.5.4' );
+define( 'KINDPDFG_VERSION', '2.5.5' );
 
 // Freemius SDK Initialization
 if ( ! function_exists( 'kindpdfg_fs' ) ) {
