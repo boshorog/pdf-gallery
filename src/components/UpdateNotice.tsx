@@ -92,6 +92,41 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     } catch {}
   };
 
+  // Redirect to plugins page, scrolling to and highlighting our plugin row
+  const redirectToPluginsPage = () => {
+    const pluginsUrl = window.location.origin + '/wp-admin/plugins.php';
+    const pluginSlug = PLUGIN_SLUG;
+    
+    // Use top-level window for navigation (we're in an iframe)
+    const targetWindow = window.top || window.parent || window;
+    
+    // Navigate to plugins page, then highlight the plugin row
+    targetWindow.location.href = pluginsUrl + '#' + pluginSlug;
+    
+    // After navigation, inject a highlight script via postMessage
+    try {
+      const highlightScript = `
+        (function() {
+          var row = document.querySelector('tr[data-slug="${pluginSlug}"]') || document.querySelector('tr[data-plugin*="${pluginSlug}"]');
+          if (row) {
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            row.style.transition = 'background-color 0.3s ease';
+            row.style.backgroundColor = '#fff3cd';
+            setTimeout(function() { row.style.backgroundColor = ''; }, 3000);
+          }
+        })();
+      `;
+      // Slight delay so the page loads first
+      setTimeout(() => {
+        try {
+          const script = targetWindow.document.createElement('script');
+          script.textContent = highlightScript;
+          targetWindow.document.body.appendChild(script);
+        } catch {}
+      }, 1500);
+    } catch {}
+  };
+
   const handleUpdate = () => {
     // In dev preview, show alert instead of attempting WordPress update
     if (isDevPreview()) {
@@ -102,15 +137,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     // Start updating animation
     setUpdating(true);
     
-    // Safety timeout: if nothing happens in 10s, redirect to plugins page
-    const fallbackTimeout = setTimeout(() => {
-      setUpdating(false);
-      window.top
-        ? (window.top.location.href = window.location.origin + '/wp-admin/plugins.php')
-        : (window.location.href = window.location.origin + '/wp-admin/plugins.php');
-    }, 10000);
-    
-    // Check if we have WordPress globals
+    // Check if we have WordPress globals (check parent window too since we're in iframe)
     let wpGlobal: any = null;
     try { wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || null; } catch {}
     if (!wpGlobal) {
@@ -119,15 +146,27 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     
     // Pro users: go to plugins page (Freemius handles updates there)
     if (license.isPro) {
-      clearTimeout(fallbackTimeout);
-      const pluginsUrl = window.location.origin + '/wp-admin/plugins.php#kindpixels-pdf-gallery';
-      window.location.href = pluginsUrl;
+      redirectToPluginsPage();
       return;
     }
     
-    // Free users: Use WordPress AJAX update if available
-    const wpUpdates = (window as any).wp?.updates;
+    // Try to find wp.updates — check current window, parent, and top (iframe context)
+    let wpUpdates: any = null;
+    try { wpUpdates = (window as any).wp?.updates; } catch {}
+    if (!wpUpdates) {
+      try { wpUpdates = (window.parent as any)?.wp?.updates; } catch {}
+    }
+    if (!wpUpdates) {
+      try { wpUpdates = (window.top as any)?.wp?.updates; } catch {}
+    }
+    
     if (wpUpdates && typeof wpUpdates.updatePlugin === 'function') {
+      // Safety timeout: if nothing happens in 12s, redirect to plugins page
+      const fallbackTimeout = setTimeout(() => {
+        setUpdating(false);
+        redirectToPluginsPage();
+      }, 12000);
+      
       wpUpdates.updatePlugin({
         plugin: wpGlobal?.pluginBasename || 'kindpixels-pdf-gallery/kindpixels-pdf-gallery.php',
         slug: PLUGIN_SLUG,
@@ -135,24 +174,26 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
           clearTimeout(fallbackTimeout);
           setUpdating(false);
           setDismissed(true);
-          setTimeout(() => window.location.reload(), 1000);
+          setTimeout(() => {
+            // Reload the top-level page to reflect the update
+            try { (window.top || window.parent || window).location.reload(); } catch { window.location.reload(); }
+          }, 1000);
         },
         error: (response: any) => {
           clearTimeout(fallbackTimeout);
           setUpdating(false);
           console.error('Update failed:', response);
-          window.location.href = window.location.origin + '/wp-admin/plugins.php';
+          redirectToPluginsPage();
         }
       });
       return;
     }
     
-    // Fallback: redirect to plugins page
-    clearTimeout(fallbackTimeout);
+    // Fallback: redirect to plugins page with highlight
     if (wpGlobal?.updateUrl) {
-      window.location.href = wpGlobal.updateUrl;
+      (window.top || window.parent || window).location.href = wpGlobal.updateUrl;
     } else {
-      window.location.href = window.location.origin + '/wp-admin/plugins.php';
+      redirectToPluginsPage();
     }
   };
 
