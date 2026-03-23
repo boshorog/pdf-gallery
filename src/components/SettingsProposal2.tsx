@@ -18,6 +18,7 @@ import pdfPlaceholder from '@/assets/thumbnail-placeholder.png';
 import { useLicense } from '@/hooks/useLicense';
 import ProBanner from '@/components/ProBanner';
 import SaturationColorPicker from '@/components/SaturationColorPicker';
+import ColorSettings, { ColorSettingsValues, COLOR_DEFAULTS } from '@/components/ColorSettings';
 
 // Custom Layers icon component with customizable layer colors
 const LayersIcon = ({ firstLayerGreen = false, allLayersGreen = false, className = "" }: { 
