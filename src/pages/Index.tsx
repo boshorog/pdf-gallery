@@ -658,7 +658,7 @@ const Index = () => {
               {/* Left: Support Links */}
               <div className="flex items-center gap-6">
                 <a 
-                  href="https://kindpixels.com/support" 
+                  href="https://wordpress.org/support/plugin/kindpixels-pdf-gallery/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
@@ -667,7 +667,7 @@ const Index = () => {
                   <ExternalLink className="w-3 h-3" />
                 </a>
                 <a 
-                  href="https://kindpixels.com/feature-request" 
+                  href="https://wordpress.org/support/plugin/kindpixels-pdf-gallery/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
