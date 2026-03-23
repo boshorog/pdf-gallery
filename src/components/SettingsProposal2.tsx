@@ -530,6 +530,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
               dividerTextColor: localSettings.dividerTextColor || COLOR_DEFAULTS.dividerTextColor,
             }}
             onChange={(newColors) => setLocalSettings(prev => ({ ...prev, ...newColors }))}
+            thumbnailStyle={localSettings.thumbnailStyle || 'default'}
           />
         );
 
