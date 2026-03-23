@@ -27,6 +27,7 @@ import { POST_MESSAGE_HEIGHT } from "@/config/pluginIdentity";
 import Index from "./pages/Index";
 import ScrollOnboardingShowcase from "./components/ScrollOnboardingShowcase";
 import GradientZoomShowcase from "./components/GradientZoomShowcase";
+import ColorSettingsShowcase from "./components/ColorSettingsShowcase";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
