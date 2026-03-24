@@ -393,17 +393,23 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
     ? 'repeating-conic-gradient(#e5e7eb 0% 25%, transparent 0% 50%) 50% / 16px 16px'
     : undefined;
 
-  // Groups: divider sides always together, all thumb elements together
+  // Groups: elements of the same type across all 3 thumbnails highlight together
   const DIVIDER_KEYS: (keyof ColorSettingsValues)[] = ['dividerLineColor'];
-  const THUMB_KEYS: (keyof ColorSettingsValues)[] = ['cardBackground', 'titleColor', 'subtitleColor', 'borderColor'];
+  // Each element type is its own group - titles together, subtitles together, cards together
+  const TOKEN_GROUPS: (keyof ColorSettingsValues)[][] = [
+    ['dividerLineColor'],
+    ['cardBackground', 'borderColor'],
+    ['titleColor'],
+    ['subtitleColor'],
+  ];
 
   const isHighlighted = (key: keyof ColorSettingsValues) => {
     const active = hoveredToken || selectedToken;
     if (!active) return false;
-    // Divider lines always highlight together
-    if (DIVIDER_KEYS.includes(key) && DIVIDER_KEYS.includes(active)) return true;
-    // Thumb elements: all 3 thumbs highlight if any thumb element is active
-    if (THUMB_KEYS.includes(key) && THUMB_KEYS.includes(active)) return true;
+    // Find if key and active belong to the same group
+    for (const group of TOKEN_GROUPS) {
+      if (group.includes(key) && group.includes(active)) return true;
+    }
     return key === active;
   };
 
