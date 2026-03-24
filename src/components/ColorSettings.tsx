@@ -482,7 +482,7 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
 
         {tab === 'presets' ? (
           <div className="space-y-3">
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               {presets.map(p => {
                 const isActive = p.colors.accentColor === colors.accentColor &&
                   p.colors.galleryBackground === colors.galleryBackground &&
