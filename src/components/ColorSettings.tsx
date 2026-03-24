@@ -172,12 +172,12 @@ const InlineColorPicker = ({ color, onChange }: { color: string; onChange: (c: s
       </div>
       {/* HEX input */}
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg border border-border flex-shrink-0 self-center" style={{ backgroundColor: color }} />
+        <div className="w-7 h-7 rounded-md border border-border flex-shrink-0" style={{ backgroundColor: color }} />
         <div className="flex-1">
           <Label className="text-[10px] text-muted-foreground">HEX</Label>
           <Input value={hexInput}
             onChange={e => { setHexInput(e.target.value); if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) onChange(e.target.value); }}
-            className="font-mono h-7 text-xs" placeholder="#000000" />
+            className="font-mono h-7 text-xs rounded-md" placeholder="#000000" />
         </div>
       </div>
     </div>
