@@ -503,6 +503,7 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
                     highlightAll={isHighlighted}
                     onHover={h => setHoveredId(h ? item.id : null)}
                     onClickElement={handleTokenClick}
+                    onHoverElement={setHoveredToken}
                   />
                 ))}
               </div>
