@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Palette, RotateCcw, Layers, Type, Minus, ExternalLink } from 'lucide-react';
+import { Palette, RotateCcw, ExternalLink } from 'lucide-react';
 import pdfPlaceholder from '@/assets/thumbnail-placeholder.png';
 
 export interface ColorSettingsValues {
