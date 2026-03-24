@@ -486,7 +486,7 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
 
               {/* 3 Thumbnails - all highlight together */}
               <div className="grid grid-cols-3 gap-3"
-                onMouseEnter={e => { e.stopPropagation(); setHoveredToken('cardBackground'); }}
+                onMouseEnter={e => { e.stopPropagation(); }}
                 onMouseLeave={() => setHoveredToken(null)}
               >
                 {SAMPLE_ITEMS.map(item => (
