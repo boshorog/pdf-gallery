@@ -522,6 +522,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
             colors={{
               accentColor: localSettings.accentColor || COLOR_DEFAULTS.accentColor,
               galleryBackground: localSettings.galleryBackground || COLOR_DEFAULTS.galleryBackground,
+              galleryBgTransparent: localSettings.galleryBgTransparent ?? COLOR_DEFAULTS.galleryBgTransparent,
               cardBackground: localSettings.cardBackground || COLOR_DEFAULTS.cardBackground,
               titleColor: localSettings.titleColor || COLOR_DEFAULTS.titleColor,
               subtitleColor: localSettings.subtitleColor || COLOR_DEFAULTS.subtitleColor,
