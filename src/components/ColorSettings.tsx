@@ -36,6 +36,7 @@ const presets = [
   { name: 'Dark', colors: { accentColor: '#60A5FA', galleryBackground: '#1F2937', galleryBgTransparent: false, cardBackground: '#374151', titleColor: '#F9FAFB', subtitleColor: '#9CA3AF', borderColor: '#4B5563', dividerLineColor: '#4B5563', dividerTextColor: '#9CA3AF' } as ColorSettingsValues },
   { name: 'Warm', colors: { accentColor: '#F59E0B', galleryBackground: '#FFFBEB', galleryBgTransparent: false, cardBackground: '#FFFFFF', titleColor: '#78350F', subtitleColor: '#92400E', borderColor: '#FDE68A', dividerLineColor: '#FDE68A', dividerTextColor: '#92400E' } as ColorSettingsValues },
   { name: 'Forest', colors: { accentColor: '#10B981', galleryBackground: '#F0FDF4', galleryBgTransparent: false, cardBackground: '#FFFFFF', titleColor: '#064E3B', subtitleColor: '#047857', borderColor: '#A7F3D0', dividerLineColor: '#A7F3D0', dividerTextColor: '#047857' } as ColorSettingsValues },
+  { name: 'Ocean', colors: { accentColor: '#3B82F6', galleryBackground: '#EFF6FF', galleryBgTransparent: false, cardBackground: '#FFFFFF', titleColor: '#1E3A5F', subtitleColor: '#3B6998', borderColor: '#BFDBFE', dividerLineColor: '#BFDBFE', dividerTextColor: '#3B6998' } as ColorSettingsValues },
 ];
 
 const SAMPLE_ITEMS = [
