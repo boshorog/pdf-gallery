@@ -385,7 +385,7 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
 
   const set = (key: keyof ColorSettingsValues, val: string | boolean) => {
     onChange({ ...colors, [key]: val });
-    setTab('custom');
+    if (tab !== 'custom') setTab('custom');
   };
 
   const bg = colors.galleryBgTransparent ? 'transparent' : colors.galleryBackground;
