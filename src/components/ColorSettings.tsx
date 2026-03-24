@@ -237,7 +237,8 @@ const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, sele
           <div className="group cursor-pointer">
             <div className={tokenTargetClass('cardBackground', `relative rounded-2xl overflow-hidden shadow-lg duration-300 border ${isHovered ? 'shadow-2xl -translate-y-2' : ''}`)}
               style={{ borderColor: colors.borderColor, backgroundColor: colors.cardBackground }}
-              onClick={e => click(e, 'cardBackground')}>
+              onClick={e => click(e, 'cardBackground')}
+              onMouseEnter={e => hoverEl(e, 'cardBackground')} onMouseLeave={e => hoverEl(e, null)}>
               <div className="aspect-[3/2] overflow-hidden" style={{ backgroundColor: colors.galleryBackground }}>
                 <img src={pdfPlaceholder} alt="" className={`w-full h-full object-cover transition-transform duration-300 ${isHovered ? 'scale-105' : ''}`} />
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/40" />
@@ -245,9 +246,11 @@ const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, sele
               <div className="p-2.5" style={{ backgroundColor: colors.cardBackground }}>
                 <h3 className={tokenTargetClass('titleColor', 'font-semibold text-xs truncate rounded-sm px-1 -mx-1')}
                   style={{ color: isHovered ? colors.accentColor : colors.titleColor }}
-                  onClick={e => click(e, 'titleColor')}>{title}</h3>
+                  onClick={e => click(e, 'titleColor')}
+                  onMouseEnter={e => hoverEl(e, 'titleColor')} onMouseLeave={e => hoverEl(e, null)}>{title}</h3>
                 <p className={tokenTargetClass('subtitleColor', 'text-[10px] mt-0.5 rounded-sm px-1 -mx-1')} style={{ color: colors.subtitleColor }}
-                  onClick={e => click(e, 'subtitleColor')}>{date}</p>
+                  onClick={e => click(e, 'subtitleColor')}
+                  onMouseEnter={e => hoverEl(e, 'subtitleColor')} onMouseLeave={e => hoverEl(e, null)}>{date}</p>
               </div>
             </div>
           </div>
@@ -259,7 +262,8 @@ const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, sele
         <a href="#" onClick={handleClick} className="block" onMouseEnter={() => onHover(true)} onMouseLeave={() => onHover(false)}>
           <div className="group cursor-pointer overflow-hidden rounded-xl">
             <div className={tokenTargetClass('cardBackground', 'relative rounded-xl overflow-hidden border')} style={{ borderColor: colors.borderColor, backgroundColor: colors.cardBackground }}
-              onClick={e => click(e, 'cardBackground')}>
+              onClick={e => click(e, 'cardBackground')}
+              onMouseEnter={e => hoverEl(e, 'cardBackground')} onMouseLeave={e => hoverEl(e, null)}>
               <div className="aspect-[3/2] overflow-hidden" style={{ backgroundColor: colors.galleryBackground }}>
                 <img src={pdfPlaceholder} alt="" className={`w-full h-full object-cover transition-transform duration-500 ${isHovered ? 'scale-110' : ''}`} />
               </div>
@@ -280,7 +284,8 @@ const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, sele
         <a href="#" onClick={handleClick} className="block" onMouseEnter={() => onHover(true)} onMouseLeave={() => onHover(false)}>
           <div className="group cursor-pointer">
             <div className={tokenTargetClass('cardBackground', 'relative rounded-2xl p-[3px] duration-300')}
-              style={{ background: `linear-gradient(135deg, ${colors.accentColor}99, #B07FDC99, ${colors.accentColor}99)` }}>
+              style={{ background: `linear-gradient(135deg, ${colors.accentColor}99, #B07FDC99, ${colors.accentColor}99)` }}
+              onMouseEnter={e => hoverEl(e, 'cardBackground')} onMouseLeave={e => hoverEl(e, null)}>
               <div className={`absolute inset-0 rounded-2xl transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
                 style={{ background: `linear-gradient(135deg, ${colors.accentColor}, #B07FDC, ${colors.accentColor})` }} />
               <div className="relative rounded-xl overflow-hidden" style={{ backgroundColor: colors.cardBackground }}>
@@ -294,9 +299,11 @@ const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, sele
             <div className="mt-1.5 text-center">
               <h3 className={tokenTargetClass('titleColor', 'font-semibold text-xs truncate rounded-sm px-1 -mx-1')}
                 style={{ color: isHovered ? colors.accentColor : colors.titleColor }}
-                onClick={e => click(e, 'titleColor')}>{title}</h3>
+                onClick={e => click(e, 'titleColor')}
+                onMouseEnter={e => hoverEl(e, 'titleColor')} onMouseLeave={e => hoverEl(e, null)}>{title}</h3>
               <p className={tokenTargetClass('subtitleColor', 'text-[10px] mt-0.5 rounded-sm px-1 -mx-1')} style={{ color: isHovered ? colors.accentColor : colors.subtitleColor }}
-                onClick={e => click(e, 'subtitleColor')}>{date}</p>
+                onClick={e => click(e, 'subtitleColor')}
+                onMouseEnter={e => hoverEl(e, 'subtitleColor')} onMouseLeave={e => hoverEl(e, null)}>{date}</p>
             </div>
           </div>
         </a>
@@ -308,7 +315,8 @@ const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, sele
           <div className="group cursor-pointer">
             <div className={tokenTargetClass('cardBackground', 'flex items-center gap-2 p-2 rounded-lg border duration-300')}
               style={{ borderColor: isHovered ? colors.accentColor : colors.borderColor, backgroundColor: colors.cardBackground }}
-              onClick={e => click(e, 'cardBackground')}>
+              onClick={e => click(e, 'cardBackground')}
+              onMouseEnter={e => hoverEl(e, 'cardBackground')} onMouseLeave={e => hoverEl(e, null)}>
               <div className="flex-shrink-0">
                 <div className="w-10 aspect-[3/4] rounded overflow-hidden" style={{ backgroundColor: colors.galleryBackground }}>
                   <img src={pdfPlaceholder} alt="" className={`w-full h-full object-cover transition-transform duration-300 ${isHovered ? 'scale-110' : ''}`} />
@@ -316,9 +324,11 @@ const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, sele
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className={tokenTargetClass('titleColor', 'font-semibold text-xs truncate rounded-sm px-1 -mx-1')} style={{ color: isHovered ? colors.accentColor : colors.titleColor }}
-                  onClick={e => click(e, 'titleColor')}>{title}</h3>
+                  onClick={e => click(e, 'titleColor')}
+                  onMouseEnter={e => hoverEl(e, 'titleColor')} onMouseLeave={e => hoverEl(e, null)}>{title}</h3>
                 <p className={tokenTargetClass('subtitleColor', 'text-[10px] rounded-sm px-1 -mx-1')} style={{ color: isHovered ? colors.accentColor : colors.subtitleColor }}
-                  onClick={e => click(e, 'subtitleColor')}>{date}</p>
+                  onClick={e => click(e, 'subtitleColor')}
+                  onMouseEnter={e => hoverEl(e, 'subtitleColor')} onMouseLeave={e => hoverEl(e, null)}>{date}</p>
               </div>
             </div>
           </div>
@@ -330,17 +340,21 @@ const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, sele
         <a href="#" onClick={handleClick} className="block" onMouseEnter={() => onHover(true)} onMouseLeave={() => onHover(false)}>
           <div className="group cursor-pointer">
             <div className="space-y-1.5">
-              <div className={tokenTargetClass('cardBackground', 'relative aspect-[3/2] overflow-hidden rounded-md')} style={{ backgroundColor: colors.galleryBackground }} onClick={e => click(e, 'cardBackground')}>
+              <div className={tokenTargetClass('cardBackground', 'relative aspect-[3/2] overflow-hidden rounded-md')} style={{ backgroundColor: colors.galleryBackground }}
+                onClick={e => click(e, 'cardBackground')}
+                onMouseEnter={e => hoverEl(e, 'cardBackground')} onMouseLeave={e => hoverEl(e, null)}>
                 <img src={pdfPlaceholder} alt="" className={`w-full h-full object-cover transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-80'}`} />
               </div>
               <div>
                 <h3 className={tokenTargetClass('titleColor', 'font-medium text-xs relative inline-block max-w-full truncate rounded-sm px-1 -mx-1')} style={{ color: colors.titleColor }}
-                  onClick={e => click(e, 'titleColor')}>
+                  onClick={e => click(e, 'titleColor')}
+                  onMouseEnter={e => hoverEl(e, 'titleColor')} onMouseLeave={e => hoverEl(e, null)}>
                   {title}
                   <span className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ${isHovered ? 'w-full' : 'w-0'}`} style={{ backgroundColor: colors.accentColor }} />
                 </h3>
                 <p className={tokenTargetClass('subtitleColor', 'text-[10px] mt-0.5 rounded-sm px-1 -mx-1')} style={{ color: colors.subtitleColor }}
-                  onClick={e => click(e, 'subtitleColor')}>{date}</p>
+                  onClick={e => click(e, 'subtitleColor')}
+                  onMouseEnter={e => hoverEl(e, 'subtitleColor')} onMouseLeave={e => hoverEl(e, null)}>{date}</p>
               </div>
             </div>
           </div>
@@ -353,7 +367,8 @@ const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, sele
           <div className="group cursor-pointer">
             <div className={tokenTargetClass('cardBackground', `relative rounded-lg overflow-hidden shadow-sm duration-200 border ${isHovered ? 'shadow-md' : ''}`)}
               style={{ borderColor: colors.borderColor, backgroundColor: colors.cardBackground }}
-              onClick={e => click(e, 'cardBackground')}>
+              onClick={e => click(e, 'cardBackground')}
+              onMouseEnter={e => hoverEl(e, 'cardBackground')} onMouseLeave={e => hoverEl(e, null)}>
               <div className="aspect-[3/2] overflow-hidden" style={{ backgroundColor: colors.galleryBackground }}>
                 <img src={pdfPlaceholder} alt="" className={`w-full h-full object-cover transition-transform duration-200 ${isHovered ? 'scale-105' : ''}`} />
                 {isHovered && (
@@ -365,9 +380,11 @@ const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, sele
             </div>
             <div className="mt-2">
               <h3 className={tokenTargetClass('titleColor', 'font-semibold text-xs truncate rounded-sm px-1 -mx-1')} style={{ color: isHovered ? colors.accentColor : colors.titleColor }}
-                onClick={e => click(e, 'titleColor')}>{title}</h3>
+                onClick={e => click(e, 'titleColor')}
+                onMouseEnter={e => hoverEl(e, 'titleColor')} onMouseLeave={e => hoverEl(e, null)}>{title}</h3>
               <p className={tokenTargetClass('subtitleColor', 'text-[10px] mt-0.5 rounded-sm px-1 -mx-1')} style={{ color: colors.subtitleColor }}
-                onClick={e => click(e, 'subtitleColor')}>{date}</p>
+                onClick={e => click(e, 'subtitleColor')}
+                onMouseEnter={e => hoverEl(e, 'subtitleColor')} onMouseLeave={e => hoverEl(e, null)}>{date}</p>
             </div>
           </div>
         </a>
