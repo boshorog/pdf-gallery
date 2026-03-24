@@ -172,12 +172,12 @@ const InlineColorPicker = ({ color, onChange }: { color: string; onChange: (c: s
       </div>
       {/* HEX input */}
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg border border-border flex-shrink-0 self-center" style={{ backgroundColor: color }} />
+        <div className="w-7 h-7 rounded-md border border-border flex-shrink-0" style={{ backgroundColor: color }} />
         <div className="flex-1">
           <Label className="text-[10px] text-muted-foreground">HEX</Label>
           <Input value={hexInput}
             onChange={e => { setHexInput(e.target.value); if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) onChange(e.target.value); }}
-            className="font-mono h-7 text-xs" placeholder="#000000" />
+            className="font-mono h-7 text-xs rounded-md" placeholder="#000000" />
         </div>
       </div>
     </div>
@@ -385,7 +385,7 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
 
   const set = (key: keyof ColorSettingsValues, val: string | boolean) => {
     onChange({ ...colors, [key]: val });
-    setTab('custom');
+    if (tab !== 'custom') setTab('custom');
   };
 
   const bg = colors.galleryBgTransparent ? 'transparent' : colors.galleryBackground;
@@ -415,7 +415,7 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
       <CardContent className="space-y-5">
         {/* ── Interactive Token Map Preview ── */}
         <div className="space-y-1.5">
-          <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest text-center block">Preview</Label>
+          <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest block pl-2">Preview</Label>
           <div
             className="rounded-xl border overflow-hidden cursor-pointer transition-shadow"
             style={{ borderColor: colors.borderColor, backgroundColor: bg, background: checkered || bg, boxShadow: highlight('galleryBackground') }}
@@ -515,7 +515,10 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
             <div className="flex items-center gap-2 px-1.5 py-1">
               <Checkbox
                 checked={!!colors.galleryBgTransparent}
-                onCheckedChange={(c) => onChange({ ...colors, galleryBgTransparent: !!c })}
+                onCheckedChange={(checked) => {
+                  const newColors = { ...colors, galleryBgTransparent: !!checked };
+                  onChange(newColors);
+                }}
                 id="color-transparent-bg"
               />
               <Label htmlFor="color-transparent-bg" className="text-xs cursor-pointer">Transparent gallery background</Label>

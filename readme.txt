@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.5.5
+Stable tag: 2.6.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,14 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Changelog ==
+
+= 2.6.0 =
+* New: Comprehensive Color Settings with preset themes (Default, Dark, Warm, Forest, Ocean)
+* New: Interactive Token Map — click any gallery element to edit its color visually
+* New: Transparent gallery background option (default for Default preset)
+* New: Custom preset — any manual change is saved as a Custom preset
+* Fix: Gradient Zoom style now centers both title and subtitle under thumbnail
+* Improved color picker alignment and usability
 
 = 2.5.5 =
 * Fix: Update button now triggers in-page update instead of redirecting away
@@ -139,6 +147,9 @@ Once you install the plugin, head over to the Documentation tab where we have an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.6.0 =
+New Color Settings with preset themes, interactive visual editor, and transparent background support.
 
 = 2.5.4 =
 Bug fixes for frontend rendering and accent color sync. Improved lightbox onboarding.
