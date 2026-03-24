@@ -381,8 +381,6 @@ interface ColorSettingsProps {
 
 const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSettingsProps) => {
   const [tab, setTab] = useState<'presets' | 'custom'>('presets');
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedToken, setSelectedToken] = useState<keyof ColorSettingsValues | null>(null);
 
   const set = (key: keyof ColorSettingsValues, val: string | boolean) => {
@@ -401,17 +399,7 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
   const handleTokenClick = (key: keyof ColorSettingsValues) => {
     setSelectedToken(key);
     setTab('custom');
-    // Auto-switch to correct category
-    if (key === 'galleryBackground' || key === 'cardBackground') setCategory('bg');
-    else if (key === 'titleColor' || key === 'subtitleColor' || key === 'accentColor') setCategory('text');
-    else if (key === 'borderColor' || key === 'dividerLineColor' || key === 'dividerTextColor') setCategory('lines');
   };
-
-  const subTabs = [
-    { id: 'bg' as const, label: 'Backgrounds', icon: <Layers className="w-3 h-3" /> },
-    { id: 'text' as const, label: 'Text', icon: <Type className="w-3 h-3" /> },
-    { id: 'lines' as const, label: 'Lines', icon: <Minus className="w-3 h-3" /> },
-  ];
 
   return (
     <Card>
