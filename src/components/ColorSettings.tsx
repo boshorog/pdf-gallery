@@ -381,7 +381,7 @@ interface ColorSettingsProps {
 
 const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSettingsProps) => {
   const [tab, setTab] = useState<'presets' | 'custom'>('presets');
-  const [category, setCategory] = useState<'bg' | 'text' | 'lines'>('bg');
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedToken, setSelectedToken] = useState<keyof ColorSettingsValues | null>(null);
 
