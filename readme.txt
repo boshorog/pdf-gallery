@@ -71,6 +71,14 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Changelog ==
 
+= 2.6.0 =
+* New: Comprehensive Color Settings with preset themes (Default, Dark, Warm, Forest, Ocean)
+* New: Interactive Token Map — click any gallery element to edit its color visually
+* New: Transparent gallery background option (default for Default preset)
+* New: Custom preset — any manual change is saved as a Custom preset
+* Fix: Gradient Zoom style now centers both title and subtitle under thumbnail
+* Improved color picker alignment and usability
+
 = 2.5.5 =
 * Fix: Update button now triggers in-page update instead of redirecting away
 * Fix: Fallback redirect now scrolls to and highlights the plugin row
