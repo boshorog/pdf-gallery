@@ -220,11 +220,13 @@ interface PreviewThumbnailProps {
   highlightAll: (key: keyof ColorSettingsValues) => boolean;
   onHover: (h: boolean) => void;
   onClickElement?: (key: keyof ColorSettingsValues) => void;
+  onHoverElement?: (key: keyof ColorSettingsValues | null) => void;
 }
 
-const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, selectedToken, highlightAll, onHover, onClickElement }: PreviewThumbnailProps) => {
+const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, selectedToken, highlightAll, onHover, onClickElement, onHoverElement }: PreviewThumbnailProps) => {
   const click = (e: React.MouseEvent, key: keyof ColorSettingsValues) => { e.preventDefault(); e.stopPropagation(); onClickElement?.(key); };
   const handleClick = (e: React.MouseEvent) => { e.preventDefault(); };
+  const hoverEl = (e: React.MouseEvent, key: keyof ColorSettingsValues | null) => { e.stopPropagation(); onHoverElement?.(key); };
   const tokenTargetClass = (key: keyof ColorSettingsValues, baseClass = '') =>
     `${baseClass} transition-all ${highlightAll(key) ? 'ring-2 ring-primary' : ''}`;
 
