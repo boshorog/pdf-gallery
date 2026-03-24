@@ -442,10 +442,38 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
               <AccordionContent>
                 <div className="space-y-4 text-sm">
                   <div>
-                    <h4 className="font-medium mb-2">Accent Colors</h4>
+                    <h4 className="font-medium mb-2">Color Settings</h4>
                     <p className="text-muted-foreground">
-                      Customize the accent color to match your website's branding. This affects buttons, 
-                      links, and interactive elements.
+                      Fully customize your gallery's appearance with the Color Settings panel. You can control 
+                      colors for gallery background, card backgrounds, titles, subtitles, borders, and section dividers.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Color Presets</h4>
+                    <p className="text-muted-foreground">
+                      Choose from five built-in presets — <strong>Default</strong>, <strong>Dark</strong>, <strong>Warm</strong>, <strong>Forest</strong>, and <strong>Ocean</strong> — 
+                      or create a fully custom color scheme. Changes are saved automatically to the Custom preset.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Interactive Token Map</h4>
+                    <p className="text-muted-foreground">
+                      Click or hover any element in the live preview (thumbnails, titles, dividers, background) 
+                      to instantly select its color picker. Changes reflect in real-time.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Transparent Background</h4>
+                    <p className="text-muted-foreground">
+                      Enable transparent gallery background to let your website's background show through. 
+                      This is especially useful for sites with non-white backgrounds.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Thumbnail Styles</h4>
+                    <p className="text-muted-foreground">
+                      Choose from multiple thumbnail styles including bordered, shadowed, rounded corners, 
+                      gradient zoom, and more. Configure hover animations for interactive effects.
                     </p>
                   </div>
                   <div>
