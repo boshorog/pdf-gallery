@@ -432,13 +432,17 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
             onClick={() => handleTokenClick('galleryBackground')}
           >
             <div className="p-5 space-y-4">
-              {/* Divider - both sides clickable */}
+              {/* Divider - both sides clickable with tall hit area */}
               <div className="flex items-center gap-4">
                 <div
-                  className="flex-1 border-t cursor-pointer transition-shadow rounded"
-                  style={{ borderColor: colors.dividerLineColor, boxShadow: highlight('dividerLineColor') }}
+                  className="flex-1 cursor-pointer transition-shadow rounded relative"
+                  style={{ boxShadow: highlight('dividerLineColor') }}
                   onClick={e => { e.stopPropagation(); handleTokenClick('dividerLineColor'); }}
-                />
+                >
+                  <div className="py-3">
+                    <div className="border-t" style={{ borderColor: colors.dividerLineColor }} />
+                  </div>
+                </div>
                 <span
                   className="px-4 text-sm font-medium whitespace-nowrap cursor-pointer transition-shadow rounded px-2 py-0.5"
                   style={{ color: colors.dividerTextColor, boxShadow: highlight('dividerTextColor') }}
@@ -447,10 +451,14 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
                   Section Divider
                 </span>
                 <div
-                  className="flex-1 border-t cursor-pointer transition-shadow rounded"
-                  style={{ borderColor: colors.dividerLineColor, boxShadow: highlight('dividerLineColor') }}
+                  className="flex-1 cursor-pointer transition-shadow rounded relative"
+                  style={{ boxShadow: highlight('dividerLineColor') }}
                   onClick={e => { e.stopPropagation(); handleTokenClick('dividerLineColor'); }}
-                />
+                >
+                  <div className="py-3">
+                    <div className="border-t" style={{ borderColor: colors.dividerLineColor }} />
+                  </div>
+                </div>
               </div>
 
               {/* 3 Thumbnails */}
