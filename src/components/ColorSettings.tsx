@@ -510,54 +510,33 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
-            {/* Sub-category tabs */}
-            <div className="flex gap-1">
-              {subTabs.map(t => (
-                <button key={t.id} onClick={() => setCategory(t.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${category === t.id ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'}`}>
-                  {t.icon} {t.label}
-                </button>
-              ))}
+          <div className="space-y-2">
+            {/* All color values flat */}
+            <div className="flex items-center gap-2 px-1.5 py-1">
+              <Checkbox
+                checked={!!colors.galleryBgTransparent}
+                onCheckedChange={(c) => onChange({ ...colors, galleryBgTransparent: !!c })}
+                id="color-transparent-bg"
+              />
+              <Label htmlFor="color-transparent-bg" className="text-xs cursor-pointer">Transparent gallery background</Label>
             </div>
-
             <div className="space-y-1">
-              {category === 'bg' && (
-                <>
-                  <div className="flex items-center gap-2 px-1.5 py-1">
-                    <Checkbox
-                      checked={!!colors.galleryBgTransparent}
-                      onCheckedChange={c => set('galleryBgTransparent', !!c)}
-                      id="color-transparent-bg"
-                    />
-                    <Label htmlFor="color-transparent-bg" className="text-xs cursor-pointer">Transparent gallery background</Label>
-                  </div>
-                  <ColorSwatchPicker color={colors.galleryBackground} label="Gallery Background" onChange={c => set('galleryBackground', c)}
-                    disabled={!!colors.galleryBgTransparent} isSelected={selectedToken === 'galleryBackground'} onSelect={() => setSelectedToken('galleryBackground')} />
-                  <ColorSwatchPicker color={colors.cardBackground} label="Card Background" onChange={c => set('cardBackground', c)}
-                    isSelected={selectedToken === 'cardBackground'} onSelect={() => setSelectedToken('cardBackground')} />
-                </>
-              )}
-              {category === 'text' && (
-                <>
-                  <ColorSwatchPicker color={colors.accentColor} label="Accent Color" onChange={c => set('accentColor', c)}
-                    isSelected={selectedToken === 'accentColor'} onSelect={() => setSelectedToken('accentColor')} />
-                  <ColorSwatchPicker color={colors.titleColor} label="Title" onChange={c => set('titleColor', c)}
-                    isSelected={selectedToken === 'titleColor'} onSelect={() => setSelectedToken('titleColor')} />
-                  <ColorSwatchPicker color={colors.subtitleColor} label="Subtitle / Date" onChange={c => set('subtitleColor', c)}
-                    isSelected={selectedToken === 'subtitleColor'} onSelect={() => setSelectedToken('subtitleColor')} />
-                </>
-              )}
-              {category === 'lines' && (
-                <>
-                  <ColorSwatchPicker color={colors.borderColor} label="Card Border" onChange={c => set('borderColor', c)}
-                    isSelected={selectedToken === 'borderColor'} onSelect={() => setSelectedToken('borderColor')} />
-                  <ColorSwatchPicker color={colors.dividerLineColor} label="Divider Line" onChange={c => set('dividerLineColor', c)}
-                    isSelected={selectedToken === 'dividerLineColor'} onSelect={() => setSelectedToken('dividerLineColor')} />
-                  <ColorSwatchPicker color={colors.dividerTextColor} label="Divider Text" onChange={c => set('dividerTextColor', c)}
-                    isSelected={selectedToken === 'dividerTextColor'} onSelect={() => setSelectedToken('dividerTextColor')} />
-                </>
-              )}
+              <ColorSwatchPicker color={colors.galleryBackground} label="Gallery Background" onChange={c => set('galleryBackground', c)}
+                disabled={!!colors.galleryBgTransparent} isSelected={selectedToken === 'galleryBackground'} onSelect={() => setSelectedToken('galleryBackground')} />
+              <ColorSwatchPicker color={colors.cardBackground} label="Card Background" onChange={c => set('cardBackground', c)}
+                isSelected={selectedToken === 'cardBackground'} onSelect={() => setSelectedToken('cardBackground')} />
+              <ColorSwatchPicker color={colors.accentColor} label="Accent Color" onChange={c => set('accentColor', c)}
+                isSelected={selectedToken === 'accentColor'} onSelect={() => setSelectedToken('accentColor')} />
+              <ColorSwatchPicker color={colors.titleColor} label="Title" onChange={c => set('titleColor', c)}
+                isSelected={selectedToken === 'titleColor'} onSelect={() => setSelectedToken('titleColor')} />
+              <ColorSwatchPicker color={colors.subtitleColor} label="Subtitle / Date" onChange={c => set('subtitleColor', c)}
+                isSelected={selectedToken === 'subtitleColor'} onSelect={() => setSelectedToken('subtitleColor')} />
+              <ColorSwatchPicker color={colors.borderColor} label="Card Border" onChange={c => set('borderColor', c)}
+                isSelected={selectedToken === 'borderColor'} onSelect={() => setSelectedToken('borderColor')} />
+              <ColorSwatchPicker color={colors.dividerLineColor} label="Divider Line" onChange={c => set('dividerLineColor', c)}
+                isSelected={selectedToken === 'dividerLineColor'} onSelect={() => setSelectedToken('dividerLineColor')} />
+              <ColorSwatchPicker color={colors.dividerTextColor} label="Divider Text" onChange={c => set('dividerTextColor', c)}
+                isSelected={selectedToken === 'dividerTextColor'} onSelect={() => setSelectedToken('dividerTextColor')} />
             </div>
 
             {/* Reset */}
