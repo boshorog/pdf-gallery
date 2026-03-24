@@ -401,6 +401,8 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
     setTab('custom');
   };
 
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
   return (
     <Card>
       <CardHeader>
