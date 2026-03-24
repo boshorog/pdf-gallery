@@ -217,15 +217,16 @@ interface PreviewThumbnailProps {
   thumbnailStyle: string;
   isHovered: boolean;
   selectedToken: keyof ColorSettingsValues | null;
+  highlightAll: (key: keyof ColorSettingsValues) => boolean;
   onHover: (h: boolean) => void;
   onClickElement?: (key: keyof ColorSettingsValues) => void;
 }
 
-const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, selectedToken, onHover, onClickElement }: PreviewThumbnailProps) => {
+const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, selectedToken, highlightAll, onHover, onClickElement }: PreviewThumbnailProps) => {
   const click = (e: React.MouseEvent, key: keyof ColorSettingsValues) => { e.preventDefault(); e.stopPropagation(); onClickElement?.(key); };
   const handleClick = (e: React.MouseEvent) => { e.preventDefault(); };
   const tokenTargetClass = (key: keyof ColorSettingsValues, baseClass = '') =>
-    `${baseClass} transition-all ${selectedToken === key ? 'ring-2 ring-primary' : 'hover:ring-2 hover:ring-primary/70'}`;
+    `${baseClass} transition-all ${highlightAll(key) ? 'ring-2 ring-primary' : ''}`;
 
   switch (thumbnailStyle) {
     case 'elevated-card':
