@@ -80,6 +80,7 @@ interface SettingsProposal2Props {
     showFileTypeBadges?: boolean;
     showTitlesSubtitles?: boolean;
     galleryBackground?: string;
+    galleryBgTransparent?: boolean;
     cardBackground?: string;
     titleColor?: string;
     subtitleColor?: string;
@@ -96,6 +97,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
     thumbnailSize: settings.thumbnailSize || 'four-rows',
     thumbnailShape: settings.thumbnailShape || '3:2',
     accentColor: settings.accentColor || '#7FB3DC',
+    galleryBgTransparent: settings.galleryBgTransparent ?? COLOR_DEFAULTS.galleryBgTransparent,
     gapSize: settings.gapSize ?? 3,
   });
   const [activeSection, setActiveSection] = useState('style');
@@ -109,6 +111,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
       thumbnailSize: settings.thumbnailSize || 'four-rows',
       thumbnailShape: settings.thumbnailShape || '3:2',
       accentColor: settings.accentColor || '#7FB3DC',
+      galleryBgTransparent: settings.galleryBgTransparent ?? COLOR_DEFAULTS.galleryBgTransparent,
       gapSize: settings.gapSize ?? 3,
     });
   }, [settings]);
@@ -522,6 +525,7 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
             colors={{
               accentColor: localSettings.accentColor || COLOR_DEFAULTS.accentColor,
               galleryBackground: localSettings.galleryBackground || COLOR_DEFAULTS.galleryBackground,
+              galleryBgTransparent: localSettings.galleryBgTransparent ?? COLOR_DEFAULTS.galleryBgTransparent,
               cardBackground: localSettings.cardBackground || COLOR_DEFAULTS.cardBackground,
               titleColor: localSettings.titleColor || COLOR_DEFAULTS.titleColor,
               subtitleColor: localSettings.subtitleColor || COLOR_DEFAULTS.subtitleColor,
