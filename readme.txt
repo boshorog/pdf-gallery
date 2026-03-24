@@ -148,6 +148,9 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Upgrade Notice ==
 
+= 2.6.0 =
+New Color Settings with preset themes, interactive visual editor, and transparent background support.
+
 = 2.5.4 =
 Bug fixes for frontend rendering and accent color sync. Improved lightbox onboarding.
 
