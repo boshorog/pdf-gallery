@@ -473,7 +473,11 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
             <div className="p-5 space-y-4">
               {/* Divider - both sides highlight together */}
               <div className="flex items-center gap-4"
-                onMouseEnter={e => { e.stopPropagation(); setHoveredToken('dividerLineColor'); }}
+                onMouseEnter={e => {
+                  if ((e.target as HTMLElement).closest('[data-divider-text-hit="true"]')) return;
+                  e.stopPropagation();
+                  setHoveredToken('dividerLineColor');
+                }}
                 onMouseLeave={() => setHoveredToken(null)}
               >
                 <div
@@ -484,15 +488,20 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
                     <div className="border-t" style={{ borderColor: colors.dividerLineColor }} />
                   </div>
                 </div>
-                <span
-                  className={tokenClass('dividerTextColor', 'text-sm font-medium whitespace-nowrap cursor-pointer rounded px-2 py-2 relative z-10')}
-                  style={{ color: colors.dividerTextColor }}
+                <div
+                  data-divider-text-hit="true"
+                  className={tokenClass('dividerTextColor', 'relative z-20 flex items-center justify-center self-stretch rounded px-2 min-h-[52px] cursor-pointer')}
                   onClick={e => { e.stopPropagation(); handleTokenClick('dividerTextColor'); }}
                   onMouseEnter={e => { e.stopPropagation(); setHoveredToken('dividerTextColor'); }}
                   onMouseLeave={() => setHoveredToken(null)}
                 >
-                  Section Divider
-                </span>
+                  <span
+                    className="text-sm font-medium whitespace-nowrap"
+                    style={{ color: colors.dividerTextColor }}
+                  >
+                    Section Divider
+                  </span>
+                </div>
                 <div
                   className={tokenClass('dividerLineColor', 'flex-1 cursor-pointer rounded relative')}
                   onClick={e => { e.stopPropagation(); handleTokenClick('dividerLineColor'); }}
