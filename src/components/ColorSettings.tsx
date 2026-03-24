@@ -485,7 +485,7 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
                   </div>
                 </div>
                 <span
-                  className={tokenClass('dividerTextColor', 'text-sm font-medium whitespace-nowrap cursor-pointer rounded px-2 py-0.5')}
+                  className={tokenClass('dividerTextColor', 'text-sm font-medium whitespace-nowrap cursor-pointer rounded px-2 py-2 relative z-10')}
                   style={{ color: colors.dividerTextColor }}
                   onClick={e => { e.stopPropagation(); handleTokenClick('dividerTextColor'); }}
                   onMouseEnter={e => { e.stopPropagation(); setHoveredToken('dividerTextColor'); }}
