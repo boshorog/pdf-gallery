@@ -415,7 +415,7 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
       <CardContent className="space-y-5">
         {/* ── Interactive Token Map Preview ── */}
         <div className="space-y-1.5">
-          <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest text-center block">Preview</Label>
+          <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest block pl-2">Preview</Label>
           <div
             className="rounded-xl border overflow-hidden cursor-pointer transition-shadow"
             style={{ borderColor: colors.borderColor, backgroundColor: bg, background: checkered || bg, boxShadow: highlight('galleryBackground') }}
