@@ -45,6 +45,14 @@ interface PDFGalleryProps {
     gapSize?: number; // 1-5, default 3 (24px)
     showFileTypeBadges?: boolean;
     showTitlesSubtitles?: boolean;
+    galleryBackground?: string;
+    galleryBgTransparent?: boolean;
+    cardBackground?: string;
+    titleColor?: string;
+    subtitleColor?: string;
+    borderColor?: string;
+    dividerLineColor?: string;
+    dividerTextColor?: string;
   };
 }
 
