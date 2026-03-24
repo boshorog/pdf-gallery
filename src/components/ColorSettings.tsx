@@ -380,6 +380,7 @@ interface ColorSettingsProps {
 const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSettingsProps) => {
   const [tab, setTab] = useState<'presets' | 'custom'>('presets');
   const [selectedToken, setSelectedToken] = useState<keyof ColorSettingsValues | null>(null);
+  const [hoveredToken, setHoveredToken] = useState<keyof ColorSettingsValues | null>(null);
 
   const set = (key: keyof ColorSettingsValues, val: string | boolean) => {
     onChange({ ...colors, [key]: val });
@@ -391,8 +392,28 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
     ? 'repeating-conic-gradient(#e5e7eb 0% 25%, transparent 0% 50%) 50% / 16px 16px'
     : undefined;
 
-  const tokenTargetClass = (key: keyof ColorSettingsValues, baseClass = '') =>
-    `${baseClass} transition-all ${selectedToken === key ? 'ring-2 ring-primary' : 'hover:ring-2 hover:ring-primary/70'}`;
+  // Groups: divider sides always together, all thumb elements together
+  const DIVIDER_KEYS: (keyof ColorSettingsValues)[] = ['dividerLineColor'];
+  const THUMB_KEYS: (keyof ColorSettingsValues)[] = ['cardBackground', 'titleColor', 'subtitleColor', 'borderColor'];
+
+  const isHighlighted = (key: keyof ColorSettingsValues) => {
+    const active = hoveredToken || selectedToken;
+    if (!active) return false;
+    // Divider lines always highlight together
+    if (DIVIDER_KEYS.includes(key) && DIVIDER_KEYS.includes(active)) return true;
+    // Thumb elements: all 3 thumbs highlight if any thumb element is active
+    if (THUMB_KEYS.includes(key) && THUMB_KEYS.includes(active)) return true;
+    return key === active;
+  };
+
+  // Gallery background only highlights when nothing else is hovered/selected inside
+  const isGalleryBgHighlighted = () => {
+    const active = hoveredToken || selectedToken;
+    return active === 'galleryBackground';
+  };
+
+  const tokenClass = (key: keyof ColorSettingsValues, baseClass = '') =>
+    `${baseClass} transition-all ${isHighlighted(key) ? 'ring-2 ring-primary' : ''}`;
 
   const handleTokenClick = (key: keyof ColorSettingsValues) => {
     setSelectedToken(key);
@@ -415,15 +436,20 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
         <div className="space-y-1.5">
           <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest block pl-4">Preview</Label>
           <div
-            className={tokenTargetClass('galleryBackground', 'rounded-xl border overflow-hidden cursor-pointer')}
+            className={`rounded-xl border overflow-hidden cursor-pointer transition-all ${isGalleryBgHighlighted() ? 'ring-2 ring-primary' : ''}`}
             style={{ borderColor: colors.borderColor, backgroundColor: bg, background: checkered || bg }}
             onClick={() => handleTokenClick('galleryBackground')}
+            onMouseEnter={() => setHoveredToken('galleryBackground')}
+            onMouseLeave={() => setHoveredToken(null)}
           >
             <div className="p-5 space-y-4">
-              {/* Divider - both sides clickable with tall hit area */}
-              <div className="flex items-center gap-4">
+              {/* Divider - both sides highlight together */}
+              <div className="flex items-center gap-4"
+                onMouseEnter={e => { e.stopPropagation(); setHoveredToken('dividerLineColor'); }}
+                onMouseLeave={() => setHoveredToken(null)}
+              >
                 <div
-                  className={tokenTargetClass('dividerLineColor', 'flex-1 cursor-pointer rounded relative')}
+                  className={tokenClass('dividerLineColor', 'flex-1 cursor-pointer rounded relative')}
                   onClick={e => { e.stopPropagation(); handleTokenClick('dividerLineColor'); }}
                 >
                   <div className="py-3">
@@ -431,14 +457,16 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
                   </div>
                 </div>
                 <span
-                  className={tokenTargetClass('dividerTextColor', 'text-sm font-medium whitespace-nowrap cursor-pointer rounded px-2 py-0.5')}
+                  className={tokenClass('dividerTextColor', 'text-sm font-medium whitespace-nowrap cursor-pointer rounded px-2 py-0.5')}
                   style={{ color: colors.dividerTextColor }}
                   onClick={e => { e.stopPropagation(); handleTokenClick('dividerTextColor'); }}
+                  onMouseEnter={e => { e.stopPropagation(); setHoveredToken('dividerTextColor'); }}
+                  onMouseLeave={() => setHoveredToken(null)}
                 >
                   Section Divider
                 </span>
                 <div
-                  className={tokenTargetClass('dividerLineColor', 'flex-1 cursor-pointer rounded relative')}
+                  className={tokenClass('dividerLineColor', 'flex-1 cursor-pointer rounded relative')}
                   onClick={e => { e.stopPropagation(); handleTokenClick('dividerLineColor'); }}
                 >
                   <div className="py-3">
@@ -447,8 +475,11 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
                 </div>
               </div>
 
-              {/* 3 Thumbnails */}
-              <div className="grid grid-cols-3 gap-3">
+              {/* 3 Thumbnails - all highlight together */}
+              <div className="grid grid-cols-3 gap-3"
+                onMouseEnter={e => { e.stopPropagation(); setHoveredToken('cardBackground'); }}
+                onMouseLeave={() => setHoveredToken(null)}
+              >
                 {SAMPLE_ITEMS.map(item => (
                   <PreviewThumbnail
                     key={item.id}
@@ -458,6 +489,7 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
                     thumbnailStyle={thumbnailStyle}
                     isHovered={hoveredId === item.id}
                     selectedToken={selectedToken}
+                    highlightAll={isHighlighted}
                     onHover={h => setHoveredId(h ? item.id : null)}
                     onClickElement={handleTokenClick}
                   />
