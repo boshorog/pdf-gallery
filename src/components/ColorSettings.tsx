@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Palette, RotateCcw, Layers, Type, Minus, ExternalLink } from 'lucide-react';
+import { Palette, RotateCcw, ExternalLink } from 'lucide-react';
 import pdfPlaceholder from '@/assets/thumbnail-placeholder.png';
 
 export interface ColorSettingsValues {
@@ -36,6 +36,7 @@ const presets = [
   { name: 'Dark', colors: { accentColor: '#60A5FA', galleryBackground: '#1F2937', galleryBgTransparent: false, cardBackground: '#374151', titleColor: '#F9FAFB', subtitleColor: '#9CA3AF', borderColor: '#4B5563', dividerLineColor: '#4B5563', dividerTextColor: '#9CA3AF' } as ColorSettingsValues },
   { name: 'Warm', colors: { accentColor: '#F59E0B', galleryBackground: '#FFFBEB', galleryBgTransparent: false, cardBackground: '#FFFFFF', titleColor: '#78350F', subtitleColor: '#92400E', borderColor: '#FDE68A', dividerLineColor: '#FDE68A', dividerTextColor: '#92400E' } as ColorSettingsValues },
   { name: 'Forest', colors: { accentColor: '#10B981', galleryBackground: '#F0FDF4', galleryBgTransparent: false, cardBackground: '#FFFFFF', titleColor: '#064E3B', subtitleColor: '#047857', borderColor: '#A7F3D0', dividerLineColor: '#A7F3D0', dividerTextColor: '#047857' } as ColorSettingsValues },
+  { name: 'Ocean', colors: { accentColor: '#3B82F6', galleryBackground: '#EFF6FF', galleryBgTransparent: false, cardBackground: '#FFFFFF', titleColor: '#1E3A5F', subtitleColor: '#3B6998', borderColor: '#BFDBFE', dividerLineColor: '#BFDBFE', dividerTextColor: '#3B6998' } as ColorSettingsValues },
 ];
 
 const SAMPLE_ITEMS = [
@@ -171,7 +172,7 @@ const InlineColorPicker = ({ color, onChange }: { color: string; onChange: (c: s
       </div>
       {/* HEX input */}
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg border border-border flex-shrink-0" style={{ backgroundColor: color }} />
+        <div className="w-9 h-9 rounded-lg border border-border flex-shrink-0 self-center" style={{ backgroundColor: color }} />
         <div className="flex-1">
           <Label className="text-[10px] text-muted-foreground">HEX</Label>
           <Input value={hexInput}
@@ -380,8 +381,6 @@ interface ColorSettingsProps {
 
 const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSettingsProps) => {
   const [tab, setTab] = useState<'presets' | 'custom'>('presets');
-  const [category, setCategory] = useState<'bg' | 'text' | 'lines'>('bg');
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedToken, setSelectedToken] = useState<keyof ColorSettingsValues | null>(null);
 
   const set = (key: keyof ColorSettingsValues, val: string | boolean) => {
@@ -400,17 +399,9 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
   const handleTokenClick = (key: keyof ColorSettingsValues) => {
     setSelectedToken(key);
     setTab('custom');
-    // Auto-switch to correct category
-    if (key === 'galleryBackground' || key === 'cardBackground') setCategory('bg');
-    else if (key === 'titleColor' || key === 'subtitleColor' || key === 'accentColor') setCategory('text');
-    else if (key === 'borderColor' || key === 'dividerLineColor' || key === 'dividerTextColor') setCategory('lines');
   };
 
-  const subTabs = [
-    { id: 'bg' as const, label: 'Backgrounds', icon: <Layers className="w-3 h-3" /> },
-    { id: 'text' as const, label: 'Text', icon: <Type className="w-3 h-3" /> },
-    { id: 'lines' as const, label: 'Lines', icon: <Minus className="w-3 h-3" /> },
-  ];
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
     <Card>
@@ -424,20 +415,24 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
       <CardContent className="space-y-5">
         {/* ── Interactive Token Map Preview ── */}
         <div className="space-y-1.5">
-          <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Preview</Label>
+          <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest text-center block">Preview</Label>
           <div
             className="rounded-xl border overflow-hidden cursor-pointer transition-shadow"
             style={{ borderColor: colors.borderColor, backgroundColor: bg, background: checkered || bg, boxShadow: highlight('galleryBackground') }}
             onClick={() => handleTokenClick('galleryBackground')}
           >
             <div className="p-5 space-y-4">
-              {/* Divider - both sides clickable */}
+              {/* Divider - both sides clickable with tall hit area */}
               <div className="flex items-center gap-4">
                 <div
-                  className="flex-1 border-t cursor-pointer transition-shadow rounded"
-                  style={{ borderColor: colors.dividerLineColor, boxShadow: highlight('dividerLineColor') }}
+                  className="flex-1 cursor-pointer transition-shadow rounded relative"
+                  style={{ boxShadow: highlight('dividerLineColor') }}
                   onClick={e => { e.stopPropagation(); handleTokenClick('dividerLineColor'); }}
-                />
+                >
+                  <div className="py-3">
+                    <div className="border-t" style={{ borderColor: colors.dividerLineColor }} />
+                  </div>
+                </div>
                 <span
                   className="px-4 text-sm font-medium whitespace-nowrap cursor-pointer transition-shadow rounded px-2 py-0.5"
                   style={{ color: colors.dividerTextColor, boxShadow: highlight('dividerTextColor') }}
@@ -446,10 +441,14 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
                   Section Divider
                 </span>
                 <div
-                  className="flex-1 border-t cursor-pointer transition-shadow rounded"
-                  style={{ borderColor: colors.dividerLineColor, boxShadow: highlight('dividerLineColor') }}
+                  className="flex-1 cursor-pointer transition-shadow rounded relative"
+                  style={{ boxShadow: highlight('dividerLineColor') }}
                   onClick={e => { e.stopPropagation(); handleTokenClick('dividerLineColor'); }}
-                />
+                >
+                  <div className="py-3">
+                    <div className="border-t" style={{ borderColor: colors.dividerLineColor }} />
+                  </div>
+                </div>
               </div>
 
               {/* 3 Thumbnails */}
@@ -483,7 +482,7 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
 
         {tab === 'presets' ? (
           <div className="space-y-3">
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               {presets.map(p => {
                 const isActive = p.colors.accentColor === colors.accentColor &&
                   p.colors.galleryBackground === colors.galleryBackground &&
@@ -511,54 +510,33 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
-            {/* Sub-category tabs */}
-            <div className="flex gap-1">
-              {subTabs.map(t => (
-                <button key={t.id} onClick={() => setCategory(t.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${category === t.id ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'}`}>
-                  {t.icon} {t.label}
-                </button>
-              ))}
+          <div className="space-y-2">
+            {/* All color values flat */}
+            <div className="flex items-center gap-2 px-1.5 py-1">
+              <Checkbox
+                checked={!!colors.galleryBgTransparent}
+                onCheckedChange={(c) => onChange({ ...colors, galleryBgTransparent: !!c })}
+                id="color-transparent-bg"
+              />
+              <Label htmlFor="color-transparent-bg" className="text-xs cursor-pointer">Transparent gallery background</Label>
             </div>
-
             <div className="space-y-1">
-              {category === 'bg' && (
-                <>
-                  <div className="flex items-center gap-2 px-1.5 py-1">
-                    <Checkbox
-                      checked={!!colors.galleryBgTransparent}
-                      onCheckedChange={c => set('galleryBgTransparent', !!c)}
-                      id="color-transparent-bg"
-                    />
-                    <Label htmlFor="color-transparent-bg" className="text-xs cursor-pointer">Transparent gallery background</Label>
-                  </div>
-                  <ColorSwatchPicker color={colors.galleryBackground} label="Gallery Background" onChange={c => set('galleryBackground', c)}
-                    disabled={!!colors.galleryBgTransparent} isSelected={selectedToken === 'galleryBackground'} onSelect={() => setSelectedToken('galleryBackground')} />
-                  <ColorSwatchPicker color={colors.cardBackground} label="Card Background" onChange={c => set('cardBackground', c)}
-                    isSelected={selectedToken === 'cardBackground'} onSelect={() => setSelectedToken('cardBackground')} />
-                </>
-              )}
-              {category === 'text' && (
-                <>
-                  <ColorSwatchPicker color={colors.accentColor} label="Accent Color" onChange={c => set('accentColor', c)}
-                    isSelected={selectedToken === 'accentColor'} onSelect={() => setSelectedToken('accentColor')} />
-                  <ColorSwatchPicker color={colors.titleColor} label="Title" onChange={c => set('titleColor', c)}
-                    isSelected={selectedToken === 'titleColor'} onSelect={() => setSelectedToken('titleColor')} />
-                  <ColorSwatchPicker color={colors.subtitleColor} label="Subtitle / Date" onChange={c => set('subtitleColor', c)}
-                    isSelected={selectedToken === 'subtitleColor'} onSelect={() => setSelectedToken('subtitleColor')} />
-                </>
-              )}
-              {category === 'lines' && (
-                <>
-                  <ColorSwatchPicker color={colors.borderColor} label="Card Border" onChange={c => set('borderColor', c)}
-                    isSelected={selectedToken === 'borderColor'} onSelect={() => setSelectedToken('borderColor')} />
-                  <ColorSwatchPicker color={colors.dividerLineColor} label="Divider Line" onChange={c => set('dividerLineColor', c)}
-                    isSelected={selectedToken === 'dividerLineColor'} onSelect={() => setSelectedToken('dividerLineColor')} />
-                  <ColorSwatchPicker color={colors.dividerTextColor} label="Divider Text" onChange={c => set('dividerTextColor', c)}
-                    isSelected={selectedToken === 'dividerTextColor'} onSelect={() => setSelectedToken('dividerTextColor')} />
-                </>
-              )}
+              <ColorSwatchPicker color={colors.galleryBackground} label="Gallery Background" onChange={c => set('galleryBackground', c)}
+                disabled={!!colors.galleryBgTransparent} isSelected={selectedToken === 'galleryBackground'} onSelect={() => setSelectedToken('galleryBackground')} />
+              <ColorSwatchPicker color={colors.cardBackground} label="Card Background" onChange={c => set('cardBackground', c)}
+                isSelected={selectedToken === 'cardBackground'} onSelect={() => setSelectedToken('cardBackground')} />
+              <ColorSwatchPicker color={colors.accentColor} label="Accent Color" onChange={c => set('accentColor', c)}
+                isSelected={selectedToken === 'accentColor'} onSelect={() => setSelectedToken('accentColor')} />
+              <ColorSwatchPicker color={colors.titleColor} label="Title" onChange={c => set('titleColor', c)}
+                isSelected={selectedToken === 'titleColor'} onSelect={() => setSelectedToken('titleColor')} />
+              <ColorSwatchPicker color={colors.subtitleColor} label="Subtitle / Date" onChange={c => set('subtitleColor', c)}
+                isSelected={selectedToken === 'subtitleColor'} onSelect={() => setSelectedToken('subtitleColor')} />
+              <ColorSwatchPicker color={colors.borderColor} label="Card Border" onChange={c => set('borderColor', c)}
+                isSelected={selectedToken === 'borderColor'} onSelect={() => setSelectedToken('borderColor')} />
+              <ColorSwatchPicker color={colors.dividerLineColor} label="Divider Line" onChange={c => set('dividerLineColor', c)}
+                isSelected={selectedToken === 'dividerLineColor'} onSelect={() => setSelectedToken('dividerLineColor')} />
+              <ColorSwatchPicker color={colors.dividerTextColor} label="Divider Text" onChange={c => set('dividerTextColor', c)}
+                isSelected={selectedToken === 'dividerTextColor'} onSelect={() => setSelectedToken('dividerTextColor')} />
             </div>
 
             {/* Reset */}
