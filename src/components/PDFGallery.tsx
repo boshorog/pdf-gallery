@@ -45,6 +45,14 @@ interface PDFGalleryProps {
     gapSize?: number; // 1-5, default 3 (24px)
     showFileTypeBadges?: boolean;
     showTitlesSubtitles?: boolean;
+    galleryBackground?: string;
+    galleryBgTransparent?: boolean;
+    cardBackground?: string;
+    titleColor?: string;
+    subtitleColor?: string;
+    borderColor?: string;
+    dividerLineColor?: string;
+    dividerTextColor?: string;
   };
 }
 
@@ -549,14 +557,14 @@ const PDFGallery = ({
                   </div>
                 </div>
               </div>
-              <div className="mt-2 text-center">
+              <div className="mt-1.5 text-center">
                 <div className="flex items-center justify-center gap-2">
                   <h3 className="font-semibold text-sm text-foreground transition-colors truncate" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
                   {showRatings && (
                     <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} />
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 transition-colors" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.date}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 transition-colors" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.date}</p>
               </div>
             </div>
           </div>
@@ -701,7 +709,7 @@ const PDFGallery = ({
   };
 
   return (
-    <div ref={galleryViewRef} className="w-full max-w-7xl mx-auto px-2 bg-transparent" style={{ ['--accent-color' as any]: settings.accentColor, backgroundColor: 'transparent' }}>
+    <div ref={galleryViewRef} className="w-full max-w-7xl mx-auto px-2" style={{ ['--accent-color' as any]: settings.accentColor, backgroundColor: settings.galleryBgTransparent ? 'transparent' : (settings.galleryBackground || 'transparent') }}>
       {isGeneratingThumbnails && (
         <div className="sticky top-4 z-50 flex justify-center mb-4">
           <div className="bg-card border border-border rounded-lg shadow-lg px-6 py-4 flex items-center gap-3">
@@ -759,11 +767,11 @@ const PDFGallery = ({
                 renderedItems.push(
                   <div key={item.id} className={`${isFirstBlock ? 'pt-6' : 'pt-14'} pb-5 -mx-4 md:mx-0`}>
                     <div className="flex items-center gap-4 px-4 md:px-0">
-                      <div className="flex-1 border-t border-border"></div>
-                      <span className="bg-transparent px-4 md:px-6 text-lg font-medium text-muted-foreground whitespace-nowrap">
+                      <div className="flex-1 border-t" style={{ borderColor: settings.dividerLineColor || undefined }}></div>
+                      <span className="bg-transparent px-4 md:px-6 text-lg font-medium whitespace-nowrap" style={{ color: settings.dividerTextColor || undefined }}>
                         {item.text}
                       </span>
-                      <div className="flex-1 border-t border-border"></div>
+                      <div className="flex-1 border-t" style={{ borderColor: settings.dividerLineColor || undefined }}></div>
                     </div>
                   </div>
                 );
