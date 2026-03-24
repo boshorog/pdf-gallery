@@ -515,7 +515,10 @@ const ColorSettings = ({ colors, onChange, thumbnailStyle = 'default' }: ColorSe
             <div className="flex items-center gap-2 px-1.5 py-1">
               <Checkbox
                 checked={!!colors.galleryBgTransparent}
-                onCheckedChange={(c) => onChange({ ...colors, galleryBgTransparent: !!c })}
+                onCheckedChange={(checked) => {
+                  const newColors = { ...colors, galleryBgTransparent: !!checked };
+                  onChange(newColors);
+                }}
                 id="color-transparent-bg"
               />
               <Label htmlFor="color-transparent-bg" className="text-xs cursor-pointer">Transparent gallery background</Label>

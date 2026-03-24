@@ -549,14 +549,14 @@ const PDFGallery = ({
                   </div>
                 </div>
               </div>
-              <div className="mt-2">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-semibold text-sm text-foreground transition-colors truncate flex-1 min-w-0" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
+              <div className="mt-2 text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <h3 className="font-semibold text-sm text-foreground transition-colors truncate" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.title}</h3>
                   {showRatings && (
-                    <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} className="mr-2" />
+                    <DocumentRating documentId={pdf.id} galleryId={galleryId} size="sm" showCount={false} />
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 transition-colors text-center" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.date}</p>
+                <p className="text-xs text-muted-foreground mt-1 transition-colors" style={{ color: hoveredId === pdf.id ? settings.accentColor : undefined }}>{pdf.date}</p>
               </div>
             </div>
           </div>
