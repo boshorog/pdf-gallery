@@ -283,7 +283,7 @@ const PreviewThumbnail = ({ title, date, colors, thumbnailStyle, isHovered, sele
                 style={{ background: `linear-gradient(135deg, ${colors.accentColor}, #B07FDC, ${colors.accentColor})` }} />
               <div className="relative rounded-xl overflow-hidden" style={{ backgroundColor: colors.cardBackground }}>
                 <div className="aspect-[3/2] overflow-hidden" style={{ backgroundColor: colors.galleryBackground }}>
-                  <img src={pdfPlaceholder} alt="" className={`w-full h-full object-cover transition-all duration-500 ${isHovered ? 'scale-[1.15]' : ''}`} />
+                  <img src={pdfPlaceholder} alt="" className="w-full h-full object-cover" />
                 </div>
               </div>
             </div>
