@@ -276,6 +276,10 @@ const DocumentLightbox = ({
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept vertical scroll keys - let the PDF viewer handle them
+      const scrollKeys = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ']);
+      if (scrollKeys.has(e.key)) return;
+      
       switch (e.key) {
         case 'Escape':
           onClose();
@@ -542,15 +546,7 @@ const DocumentLightbox = ({
           </div>
         )}
         
-        {/* Focus trap for keyboard scrolling - captures arrow/page keys without requiring click */}
-        {isPdf && (
-          <div 
-            tabIndex={0} 
-            ref={(el) => { if (el && isOpen) el.focus(); }}
-            className="absolute inset-0 outline-none z-0"
-            style={{ pointerEvents: 'none' }}
-          />
-        )}
+        {/* Focus is now handled directly by PdfJsViewer's scroll container */}
         
         {isImage ? (
           <ImageViewer 

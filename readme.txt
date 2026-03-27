@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf gallery, document gallery, file gallery, lightbox, pdf showcase
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.6.1
+Stable tag: 2.6.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,12 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Changelog ==
+
+= 2.6.2 =
+* Fix: Keyboard scrolling in lightbox now works immediately (Arrow Up/Down, Page Up/Down, Home/End)
+* Fix: Analytics summary cards now update when changing the date range filter
+* Fix: Analytics chart correctly aggregates data monthly for 365-day view
+* Improved analytics demo data coverage for better previewing
 
 = 2.6.1 =
 * New: YouTube uploads via link now include a Subtitle field, auto-populated with channel name
@@ -154,8 +160,10 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Upgrade Notice ==
 
+= 2.6.2 =
+Lightbox keyboard scrolling fix. Analytics date range filtering and chart aggregation improvements.
+
 = 2.6.1 =
-Auto-populated titles/subtitles from WP Media and YouTube. Keyboard scrolling fix in lightbox.
 
 = 2.6.0 =
 New Color Settings with preset themes, interactive visual editor, and transparent background support.

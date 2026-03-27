@@ -56,7 +56,11 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
   // Auto-focus scroll container so keyboard scrolling works immediately
   useEffect(() => {
     if (isReady && containerRef.current) {
-      containerRef.current.focus();
+      // Use a short delay to ensure the container is fully rendered and visible
+      const t = setTimeout(() => {
+        containerRef.current?.focus({ preventScroll: true });
+      }, 100);
+      return () => clearTimeout(t);
     }
   }, [isReady]);
 
