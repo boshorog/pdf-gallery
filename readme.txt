@@ -1,8 +1,8 @@
-=== KindPixels PDF Gallery ===
+=== PDF Gallery – Turn Files into Clean Galleries ===
 Contributors: kindpixels
 Plugin URI: https://kindpixels.com/plugins/pdf-gallery/
 Donate link: https://kindpixels.com/donate
-Tags: pdf, gallery, document, viewer, lightbox
+Tags: pdf gallery, document gallery, file gallery, lightbox, pdf showcase
 Requires at least: 5.8
 Tested up to: 6.9
 Stable tag: 2.6.1
@@ -72,9 +72,9 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.6.1 =
-* New: WP Media Library title and description now auto-populate Title and Subtitle fields
 * New: YouTube uploads via link now include a Subtitle field, auto-populated with channel name
-* Fix: Keyboard scrolling (Arrow keys, Page Up/Down) now works immediately in lightbox without clicking first
+* New: WP Media Library title and description now auto-populate Title and Subtitle fields
+* Fix: Enhanced keyboard scrolling inside lightbox
 * Improved upload form UX with subtitle support across all methods
 
 = 2.6.0 =
