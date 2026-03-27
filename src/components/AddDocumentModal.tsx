@@ -418,7 +418,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
 
       onAdd({
         title,
-        date: '',
+        date: urlSubtitle.trim() || '',
         pdfUrl: urlInput,
         fileType,
       });
