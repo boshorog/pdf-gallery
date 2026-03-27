@@ -431,6 +431,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
       // Reset and close
       setUrlInput('');
       setUrlTitle('');
+      setUrlSubtitle('');
       setUrlFileType('pdf');
       onClose();
     } catch (error) {
