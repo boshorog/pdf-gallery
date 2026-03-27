@@ -378,12 +378,12 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     const detectedType = getFileTypeFromUrl(url);
     setUrlFileType(detectedType);
 
-    // Auto-fetch YouTube title
+    // Auto-fetch YouTube title and subtitle
     if (detectedType === 'youtube' && url.trim()) {
-      const title = await fetchYouTubeTitle(url);
-      if (title) {
-        setUrlTitle(title);
-      }
+      const info = await fetchYouTubeInfo(url);
+      if (info.title) setUrlTitle(info.title);
+      const desc = await fetchYouTubeDescription(url);
+      if (desc) setUrlSubtitle(desc);
     }
   };
 
