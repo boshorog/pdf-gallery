@@ -43,6 +43,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
   const [pausedUploads, setPausedUploads] = useState<Set<string>>(new Set());
   const [urlInput, setUrlInput] = useState('');
   const [urlTitle, setUrlTitle] = useState('');
+  const [urlSubtitle, setUrlSubtitle] = useState('');
   const [urlFileType, setUrlFileType] = useState('pdf');
   const [isAddingUrl, setIsAddingUrl] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
