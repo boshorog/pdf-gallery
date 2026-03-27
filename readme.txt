@@ -71,6 +71,12 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Changelog ==
 
+= 2.6.1 =
+* New: WP Media Library title and description now auto-populate Title and Subtitle fields
+* New: YouTube uploads via link now include a Subtitle field, auto-populated with channel name
+* Fix: Keyboard scrolling (Arrow keys, Page Up/Down) now works immediately in lightbox without clicking first
+* Improved upload form UX with subtitle support across all methods
+
 = 2.6.0 =
 * New: Comprehensive Color Settings with preset themes (Default, Dark, Warm, Forest, Ocean)
 * New: Interactive Token Map — click any gallery element to edit its color visually
