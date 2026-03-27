@@ -405,8 +405,8 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
 
       // Auto-fetch title for YouTube if not provided
       if (!title && fileType === 'youtube') {
-        const fetchedTitle = await fetchYouTubeTitle(urlInput);
-        title = fetchedTitle || 'YouTube Video';
+        const info = await fetchYouTubeInfo(urlInput);
+        title = info.title || 'YouTube Video';
       }
 
       if (!title) {
