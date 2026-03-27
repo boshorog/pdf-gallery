@@ -542,15 +542,7 @@ const DocumentLightbox = ({
           </div>
         )}
         
-        {/* Focus trap for keyboard scrolling - captures arrow/page keys without requiring click */}
-        {isPdf && (
-          <div 
-            tabIndex={0} 
-            ref={(el) => { if (el && isOpen) el.focus(); }}
-            className="absolute inset-0 outline-none z-0"
-            style={{ pointerEvents: 'none' }}
-          />
-        )}
+        {/* Focus is now handled directly by PdfJsViewer's scroll container */}
         
         {isImage ? (
           <ImageViewer 
