@@ -276,6 +276,10 @@ const DocumentLightbox = ({
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept vertical scroll keys - let the PDF viewer handle them
+      const scrollKeys = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ']);
+      if (scrollKeys.has(e.key)) return;
+      
       switch (e.key) {
         case 'Escape':
           onClose();
