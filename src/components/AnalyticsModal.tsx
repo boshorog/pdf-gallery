@@ -225,24 +225,68 @@ export const AnalyticsModal = ({
     return option?.label || '7 days';
   };
 
-  // Filter chart data by selected date range
-  const chartData = (() => {
-    if (!analytics?.daily_stats) return [];
+  // Filter daily stats by selected date range
+  const getDateCutoff = (): Date | null => {
     const now = new Date();
-    let cutoff: Date | null = null;
     switch (dateRange) {
-      case '24h': cutoff = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000); break;
-      case '7d': cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); break;
-      case '30d': cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); break;
-      case '365d': cutoff = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000); break;
-      case 'all': cutoff = null; break;
+      case '24h': return new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000);
+      case '7d': return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      case '30d': return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      case '365d': return new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      case 'all': return null;
     }
-    return analytics.daily_stats
-      .filter(stat => !cutoff || new Date(stat.date) >= cutoff)
-      .map(stat => ({
-        ...stat,
-        dateLabel: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      }));
+  };
+
+  const filteredStats = (() => {
+    if (!analytics?.daily_stats) return [];
+    const cutoff = getDateCutoff();
+    return analytics.daily_stats.filter(stat => !cutoff || new Date(stat.date) >= cutoff);
+  })();
+
+  // Compute filtered totals for the summary cards
+  const filteredTotals = (() => {
+    const totalViews = filteredStats.reduce((sum, s) => sum + s.views, 0);
+    const totalClicks = filteredStats.reduce((sum, s) => sum + s.clicks, 0);
+    // Estimate unique as ~65% of total (WP backend provides real unique counts per range)
+    const uniqueViews = analytics?.unique_views && analytics?.total_views
+      ? Math.round(totalViews * (analytics.unique_views / analytics.total_views))
+      : Math.round(totalViews * 0.65);
+    const uniqueClicks = analytics?.unique_clicks && analytics?.total_clicks
+      ? Math.round(totalClicks * (analytics.unique_clicks / analytics.total_clicks))
+      : Math.round(totalClicks * 0.65);
+    return { totalViews, uniqueViews, totalClicks, uniqueClicks };
+  })();
+
+  // Aggregate chart data - monthly for 365d, daily otherwise
+  const chartData = (() => {
+    if (dateRange === '365d' || (dateRange === 'all' && filteredStats.length > 90)) {
+      // Aggregate by month
+      const monthMap = new Map<string, { views: number; clicks: number; label: string }>();
+      filteredStats.forEach(stat => {
+        const d = new Date(stat.date);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const existing = monthMap.get(key);
+        if (existing) {
+          existing.views += stat.views;
+          existing.clicks += stat.clicks;
+        } else {
+          monthMap.set(key, {
+            views: stat.views,
+            clicks: stat.clicks,
+            label: d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+          });
+        }
+      });
+      return Array.from(monthMap.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([, v]) => ({ dateLabel: v.label, views: v.views, clicks: v.clicks }));
+    }
+
+    // Daily view
+    return filteredStats.map(stat => ({
+      ...stat,
+      dateLabel: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    }));
   })();
 
   return (
