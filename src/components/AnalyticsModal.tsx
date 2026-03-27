@@ -335,7 +335,7 @@ export const AnalyticsModal = ({
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{analytics.total_views.toLocaleString()}</div>
+                  <div className="text-2xl font-bold">{filteredTotals.totalViews.toLocaleString()}</div>
                 </CardContent>
               </Card>
               <Card>
@@ -346,7 +346,7 @@ export const AnalyticsModal = ({
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{analytics.unique_views.toLocaleString()}</div>
+                  <div className="text-2xl font-bold">{filteredTotals.uniqueViews.toLocaleString()}</div>
                 </CardContent>
               </Card>
               <Card>
@@ -357,7 +357,7 @@ export const AnalyticsModal = ({
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{analytics.total_clicks.toLocaleString()}</div>
+                  <div className="text-2xl font-bold">{filteredTotals.totalClicks.toLocaleString()}</div>
                 </CardContent>
               </Card>
               <Card>
@@ -369,8 +369,8 @@ export const AnalyticsModal = ({
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {analytics.total_views > 0 
-                      ? Math.round((analytics.total_clicks / analytics.total_views) * 100) 
+                    {filteredTotals.totalViews > 0 
+                      ? Math.round((filteredTotals.totalClicks / filteredTotals.totalViews) * 100) 
                       : 0}%
                   </div>
                 </CardContent>
