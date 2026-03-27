@@ -72,15 +72,10 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.6.2 =
-* Fix: Keyboard scrolling in lightbox now works immediately (Arrow Up/Down, Page Up/Down, Home/End)
-* Fix: Analytics summary cards now update when changing the date range filter
-* Fix: Analytics chart correctly aggregates data monthly for 365-day view
-* Improved analytics demo data coverage for better previewing
-
-= 2.6.1 =
 * New: YouTube uploads via link now include a Subtitle field, auto-populated with channel name
 * New: WP Media Library title and description now auto-populate Title and Subtitle fields
 * Fix: Enhanced keyboard scrolling inside lightbox
+* Fix: Analytics chart correctly aggregates data monthly for 365-day view
 * Improved upload form UX with subtitle support across all methods
 
 = 2.6.0 =
