@@ -53,6 +53,13 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
   // Show scrollbar only when zoomed in (via buttons)
   const isZoomed = scale > DEFAULT_SCALE + 0.01;
 
+  // Auto-focus scroll container so keyboard scrolling works immediately
+  useEffect(() => {
+    if (isReady && containerRef.current) {
+      containerRef.current.focus();
+    }
+  }, [isReady]);
+
   // Check if we're on mobile
   const isMobile = typeof navigator !== 'undefined' && 
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -310,7 +317,8 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
       {/* Scrollable pages area - hide scrollbar unless zoomed */}
       <div 
         ref={containerRef}
-        className={`relative flex-1 min-h-0 overflow-auto flex flex-col items-center gap-4 p-2 sm:p-4 ${isZoomed ? 'pdfg-scrollbar-vertical' : 'pdfg-scrollbar-hidden'}`}
+        tabIndex={0}
+        className={`relative flex-1 min-h-0 overflow-auto flex flex-col items-center gap-4 p-2 sm:p-4 outline-none ${isZoomed ? 'pdfg-scrollbar-vertical' : 'pdfg-scrollbar-hidden'}`}
       >
         {numPages > 0 ? (
           Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => (

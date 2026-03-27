@@ -43,6 +43,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
   const [pausedUploads, setPausedUploads] = useState<Set<string>>(new Set());
   const [urlInput, setUrlInput] = useState('');
   const [urlTitle, setUrlTitle] = useState('');
+  const [urlSubtitle, setUrlSubtitle] = useState('');
   const [urlFileType, setUrlFileType] = useState('pdf');
   const [isAddingUrl, setIsAddingUrl] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -345,14 +346,27 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     return 'file';
   };
 
-  // Fetch YouTube title via oEmbed
-  const fetchYouTubeTitle = async (url: string): Promise<string | null> => {
+  // Fetch YouTube info via oEmbed
+  const fetchYouTubeInfo = async (url: string): Promise<{ title: string | null; description: string | null }> => {
     try {
       const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
       const response = await fetch(oembedUrl);
       if (response.ok) {
         const data = await response.json();
-        return data.title || null;
+        return { title: data.title || null, description: data.author_name || null };
+      }
+    } catch {}
+    return { title: null, description: null };
+  };
+
+  // Fetch YouTube description via noembed (provides more info)
+  const fetchYouTubeDescription = async (url: string): Promise<string | null> => {
+    try {
+      const noembedUrl = `https://noembed.com/embed?url=${encodeURIComponent(url)}`;
+      const response = await fetch(noembedUrl);
+      if (response.ok) {
+        const data = await response.json();
+        return data.author_name ? `by ${data.author_name}` : null;
       }
     } catch {}
     return null;
@@ -364,12 +378,12 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     const detectedType = getFileTypeFromUrl(url);
     setUrlFileType(detectedType);
 
-    // Auto-fetch YouTube title
+    // Auto-fetch YouTube title and subtitle
     if (detectedType === 'youtube' && url.trim()) {
-      const title = await fetchYouTubeTitle(url);
-      if (title) {
-        setUrlTitle(title);
-      }
+      const info = await fetchYouTubeInfo(url);
+      if (info.title) setUrlTitle(info.title);
+      const desc = await fetchYouTubeDescription(url);
+      if (desc) setUrlSubtitle(desc);
     }
   };
 
@@ -391,8 +405,8 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
 
       // Auto-fetch title for YouTube if not provided
       if (!title && fileType === 'youtube') {
-        const fetchedTitle = await fetchYouTubeTitle(urlInput);
-        title = fetchedTitle || 'YouTube Video';
+        const info = await fetchYouTubeInfo(urlInput);
+        title = info.title || 'YouTube Video';
       }
 
       if (!title) {
@@ -404,7 +418,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
 
       onAdd({
         title,
-        date: '',
+        date: urlSubtitle.trim() || '',
         pdfUrl: urlInput,
         fileType,
       });
@@ -417,6 +431,7 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
       // Reset and close
       setUrlInput('');
       setUrlTitle('');
+      setUrlSubtitle('');
       setUrlFileType('pdf');
       onClose();
     } catch (error) {
@@ -462,9 +477,13 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
         else if (['mp3', 'wav', 'ogg'].includes(extension)) fileType = 'audio';
         else if (['mp4', 'mov', 'webm'].includes(extension)) fileType = 'video';
 
+        // Use WP Media title (falls back to filename), and description for subtitle
+        const title = data.title || data.filename?.replace(/\.[^/.]+$/, '') || 'Untitled';
+        const subtitle = data.description || '';
+
         onAdd({
-          title: data.title || data.filename?.replace(/\.[^/.]+$/, '') || 'Untitled',
-          date: '',
+          title,
+          date: subtitle,
           pdfUrl: data.url,
           fileType,
         });
@@ -617,6 +636,22 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
                 <p className="text-xs text-muted-foreground">
                   {urlFileType === 'youtube' ? 'YouTube titles are fetched automatically' : 'Leave empty to use filename from URL'}
                 </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="url-subtitle">Subtitle (optional)</Label>
+                <Input
+                  id="url-subtitle"
+                  type="text"
+                  placeholder="Enter a subtitle or description"
+                  value={urlSubtitle}
+                  onChange={(e) => setUrlSubtitle(e.target.value)}
+                />
+                {urlFileType === 'youtube' && (
+                  <p className="text-xs text-muted-foreground">
+                    Auto-populated from YouTube channel name
+                  </p>
+                )}
               </div>
 
               {urlFileType && urlInput && (

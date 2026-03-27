@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, document, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.6.0
+Stable tag: 2.6.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,12 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Changelog ==
+
+= 2.6.1 =
+* New: WP Media Library title and description now auto-populate Title and Subtitle fields
+* New: YouTube uploads via link now include a Subtitle field, auto-populated with channel name
+* Fix: Keyboard scrolling (Arrow keys, Page Up/Down) now works immediately in lightbox without clicking first
+* Improved upload form UX with subtitle support across all methods
 
 = 2.6.0 =
 * New: Comprehensive Color Settings with preset themes (Default, Dark, Warm, Forest, Ocean)
@@ -147,6 +153,9 @@ Once you install the plugin, head over to the Documentation tab where we have an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.6.1 =
+Auto-populated titles/subtitles from WP Media and YouTube. Keyboard scrolling fix in lightbox.
 
 = 2.6.0 =
 New Color Settings with preset themes, interactive visual editor, and transparent background support.
