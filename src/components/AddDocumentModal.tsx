@@ -638,6 +638,22 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
                 </p>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="url-subtitle">Subtitle (optional)</Label>
+                <Input
+                  id="url-subtitle"
+                  type="text"
+                  placeholder="Enter a subtitle or description"
+                  value={urlSubtitle}
+                  onChange={(e) => setUrlSubtitle(e.target.value)}
+                />
+                {urlFileType === 'youtube' && (
+                  <p className="text-xs text-muted-foreground">
+                    Auto-populated from YouTube channel name
+                  </p>
+                )}
+              </div>
+
               {urlFileType && urlInput && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <span>Detected type:</span>

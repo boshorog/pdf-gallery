@@ -317,7 +317,8 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
       {/* Scrollable pages area - hide scrollbar unless zoomed */}
       <div 
         ref={containerRef}
-        className={`relative flex-1 min-h-0 overflow-auto flex flex-col items-center gap-4 p-2 sm:p-4 ${isZoomed ? 'pdfg-scrollbar-vertical' : 'pdfg-scrollbar-hidden'}`}
+        tabIndex={0}
+        className={`relative flex-1 min-h-0 overflow-auto flex flex-col items-center gap-4 p-2 sm:p-4 outline-none ${isZoomed ? 'pdfg-scrollbar-vertical' : 'pdfg-scrollbar-hidden'}`}
       >
         {numPages > 0 ? (
           Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => (

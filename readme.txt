@@ -154,6 +154,9 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Upgrade Notice ==
 
+= 2.6.1 =
+Auto-populated titles/subtitles from WP Media and YouTube. Keyboard scrolling fix in lightbox.
+
 = 2.6.0 =
 New Color Settings with preset themes, interactive visual editor, and transparent background support.
 
