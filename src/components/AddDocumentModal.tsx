@@ -346,14 +346,27 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
     return 'file';
   };
 
-  // Fetch YouTube title via oEmbed
-  const fetchYouTubeTitle = async (url: string): Promise<string | null> => {
+  // Fetch YouTube info via oEmbed
+  const fetchYouTubeInfo = async (url: string): Promise<{ title: string | null; description: string | null }> => {
     try {
       const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
       const response = await fetch(oembedUrl);
       if (response.ok) {
         const data = await response.json();
-        return data.title || null;
+        return { title: data.title || null, description: data.author_name || null };
+      }
+    } catch {}
+    return { title: null, description: null };
+  };
+
+  // Fetch YouTube description via noembed (provides more info)
+  const fetchYouTubeDescription = async (url: string): Promise<string | null> => {
+    try {
+      const noembedUrl = `https://noembed.com/embed?url=${encodeURIComponent(url)}`;
+      const response = await fetch(noembedUrl);
+      if (response.ok) {
+        const data = await response.json();
+        return data.author_name ? `by ${data.author_name}` : null;
       }
     } catch {}
     return null;
