@@ -53,6 +53,13 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
   // Show scrollbar only when zoomed in (via buttons)
   const isZoomed = scale > DEFAULT_SCALE + 0.01;
 
+  // Auto-focus scroll container so keyboard scrolling works immediately
+  useEffect(() => {
+    if (isReady && containerRef.current) {
+      containerRef.current.focus();
+    }
+  }, [isReady]);
+
   // Check if we're on mobile
   const isMobile = typeof navigator !== 'undefined' && 
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
