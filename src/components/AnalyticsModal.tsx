@@ -185,13 +185,13 @@ export const AnalyticsModal = ({
       { document_id: '4', document_title: 'Company Overview.pdf', total_clicks: 245, unique_clicks: 178 },
       { document_id: '5', document_title: 'Newsletter Q4.pdf', total_clicks: 187, unique_clicks: 134 },
     ],
-    daily_stats: Array.from({ length: 60 }, (_, i) => {
+    daily_stats: Array.from({ length: 400 }, (_, i) => {
       const date = new Date();
-      date.setDate(date.getDate() - (59 - i));
+      date.setDate(date.getDate() - (399 - i));
       return {
         date: date.toISOString().split('T')[0],
-        views: Math.floor(Math.random() * 100) + 50,
-        clicks: Math.floor(Math.random() * 200) + 100,
+        views: Math.floor(Math.random() * 100) + 20,
+        clicks: Math.floor(Math.random() * 200) + 50,
       };
     }),
   });
