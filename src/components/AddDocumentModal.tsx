@@ -477,9 +477,13 @@ const AddDocumentModal = ({ isOpen, onClose, onAdd }: AddDocumentModalProps) => 
         else if (['mp3', 'wav', 'ogg'].includes(extension)) fileType = 'audio';
         else if (['mp4', 'mov', 'webm'].includes(extension)) fileType = 'video';
 
+        // Use WP Media title (falls back to filename), and description for subtitle
+        const title = data.title || data.filename?.replace(/\.[^/.]+$/, '') || 'Untitled';
+        const subtitle = data.description || '';
+
         onAdd({
-          title: data.title || data.filename?.replace(/\.[^/.]+$/, '') || 'Untitled',
-          date: '',
+          title,
+          date: subtitle,
           pdfUrl: data.url,
           fileType,
         });
