@@ -2,7 +2,7 @@
 Contributors: kindpixels
 Plugin URI: https://kindpixels.com/plugins/pdf-gallery/
 Donate link: https://kindpixels.com/donate
-Tags: pdf gallery, document gallery, file gallery, lightbox, pdf showcase
+Tags: PDF Gallery, lightbox, Document Gallery, PDF Showcase, File Gallery
 Requires at least: 5.8
 Tested up to: 6.9
 Stable tag: 2.6.2
