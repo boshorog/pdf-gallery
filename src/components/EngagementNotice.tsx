@@ -141,7 +141,7 @@ export const EngagementNotice = ({ totalFiles }: EngagementNoticeProps) => {
       <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
         <span className="text-base">💛</span>
         <span>
-          Enjoying <strong>PDF Gallery</strong>? Help us grow — leave a rating or share your feedback!
+          You've been using <strong>PDF Gallery</strong> for a while now! A quick rating would mean the world to us.
         </span>
       </div>
       <div className="flex items-center gap-2 shrink-0">
