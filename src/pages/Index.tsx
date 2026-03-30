@@ -16,6 +16,7 @@ import GalleryNotFound from '@/components/GalleryNotFound';
 import SettingsScopeSelectorShowcase from '@/components/SettingsScopeSelectorShowcase';
 import LightboxShowcase from '@/components/LightboxShowcase';
 import { UpdateNotice } from '@/components/UpdateNotice';
+import { EngagementNotice } from '@/components/EngagementNotice';
 import { useLicense } from '@/hooks/useLicense';
 import { PLUGIN_VERSION } from '@/config/pluginIdentity';
 
