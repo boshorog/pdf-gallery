@@ -16,6 +16,7 @@ import GalleryNotFound from '@/components/GalleryNotFound';
 import SettingsScopeSelectorShowcase from '@/components/SettingsScopeSelectorShowcase';
 import LightboxShowcase from '@/components/LightboxShowcase';
 import { UpdateNotice } from '@/components/UpdateNotice';
+import { EngagementNotice } from '@/components/EngagementNotice';
 import { useLicense } from '@/hooks/useLicense';
 import { PLUGIN_VERSION } from '@/config/pluginIdentity';
 
@@ -530,6 +531,7 @@ const Index = () => {
         {/* Update Notice - shows when new version available */}
         <div className="px-6">
           <UpdateNotice currentVersion={PLUGIN_VERSION} />
+          <EngagementNotice totalFiles={galleryState.galleries.reduce((sum, g) => sum + g.items.filter(i => !('type' in i)).length, 0)} />
         </div>
 
         {/* Pro Welcome Message - shows after license activation */}
