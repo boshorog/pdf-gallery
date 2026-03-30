@@ -1272,8 +1272,11 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       
       for (const attachment of attachments) {
         const url = attachment.url;
-        const filename = attachment.filename || attachment.title || 'Document';
-        const title = filename.replace(/\.[^/.]+$/, '');
+        const filename = attachment.filename || 'Document';
+        // Use WP Media title if available, fall back to filename without extension
+        const title = attachment.title || filename.replace(/\.[^/.]+$/, '');
+        // Use WP Media description for subtitle
+        const subtitle = attachment.description || '';
         const extension = (filename.split('.').pop() || '').toLowerCase();
         
         let fileType: PDF['fileType'] = 'pdf';
@@ -1285,7 +1288,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
         const newPDF: PDF = {
           id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           title,
-          date: '',
+          date: subtitle,
           pdfUrl: url,
           thumbnail: '',
           fileType
