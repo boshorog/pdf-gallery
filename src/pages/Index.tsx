@@ -531,6 +531,7 @@ const Index = () => {
         {/* Update Notice - shows when new version available */}
         <div className="px-6">
           <UpdateNotice currentVersion={PLUGIN_VERSION} />
+          <EngagementNotice totalFiles={galleryState.galleries.reduce((sum, g) => sum + g.items.filter(i => i.type !== 'divider').length, 0)} />
         </div>
 
         {/* Pro Welcome Message - shows after license activation */}
