@@ -28,6 +28,7 @@ import Index from "./pages/Index";
 import ScrollOnboardingShowcase from "./components/ScrollOnboardingShowcase";
 import GradientZoomShowcase from "./components/GradientZoomShowcase";
 import ColorSettingsShowcase from "./components/ColorSettingsShowcase";
+import EngagementNoticeShowcase from "./components/EngagementNoticeShowcase";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
