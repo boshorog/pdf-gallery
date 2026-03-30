@@ -123,6 +123,7 @@ const App = () => {
     if (showcase === 'scroll-onboarding') return <ScrollOnboardingShowcase />;
     if (showcase === 'gradient-zoom') return <GradientZoomShowcase />;
     if (showcase === 'color-settings') return <ColorSettingsShowcase />;
+    if (showcase === 'engagement-notice') return <EngagementNoticeShowcase />;
     return <Index />;
   };
 
