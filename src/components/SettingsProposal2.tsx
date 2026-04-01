@@ -164,53 +164,104 @@ const SettingsProposal2 = ({ settings, onSettingsChange, currentGalleryId }: Set
                 <Image className="w-5 h-5" />
                 Default Placeholder Image
               </CardTitle>
-              <p className="text-sm text-muted-foreground">Configure the default image shown for documents without thumbnails</p>
+              <p className="text-sm text-muted-foreground">Choose the default image shown for documents without thumbnails</p>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-5">
-                <div className="space-y-3">
-                  <Label>Current placeholder</Label>
-                  <div className="flex justify-start">
-                    <img 
-                      src={localSettings.defaultPlaceholder === 'default' ? pdfPlaceholder : localSettings.defaultPlaceholder}
-                      alt="Current placeholder" 
-                      className="w-72 h-40 object-cover rounded-lg border border-border shadow-sm"
-                    />
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Default Card */}
+                <div
+                  onClick={() => setLocalSettings(prev => ({ ...prev, defaultPlaceholder: 'default' }))}
+                  className={`relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all duration-200 aspect-[4/3] group ${
+                    localSettings.defaultPlaceholder === 'default'
+                      ? 'border-primary ring-2 ring-primary/20'
+                      : 'border-border hover:border-muted-foreground/50'
+                  }`}
+                >
+                  <img
+                    src={pdfPlaceholder}
+                    alt="Default placeholder"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 pt-8">
+                    <p className="text-white text-sm font-medium">Default</p>
+                    <p className="text-white/70 text-xs">Bundled placeholder</p>
                   </div>
+                  {localSettings.defaultPlaceholder === 'default' && (
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                  )}
                 </div>
-                <div className="space-y-3">
-                  <Label>Upload new placeholder</Label>
-                  <Label
-                    htmlFor="placeholderFile2"
-                    className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors block h-40 flex flex-col justify-center w-full"
-                  >
-                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                    <span className="text-sm font-medium text-primary hover:underline block mb-1">
-                      Click to upload new image
-                    </span>
-                    <p className="text-xs text-muted-foreground">
-                      PNG, JPG up to 2MB
-                    </p>
-                    <Input
-                      id="placeholderFile2"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (event) => {
-                            setLocalSettings(prev => ({ 
-                              ...prev, 
-                              defaultPlaceholder: event.target?.result as string 
-                            }));
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                    />
-                  </Label>
+
+                {/* Custom Card */}
+                <div
+                  onClick={() => document.getElementById('placeholderFile2')?.click()}
+                  onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-primary', 'bg-primary/5'); }}
+                  onDragLeave={(e) => { e.currentTarget.classList.remove('border-primary', 'bg-primary/5'); }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.remove('border-primary', 'bg-primary/5');
+                    const file = e.dataTransfer.files?.[0];
+                    if (file && file.type.startsWith('image/')) {
+                      const reader = new FileReader();
+                      reader.onload = (ev) => setLocalSettings(prev => ({ ...prev, defaultPlaceholder: ev.target?.result as string }));
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className={`relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all duration-200 aspect-[4/3] group ${
+                    localSettings.defaultPlaceholder !== 'default'
+                      ? 'border-primary ring-2 ring-primary/20'
+                      : 'border-dashed border-border hover:border-muted-foreground/50'
+                  }`}
+                >
+                  {localSettings.defaultPlaceholder !== 'default' ? (
+                    <>
+                      <img
+                        src={localSettings.defaultPlaceholder}
+                        alt="Custom placeholder"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center">
+                        <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5">
+                          <Upload className="w-4 h-4" /> Replace
+                        </span>
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 pt-8">
+                        <p className="text-white text-sm font-medium">Custom</p>
+                        <p className="text-white/70 text-xs">Click or drop to replace</p>
+                      </div>
+                      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                        <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                      <Upload className="w-10 h-10 mb-2 opacity-50" />
+                      <p className="text-sm font-medium">Custom</p>
+                      <p className="text-xs opacity-70 mt-1">Click or drag & drop</p>
+                      <p className="text-xs opacity-50 mt-0.5">PNG, JPG up to 2MB</p>
+                    </div>
+                  )}
+                  <Input
+                    id="placeholderFile2"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          setLocalSettings(prev => ({ 
+                            ...prev, 
+                            defaultPlaceholder: event.target?.result as string 
+                          }));
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
                 </div>
               </div>
             </CardContent>
