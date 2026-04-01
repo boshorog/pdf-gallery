@@ -573,6 +573,20 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
                       <li>Ensure no theme/plugin conflicts</li>
                     </ul>
                   </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Need More Help?</h4>
+                    <p className="text-muted-foreground mb-2">
+                      If you're still experiencing issues, reach out to us on the WordPress support forum.
+                    </p>
+                    <a 
+                      href="https://wordpress.org/support/plugin/kindpixels-pdf-gallery/" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-primary hover:underline inline-flex items-center gap-1"
+                    >
+                      Support →
+                    </a>
+                  </div>
                 </div>
               </AccordionContent>
             </AccordionItem>
