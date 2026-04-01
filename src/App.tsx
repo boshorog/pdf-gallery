@@ -29,6 +29,7 @@ import ScrollOnboardingShowcase from "./components/ScrollOnboardingShowcase";
 import GradientZoomShowcase from "./components/GradientZoomShowcase";
 import ColorSettingsShowcase from "./components/ColorSettingsShowcase";
 import EngagementNoticeShowcase from "./components/EngagementNoticeShowcase";
+import PlaceholderSettingsShowcase from "./components/PlaceholderSettingsShowcase";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
