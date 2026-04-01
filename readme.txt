@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: PDF Gallery, lightbox, Document Gallery, PDF Showcase, File Gallery
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.6.2
+Stable tag: 2.6.3
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,13 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Changelog ==
+
+= 2.6.3 =
+* New: Redesigned placeholder image settings with side-by-side card selection
+* New: Custom placeholder supports drag & drop upload
+* New: Engagement notice for active free users encouraging ratings and feedback
+* Improved: Token Map hover highlights for grouped elements (titles, subtitles, thumbnails)
+* Fix: Transparent background checkbox now properly toggleable
 
 = 2.6.2 =
 * New: YouTube uploads via link now include a Subtitle field, auto-populated with channel name
@@ -154,6 +161,9 @@ Once you install the plugin, head over to the Documentation tab where we have an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.6.3 =
+Redesigned placeholder settings. Engagement notice for free users. Token Map hover improvements.
 
 = 2.6.2 =
 Lightbox keyboard scrolling fix. Analytics date range filtering and chart aggregation improvements.
