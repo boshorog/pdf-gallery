@@ -29,6 +29,7 @@ import ScrollOnboardingShowcase from "./components/ScrollOnboardingShowcase";
 import GradientZoomShowcase from "./components/GradientZoomShowcase";
 import ColorSettingsShowcase from "./components/ColorSettingsShowcase";
 import EngagementNoticeShowcase from "./components/EngagementNoticeShowcase";
+import PlaceholderSettingsShowcase from "./components/PlaceholderSettingsShowcase";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -124,6 +125,7 @@ const App = () => {
     if (showcase === 'gradient-zoom') return <GradientZoomShowcase />;
     if (showcase === 'color-settings') return <ColorSettingsShowcase />;
     if (showcase === 'engagement-notice') return <EngagementNoticeShowcase />;
+    if (showcase === 'placeholder-settings') return <PlaceholderSettingsShowcase />;
     return <Index />;
   };
 
