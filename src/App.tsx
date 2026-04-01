@@ -125,6 +125,7 @@ const App = () => {
     if (showcase === 'gradient-zoom') return <GradientZoomShowcase />;
     if (showcase === 'color-settings') return <ColorSettingsShowcase />;
     if (showcase === 'engagement-notice') return <EngagementNoticeShowcase />;
+    if (showcase === 'placeholder-settings') return <PlaceholderSettingsShowcase />;
     return <Index />;
   };
 
