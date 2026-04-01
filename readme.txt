@@ -71,6 +71,13 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Changelog ==
 
+= 2.6.3 =
+* New: Redesigned placeholder image settings with side-by-side card selection
+* New: Custom placeholder supports drag & drop upload
+* New: Engagement notice for active free users encouraging ratings and feedback
+* Improved: Token Map hover highlights for grouped elements (titles, subtitles, thumbnails)
+* Fix: Transparent background checkbox now properly toggleable
+
 = 2.6.2 =
 * New: YouTube uploads via link now include a Subtitle field, auto-populated with channel name
 * New: WP Media Library title and description now auto-populate Title and Subtitle fields
