@@ -162,6 +162,9 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Upgrade Notice ==
 
+= 2.6.3 =
+Redesigned placeholder settings. Engagement notice for free users. Token Map hover improvements.
+
 = 2.6.2 =
 Lightbox keyboard scrolling fix. Analytics date range filtering and chart aggregation improvements.
 
