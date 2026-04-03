@@ -619,7 +619,7 @@ const DocumentLightbox = ({
             onError={() => setIsLoading(false)}
           />
         ) : isPdf ? (
-          <div className={`relative w-full h-full max-w-5xl mx-auto flex flex-col rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+          <div className={`relative w-full h-full ${isFullscreen ? '' : 'max-w-5xl'} mx-auto flex flex-col rounded-lg sm:rounded-xl shadow-2xl overflow-hidden transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
             <PdfJsViewer 
               url={httpsUrl} 
               title={doc.title} 
