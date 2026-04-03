@@ -180,6 +180,10 @@ const DocumentLightbox = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const lightboxRef = useRef<HTMLDivElement>(null);
   
+  // Zoom state for fullscreen top-bar controls
+  const [pdfScale, setPdfScale] = useState(1.15);
+  const [pdfScaleOverride, setPdfScaleOverride] = useState<number | undefined>(undefined);
+  
   // For scroll onboarding
   const pdfScrollContainerRef = useRef<HTMLDivElement>(null);
   const [pdfNumPages, setPdfNumPages] = useState(0);
