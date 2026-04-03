@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, Download, FileText, Loader2, ExternalLink, Minus, Plus } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Download, FileText, Loader2, ExternalLink, Maximize, Minimize, Minus, Plus } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 import PdfJsViewer from '@/components/PdfJsViewer';
 import ScrollOnboarding from '@/components/ScrollOnboarding';
