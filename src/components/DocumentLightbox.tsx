@@ -679,7 +679,7 @@ const DocumentLightbox = ({
       )}
       
       {/* Bottom thumbnails - only scroll when exceeding 90% width */}
-      {documents.length > 1 && (
+      {documents.length > 1 && !isFullscreen && (
         <div 
           className={`absolute bottom-0 left-0 right-0 py-3 sm:py-4 px-3 sm:px-6 bg-gradient-to-t from-black/70 to-transparent z-10 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}
         >
