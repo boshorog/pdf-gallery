@@ -208,9 +208,24 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
 
   const clampScale = (s: number) => Math.max(0.6, Math.min(2.2, s));
 
-  const zoomTo = (next: number) => {
-    setScale(clampScale(next));
-  };
+  const zoomTo = useCallback((next: number) => {
+    const clamped = clampScale(next);
+    setScale(clamped);
+    onScaleChange?.(clamped);
+  }, [onScaleChange]);
+
+  // Notify parent of initial scale
+  useEffect(() => {
+    onScaleChange?.(scale);
+  }, []);
+
+  // Accept scale override from parent
+  useEffect(() => {
+    if (scaleOverride !== undefined) {
+      const clamped = clampScale(scaleOverride);
+      setScale(clamped);
+    }
+  }, [scaleOverride]);
 
   const setCanvasRef = (pageNum: number) => (el: HTMLCanvasElement | null) => {
     if (el) {
