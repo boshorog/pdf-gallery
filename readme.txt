@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: PDF Gallery, lightbox, Document Gallery, PDF Showcase, File Gallery
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.6.3
+Stable tag: 2.6.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,10 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Changelog ==
+
+= 2.6.4 =
+* New: Fullscreen mode in lightbox with immersive document viewing
+* New: Zoom controls move to top bar in fullscreen for maximum document space
 
 = 2.6.3 =
 * New: Redesigned placeholder image settings with side-by-side card selection

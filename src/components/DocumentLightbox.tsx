@@ -180,6 +180,10 @@ const DocumentLightbox = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const lightboxRef = useRef<HTMLDivElement>(null);
   
+  // Zoom state for fullscreen top-bar controls
+  const [pdfScale, setPdfScale] = useState(1.15);
+  const [pdfScaleOverride, setPdfScaleOverride] = useState<number | undefined>(undefined);
+  
   // For scroll onboarding
   const pdfScrollContainerRef = useRef<HTMLDivElement>(null);
   const [pdfNumPages, setPdfNumPages] = useState(0);
@@ -535,6 +539,31 @@ const DocumentLightbox = ({
           </div>
         </div>
         
+        {/* Zoom controls in top bar when fullscreen */}
+        {isFullscreen && isPdf && (
+          <div className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm flex-shrink-0">
+            <button
+              type="button"
+              className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
+              onClick={() => setPdfScaleOverride(Math.max(0.6, pdfScale - 0.15))}
+              title="Zoom out"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <div className="text-white/70 text-xs tabular-nums min-w-[42px] text-center select-none">
+              {Math.round(pdfScale * 100)}%
+            </div>
+            <button
+              type="button"
+              className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
+              onClick={() => setPdfScaleOverride(Math.min(2.2, pdfScale + 0.15))}
+              title="Zoom in"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        
         <div className="flex items-center gap-1 sm:gap-2">
           <button 
             onClick={handleDownload}
@@ -596,6 +625,9 @@ const DocumentLightbox = ({
               title={doc.title} 
               onLoaded={() => setIsLoading(false)} 
               onPdfReady={handlePdfReady}
+              hideControls={isFullscreen}
+              onScaleChange={(s) => setPdfScale(s)}
+              scaleOverride={pdfScaleOverride}
             />
             {/* Scroll onboarding for multi-page PDFs */}
             <ScrollOnboarding 
