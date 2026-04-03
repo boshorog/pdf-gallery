@@ -539,13 +539,13 @@ const DocumentLightbox = ({
           </div>
         </div>
         
-        {/* Zoom controls in top bar when fullscreen */}
+        {/* Zoom controls centered in top bar when fullscreen */}
         {isFullscreen && isPdf && (
-          <div className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm flex-shrink-0">
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm">
             <button
               type="button"
               className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
-              onClick={() => setPdfScaleOverride(Math.max(0.6, pdfScale - 0.15))}
+              onClick={() => { const next = Math.max(0.6, pdfScale - 0.15); setPdfScale(next); setPdfScaleOverride(next); }}
               title="Zoom out"
             >
               <Minus className="w-4 h-4" />
@@ -556,7 +556,7 @@ const DocumentLightbox = ({
             <button
               type="button"
               className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
-              onClick={() => setPdfScaleOverride(Math.min(2.2, pdfScale + 0.15))}
+              onClick={() => { const next = Math.min(2.2, pdfScale + 0.15); setPdfScale(next); setPdfScaleOverride(next); }}
               title="Zoom in"
             >
               <Plus className="w-4 h-4" />
