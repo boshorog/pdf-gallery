@@ -219,13 +219,16 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
     onScaleChange?.(scale);
   }, []);
 
-  // Accept scale override from parent
+  // Accept scale override from parent (use a counter to allow repeated same-value overrides)
+  const scaleOverrideRef = useRef(scaleOverride);
   useEffect(() => {
-    if (scaleOverride !== undefined) {
+    if (scaleOverride !== undefined && scaleOverride !== scaleOverrideRef.current) {
+      scaleOverrideRef.current = scaleOverride;
       const clamped = clampScale(scaleOverride);
       setScale(clamped);
+      onScaleChange?.(clamped);
     }
-  }, [scaleOverride]);
+  }, [scaleOverride, onScaleChange]);
 
   const setCanvasRef = (pageNum: number) => (el: HTMLCanvasElement | null) => {
     if (el) {
