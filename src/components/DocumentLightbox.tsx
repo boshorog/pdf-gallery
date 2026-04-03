@@ -550,6 +550,13 @@ const DocumentLightbox = ({
           >
             <ExternalLink className="w-5 h-5" />
           </button>
+          <button 
+            onClick={handleFullscreen}
+            className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg transition-all"
+            title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+          >
+            {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+          </button>
           <div className="w-px h-6 bg-white/20 mx-1 sm:mx-2 hidden sm:block" />
           <button 
             onClick={onClose}
