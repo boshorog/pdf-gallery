@@ -544,18 +544,18 @@ const DocumentLightbox = ({
             <Download className="w-5 h-5" />
           </button>
           <button 
-            onClick={handlePopOut}
-            className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg transition-all"
-            title="Open in new tab"
-          >
-            <ExternalLink className="w-5 h-5" />
-          </button>
-          <button 
             onClick={handleFullscreen}
             className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg transition-all"
             title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           >
             {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+          </button>
+          <button 
+            onClick={handlePopOut}
+            className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg transition-all"
+            title="Open in new tab"
+          >
+            <ExternalLink className="w-5 h-5" />
           </button>
           <div className="w-px h-6 bg-white/20 mx-1 sm:mx-2 hidden sm:block" />
           <button 
@@ -569,7 +569,7 @@ const DocumentLightbox = ({
       </div>
       
       {/* Content - Maximum size, with space for side nav arrows */}
-      <div className="h-full flex items-center justify-center pt-14 sm:pt-20 pb-20 sm:pb-24 px-12 sm:px-20 md:px-24">
+      <div className={`h-full flex items-center justify-center pt-14 sm:pt-20 ${isFullscreen ? 'pb-4' : 'pb-20 sm:pb-24'} px-12 sm:px-20 md:px-24`}>
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center z-20" style={{ pointerEvents: 'none' }}>
             <div className="flex flex-col items-center gap-3">
@@ -679,7 +679,7 @@ const DocumentLightbox = ({
       )}
       
       {/* Bottom thumbnails - only scroll when exceeding 90% width */}
-      {documents.length > 1 && (
+      {documents.length > 1 && !isFullscreen && (
         <div 
           className={`absolute bottom-0 left-0 right-0 py-3 sm:py-4 px-3 sm:px-6 bg-gradient-to-t from-black/70 to-transparent z-10 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}
         >
