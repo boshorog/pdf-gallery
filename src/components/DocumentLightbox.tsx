@@ -177,6 +177,8 @@ const DocumentLightbox = ({
 }: DocumentLightboxProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showControls, setShowControls] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const lightboxRef = useRef<HTMLDivElement>(null);
   
   // For scroll onboarding
   const pdfScrollContainerRef = useRef<HTMLDivElement>(null);
