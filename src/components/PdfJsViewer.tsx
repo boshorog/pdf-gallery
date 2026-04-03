@@ -376,30 +376,32 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
         )}
       </div>
 
-      {/* Controls bar - zoom only */}
-      <div className="flex-shrink-0 flex items-center justify-center py-3 relative z-50">
-        <div className="flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 backdrop-blur-sm pointer-events-auto">
-          <button
-            type="button"
-            className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
-            onClick={(e) => { e.stopPropagation(); zoomTo(scale - 0.15); }}
-            title="Zoom out"
-          >
-            <Minus className="w-5 h-5" />
-          </button>
-          <div className="text-white/80 text-xs tabular-nums min-w-[50px] text-center select-none">
-            {Math.round(scale * 100)}%
+      {/* Controls bar - zoom only (hidden when parent renders controls externally) */}
+      {!hideControls && (
+        <div className="flex-shrink-0 flex items-center justify-center py-3 relative z-50">
+          <div className="flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 backdrop-blur-sm pointer-events-auto">
+            <button
+              type="button"
+              className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
+              onClick={(e) => { e.stopPropagation(); zoomTo(scale - 0.15); }}
+              title="Zoom out"
+            >
+              <Minus className="w-5 h-5" />
+            </button>
+            <div className="text-white/80 text-xs tabular-nums min-w-[50px] text-center select-none">
+              {Math.round(scale * 100)}%
+            </div>
+            <button
+              type="button"
+              className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
+              onClick={(e) => { e.stopPropagation(); zoomTo(scale + 0.15); }}
+              title="Zoom in"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            type="button"
-            className="text-white/80 hover:text-white p-1 cursor-pointer select-none"
-            onClick={(e) => { e.stopPropagation(); zoomTo(scale + 0.15); }}
-            title="Zoom in"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }
