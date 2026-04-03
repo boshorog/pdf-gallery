@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: PDF Gallery, lightbox, Document Gallery, PDF Showcase, File Gallery
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.6.3
+Stable tag: 2.6.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
