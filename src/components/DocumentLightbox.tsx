@@ -512,6 +512,7 @@ const DocumentLightbox = ({
 
   return (
     <div 
+      ref={lightboxRef}
       className="fixed inset-0 z-[9999] bg-black/85"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
