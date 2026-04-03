@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, Download, FileText, Loader2, ExternalLink, Minus, Plus } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Download, FileText, Loader2, ExternalLink, Maximize, Minimize, Minus, Plus } from 'lucide-react';
 import { PDFThumbnailGenerator } from '@/utils/pdfThumbnailGenerator';
 import PdfJsViewer from '@/components/PdfJsViewer';
 import ScrollOnboarding from '@/components/ScrollOnboarding';
@@ -177,6 +177,8 @@ const DocumentLightbox = ({
 }: DocumentLightboxProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showControls, setShowControls] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const lightboxRef = useRef<HTMLDivElement>(null);
   
   // For scroll onboarding
   const pdfScrollContainerRef = useRef<HTMLDivElement>(null);
@@ -458,6 +460,29 @@ const DocumentLightbox = ({
     window.open(popUrl, '_blank', 'noopener,noreferrer');
   }, [httpsUrl, isPdf, isImage, isVideo, isAudio, isYouTube, youtubeVideoId, getViewerUrl]);
 
+  // Fullscreen toggle
+  const handleFullscreen = useCallback(async () => {
+    if (!lightboxRef.current) return;
+    try {
+      if (!document.fullscreenElement) {
+        await lightboxRef.current.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch {
+      // Fullscreen not supported
+    }
+  }, []);
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleChange);
+    return () => document.removeEventListener('fullscreenchange', handleChange);
+  }, []);
+
   // Touch swipe handling for mobile
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -487,6 +512,7 @@ const DocumentLightbox = ({
 
   return (
     <div 
+      ref={lightboxRef}
       className="fixed inset-0 z-[9999] bg-black/85"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
@@ -523,6 +549,13 @@ const DocumentLightbox = ({
             title="Open in new tab"
           >
             <ExternalLink className="w-5 h-5" />
+          </button>
+          <button 
+            onClick={handleFullscreen}
+            className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-lg transition-all"
+            title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+          >
+            {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
           </button>
           <div className="w-px h-6 bg-white/20 mx-1 sm:mx-2 hidden sm:block" />
           <button 
