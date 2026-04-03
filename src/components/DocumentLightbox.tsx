@@ -625,6 +625,9 @@ const DocumentLightbox = ({
               title={doc.title} 
               onLoaded={() => setIsLoading(false)} 
               onPdfReady={handlePdfReady}
+              hideControls={isFullscreen}
+              onScaleChange={(s) => setPdfScale(s)}
+              scaleOverride={pdfScaleOverride}
             />
             {/* Scroll onboarding for multi-page PDFs */}
             <ScrollOnboarding 
