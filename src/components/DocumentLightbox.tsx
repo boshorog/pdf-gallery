@@ -460,6 +460,29 @@ const DocumentLightbox = ({
     window.open(popUrl, '_blank', 'noopener,noreferrer');
   }, [httpsUrl, isPdf, isImage, isVideo, isAudio, isYouTube, youtubeVideoId, getViewerUrl]);
 
+  // Fullscreen toggle
+  const handleFullscreen = useCallback(async () => {
+    if (!lightboxRef.current) return;
+    try {
+      if (!document.fullscreenElement) {
+        await lightboxRef.current.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch {
+      // Fullscreen not supported
+    }
+  }, []);
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleChange);
+    return () => document.removeEventListener('fullscreenchange', handleChange);
+  }, []);
+
   // Touch swipe handling for mobile
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
