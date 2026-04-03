@@ -598,7 +598,7 @@ const DocumentLightbox = ({
       </div>
       
       {/* Content - Maximum size, with space for side nav arrows */}
-      <div className={`h-full flex items-center justify-center pt-14 sm:pt-20 ${isFullscreen ? 'pb-4' : 'pb-20 sm:pb-24'} px-12 sm:px-20 md:px-24`}>
+      <div className={`h-full flex items-center justify-center pt-14 sm:pt-20 ${isFullscreen ? 'pb-4 px-4' : 'pb-20 sm:pb-24 px-12 sm:px-20 md:px-24'}`}>
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center z-20" style={{ pointerEvents: 'none' }}>
             <div className="flex flex-col items-center gap-3">
