@@ -72,6 +72,7 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.6.3 =
+* New: Fullscreen mode in lightbox for immersive document viewing
 * New: Redesigned placeholder image settings with side-by-side card selection
 * New: Custom placeholder supports drag & drop upload
 * New: Engagement notice for active free users encouraging ratings and feedback
