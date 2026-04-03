@@ -23,12 +23,18 @@ type PdfJsViewerProps = {
   className?: string;
   /** Called with scroll container ref and page count once PDF is loaded */
   onPdfReady?: (scrollContainerRef: React.RefObject<HTMLDivElement>, numPages: number) => void;
+  /** Hide the built-in bottom zoom controls (caller renders them externally) */
+  hideControls?: boolean;
+  /** Called whenever scale changes so parent can render external controls */
+  onScaleChange?: (scale: number) => void;
+  /** Called when parent wants to change scale */
+  scaleOverride?: number;
 };
 
 const DEFAULT_SCALE = 1.15;
 const ZOOM_SCALE = 2.0; // 200% zoom when clicking
 
-export default function PdfJsViewer({ url, title, onLoaded, className, onPdfReady }: PdfJsViewerProps) {
+export default function PdfJsViewer({ url, title, onLoaded, className, onPdfReady, hideControls, onScaleChange, scaleOverride }: PdfJsViewerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRefs = useRef<Map<number, HTMLCanvasElement>>(new Map());
 
