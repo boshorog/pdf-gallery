@@ -1,4 +1,4 @@
-=== PDF Gallery – Turn Files into Clean Galleries ===
+=== KindPixels PDF Gallery – Turn Files into Clean Galleries ===
 Contributors: kindpixels
 Plugin URI: https://kindpixels.com/plugins/pdf-gallery/
 Donate link: https://kindpixels.com/donate
