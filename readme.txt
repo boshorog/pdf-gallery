@@ -73,7 +73,7 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 = 2.6.4 =
 * New: Fullscreen mode in lightbox with immersive document viewing
-* New: Zoom controls move to top bar in fullscreen for maximum document space
+* Minor stability improvements
 
 = 2.6.3 =
 * New: Redesigned placeholder image settings with side-by-side card selection
