@@ -245,9 +245,21 @@ export const AnalyticsModal = ({
 
   // Compute filtered totals for the summary cards
   const filteredTotals = (() => {
+    // For "all time" or when daily_stats is empty, use the top-level totals directly
+    const hasDailyData = filteredStats.length > 0 && filteredStats.some(s => s.views > 0 || s.clicks > 0);
+    
+    if (dateRange === 'all' || !hasDailyData) {
+      return {
+        totalViews: analytics?.total_views ?? 0,
+        uniqueViews: analytics?.unique_views ?? 0,
+        totalClicks: analytics?.total_clicks ?? 0,
+        uniqueClicks: analytics?.unique_clicks ?? 0,
+      };
+    }
+    
     const totalViews = filteredStats.reduce((sum, s) => sum + s.views, 0);
     const totalClicks = filteredStats.reduce((sum, s) => sum + s.clicks, 0);
-    // Estimate unique as ~65% of total (WP backend provides real unique counts per range)
+    // Estimate unique as proportional to the all-time ratio
     const uniqueViews = analytics?.unique_views && analytics?.total_views
       ? Math.round(totalViews * (analytics.unique_views / analytics.total_views))
       : Math.round(totalViews * 0.65);
@@ -295,7 +307,7 @@ export const AnalyticsModal = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
-            Analytics: {galleryName}
+            Analytics: {galleryName} <span className="text-muted-foreground text-sm font-normal">(Beta)</span>
           </DialogTitle>
         </DialogHeader>
 

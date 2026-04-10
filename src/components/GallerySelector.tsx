@@ -247,8 +247,8 @@ export const GallerySelector = ({
           variant="ghost"
           size="sm"
           className="h-8 w-8 p-0"
-          aria-label="View Analytics"
-          title="View Analytics"
+          aria-label="View Analytics (Beta)"
+          title="View Analytics (Beta)"
           onClick={() => setIsAnalyticsOpen(true)}
         >
           <BarChart3 className="h-3 w-3" />
