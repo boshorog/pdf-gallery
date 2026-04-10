@@ -481,7 +481,14 @@ const DocumentLightbox = ({
   // Listen for fullscreen changes
   useEffect(() => {
     const handleChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      const fs = !!document.fullscreenElement;
+      setIsFullscreen(fs);
+      // Re-focus the PDF scroll container so keyboard scrolling works immediately
+      if (fs && pdfScrollContainerRef.current) {
+        setTimeout(() => {
+          pdfScrollContainerRef.current?.focus({ preventScroll: true });
+        }, 100);
+      }
     };
     document.addEventListener('fullscreenchange', handleChange);
     return () => document.removeEventListener('fullscreenchange', handleChange);
