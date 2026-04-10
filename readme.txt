@@ -5,7 +5,7 @@ Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, showcase, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.6.4
+Stable tag: 2.6.5
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,12 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Changelog ==
+
+= 2.6.5 =
+* Fix: Keyboard navigation (arrow keys, Page Up/Down) now works immediately in fullscreen mode
+* Fix: Analytics summary cards now display correct totals from backend data
+* Improvement: Analytics marked as Beta in UI
+* Minor stability improvements
 
 = 2.6.4 =
 * New: Fullscreen mode in lightbox with immersive document viewing
