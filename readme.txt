@@ -74,7 +74,6 @@ Once you install the plugin, head over to the Documentation tab where we have an
 = 2.6.5 =
 * Fix: Keyboard navigation (arrow keys, Page Up/Down) now works immediately in fullscreen mode
 * Fix: Analytics summary cards now display correct totals from backend data
-* Improvement: Analytics marked as Beta in UI
 * Minor stability improvements
 
 = 2.6.4 =
