@@ -1,7 +1,6 @@
 === KindPixels PDF Gallery – Turn Files into Clean Galleries ===
 Contributors: kindpixels
 Plugin URI: https://kindpixels.com/plugins/pdf-gallery/
-Donate link: https://kindpixels.com/donate
 Tags: pdf, gallery, showcase, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
