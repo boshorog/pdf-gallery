@@ -674,6 +674,47 @@ public function display_gallery_shortcode($atts) {
 }
 
     /**
+     * Demo shortcode - renders the admin UI in demo mode for potential customers.
+     * All changes are temporary (session-scoped), uploads are client-side only.
+     * Usage: [kindpdfg_demo]
+     */
+    public function display_demo_shortcode($atts) {
+        // Build iframe URL pointing to dist/index.html with demo flag
+        $index_url = plugins_url('dist/index.html', __FILE__);
+        $frame_token = function_exists('wp_generate_uuid4') ? wp_generate_uuid4() : uniqid('kindpdfg_', true);
+
+        $src = add_query_arg(array(
+            'demo'       => 'true',
+            'admin'      => 'true',
+            'frameToken' => $frame_token,
+        ), $index_url);
+
+        $iframe_id = 'kindpdfg-demo-' . uniqid();
+        $html  = '<div class="kindpdfg-iframe-container" id="' . esc_attr($iframe_id) . '-container" style="position:relative;width:100%;overflow:hidden;">';
+        $html .= '<style>
+        .kindpdfg-iframe-container{overflow:hidden!important;width:100%;position:relative;}
+        .kindpdfg-iframe-container iframe{display:block;width:100%!important;border:0!important;overflow:hidden!important;}
+        </style>';
+        $html .= '<iframe id="' . esc_attr($iframe_id) . '" src="' . esc_url($src) . '" scrolling="no" loading="eager" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-downloads" style="height:800px;min-height:600px;overflow:hidden;"></iframe>';
+        $html .= '</div>';
+
+        // Auto-resize listener
+        $html .= '<script>(function(){
+          var iframe = document.getElementById("' . $iframe_id . '");
+          if(!iframe) return;
+          var token = "' . $frame_token . '";
+          window.addEventListener("message", function(e){
+            if(!e.data || e.data.type !== "kindpdfg:height") return;
+            if(e.data.token && e.data.token !== token) return;
+            var h = parseInt(e.data.height, 10);
+            if(h > 100) iframe.style.height = h + "px";
+          });
+        })();</script>';
+
+        return $html;
+    }
+
+    /**
      * Returns true if a gallery contains at least one actual file item (dividers do not count).
      *
      * @param mixed $gallery
