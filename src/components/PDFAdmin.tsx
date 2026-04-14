@@ -256,7 +256,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect,
   );
 };
 
-const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGalleryChange }: PDFAdminProps) => {
+const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGalleryChange, isDemo }: PDFAdminProps) => {
   const currentGallery = galleries.find(g => g.id === currentGalleryId);
   const items = currentGallery?.items || [];
 
