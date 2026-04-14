@@ -22,7 +22,7 @@ interface DocumentLightboxProps {
   accentColor?: string;
 }
 
-const ZOOM_SCALE = 2.0; // 200% zoom when clicking
+const ZOOM_MULTIPLIER = 2.0; // Click-to-zoom doubles current view
 
 // ImageViewer component with zoom functionality similar to PDF viewer
 interface ImageViewerProps {
@@ -122,7 +122,7 @@ const ImageViewer = ({ src, alt, isLoading, onLoad, onError }: ImageViewerProps)
     const translateY = -panOffset.y;
     
     return {
-      transform: `scale(${ZOOM_SCALE}) translate(${translateX / ZOOM_SCALE}px, ${translateY / ZOOM_SCALE}px)`,
+      transform: `scale(${ZOOM_MULTIPLIER}) translate(${translateX / ZOOM_MULTIPLIER}px, ${translateY / ZOOM_MULTIPLIER}px)`,
       transformOrigin: `${originX}% ${originY}%`,
       transition: 'none',
     };
@@ -546,8 +546,8 @@ const DocumentLightbox = ({
           </div>
         </div>
         
-        {/* Zoom controls centered in top bar when fullscreen */}
-        {isFullscreen && isPdf && (
+        {/* Zoom controls centered in top bar (always for PDFs) */}
+        {isPdf && (
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm">
             <button
               type="button"
@@ -632,7 +632,7 @@ const DocumentLightbox = ({
               title={doc.title} 
               onLoaded={() => setIsLoading(false)} 
               onPdfReady={handlePdfReady}
-              hideControls={isFullscreen}
+              hideControls
               onScaleChange={(s) => setPdfScale(s)}
               scaleOverride={pdfScaleOverride}
             />
