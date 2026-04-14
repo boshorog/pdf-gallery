@@ -90,7 +90,7 @@ const App = () => {
     setTimeout(postHeight, 500);
     setTimeout(postHeight, 1500);
     setTimeout(postHeight, 3000);
-    
+    const ro = new ResizeObserver(debouncedSchedule);
     const rootEl = document.getElementById('root');
     if (rootEl) ro.observe(rootEl);
 
