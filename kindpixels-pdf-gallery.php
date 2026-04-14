@@ -165,6 +165,7 @@ class KindPDFG_Plugin {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_shortcode('kindpdfg_gallery', array($this, 'display_gallery_shortcode'));
+        add_shortcode('kindpdfg_demo', array($this, 'display_demo_shortcode'));
         
         // AJAX handlers
         add_action('wp_ajax_kindpdfg_action', array($this, 'handle_kindpdfg_ajax'));
