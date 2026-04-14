@@ -19,6 +19,7 @@ import { UpdateNotice } from '@/components/UpdateNotice';
 import { EngagementNotice } from '@/components/EngagementNotice';
 import { useLicense } from '@/hooks/useLicense';
 import { PLUGIN_VERSION } from '@/config/pluginIdentity';
+import { isDemoMode, saveDemoState } from '@/config/demoMode';
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pdfGalleryLogo from '@/assets/pdf-gallery-logo.svg';
