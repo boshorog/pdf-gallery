@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { X, Loader2 } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
 import { STORAGE_KEYS, PLUGIN_SLUG, isDevPreview } from '@/config/pluginIdentity';
+import { isDemoMode } from '@/config/demoMode';
 
 interface UpdateNoticeProps {
   currentVersion: string;
@@ -40,6 +41,8 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
+    // Never show in demo mode
+    if (isDemoMode()) return;
     // Check if this version was already dismissed
     try {
       const dismissedVersion = localStorage.getItem(STORAGE_KEYS.updateDismissed);
