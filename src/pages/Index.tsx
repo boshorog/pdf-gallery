@@ -552,9 +552,14 @@ const Index = () => {
         <div className="px-6 pt-6 pb-6">
           <div className="flex items-center gap-3">
             <img src={pdfGalleryLogo} alt={license.isPro ? "PDF Gallery Pro" : "PDF Gallery"} className="w-7 h-7" />
-            <div className="flex items-baseline gap-2">
+             <div className="flex items-baseline gap-2">
               <h1 className="text-2xl text-slate-800"><span className="font-bold">{license.isPro ? 'PDF Gallery Pro' : 'PDF Gallery'}</span></h1>
               <span className="text-xs text-slate-400">v{PLUGIN_VERSION}</span>
+              {isDemo && (
+                <span className="ml-1 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 text-amber-700 rounded-full">
+                  Demo
+                </span>
+              )}
             </div>
           </div>
         </div>
