@@ -495,8 +495,8 @@ const Index = () => {
   const hostname = window.location.hostname;
   const isDevPreview = hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
 
-  // Show admin interface only in WordPress admin area or dev preview
-  const showAdmin = isDevPreview || isWordPressAdmin;
+  // Show admin interface in WordPress admin area, dev preview, or demo mode
+  const showAdmin = isDevPreview || isWordPressAdmin || isDemo;
 
   // DEV: Show showcase for gallery not found designs
   const showGalleryNotFoundShowcase = urlParams.get('showcase') === 'gallery-not-found';
