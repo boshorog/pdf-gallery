@@ -744,8 +744,8 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Dev Mode Selector - only in dev preview, excluded from production builds */}
-      {import.meta.env.DEV && license.isDevMode && DevLicenseSelector && (
+      {/* Dev Mode Selector - only in dev preview, excluded from production builds, hidden in demo */}
+      {import.meta.env.DEV && !isDemo && license.isDevMode && DevLicenseSelector && (
         <Suspense fallback={null}>
           <DevLicenseSelector />
         </Suspense>
