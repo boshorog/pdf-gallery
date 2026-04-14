@@ -45,23 +45,14 @@ const App = () => {
     let lastSentAt = 0;
 
     const measure = () => {
+      // IMPORTANT: Only measure the #root element, NOT document/body.
+      // In an iframe, document.scrollHeight reflects the iframe viewport height
+      // (set by the parent), creating a feedback loop where each height post
+      // makes the iframe taller, which makes scrollHeight bigger, etc.
       const rootEl = document.getElementById('root');
-      const doc = document.documentElement;
-      const body = document.body;
+      if (!rootEl) return 0;
 
-      // IMPORTANT: avoid using *clientHeight* here.
-      // In an iframe, clientHeight tracks the iframe viewport height, which can create
-      // a feedback loop (parent sets iframe height -> iframe clientHeight grows -> we post bigger height).
-      const heights = [
-        rootEl?.scrollHeight,
-        rootEl?.offsetHeight,
-        doc?.scrollHeight,
-        doc?.offsetHeight,
-        body?.scrollHeight,
-        body?.offsetHeight,
-      ].filter((v): v is number => typeof v === 'number');
-
-      const raw = Math.max(...heights, 0) + 24; // small padding to avoid cutting the last row
+      const raw = rootEl.scrollHeight + 24; // small padding to avoid cutting the last row
       const contentHeight = Math.ceil(raw / 8) * 8; // align to reduce micro-jitter
       return contentHeight;
     };
@@ -99,10 +90,9 @@ const App = () => {
     setTimeout(postHeight, 500);
     setTimeout(postHeight, 1500);
     setTimeout(postHeight, 3000);
-    
     const ro = new ResizeObserver(debouncedSchedule);
-    ro.observe(document.documentElement);
-    if (document.body) ro.observe(document.body);
+    const rootEl = document.getElementById('root');
+    if (rootEl) ro.observe(rootEl);
 
     // Fallback listeners
     window.addEventListener('load', postHeight);
