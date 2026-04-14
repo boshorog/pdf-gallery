@@ -4,7 +4,7 @@ Plugin URI: https://kindpixels.com/plugins/pdf-gallery/
 Tags: pdf, gallery, showcase, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.6.5
+Stable tag: 2.6.6
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html

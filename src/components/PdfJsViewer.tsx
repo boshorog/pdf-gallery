@@ -32,7 +32,7 @@ type PdfJsViewerProps = {
 };
 
 const DEFAULT_SCALE = 1.15;
-const ZOOM_SCALE = 2.0; // 200% zoom when clicking
+const ZOOM_MULTIPLIER = 2.0; // Click-to-zoom doubles current scale
 
 export default function PdfJsViewer({ url, title, onLoaded, className, onPdfReady, hideControls, onScaleChange, scaleOverride }: PdfJsViewerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -161,6 +161,9 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
     };
   }, [pdfDoc, numPages, scale]);
 
+  // Compute the target zoom scale dynamically (double the current scale, clamped)
+  const clickZoomScale = Math.min(scale * ZOOM_MULTIPLIER, 4.4);
+
   // Render high-resolution zoom overlay when zooming
   useEffect(() => {
     if (!isZooming || !pdfDoc || zoomPageNum === null) {
@@ -178,8 +181,8 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
         const pdfPage = await pdfDoc.getPage(zoomPageNum);
         if (cancelled) return;
 
-        // Render at full zoom scale for crisp quality
-        const zoomViewport = pdfPage.getViewport({ scale: ZOOM_SCALE });
+        // Render at double current scale for crisp quality
+        const zoomViewport = pdfPage.getViewport({ scale: clickZoomScale });
         const ctx = zoomCanvas.getContext("2d");
         if (!ctx) return;
 
@@ -204,7 +207,7 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
     return () => {
       cancelled = true;
     };
-  }, [isZooming, pdfDoc, zoomPageNum]);
+  }, [isZooming, pdfDoc, zoomPageNum, clickZoomScale]);
 
   const clampScale = (s: number) => Math.max(0.6, Math.min(2.2, s));
 
@@ -308,8 +311,8 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
     
     const containerRect = container.getBoundingClientRect();
     
-    // The zoom canvas is rendered at ZOOM_SCALE, so it's larger
-    const zoomRatio = ZOOM_SCALE / scale;
+    // The zoom canvas is rendered at clickZoomScale, so it's larger
+    const zoomRatio = clickZoomScale / scale;
     const zoomWidth = rect.width * zoomRatio;
     const zoomHeight = rect.height * zoomRatio;
     
@@ -338,7 +341,7 @@ export default function PdfJsViewer({ url, title, onLoaded, className, onPdfRead
       opacity: zoomCanvasReady ? 1 : 0,
       transition: 'opacity 0.1s ease-out',
     };
-  }, [isZooming, zoomPageNum, zoomOrigin, panOffset, scale, zoomCanvasReady]);
+  }, [isZooming, zoomPageNum, zoomOrigin, panOffset, scale, zoomCanvasReady, clickZoomScale]);
 
   return (
     <div className={`relative w-full h-full flex flex-col ${className || ""}`} aria-label={title || "PDF viewer"}>

@@ -695,53 +695,55 @@ const Index = () => {
           </div>
         </Tabs>
 
-        {/* Footer */}
-        <div className="px-6 mt-8">
-          <div className="border-t border-slate-200 pt-4 pb-6">
-            <div className="flex items-center justify-between">
-              {/* Left: Support Links */}
-              <div className="flex items-center gap-6">
+        {/* Footer - hidden in demo mode */}
+        {!isDemo && (
+          <div className="px-6 mt-8">
+            <div className="border-t border-slate-200 pt-4 pb-6">
+              <div className="flex items-center justify-between">
+                {/* Left: Support Links */}
+                <div className="flex items-center gap-6">
+                  <a 
+                    href="https://wordpress.org/support/plugin/kindpixels-pdf-gallery/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
+                  >
+                    Support
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <a 
+                    href="https://wordpress.org/support/plugin/kindpixels-pdf-gallery/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
+                  >
+                    Request a Feature
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <a 
+                    href="https://wordpress.org/plugins/kindpixels-pdf-gallery/#reviews" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
+                  >
+                    Rate Us ★★★★★
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+                
+                {/* Right: Kind Pixels Logo */}
                 <a 
-                  href="https://wordpress.org/support/plugin/kindpixels-pdf-gallery/" 
+                  href="https://kindpixels.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
+                  className="kp-footer-logo text-slate-600"
                 >
-                  Support
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-                <a 
-                  href="https://wordpress.org/support/plugin/kindpixels-pdf-gallery/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
-                >
-                  Request a Feature
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-                <a 
-                  href="https://wordpress.org/plugins/kindpixels-pdf-gallery/#reviews" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
-                >
-                  Rate Us ★★★★★
-                  <ExternalLink className="w-3 h-3" />
+                  <KindPixelsLogo className="h-5 w-auto" />
                 </a>
               </div>
-              
-              {/* Right: Kind Pixels Logo */}
-              <a 
-                href="https://kindpixels.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="kp-footer-logo text-slate-600"
-              >
-                <KindPixelsLogo className="h-5 w-auto" />
-              </a>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Dev Mode Selector - only in dev preview, excluded from production builds, hidden in demo */}
