@@ -659,8 +659,12 @@ const Index = () => {
               <PDFAdmin 
                 galleries={galleryState.galleries}
                 currentGalleryId={galleryState.currentGalleryId}
-                onGalleriesChange={(galleries) => setGalleryState(prev => ({ ...prev, galleries }))}
+                onGalleriesChange={(galleries) => {
+                  setGalleryState(prev => ({ ...prev, galleries }));
+                  if (isDemo) saveDemoState(galleries);
+                }}
                 onCurrentGalleryChange={(galleryId) => setGalleryState(prev => ({ ...prev, currentGalleryId: galleryId }))}
+                isDemo={isDemo}
               />
             </TabsContent>
             
