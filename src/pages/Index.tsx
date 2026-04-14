@@ -617,7 +617,7 @@ const Index = () => {
             </TabsList>
           </div>
           
-          <div className="p-6 pt-8">
+          <div className={`p-6 pt-8 ${isDemo ? 'min-h-[800px]' : ''}`}>
             <TabsContent value="preview" className="space-y-6 mt-0">
               <div className="text-center">
                 <h3 className="text-lg font-semibold mb-2">Gallery Shortcode</h3>
