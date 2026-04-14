@@ -4,7 +4,7 @@ Plugin URI: https://kindpixels.com/plugins/pdf-gallery/
 Tags: pdf, gallery, showcase, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.6.7
+Stable tag: 2.6.8
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,7 +70,7 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Changelog ==
 
-= 2.6.7 =
+= 2.6.8 =
 * Fix: Lightbox thumbnails no longer overlap with the document content
 * Other bug fixes
 
