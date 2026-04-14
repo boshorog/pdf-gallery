@@ -546,7 +546,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`${isDemo ? '' : 'min-h-screen'} bg-background`}>
       <div className="max-w-6xl mx-auto">
         {/* Logo Header */}
         <div className="px-6 pt-6 pb-6">
