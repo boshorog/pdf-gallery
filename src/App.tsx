@@ -91,9 +91,8 @@ const App = () => {
     setTimeout(postHeight, 1500);
     setTimeout(postHeight, 3000);
     
-    const ro = new ResizeObserver(debouncedSchedule);
-    ro.observe(document.documentElement);
-    if (document.body) ro.observe(document.body);
+    const rootEl = document.getElementById('root');
+    if (rootEl) ro.observe(rootEl);
 
     // Fallback listeners
     window.addEventListener('load', postHeight);
