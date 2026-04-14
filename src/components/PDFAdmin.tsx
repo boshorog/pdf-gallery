@@ -715,6 +715,8 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       console.warn('Aborting save: empty galleries payload');
       return false;
     }
+    // Demo mode: don't save to WP or localStorage (parent handles sessionStorage)
+    if (isDemo) return true;
     const wp = (window as any).kindpdfgData || (window as any).wpPDFGallery;
     if (wp?.ajaxUrl && wp?.nonce) {
       try {
