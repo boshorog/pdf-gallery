@@ -71,7 +71,6 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.6.6 =
-* New: Demo mode with [kindpdfg_demo] shortcode for website previews
 * Improved: Zoom controls now always visible in lightbox top bar
 * Improved: Click-to-zoom now doubles current zoom level instead of fixed 200%
 * Minor stability improvements
