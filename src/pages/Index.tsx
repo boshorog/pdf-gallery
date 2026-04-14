@@ -559,11 +559,13 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Update Notice - shows when new version available */}
-        <div className="px-6">
-          <UpdateNotice currentVersion={PLUGIN_VERSION} />
-          <EngagementNotice totalFiles={galleryState.galleries.reduce((sum, g) => sum + g.items.filter(i => !('type' in i)).length, 0)} />
-        </div>
+        {/* Update Notice and Engagement Notice - hidden in demo mode */}
+        {!isDemo && (
+          <div className="px-6">
+            <UpdateNotice currentVersion={PLUGIN_VERSION} />
+            <EngagementNotice totalFiles={galleryState.galleries.reduce((sum, g) => sum + g.items.filter(i => !('type' in i)).length, 0)} />
+          </div>
+        )}
 
         {/* Pro Welcome Message - shows after license activation */}
         {license.isPro && <ProWelcome className="mx-6 mb-6" />}
