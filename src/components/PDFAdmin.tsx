@@ -43,6 +43,7 @@ interface PDFAdminProps {
   currentGalleryId: string;
   onGalleriesChange: (galleries: Gallery[]) => void;
   onCurrentGalleryChange: (galleryId: string) => void;
+  isDemo?: boolean;
 }
 
 interface SortableItemProps {
