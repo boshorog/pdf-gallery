@@ -43,6 +43,7 @@ interface PDFAdminProps {
   currentGalleryId: string;
   onGalleriesChange: (galleries: Gallery[]) => void;
   onCurrentGalleryChange: (galleryId: string) => void;
+  isDemo?: boolean;
 }
 
 interface SortableItemProps {
@@ -255,7 +256,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect,
   );
 };
 
-const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGalleryChange }: PDFAdminProps) => {
+const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGalleryChange, isDemo }: PDFAdminProps) => {
   const currentGallery = galleries.find(g => g.id === currentGalleryId);
   const items = currentGallery?.items || [];
 
@@ -591,8 +592,8 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
   const uploadFileToWP = async (file: { file: File; title: string; subtitle: string; fileType: string }, index: number): Promise<string> => {
     const wp = (window as any).kindpdfgData || (window as any).wpPDFGallery;
     
-    // Fallback: simulate in non-WordPress environments
-    if (!wp?.ajaxUrl || !wp?.nonce) {
+    // Demo mode or non-WordPress: use blob URLs (client-side only, never uploaded)
+    if (isDemo || !wp?.ajaxUrl || !wp?.nonce) {
       return new Promise((resolve) => {
         let progress = 0;
         const interval = setInterval(() => {
@@ -600,7 +601,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
           setFiles(prev => prev.map((f, i) => i === index ? { ...f, progress } : f));
           if (progress >= 100) {
             clearInterval(interval);
-            // Use object URL for local preview of images
+            // Use object URL for local preview
             const localUrl = URL.createObjectURL(file.file);
             resolve(localUrl);
           }
@@ -714,6 +715,8 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       console.warn('Aborting save: empty galleries payload');
       return false;
     }
+    // Demo mode: don't save to WP or localStorage (parent handles sessionStorage)
+    if (isDemo) return true;
     const wp = (window as any).kindpdfgData || (window as any).wpPDFGallery;
     if (wp?.ajaxUrl && wp?.nonce) {
       try {

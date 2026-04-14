@@ -19,6 +19,7 @@ import { UpdateNotice } from '@/components/UpdateNotice';
 import { EngagementNotice } from '@/components/EngagementNotice';
 import { useLicense } from '@/hooks/useLicense';
 import { PLUGIN_VERSION } from '@/config/pluginIdentity';
+import { isDemoMode, saveDemoState } from '@/config/demoMode';
 
 import { Gallery, GalleryItem, GalleryState } from '@/types/gallery';
 import pdfGalleryLogo from '@/assets/pdf-gallery-logo.svg';
@@ -90,7 +91,11 @@ const initialPDFs: GalleryItem[] = [
 
 const Index = () => {
   // IMPORTANT: useLicense must be called unconditionally at the top
-  const license = useLicense();
+  const rawLicense = useLicense();
+  const isDemo = isDemoMode();
+  
+  // In demo mode, force Free version
+  const license = isDemo ? { ...rawLicense, isPro: false, status: 'free' as const, checked: true, isDevMode: false } : rawLicense;
   
   const [galleryState, setGalleryState] = useState<GalleryState>({
     galleries: [],
@@ -108,6 +113,32 @@ const Index = () => {
   const [galleryNotFound, setGalleryNotFound] = useState(false);
 
   useEffect(() => {
+    // DEMO MODE: Always start with default gallery, skip WP/localStorage
+    if (isDemo) {
+      const demoGallery: Gallery = {
+        id: 'demo',
+        name: 'Demo Gallery',
+        items: [
+          { id: 'div-1', type: 'divider', text: 'First Section' },
+          { id: 'pdf-1', title: 'Sample Document 1', date: 'January 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2501_Ce-Ne-Rezerva-Viitorul.pdf', thumbnail: '', fileType: 'pdf' },
+          { id: 'pdf-2', title: 'Sample Document 2', date: 'February 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2502_De-La-Februs-La-Hristos.pdf', thumbnail: '', fileType: 'pdf' },
+          { id: 'pdf-3', title: 'Sample Document 3', date: 'March 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2503_De-la-Moarte-la-Viata.pdf', thumbnail: '', fileType: 'pdf' },
+          { id: 'pdf-4', title: 'Sample Document 4', date: 'April 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2504_Cand-Isus-Ne-Cheama-Pe-Nume.pdf', thumbnail: '', fileType: 'pdf' },
+          { id: 'pdf-5', title: 'Sample Document 5', date: 'May 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2505_Inaltarea-Mantuitorului.pdf', thumbnail: '', fileType: 'pdf' },
+          { id: 'pdf-6', title: 'Sample Document 6', date: 'June 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2506_Putere-Pentru-O-Viata-Transformata.pdf', thumbnail: '', fileType: 'pdf' },
+          { id: 'pdf-7', title: 'Sample Document 7', date: 'July 2025', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2507_Va-Gasi-Rod.pdf', thumbnail: '', fileType: 'pdf' },
+          { id: 'div-2', type: 'divider', text: 'Second Section' },
+          { id: 'pdf-8', title: 'Sample Document 1', date: 'January 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2401_Un-Gand-Pentru-Anul-Nou.pdf', thumbnail: '', fileType: 'pdf' },
+          { id: 'pdf-9', title: 'Sample Document 2', date: 'February 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2402_Risipa-De-Iubire.pdf', thumbnail: '', fileType: 'pdf' },
+          { id: 'pdf-10', title: 'Sample Document 3', date: 'March 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2403_Lucruri-Noi.pdf', thumbnail: '', fileType: 'pdf' },
+          { id: 'pdf-11', title: 'Sample Document 4', date: 'April 2024', pdfUrl: 'https://www.antiohia.ro/wp-content/uploads/2025/09/newsletter2404_O-Sarbatoare-Dulce-Amaruie.pdf', thumbnail: '', fileType: 'pdf' },
+        ] as GalleryItem[],
+        createdAt: new Date().toISOString(),
+      };
+      setGalleryState({ galleries: [demoGallery], currentGalleryId: 'demo' });
+      return;
+    }
+
     const wp = (typeof window !== 'undefined' && ((window as any).kindpdfgData || (window as any).wpPDFGallery)) ? ((window as any).kindpdfgData || (window as any).wpPDFGallery) : null;
     const urlParams = new URLSearchParams(window.location.search);
     
@@ -464,8 +495,8 @@ const Index = () => {
   const hostname = window.location.hostname;
   const isDevPreview = hostname.includes('lovable.app') || hostname.includes('lovableproject.com') || hostname === 'localhost';
 
-  // Show admin interface only in WordPress admin area or dev preview
-  const showAdmin = isDevPreview || isWordPressAdmin;
+  // Show admin interface in WordPress admin area, dev preview, or demo mode
+  const showAdmin = isDevPreview || isWordPressAdmin || isDemo;
 
   // DEV: Show showcase for gallery not found designs
   const showGalleryNotFoundShowcase = urlParams.get('showcase') === 'gallery-not-found';
@@ -521,18 +552,25 @@ const Index = () => {
         <div className="px-6 pt-6 pb-6">
           <div className="flex items-center gap-3">
             <img src={pdfGalleryLogo} alt={license.isPro ? "PDF Gallery Pro" : "PDF Gallery"} className="w-7 h-7" />
-            <div className="flex items-baseline gap-2">
+             <div className="flex items-baseline gap-2">
               <h1 className="text-2xl text-slate-800"><span className="font-bold">{license.isPro ? 'PDF Gallery Pro' : 'PDF Gallery'}</span></h1>
               <span className="text-xs text-slate-400">v{PLUGIN_VERSION}</span>
+              {isDemo && (
+                <span className="ml-1 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 text-amber-700 rounded-full">
+                  Demo
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Update Notice - shows when new version available */}
-        <div className="px-6">
-          <UpdateNotice currentVersion={PLUGIN_VERSION} />
-          <EngagementNotice totalFiles={galleryState.galleries.reduce((sum, g) => sum + g.items.filter(i => !('type' in i)).length, 0)} />
-        </div>
+        {/* Update Notice and Engagement Notice - hidden in demo mode */}
+        {!isDemo && (
+          <div className="px-6">
+            <UpdateNotice currentVersion={PLUGIN_VERSION} />
+            <EngagementNotice totalFiles={galleryState.galleries.reduce((sum, g) => sum + g.items.filter(i => !('type' in i)).length, 0)} />
+          </div>
+        )}
 
         {/* Pro Welcome Message - shows after license activation */}
         {license.isPro && <ProWelcome className="mx-6 mb-6" />}
@@ -626,8 +664,12 @@ const Index = () => {
               <PDFAdmin 
                 galleries={galleryState.galleries}
                 currentGalleryId={galleryState.currentGalleryId}
-                onGalleriesChange={(galleries) => setGalleryState(prev => ({ ...prev, galleries }))}
+                onGalleriesChange={(galleries) => {
+                  setGalleryState(prev => ({ ...prev, galleries }));
+                  if (isDemo) saveDemoState(galleries);
+                }}
                 onCurrentGalleryChange={(galleryId) => setGalleryState(prev => ({ ...prev, currentGalleryId: galleryId }))}
+                isDemo={isDemo}
               />
             </TabsContent>
             
@@ -702,8 +744,8 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Dev Mode Selector - only in dev preview, excluded from production builds */}
-      {import.meta.env.DEV && license.isDevMode && DevLicenseSelector && (
+      {/* Dev Mode Selector - only in dev preview, excluded from production builds, hidden in demo */}
+      {import.meta.env.DEV && !isDemo && license.isDevMode && DevLicenseSelector && (
         <Suspense fallback={null}>
           <DevLicenseSelector />
         </Suspense>
