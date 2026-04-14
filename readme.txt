@@ -71,11 +71,8 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.6.7 =
-* Fix: Demo mode now properly hides update/rating notices and footer in shortcode iframe
-* Fix: Demo mode no longer creates blank space at the bottom of the iframe
 * Fix: Lightbox thumbnails no longer overlap with the document content
-* Changed: Pro banner title simplified to avoid duplicate "Pro" text
-* Minor stability improvements
+* Other bug fixes
 
 = 2.6.6 =
 * Improved: Zoom controls now always visible in lightbox top bar
