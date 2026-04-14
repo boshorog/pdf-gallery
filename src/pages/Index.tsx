@@ -92,6 +92,7 @@ const initialPDFs: GalleryItem[] = [
 const Index = () => {
   // IMPORTANT: useLicense must be called unconditionally at the top
   const license = useLicense();
+  const isDemo = isDemoMode();
   
   const [galleryState, setGalleryState] = useState<GalleryState>({
     galleries: [],
