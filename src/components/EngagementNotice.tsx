@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { X, Star, MessageSquare } from 'lucide-react';
 import { useLicense } from '@/hooks/useLicense';
 import { getStorageKey, isDevPreview } from '@/config/pluginIdentity';
+import { isDemoMode } from '@/config/demoMode';
 
 const RATING_URL = 'https://wordpress.org/plugins/kindpixels-pdf-gallery/#reviews';
 const FEEDBACK_URL = 'https://wordpress.org/support/plugin/kindpixels-pdf-gallery/';
@@ -48,6 +49,9 @@ export const EngagementNotice = ({ totalFiles }: EngagementNoticeProps) => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Never show in demo mode
+    if (isDemoMode()) return;
+    
     // Never show for Pro users
     if (license.isPro) return;
 

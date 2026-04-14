@@ -113,7 +113,7 @@ const ProBanner = ({ className = '', showComparison = false }: ProBannerProps) =
   // Banner should show: we're admin, not Pro, and either no FS or FS says "free"
   console.debug('[PDF Gallery] ProBanner SHOWING');
 
-  const heading = 'Upgrade to PDF Gallery Pro';
+  const heading = 'Upgrade to PDF Gallery';
   const description = 'Unlock unlimited galleries and batch uploads to supercharge your document management.';
 
   return (
