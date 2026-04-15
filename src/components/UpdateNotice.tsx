@@ -95,39 +95,12 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     } catch {}
   };
 
-  // Redirect to plugins page, scrolling to and highlighting our plugin row
-  const redirectToPluginsPage = () => {
-    const pluginsUrl = window.location.origin + '/wp-admin/plugins.php';
-    const pluginSlug = PLUGIN_SLUG;
-    
-    // Use top-level window for navigation (we're in an iframe)
+  // Redirect to WordPress update page, scrolling to our plugin
+  const redirectToUpdatePage = () => {
     const targetWindow = window.top || window.parent || window;
-    
-    // Navigate to plugins page, then highlight the plugin row
-    targetWindow.location.href = pluginsUrl + '#' + pluginSlug;
-    
-    // After navigation, inject a highlight script via postMessage
-    try {
-      const highlightScript = `
-        (function() {
-          var row = document.querySelector('tr[data-slug="${pluginSlug}"]') || document.querySelector('tr[data-plugin*="${pluginSlug}"]');
-          if (row) {
-            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            row.style.transition = 'background-color 0.3s ease';
-            row.style.backgroundColor = '#fff3cd';
-            setTimeout(function() { row.style.backgroundColor = ''; }, 3000);
-          }
-        })();
-      `;
-      // Slight delay so the page loads first
-      setTimeout(() => {
-        try {
-          const script = targetWindow.document.createElement('script');
-          script.textContent = highlightScript;
-          targetWindow.document.body.appendChild(script);
-        } catch {}
-      }, 1500);
-    } catch {}
+    // Use update-core.php — the dedicated WP updates page where the plugin update row lives
+    const updateUrl = window.location.origin + '/wp-admin/update-core.php#' + PLUGIN_SLUG;
+    targetWindow.location.href = updateUrl;
   };
 
   const handleUpdate = () => {
