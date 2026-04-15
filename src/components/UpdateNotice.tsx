@@ -122,7 +122,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     
     // Pro users: go to plugins page (Freemius handles updates there)
     if (license.isPro) {
-      redirectToPluginsPage();
+      redirectToUpdatePage();
       return;
     }
     
@@ -140,7 +140,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
       // Safety timeout: if nothing happens in 12s, redirect to plugins page
       const fallbackTimeout = setTimeout(() => {
         setUpdating(false);
-        redirectToPluginsPage();
+        redirectToUpdatePage();
       }, 12000);
       
       wpUpdates.updatePlugin({
@@ -159,7 +159,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
           clearTimeout(fallbackTimeout);
           setUpdating(false);
           console.error('Update failed:', response);
-          redirectToPluginsPage();
+          redirectToUpdatePage();
         }
       });
       return;
@@ -169,7 +169,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     if (wpGlobal?.updateUrl) {
       (window.top || window.parent || window).location.href = wpGlobal.updateUrl;
     } else {
-      redirectToPluginsPage();
+      redirectToUpdatePage();
     }
   };
 
