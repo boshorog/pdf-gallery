@@ -72,7 +72,7 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 = 2.6.8 =
 * Fix: Lightbox thumbnails no longer overlap with the document content
-* Improvements for update experience
+* Improvements for the update UX
 * Other bug fixes
 
 = 2.6.6 =
