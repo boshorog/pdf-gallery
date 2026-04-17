@@ -13,7 +13,7 @@ Create beautiful galleries from PDFs (and other files), with customizable layout
 
 == Description ==
 
-PDF Gallery is a plugin that allows you to create stunning document galleries with ease. Display PDF files, Office documents, images, videos, audio files (and even YouTube videos!) in beautiful grid or masonry layouts, with a built-in lightbox viewer. Give it a try!
+Display PDF files, Office documents, images, videos, audio files (and even YouTube videos!) in beautiful grid or masonry layouts, with a built-in lightbox viewer. Give PDF Gallery a try!
 
 = Key Features =
 
