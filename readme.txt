@@ -4,7 +4,7 @@ Plugin URI: https://kindpixels.com/plugins/pdf-gallery/
 Tags: pdf, gallery, showcase, viewer, lightbox
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 2.7.0
+Stable tag: 2.7.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -69,6 +69,11 @@ Each gallery has a unique shortcode that starts with `[kindpdfg_gallery]`. Simpl
 Once you install the plugin, head over to the Documentation tab where we have an extensive guide covering all features, settings, and customization options.
 
 == Changelog ==
+
+= 2.7.1 =
+* Improved: The Update button in the plugin's update notice now updates the plugin directly, without extra steps
+* Fix: When WordPress hasn't detected a new release yet, the plugin now asks WordPress to check again instead of opening an Updates page without the new version
+* Minor stability improvements
 
 = 2.7.0 =
 * New: Gallery toolbar makeover, enhanced with collapsible options panel with live search (shows matching file count), sorting, and normal / compact list view
@@ -184,6 +189,9 @@ Once you install the plugin, head over to the Documentation tab where we have an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.7.1 =
+One-click updates straight from the plugin's update notice.
 
 = 2.7.0 =
 Redesigned Galleries toolbar with search, sorting and compact view. Tested with the latest WordPress.

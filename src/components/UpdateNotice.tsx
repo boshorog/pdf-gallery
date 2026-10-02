@@ -22,8 +22,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Loader2 } from 'lucide-react';
-import { useLicense } from '@/hooks/useLicense';
-import { STORAGE_KEYS, PLUGIN_SLUG, isDevPreview } from '@/config/pluginIdentity';
+import { STORAGE_KEYS, PLUGIN_SLUG, AJAX_ACTION, getWPGlobal, isDevPreview } from '@/config/pluginIdentity';
 import { isDemoMode } from '@/config/demoMode';
 
 interface UpdateNoticeProps {
@@ -34,11 +33,11 @@ interface UpdateNoticeProps {
 const WP_API_URL = `https://api.wordpress.org/plugins/info/1.0/${PLUGIN_SLUG}.json`;
 
 export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
-  const license = useLicense();
   const [latestVersion, setLatestVersion] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState(true);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
 
   useEffect(() => {
     // Never show in demo mode
@@ -95,80 +94,70 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     } catch {}
   };
 
-  // Redirect to WordPress update page, scrolling to our plugin
-  const redirectToUpdatePage = () => {
-    const targetWindow = window.top || window.parent || window;
-    // Use update-core.php — the dedicated WP updates page where the plugin update row lives
-    const updateUrl = window.location.origin + '/wp-admin/update-core.php#' + PLUGIN_SLUG;
-    targetWindow.location.href = updateUrl;
+  const navigateTop = (url: string) => {
+    try {
+      (window.top || window.parent || window).location.href = url;
+    } catch {
+      window.location.href = url;
+    }
   };
 
-  const handleUpdate = () => {
-    // In dev preview, show alert instead of attempting WordPress update
+  // Fallback: WordPress Updates page
+  const redirectToUpdatePage = () => {
+    navigateTop(window.location.origin + '/wp-admin/update-core.php');
+  };
+
+  const handleUpdate = async () => {
     if (isDevPreview()) {
       alert('Update is only available in WordPress. This is a dev preview.');
       return;
     }
-    
-    // Start updating animation
-    setUpdating(true);
-    
-    // Check if we have WordPress globals (check parent window too since we're in iframe)
-    let wpGlobal: any = null;
-    try { wpGlobal = (window as any).kindpdfgData || (window as any).wpPDFGallery || null; } catch {}
-    if (!wpGlobal) {
-      try { wpGlobal = (window.parent && ((window.parent as any).kindpdfgData || (window.parent as any).wpPDFGallery)) || null; } catch {}
+
+    const wp = getWPGlobal();
+
+    // 1) WordPress already knows about the update: run the upgrade immediately.
+    if (wp?.updateUrl) {
+      setUpdating(true);
+      navigateTop(wp.updateUrl);
+      return;
     }
-    
-    // Pro users: go to plugins page (Freemius handles updates there)
-    if (license.isPro) {
+
+    // 2) WordPress hasn't refreshed its update list yet (it only checks every
+    //    12h). Force a fresh check, then go straight to the upgrade.
+    if (!wp?.ajaxUrl || !wp?.nonce) {
       redirectToUpdatePage();
       return;
     }
-    
-    // Try to find wp.updates — check current window, parent, and top (iframe context)
-    let wpUpdates: any = null;
-    try { wpUpdates = (window as any).wp?.updates; } catch {}
-    if (!wpUpdates) {
-      try { wpUpdates = (window.parent as any)?.wp?.updates; } catch {}
-    }
-    if (!wpUpdates) {
-      try { wpUpdates = (window.top as any)?.wp?.updates; } catch {}
-    }
-    
-    if (wpUpdates && typeof wpUpdates.updatePlugin === 'function') {
-      // Safety timeout: if nothing happens in 12s, redirect to plugins page
-      const fallbackTimeout = setTimeout(() => {
+
+    setUpdating(true);
+    setPendingMessage(null);
+    try {
+      const form = new FormData();
+      form.append('action', AJAX_ACTION);
+      form.append('action_type', 'prepare_update');
+      form.append('nonce', wp.nonce);
+      const res = await fetch(wp.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: form });
+      const json = await res.json();
+      const data = json?.data || {};
+
+      if (json?.success && data.updateUrl) {
+        navigateTop(data.updateUrl);
+        return;
+      }
+
+      if (json?.success) {
+        // WordPress.org's update service hasn't distributed the new version yet.
         setUpdating(false);
-        redirectToUpdatePage();
-      }, 12000);
-      
-      wpUpdates.updatePlugin({
-        plugin: wpGlobal?.pluginBasename || 'kindpixels-pdf-gallery/kindpixels-pdf-gallery.php',
-        slug: PLUGIN_SLUG,
-        success: () => {
-          clearTimeout(fallbackTimeout);
-          setUpdating(false);
-          setDismissed(true);
-          setTimeout(() => {
-            // Reload the top-level page to reflect the update
-            try { (window.top || window.parent || window).location.reload(); } catch { window.location.reload(); }
-          }, 1000);
-        },
-        error: (response: any) => {
-          clearTimeout(fallbackTimeout);
-          setUpdating(false);
-          console.error('Update failed:', response);
-          redirectToUpdatePage();
-        }
-      });
-      return;
-    }
-    
-    // Fallback: redirect to plugins page with highlight
-    if (wpGlobal?.updateUrl) {
-      (window.top || window.parent || window).location.href = wpGlobal.updateUrl;
-    } else {
+        setPendingMessage(
+          `WordPress.org is still rolling out version ${latestVersion}. This usually takes a few hours after release — please try again later.`
+        );
+        return;
+      }
+
+      setUpdating(false);
+      redirectToUpdatePage();
+    } catch {
+      setUpdating(false);
       redirectToUpdatePage();
     }
   };
@@ -182,7 +171,13 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
       <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
         <span className="text-base">🎉</span>
         <span>
-          <strong>New version ({latestVersion})</strong> is available. Update now for new features and bug fixes.
+          {pendingMessage ? (
+            pendingMessage
+          ) : (
+            <>
+              <strong>New version ({latestVersion})</strong> is available. Update now for new features and bug fixes.
+            </>
+          )}
         </span>
       </div>
       <div className="flex items-center gap-2">

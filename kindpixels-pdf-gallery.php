@@ -1037,9 +1037,61 @@ public function display_gallery_shortcode($atts) {
             case 'reset_galleries':
                 $this->handle_reset_galleries();
                 break;
+            case 'prepare_update':
+                $this->handle_prepare_update();
+                break;
             default:
                 wp_send_json_error('Invalid action');
         }
+    }
+
+    /**
+     * Force WordPress to re-check WordPress.org for plugin updates and, if our
+     * update is now known, return a nonce-protected direct upgrade URL.
+     *
+     * WordPress only refreshes its update list every 12 hours, so a release
+     * published recently may not appear on the Plugins/Updates screens yet.
+     */
+    private function handle_prepare_update() {
+        if ( ! current_user_can( 'update_plugins' ) ) {
+            wp_send_json_error( array( 'message' => 'insufficient_permissions' ) );
+        }
+
+        $plugin_file = plugin_basename( __FILE__ );
+
+        if ( ! function_exists( 'wp_update_plugins' ) ) {
+            require_once ABSPATH . WPINC . '/update.php';
+        }
+        if ( ! function_exists( 'get_plugins' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        // Clear cached results and force a fresh check against WordPress.org.
+        delete_site_transient( 'update_plugins' );
+        wp_clean_plugins_cache( false );
+        wp_update_plugins();
+
+        $update_plugins = get_site_transient( 'update_plugins' );
+        $known_version  = '';
+        $update_url     = '';
+
+        if ( isset( $update_plugins->response[ $plugin_file ] ) ) {
+            $entry         = $update_plugins->response[ $plugin_file ];
+            $known_version = isset( $entry->new_version ) ? (string) $entry->new_version : '';
+            $update_url    = wp_nonce_url(
+                self_admin_url( 'update.php?action=upgrade-plugin&plugin=' . rawurlencode( $plugin_file ) ),
+                'upgrade-plugin_' . $plugin_file
+            );
+        } elseif ( isset( $update_plugins->no_update[ $plugin_file ] ) ) {
+            $entry         = $update_plugins->no_update[ $plugin_file ];
+            $known_version = isset( $entry->new_version ) ? (string) $entry->new_version : '';
+        }
+
+        wp_send_json_success( array(
+            'updateUrl'    => $update_url,
+            'knownVersion' => $known_version,
+            'updatesPage'  => self_admin_url( 'update-core.php' ),
+        ) );
     }
     
     /**
