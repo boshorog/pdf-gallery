@@ -134,7 +134,7 @@ const renderItemContent = (item: GalleryItem) => {
   );
 };
 
-const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect, isDragOverlay, hideActions }: SortableItemProps) => {
+const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect, isDragOverlay, hideActions, compact }: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -259,9 +259,43 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect,
   );
 };
 
+// Sort files within each divider section; dividers stay in place as section headers.
+const sortItemsWithinSections = (list: GalleryItem[], order: string): GalleryItem[] => {
+  const isDiv = (i: GalleryItem) => 'type' in i && i.type === 'divider';
+  const time = (i: GalleryItem) => { const t = Date.parse((i as PDF).date || ''); return isNaN(t) ? 0 : t; };
+  const cmp = (a: GalleryItem, b: GalleryItem) => {
+    if (order === 'alphabetical') return (a as PDF).title.localeCompare((b as PDF).title);
+    if (order === 'za') return (b as PDF).title.localeCompare((a as PDF).title);
+    if (order === 'oldest') return time(a) - time(b);
+    return time(b) - time(a);
+  };
+  const out: GalleryItem[] = [];
+  let run: GalleryItem[] = [];
+  const flush = () => { out.push(...[...run].sort(cmp)); run = []; };
+  list.forEach(i => { if (isDiv(i)) { flush(); out.push(i); } else run.push(i); });
+  flush();
+  return out;
+};
+
 const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGalleryChange, isDemo }: PDFAdminProps) => {
   const currentGallery = galleries.find(g => g.id === currentGalleryId);
   const items = currentGallery?.items || [];
+  const [searchQuery, setSearchQuery] = useState('');
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const [density, setDensityState] = useState<'normal' | 'compact'>(() => {
+    try { return localStorage.getItem('kindpdfg-admin-density') === 'compact' ? 'compact' : 'normal'; } catch { return 'normal'; }
+  });
+  const setDensity = (d: 'normal' | 'compact') => {
+    setDensityState(d);
+    try { localStorage.setItem('kindpdfg-admin-density', d); } catch { /* ignore */ }
+  };
+  const visibleItems = (() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter(i => ('type' in i && i.type === 'divider')
+      ? (i as Divider).text.toLowerCase().includes(q)
+      : (i as PDF).title.toLowerCase().includes(q));
+  })();
 
   // Ensure a default gallery is selected when none is set
   useEffect(() => {
@@ -1388,145 +1422,153 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
       {/* Navigation removed: top-level tabs now control sections */}
 
       <>
-          {/* Top Row: Action Buttons only */}
-          <div className="flex justify-end items-center">
-            <div className="flex gap-2">
-              {selectedItems.size > 0 && (
-                <Button 
-                  onClick={handleDeleteSelected}
-                  variant="destructive"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete {selectedItems.size} item{selectedItems.size > 1 ? 's' : ''}
-                </Button>
-              )}
-              <Button 
-                onClick={() => setIsAddingDocument(true)}
-                className="bg-primary hover:bg-primary/90"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add File(s)
-              </Button>
-              <Button 
-                onClick={() => setIsAddingDivider(true)}
-                variant="outline"
-              >
-                <Separator className="w-4 h-0.5" />
-                Add Divider
-              </Button>
-            </div>
-          </div>
-
-          {/* Second Row: Select All | Gallery Selector | Sorting - above dotted line */}
+          {/* Galleries toolbar: Select all | Gallery | Options + Add, with sliding options tray */}
           {(() => {
             const gallerySettings = (currentGallery as any)?.settings || {};
-            const sortOrder = gallerySettings.sortOrder || 'newest';
-            
+            const sortOrder: string = gallerySettings.sortOrder || 'newest';
+            const fileCount = items.filter(i => !('type' in i && i.type === 'divider')).length;
+            const matchedFiles = visibleItems.filter(i => !('type' in i && i.type === 'divider')).length;
+            const sortOptions = [
+              ['newest', 'Newest first', ArrowDown],
+              ['oldest', 'Oldest first', ArrowUp],
+              ['alphabetical', 'Alphabetical (A-Z)', ArrowDownAZ],
+              ['za', 'Alphabetical (Z-A)', ArrowDownZA],
+            ] as const;
+
             const updateSortOrder = (value: string) => {
               if (!currentGallery) return;
-              const updatedGalleries = galleries.map(gallery => 
-                gallery.id === currentGalleryId 
-                  ? { ...gallery, settings: { ...((gallery as any).settings || {}), sortOrder: value } }
+              const sorted = sortItemsWithinSections(items, value);
+              const updatedGalleries = galleries.map(gallery =>
+                gallery.id === currentGalleryId
+                  ? { ...gallery, items: sorted, settings: { ...((gallery as any).settings || {}), sortOrder: value } }
                   : gallery
               );
               onGalleriesChange(updatedGalleries);
               saveGalleriesToWP(updatedGalleries);
-              
               toast({
                 title: "Sort Order Updated",
-                description: value === 'newest' 
-                  ? "Showing newest documents first" 
-                  : value === 'oldest'
-                  ? "Showing oldest documents first"
-                  : "Sorting alphabetically A-Z",
+                description: `${sortOptions.find(o => o[0] === value)?.[1]} — files are sorted within each divider section.`,
               });
             };
 
-            // Gallery Selector - Breadcrumb style
-            const renderGallerySelector = () => (
-              <div className="flex items-center gap-1.5 text-sm">
-                <span className="text-muted-foreground">Galleries</span>
-                <ChevronDown className="h-3 w-3 text-muted-foreground/60 rotate-[-90deg]" />
-                <GallerySelector
-                  galleries={galleries}
-                  currentGalleryId={currentGalleryId}
-                  isPro={license.isPro}
-                  onGalleryChange={onCurrentGalleryChange}
-                  onGalleryCreate={handleGalleryCreate}
-                  onGalleryRename={handleGalleryRename}
-                  onGalleryDelete={handleGalleryDelete}
-                />
-              </div>
-            );
-
             return (
-              <div className="flex items-center justify-between border-b border-dashed pb-2">
-                {/* Left: Select All (only show if there are items) */}
-                <div className="flex items-center space-x-3 ml-[22px]">
-                  {items.length > 0 ? (
-                    <>
-                      <Checkbox 
-                        checked={selectedItems.size === items.length && items.length > 0}
-                        onCheckedChange={handleSelectAll}
-                        aria-label="Select all"
-                      />
-                      <span className="text-sm text-muted-foreground">
-                        {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select all'}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">No documents yet</span>
-                  )}
+              <div className="rounded-xl border bg-muted p-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  {/* Left: Select all (pl-4 aligns checkbox with item checkboxes) */}
+                  <div className="flex-1 flex items-center gap-2 min-w-0">
+                    {items.length > 0 ? (
+                      <label className="h-10 flex items-center gap-2 pl-4 pr-3 rounded-lg bg-background border text-sm cursor-pointer shrink-0">
+                        <Checkbox
+                          checked={selectedItems.size === items.length && items.length > 0}
+                          onCheckedChange={handleSelectAll}
+                          aria-label="Select all"
+                        />
+                        <span className="text-muted-foreground">
+                          {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'All'}
+                        </span>
+                      </label>
+                    ) : (
+                      <span className="text-sm text-muted-foreground pl-3">No files yet</span>
+                    )}
+                    {selectedItems.size > 0 && (
+                      <Button onClick={handleDeleteSelected} variant="destructive" size="sm" className="h-10 gap-1.5">
+                        <Trash2 className="w-4 h-4" />Delete
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Center: Gallery selector */}
+                  <div className="h-10 flex items-center px-3 rounded-lg bg-background border shrink-0">
+                    <GallerySelector
+                      galleries={galleries}
+                      currentGalleryId={currentGalleryId}
+                      isPro={license.isPro}
+                      onGalleryChange={onCurrentGalleryChange}
+                      onGalleryCreate={handleGalleryCreate}
+                      onGalleryRename={handleGalleryRename}
+                      onGalleryDelete={handleGalleryDelete}
+                    />
+                  </div>
+
+                  {/* Right: Options toggle + Add */}
+                  <div className="flex-1 flex justify-end items-center gap-2">
+                    <button
+                      onClick={() => setToolsOpen(!toolsOpen)}
+                      title="Search, sort & view options"
+                      aria-expanded={toolsOpen}
+                      className={`relative h-10 flex items-center justify-center gap-1.5 rounded-lg border px-2.5 text-sm transition-colors ${toolsOpen ? 'bg-primary/10 border-primary/40 text-primary' : 'bg-background text-muted-foreground hover:text-foreground'}`}
+                    >
+                      <SlidersHorizontal className="h-4 w-4" />
+                      <ChevronDown className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} />
+                      {searchQuery && !toolsOpen && <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-muted" />}
+                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button className="h-10 gap-1.5"><Plus className="h-4 w-4" />Add<ChevronDown className="h-3.5 w-3.5 opacity-80" /></Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-64">
+                        <DropdownMenuLabel className="text-xs text-muted-foreground">Add to gallery</DropdownMenuLabel>
+                        <DropdownMenuItem className="gap-3 cursor-pointer py-2" onClick={() => setIsAddingDocument(true)}>
+                          <Upload className="h-4 w-4 text-primary" />
+                          <div className="flex flex-col"><span className="text-sm font-medium">File(s)</span><span className="text-xs text-muted-foreground">PDF, Office, image, video or link</span></div>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="gap-3 cursor-pointer py-2" onClick={() => setIsAddingDivider(true)}>
+                          <Minus className="h-4 w-4 text-primary" />
+                          <div className="flex flex-col"><span className="text-sm font-medium">Divider</span><span className="text-xs text-muted-foreground">Section title between files</span></div>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
-                
-                {/* Center: Gallery Selector */}
-                {renderGallerySelector()}
-                
-                {/* Right: Sorting Dropdown (only show if there are items) */}
-                {items.length > 0 && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        <ArrowUpDown className="h-3.5 w-3.5" />
-                        <span>{sortOrder === 'newest' ? 'Newest first' : sortOrder === 'oldest' ? 'Oldest first' : 'A-Z'}</span>
-                        <ChevronDown className="h-3 w-3" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem 
-                        onClick={() => updateSortOrder('newest')}
-                        className="flex items-center justify-between gap-4 cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2">
-                          <ArrowDown className="h-4 w-4" />
-                          <span>Newest first</span>
-                        </div>
-                        {sortOrder === 'newest' && <Check className="h-4 w-4 text-primary" />}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => updateSortOrder('oldest')}
-                        className="flex items-center justify-between gap-4 cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2">
-                          <ArrowUp className="h-4 w-4" />
-                          <span>Oldest first</span>
-                        </div>
-                        {sortOrder === 'oldest' && <Check className="h-4 w-4 text-primary" />}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => updateSortOrder('alphabetical')}
-                        className="flex items-center justify-between gap-4 cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2">
-                          <ArrowUpDown className="h-4 w-4" />
-                          <span>Alphabetical (A-Z)</span>
-                        </div>
-                        {sortOrder === 'alphabetical' && <Check className="h-4 w-4 text-primary" />}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-                {items.length === 0 && <div />}
+
+                {/* Sliding tray */}
+                <div className={`grid transition-all duration-200 ${toolsOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                  <div className="overflow-hidden">
+                    <div className="flex items-center gap-2 mt-1.5 pt-1.5 border-t border-border/70">
+                      <div className="h-10 flex items-center gap-2 px-3 rounded-lg bg-background border flex-1 min-w-[180px] focus-within:ring-2 focus-within:ring-inset focus-within:ring-ring/60">
+                        <Search className="h-4 w-4 text-muted-foreground" />
+                        <input
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Search files…"
+                          className="bg-transparent outline-none text-sm flex-1 min-w-0"
+                          tabIndex={toolsOpen ? 0 : -1}
+                        />
+                        <span className={`text-[11px] whitespace-nowrap tabular-nums ${searchQuery ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                          {searchQuery ? `${matchedFiles} of ${fileCount}` : fileCount} {fileCount === 1 ? 'file' : 'files'}
+                        </span>
+                        {searchQuery && (
+                          <button onClick={() => setSearchQuery('')} aria-label="Clear search"><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
+                        )}
+                      </div>
+                      <div className="h-10 inline-flex items-center rounded-lg border bg-background p-0.5 shrink-0">
+                        {([['normal', 'Normal', Rows3], ['compact', 'Compact', Rows4]] as const).map(([v, l, I]) => (
+                          <button key={v} onClick={() => setDensity(v)} title={l} aria-label={l}
+                            className={`h-full aspect-square flex items-center justify-center rounded-md transition-colors ${density === v ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                            <I className="h-4 w-4" />
+                          </button>
+                        ))}
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button title="Sort" className="h-10 aspect-square flex items-center justify-center rounded-lg bg-background border text-muted-foreground hover:text-foreground shrink-0">
+                            <ArrowUpDown className="h-4 w-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel className="text-xs text-muted-foreground">Sort files</DropdownMenuLabel>
+                          {sortOptions.map(([v, l, I]) => (
+                            <DropdownMenuItem key={v} onClick={() => updateSortOrder(v)} className="flex justify-between gap-4 cursor-pointer">
+                              <span className="flex items-center gap-2"><I className="h-4 w-4" />{l}</span>
+                              {sortOrder === v && <Check className="h-4 w-4 text-primary" />}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                </div>
               </div>
             );
           })()}
@@ -1939,10 +1981,14 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
-              <SortableContext items={items} strategy={verticalListSortingStrategy}>
-                {items.map((item) => (
+              <SortableContext items={visibleItems} strategy={verticalListSortingStrategy}>
+                {searchQuery && visibleItems.length === 0 && (
+                  <div className="text-sm text-muted-foreground py-6 text-center">No files match “{searchQuery}”.</div>
+                )}
+                {visibleItems.map((item) => (
                   <SortableItem
                     key={item.id}
+                    compact={density === 'compact'}
                     item={item}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
