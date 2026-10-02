@@ -22,8 +22,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Loader2 } from 'lucide-react';
-import { useLicense } from '@/hooks/useLicense';
-import { STORAGE_KEYS, PLUGIN_SLUG, isDevPreview } from '@/config/pluginIdentity';
+import { STORAGE_KEYS, PLUGIN_SLUG, AJAX_ACTION, getWPGlobal, isDevPreview } from '@/config/pluginIdentity';
 import { isDemoMode } from '@/config/demoMode';
 
 interface UpdateNoticeProps {
@@ -34,11 +33,11 @@ interface UpdateNoticeProps {
 const WP_API_URL = `https://api.wordpress.org/plugins/info/1.0/${PLUGIN_SLUG}.json`;
 
 export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
-  const license = useLicense();
   const [latestVersion, setLatestVersion] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState(true);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
 
   useEffect(() => {
     // Never show in demo mode
@@ -172,7 +171,13 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
       <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
         <span className="text-base">🎉</span>
         <span>
-          <strong>New version ({latestVersion})</strong> is available. Update now for new features and bug fixes.
+          {pendingMessage ? (
+            pendingMessage
+          ) : (
+            <>
+              <strong>New version ({latestVersion})</strong> is available. Update now for new features and bug fixes.
+            </>
+          )}
         </span>
       </div>
       <div className="flex items-center gap-2">
