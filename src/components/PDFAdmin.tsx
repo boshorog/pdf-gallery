@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation, Image, X, Star, Maximize2, FolderOpen, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown, Link } from 'lucide-react';
+import { Plus, Upload, Trash2, Edit, Eye, GripVertical, FileText, Minus, RefreshCw, Copy, Check, FileType, Presentation, Image, X, Star, Maximize2, FolderOpen, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown, Link, Search, SlidersHorizontal, Rows3, Rows4, ArrowDownAZ, ArrowDownZA } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from '@/components/ui/checkbox';
@@ -55,6 +57,7 @@ interface SortableItemProps {
   onSelect: (id: string, selected: boolean, shiftKey: boolean) => void;
   isDragOverlay?: boolean;
   hideActions?: boolean;
+  compact?: boolean;
 }
 
 // Helper to render item content (divider vs file)
@@ -171,7 +174,7 @@ const SortableItem = ({ item, onEdit, onDelete, onRefresh, isSelected, onSelect,
 
   return (
     <Card ref={setNodeRef} style={style} className="bg-background">
-      <CardContent className="flex items-center justify-between px-2 pl-3 py-3">
+      <CardContent className={`flex items-center justify-between px-2 pl-3 ${compact ? 'py-1 [&_.w-12]:w-9 [&_.h-12]:h-9' : 'py-3'}`}>
         <div className="flex items-center space-x-3 ml-2.5">
           <Checkbox className="mt-0" 
             checked={isSelected}
