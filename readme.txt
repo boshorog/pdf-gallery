@@ -70,6 +70,11 @@ Once you install the plugin, head over to the Documentation tab where we have an
 
 == Changelog ==
 
+= 2.7.1 =
+* Improved: The Update button in the plugin's update notice now updates the plugin directly, without extra steps
+* Fix: When WordPress hasn't detected a new release yet, the plugin now asks WordPress to check again instead of opening an Updates page without the new version
+* Minor stability improvements
+
 = 2.7.0 =
 * New: Gallery toolbar makeover, enhanced with collapsible options panel with live search (shows matching file count), sorting, and normal / compact list view
 * Compatibility: Tested with WordPress 7.0
@@ -184,6 +189,9 @@ Once you install the plugin, head over to the Documentation tab where we have an
 * Initial release
 
 == Upgrade Notice ==
+
+= 2.7.1 =
+One-click updates straight from the plugin's update notice.
 
 = 2.7.0 =
 Redesigned Galleries toolbar with search, sorting and compact view. Tested with the latest WordPress.
