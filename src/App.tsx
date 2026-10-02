@@ -28,6 +28,7 @@ import Index from "./pages/Index";
 import ScrollOnboardingShowcase from "./components/ScrollOnboardingShowcase";
 import GradientZoomShowcase from "./components/GradientZoomShowcase";
 import ColorSettingsShowcase from "./components/ColorSettingsShowcase";
+import ToolbarShowcase from "./components/ToolbarShowcase";
 import EngagementNoticeShowcase from "./components/EngagementNoticeShowcase";
 import PlaceholderSettingsShowcase from "./components/PlaceholderSettingsShowcase";
 import { useEffect } from "react";
@@ -116,6 +117,7 @@ const App = () => {
     if (showcase === 'color-settings') return <ColorSettingsShowcase />;
     if (showcase === 'engagement-notice') return <EngagementNoticeShowcase />;
     if (showcase === 'placeholder-settings') return <PlaceholderSettingsShowcase />;
+    if (showcase === 'toolbar') return <ToolbarShowcase />;
     return <Index />;
   };
 
