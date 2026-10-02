@@ -30,6 +30,7 @@ import GradientZoomShowcase from "./components/GradientZoomShowcase";
 import ColorSettingsShowcase from "./components/ColorSettingsShowcase";
 import ToolbarShowcase from "./components/ToolbarShowcase";
 import ToolbarShowcase2 from "./components/ToolbarShowcase2";
+import ToolbarShowcase3 from "./components/ToolbarShowcase3";
 import EngagementNoticeShowcase from "./components/EngagementNoticeShowcase";
 import PlaceholderSettingsShowcase from "./components/PlaceholderSettingsShowcase";
 import { useEffect } from "react";
@@ -120,6 +121,7 @@ const App = () => {
     if (showcase === 'placeholder-settings') return <PlaceholderSettingsShowcase />;
     if (showcase === 'toolbar') return <ToolbarShowcase />;
     if (showcase === 'toolbar2') return <ToolbarShowcase2 />;
+    if (showcase === 'toolbar3') return <ToolbarShowcase3 />;
     return <Index />;
   };
 
