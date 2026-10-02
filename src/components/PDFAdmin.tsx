@@ -1478,8 +1478,9 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   </div>
 
                   {/* Center: Gallery selector */}
-                  <div className="h-10 flex items-center px-3 rounded-lg bg-background border shrink-0">
+                  <div className="flex items-center shrink-0">
                     <GallerySelector
+                      toolbar
                       galleries={galleries}
                       currentGalleryId={currentGalleryId}
                       isPro={license.isPro}
