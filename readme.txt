@@ -71,9 +71,7 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.7.0 =
-* New: Gallery toolbar makeover – Select all, gallery name and an "Add" menu (File / Divider) on one clean line
-* New: Collapsible options panel with live search (shows matching file count), sorting (Newest, Oldest, A-Z, Z-A) and Normal / Compact list view
-* Improved: Free version allows unlimited files in its gallery
+* New: Gallery toolbar makeover, enhanced with collapsible options panel with live search (shows matching file count), sorting, and normal / compact list view
 * Compatibility: Tested with WordPress 7.0
 * Minor stability improvements
 
