@@ -335,7 +335,7 @@ const Section = ({ name, desc, C }: (typeof VARIANTS)[number]) => {
     list.forEach((i) => { if (i.divider) { sections.push(cur); cur = [i]; } else cur.push(i); });
     sections.push(cur);
     const cmp = (a: Item, b: Item) => sort === 'alphabetical' ? a.title.localeCompare(b.title)
-      : sort === 'za' ? b.title.localeCompare(a.title) : sort === 'oldest' ? a.id - b.id : 0;
+      : sort === 'za' ? b.title.localeCompare(a.title) : sort === 'oldest' ? b.id - a.id : 0;
     const ordered = sort === 'oldest' ? [...sections].reverse() : sections;
     return ordered.flatMap((sec) => {
       const [head, ...rest] = sec[0]?.divider ? sec : [undefined, ...sec];
