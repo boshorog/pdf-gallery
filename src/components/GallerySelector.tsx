@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Copy, Check, BarChart3 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Copy, Check, BarChart3, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,6 +41,8 @@ interface GallerySelectorProps {
   onGalleryCreate: (name: string) => void;
   onGalleryRename: (galleryId: string, newName: string) => void;
   onGalleryDelete: (galleryId: string) => void;
+  /** Toolbar style: name in a small card with folder icon, buttons outside */
+  toolbar?: boolean;
 }
 
 export const GallerySelector = ({
@@ -51,6 +53,7 @@ export const GallerySelector = ({
   onGalleryCreate,
   onGalleryRename,
   onGalleryDelete,
+  toolbar = false,
 }: GallerySelectorProps) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
@@ -185,6 +188,10 @@ export const GallerySelector = ({
     }
   };
 
+  const btnCls = toolbar ? 'h-10 w-8 p-0 text-muted-foreground' : 'h-8 w-8 p-0';
+  const iconCls = toolbar ? 'h-3.5 w-3.5' : 'h-3 w-3';
+  const cardCls = 'h-10 flex items-center gap-2 px-3 rounded-lg bg-background border text-sm min-w-[190px]';
+
   // Shared buttons for gallery management
   const renderManagementButtons = () => (
     <>
@@ -194,12 +201,12 @@ export const GallerySelector = ({
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0"
+            className={btnCls}
             aria-label="Rename Gallery"
             title="Rename Gallery"
             onClick={() => setRenameGalleryName(currentGallery?.name || '')}
           >
-            <Edit2 className="h-3 w-3" />
+            <Edit2 className={iconCls} />
           </Button>
         </DialogTrigger>
         <DialogContent>
@@ -233,12 +240,12 @@ export const GallerySelector = ({
       <Button
         variant="ghost"
         size="sm"
-        className="h-8 w-8 p-0"
+        className={btnCls}
         aria-label="Copy Shortcode"
         title="Copy Shortcode"
         onClick={handleCopyShortcode}
       >
-        {shortcodeCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+        {shortcodeCopied ? <Check className={`${iconCls} text-green-500`} /> : <Copy className={iconCls} />}
       </Button>
 
       {/* Analytics button - Pro only */}
@@ -246,12 +253,12 @@ export const GallerySelector = ({
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0"
+          className={btnCls}
           aria-label="View Analytics (Beta)"
           title="View Analytics (Beta)"
           onClick={() => setIsAnalyticsOpen(true)}
         >
-          <BarChart3 className="h-3 w-3" />
+          <BarChart3 className={iconCls} />
         </Button>
       )}
 
@@ -262,11 +269,11 @@ export const GallerySelector = ({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0"
+              className={btnCls}
               aria-label="Add Gallery"
               title="Add Gallery"
             >
-              <Plus className="h-3 w-3" />
+              <Plus className={iconCls} />
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -304,8 +311,15 @@ export const GallerySelector = ({
     return (
       <>
         <div className="flex items-center gap-2">
-          <span className="font-medium text-foreground">{currentGallery?.name || 'Main Gallery'}</span>
-          <div className="flex items-center gap-1">
+          {toolbar ? (
+            <div className={cardCls}>
+              <FolderOpen className="h-4 w-4 text-primary shrink-0" />
+              <span className="font-medium text-foreground truncate">{currentGallery?.name || 'Main Gallery'}</span>
+            </div>
+          ) : (
+            <span className="font-medium text-foreground">{currentGallery?.name || 'Main Gallery'}</span>
+          )}
+          <div className={toolbar ? 'flex items-center gap-0.5' : 'flex items-center gap-1'}>
             {renderManagementButtons()}
           </div>
         </div>
@@ -331,7 +345,8 @@ export const GallerySelector = ({
     <>
       <div className="flex items-center gap-2">
         <Select value={currentGalleryId || (galleries[0]?.id ?? '')} onValueChange={onGalleryChange}>
-          <SelectTrigger className="w-56">
+          <SelectTrigger className={toolbar ? `${cardCls} justify-between w-auto focus:ring-0 focus:ring-offset-0` : 'w-56'}>
+            {toolbar && <FolderOpen className="h-4 w-4 text-primary shrink-0" />}
             <SelectValue placeholder={currentGallery?.name || galleries[0]?.name || 'Select gallery'} />
           </SelectTrigger>
           <SelectContent>
@@ -343,7 +358,7 @@ export const GallerySelector = ({
           </SelectContent>
         </Select>
 
-        <div className="flex items-center gap-1">
+        <div className={toolbar ? 'flex items-center gap-0.5' : 'flex items-center gap-1'}>
           {renderManagementButtons()}
 
           {/* Delete Gallery - only for multiple galleries */}
@@ -352,11 +367,11 @@ export const GallerySelector = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                className={`${btnCls} text-destructive hover:text-destructive`}
                 aria-label="Delete Gallery"
                 title="Delete Gallery"
               >
-                <Trash2 className="h-3 w-3" />
+                <Trash2 className={iconCls} />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
