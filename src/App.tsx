@@ -31,6 +31,7 @@ import ColorSettingsShowcase from "./components/ColorSettingsShowcase";
 import ToolbarShowcase from "./components/ToolbarShowcase";
 import ToolbarShowcase2 from "./components/ToolbarShowcase2";
 import ToolbarShowcase3 from "./components/ToolbarShowcase3";
+import ToolbarShowcase4 from "./components/ToolbarShowcase4";
 import EngagementNoticeShowcase from "./components/EngagementNoticeShowcase";
 import PlaceholderSettingsShowcase from "./components/PlaceholderSettingsShowcase";
 import { useEffect } from "react";
@@ -122,6 +123,7 @@ const App = () => {
     if (showcase === 'toolbar') return <ToolbarShowcase />;
     if (showcase === 'toolbar2') return <ToolbarShowcase2 />;
     if (showcase === 'toolbar3') return <ToolbarShowcase3 />;
+    if (showcase === 'toolbar4') return <ToolbarShowcase4 />;
     return <Index />;
   };
 
