@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   Plus, ChevronDown, ArrowUpDown, ArrowDown, ArrowUp, Check, Edit2, Copy, BarChart3,
-  Upload, Minus, Link, FolderOpen, Rows3, Rows4, Search, SlidersHorizontal, X, FileText,
+  Upload, Minus, ArrowDownAZ, ArrowDownZA, Link, FolderOpen, Rows3, Rows4, Search, SlidersHorizontal, X, FileText,
 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,9 @@ import {
 import { cn } from '@/lib/utils';
 
 type Density = 'normal' | 'compact';
-type Sort = 'newest' | 'oldest' | 'alphabetical';
+type Sort = 'newest' | 'oldest' | 'alphabetical' | 'za';
 type Kind = 'all' | 'files' | 'dividers';
-const sortLabel = (s: Sort) => (s === 'newest' ? 'Newest first' : s === 'oldest' ? 'Oldest first' : 'A-Z');
+const sortLabel = (s: Sort) => (s === 'newest' ? 'Newest first' : s === 'oldest' ? 'Oldest first' : s === 'za' ? 'Z-A' : 'A-Z');
 
 type Item = { id: number; title: string; date: string; divider?: boolean };
 const ITEMS: Item[] = [
@@ -26,8 +26,9 @@ const ITEMS: Item[] = [
   { id: 6, title: 'Newsletter issue #1', date: 'December 2025' },
 ];
 
-const hh = (d: Density) => (d === 'compact' ? 'h-8' : 'h-10');
-const pad = (d: Density) => (d === 'compact' ? 'p-1' : 'p-1.5');
+// Toolbar height is fixed; Normal/Compact only affects the list below.
+const hh = (_d: Density) => 'h-10';
+const pad = (_d: Density) => 'p-1.5';
 
 const AddButton = ({ h }: { h: string }) => (
   <DropdownMenu>
@@ -94,7 +95,7 @@ const SettingsToggle = ({ open, setOpen, h, dot }: { open: boolean; setOpen: (b:
 );
 
 const SearchBox = ({ q, setQ, h }: { q: string; setQ: (s: string) => void; h: string }) => (
-  <div className={cn(h, 'flex items-center gap-2 px-3 rounded-lg bg-background border flex-1 min-w-[180px] focus-within:ring-2 focus-within:ring-ring/40')}>
+  <div className={cn(h, 'flex items-center gap-2 px-3 rounded-lg bg-background border flex-1 min-w-[180px] focus-within:ring-2 focus-within:ring-inset focus-within:ring-ring/60')}>
     <Search className="h-4 w-4 text-muted-foreground" />
     <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search files…" className="bg-transparent outline-none text-sm flex-1" />
     {q && <button onClick={() => setQ('')}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>}
@@ -109,7 +110,7 @@ const _SortBtn = ({ sort, setSort, h }: { sort: Sort; setSort: (s: Sort) => void
       </button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      {([['newest', 'Newest first', ArrowDown], ['oldest', 'Oldest first', ArrowUp], ['alphabetical', 'Alphabetical (A-Z)', ArrowUpDown]] as const).map(([v, l, I]) => (
+      {([['newest', 'Newest first', ArrowDown], ['oldest', 'Oldest first', ArrowUp], ['alphabetical', 'Alphabetical (A-Z)', ArrowDownAZ], ['za', 'Alphabetical (Z-A)', ArrowDownZA]] as const).map(([v, l, I]) => (
         <DropdownMenuItem key={v} onClick={() => setSort(v)} className="flex justify-between gap-4 cursor-pointer">
           <span className="flex items-center gap-2"><I className="h-4 w-4" />{l}</span>
           {sort === v && <Check className="h-4 w-4 text-primary" />}
@@ -146,7 +147,7 @@ const SortIcon = ({ sort, setSort, h }: { sort: Sort; setSort: (s: Sort) => void
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
       <DropdownMenuLabel className="text-xs text-muted-foreground">Sort by</DropdownMenuLabel>
-      {([['newest', 'Newest first', ArrowDown], ['oldest', 'Oldest first', ArrowUp], ['alphabetical', 'Alphabetical (A-Z)', ArrowUpDown]] as const).map(([v, l, I]) => (
+      {([['newest', 'Newest first', ArrowDown], ['oldest', 'Oldest first', ArrowUp], ['alphabetical', 'Alphabetical (A-Z)', ArrowDownAZ], ['za', 'Alphabetical (Z-A)', ArrowDownZA]] as const).map(([v, l, I]) => (
         <DropdownMenuItem key={v} onClick={() => setSort(v)} className="flex justify-between gap-4 cursor-pointer">
           <span className="flex items-center gap-2"><I className="h-4 w-4" />{l}</span>
           {sort === v && <Check className="h-4 w-4 text-primary" />}
@@ -171,7 +172,7 @@ const DensityIcons = ({ d, setD, h }: { d: Density; setD: (d: Density) => void; 
 interface VProps {
   d: Density; setD: (d: Density) => void; sort: Sort; setSort: (s: Sort) => void;
   sel: boolean; setSel: (b: boolean) => void; q: string; setQ: (s: string) => void;
-  files: number; dividers: number; kind: Kind; setKind: (k: Kind) => void;
+  files: number; dividers: number; kind: Kind; setKind: (k: Kind) => void; matched: number;
 }
 
 /* Shared shell: approved collapsed bar + custom tray */
@@ -211,11 +212,13 @@ const V1 = (p: VProps) => (
     </div>)} />
 );
 const SearchWithCount = ({ p, h }: { p: VProps; h: string }) => (
-  <div className={cn(h, 'flex items-center gap-2 px-3 rounded-lg bg-background border flex-1 min-w-[180px] focus-within:ring-2 focus-within:ring-ring/40')}>
+  <div className={cn(h, 'flex items-center gap-2 px-3 rounded-lg bg-background border flex-1 min-w-[180px] focus-within:ring-2 focus-within:ring-inset focus-within:ring-ring/60')}>
     <Search className="h-4 w-4 text-muted-foreground" />
-    <input value={p.q} onChange={(e) => p.setQ(e.target.value)} placeholder={`Search ${p.files} files…`} className="bg-transparent outline-none text-sm flex-1" />
-    {p.q ? <button onClick={() => p.setQ('')}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
-      : <span className="text-[11px] text-muted-foreground whitespace-nowrap">{p.files} files · {p.dividers} dividers</span>}
+    <input value={p.q} onChange={(e) => p.setQ(e.target.value)} placeholder="Search files…" className="bg-transparent outline-none text-sm flex-1" />
+    <span className={cn('text-[11px] whitespace-nowrap tabular-nums', p.q ? 'text-foreground font-medium' : 'text-muted-foreground')}>
+      {p.q ? `${p.matched} of ${p.files}` : p.files} {(p.q ? p.files : p.files) === 1 ? 'file' : 'files'}
+    </span>
+    {p.q && <button onClick={() => p.setQ('')}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>}
   </div>
 );
 const V1b = (p: VProps) => (
@@ -326,9 +329,19 @@ const Section = ({ name, desc, C }: (typeof VARIANTS)[number]) => {
     let list = ITEMS.filter((i) => !ql || (!i.divider && i.title.toLowerCase().includes(ql)));
     if (kind === 'files') list = list.filter((i) => !i.divider);
     if (kind === 'dividers') list = list.filter((i) => i.divider);
-    if (!ql && sort === 'alphabetical') list = list.filter((i) => !i.divider).sort((a, b) => a.title.localeCompare(b.title));
-    if (!ql && sort === 'oldest') list = [...list].reverse();
-    return list;
+    // Sort files inside each divider section; dividers stay as section headers.
+    const sections: Item[][] = [];
+    let cur: Item[] = [];
+    list.forEach((i) => { if (i.divider) { sections.push(cur); cur = [i]; } else cur.push(i); });
+    sections.push(cur);
+    const cmp = (a: Item, b: Item) => sort === 'alphabetical' ? a.title.localeCompare(b.title)
+      : sort === 'za' ? b.title.localeCompare(a.title) : sort === 'oldest' ? b.id - a.id : 0;
+    const ordered = sort === 'oldest' ? [...sections].reverse() : sections;
+    return ordered.flatMap((sec) => {
+      const [head, ...rest] = sec[0]?.divider ? sec : [undefined, ...sec];
+      const files = sort === 'newest' ? rest : [...rest].sort(cmp);
+      return head ? [head as Item, ...files] : files;
+    });
   }, [q, sort, kind]);
   const files = ITEMS.filter((i) => !i.divider).length;
   return (
@@ -336,7 +349,7 @@ const Section = ({ name, desc, C }: (typeof VARIANTS)[number]) => {
       <div><h2 className="font-semibold">{name}</h2><p className="text-sm text-muted-foreground">{desc}</p></div>
       <div className="rounded-xl border p-5 bg-card">
         <C d={d} setD={setD} sort={sort} setSort={setSort} sel={sel} setSel={setSel} q={q} setQ={setQ}
-          files={files} dividers={ITEMS.length - files} kind={kind} setKind={setKind} />
+          files={files} dividers={ITEMS.length - files} matched={items.filter((i) => !i.divider).length} kind={kind} setKind={setKind} />
         <Rows d={d} items={items} sel={sel} />
       </div>
     </section>
