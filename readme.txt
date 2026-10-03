@@ -71,8 +71,7 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.7.1 =
-* Improved: The Update button in the plugin's update notice now updates the plugin directly, without extra steps
-* Fix: When WordPress hasn't detected a new release yet, the plugin now asks WordPress to check again instead of opening an Updates page without the new version
+* Improved: Enhancements to the updating process.
 * Minor stability improvements
 
 = 2.7.0 =
