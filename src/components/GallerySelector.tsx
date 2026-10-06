@@ -190,7 +190,7 @@ export const GallerySelector = ({
 
   const btnCls = toolbar ? 'h-10 w-8 p-0 text-muted-foreground' : 'h-8 w-8 p-0';
   const iconCls = toolbar ? 'h-3.5 w-3.5' : 'h-3 w-3';
-  const cardCls = 'h-10 flex items-center gap-2 px-3 rounded-lg bg-background border text-sm min-w-[190px]';
+  const cardCls = 'h-10 flex items-center gap-2 px-3 rounded-lg bg-background border text-sm min-w-[260px] max-w-[420px]';
 
   // Shared buttons for gallery management
   const renderManagementButtons = () => (

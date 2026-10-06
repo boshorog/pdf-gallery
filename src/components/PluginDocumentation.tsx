@@ -346,18 +346,36 @@ const PluginDocumentation: React.FC<PluginDocumentationProps> = ({ className, sh
               <AccordionContent>
                 <div className="space-y-4 text-sm">
                   <div>
-                    <h4 className="font-medium mb-2">Organizing Documents</h4>
+                    <h4 className="font-medium mb-2">Gallery Toolbar</h4>
                     <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                      <li><strong>Drag & Drop:</strong> Reorder documents by dragging them</li>
-                      <li><strong>Section Dividers:</strong> Add headers to group related documents</li>
-                      <li><strong>Bulk Selection:</strong> Select multiple items for batch operations</li>
+                      <li><strong>Select All:</strong> The checkbox on the left selects every item; a Delete button appears when items are selected</li>
+                      <li><strong>Gallery Card:</strong> Shows the current gallery name, with Rename, Copy Shortcode{license.isPro ? ', Analytics and Add Gallery' : ''} buttons next to it</li>
+                      <li><strong>Options:</strong> The sliders icon opens a panel with live search, sorting and list view</li>
+                      <li><strong>Add:</strong> One menu to add a File or a Divider</li>
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-medium mb-2">Editing Documents</h4>
+                    <h4 className="font-medium mb-2">Options Panel</h4>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li><strong>Live Search:</strong> Filters files and dividers as you type; the file count updates with the results</li>
+                      <li><strong>Sorting:</strong> Newest, Oldest, A-Z and Z-A. Files are sorted within their divider sections, so dividers stay in place</li>
+                      <li><strong>Normal / Compact:</strong> Changes the height of list items only; your choice is remembered</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Organizing Files</h4>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li><strong>Drag & Drop:</strong> Reorder files and dividers by dragging them</li>
+                      <li><strong>Section Dividers:</strong> Add headers to group related files</li>
+                      <li><strong>Multi-Select:</strong> Shift+click to select a range, then move or delete them together</li>
+                      <li><strong>Unlimited Files:</strong> No file limit per gallery, in both Free and Pro</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Editing Files</h4>
                     <p className="text-muted-foreground">
-                      Click the edit icon on any document to modify its title, subtitle, or thumbnail. 
-                      Changes are saved automatically.
+                      Click the edit icon on any file to modify its title, subtitle, or thumbnail. Press Enter to save.
+                      Files added from the WP Media Library or via YouTube link get their title and subtitle filled in automatically.
                     </p>
                   </div>
                   {license.isPro && (
