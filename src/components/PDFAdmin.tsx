@@ -1470,6 +1470,19 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                     ) : (
                       <span className="text-sm text-muted-foreground pl-3">No files yet</span>
                     )}
+                    {/* Gallery selector, right after Select all */}
+                    <div className="flex items-center shrink-0">
+                      <GallerySelector
+                        toolbar
+                        galleries={galleries}
+                        currentGalleryId={currentGalleryId}
+                        isPro={license.isPro}
+                        onGalleryChange={onCurrentGalleryChange}
+                        onGalleryCreate={handleGalleryCreate}
+                        onGalleryRename={handleGalleryRename}
+                        onGalleryDelete={handleGalleryDelete}
+                      />
+                    </div>
                     {selectedItems.size > 0 && (
                       <Button onClick={handleDeleteSelected} variant="destructive" size="sm" className="h-10 gap-1.5">
                         <Trash2 className="w-4 h-4" />Delete
@@ -1477,22 +1490,8 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                     )}
                   </div>
 
-                  {/* Center: Gallery selector */}
-                  <div className="flex items-center shrink-0">
-                    <GallerySelector
-                      toolbar
-                      galleries={galleries}
-                      currentGalleryId={currentGalleryId}
-                      isPro={license.isPro}
-                      onGalleryChange={onCurrentGalleryChange}
-                      onGalleryCreate={handleGalleryCreate}
-                      onGalleryRename={handleGalleryRename}
-                      onGalleryDelete={handleGalleryDelete}
-                    />
-                  </div>
-
                   {/* Right: Options toggle + Add */}
-                  <div className="flex-1 flex justify-end items-center gap-2">
+                  <div className="shrink-0 flex justify-end items-center gap-2">
                     <button
                       onClick={() => setToolsOpen(!toolsOpen)}
                       title="Search, sort & view options"
