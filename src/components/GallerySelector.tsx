@@ -345,7 +345,7 @@ export const GallerySelector = ({
     <>
       <div className="flex items-center gap-2">
         <Select value={currentGalleryId || (galleries[0]?.id ?? '')} onValueChange={onGalleryChange}>
-          <SelectTrigger className={toolbar ? `${cardCls} justify-between w-auto focus:ring-0 focus:ring-offset-0` : 'w-56'}>
+          <SelectTrigger className={toolbar ? `${cardCls} justify-start w-auto text-left focus:ring-0 focus:ring-offset-0 [&>span]:flex-1 [&>span]:text-left [&>span]:truncate` : 'w-56'}>
             {toolbar && <FolderOpen className="h-4 w-4 text-primary shrink-0" />}
             <SelectValue placeholder={currentGallery?.name || galleries[0]?.name || 'Select gallery'} />
           </SelectTrigger>
