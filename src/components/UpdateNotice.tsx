@@ -107,6 +107,13 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     navigateTop(window.location.origin + '/wp-admin/update-core.php');
   };
 
+  // Pro (Freemius): updates appear on the Plugins page, not on Dashboard > Updates
+  const redirectToPluginsPage = () => {
+    const basename = getWPGlobal()?.pluginBasename;
+    const slug = typeof basename === 'string' ? basename.split('/')[0] : PLUGIN_SLUG;
+    navigateTop(window.location.origin + '/wp-admin/plugins.php?plugin_status=upgrade#' + slug + '-update');
+  };
+
   const handleUpdate = async () => {
     if (isDevPreview()) {
       alert('Update is only available in WordPress. This is a dev preview.');
@@ -114,6 +121,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     }
 
     const wp = getWPGlobal();
+    const isProBuild = wp?.fsIsPro === true || wp?.fsIsPro === 'true' || wp?.fsIsPro === '1' || wp?.fsIsPro === 1;
 
     // 1) WordPress already knows about the update: run the upgrade immediately.
     if (wp?.updateUrl) {
@@ -125,7 +133,7 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
     // 2) WordPress hasn't refreshed its update list yet (it only checks every
     //    12h). Force a fresh check, then go straight to the upgrade.
     if (!wp?.ajaxUrl || !wp?.nonce) {
-      redirectToUpdatePage();
+      if (isProBuild) redirectToPluginsPage(); else redirectToUpdatePage();
       return;
     }
 
@@ -145,6 +153,12 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
         return;
       }
 
+      if (isProBuild) {
+        // Pro updates are delivered by Freemius and listed on the Plugins page.
+        redirectToPluginsPage();
+        return;
+      }
+
       if (json?.success) {
         // WordPress.org's update service hasn't distributed the new version yet.
         setUpdating(false);
@@ -155,10 +169,10 @@ export const UpdateNotice = ({ currentVersion }: UpdateNoticeProps) => {
       }
 
       setUpdating(false);
-      redirectToUpdatePage();
+      if (isProBuild) redirectToPluginsPage(); else redirectToUpdatePage();
     } catch {
       setUpdating(false);
-      redirectToUpdatePage();
+      if (isProBuild) redirectToPluginsPage(); else redirectToUpdatePage();
     }
   };
 
