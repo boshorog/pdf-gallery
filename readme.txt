@@ -71,9 +71,8 @@ Once you install the plugin, head over to the Documentation tab where we have an
 == Changelog ==
 
 = 2.7.2 =
-* Fixed: Pro update button now opens the Plugins page where Pro updates are listed.
-* Fixed: Selected gallery name is left-aligned in the gallery selector.
-* Improved: Demo mode layout cleanup.
+* Fixed: Update workflow for Pro users.
+* Minor stability improvements
 
 = 2.7.1 =
 * Improved: Enhancements to the updating process.
@@ -124,110 +123,6 @@ Once you install the plugin, head over to the Documentation tab where we have an
 * New: Custom preset — any manual change is saved as a Custom preset
 * Fix: Gradient Zoom style now centers both title and subtitle under thumbnail
 * Improved color picker alignment and usability
-
-= 2.5.5 =
-* Fix: Update button now triggers in-page update instead of redirecting away
-* Fix: Fallback redirect now scrolls to and highlights the plugin row
-* Improved iframe-to-parent communication for WordPress AJAX updates
-
-= 2.5.4 =
-* Fix: Frontend gallery loading issue on certain themes (changed iframe to eager loading)
-* Fix: Update button no longer hangs indefinitely — falls back to plugins page after 10 seconds
-* Improvement: Vertical alignment of accent color preview in Settings
-
-= 2.5.3 =
-* Fix: Accent color now properly updates on frontend shortcode after saving
-* Improvement: Frontend settings fetch now includes gallery context for per-gallery settings
-
-= 2.5.2 =
-* Fix: Lightbox scroll onboarding now correctly resets when navigating between documents
-* Minor stability improvements
-
-= 2.5.1 =
-* New saturation-based color picker for accent color settings
-* Redesigned accent color section with full-width card preview
-
-= 2.5.0 =
-* Polished Gradient Zoom thumbnail style with dual-tone gradient border
-* Redesigned the Accent Color section of Settings
-
-= 2.4.12 =
-* Fixed analytics activity chart not updating when changing date range
-* Fixed scroll onboarding not showing for existing users after update
-
-= 2.4.11 =
-* Added scroll onboarding hints for multi-page PDFs in lightbox
-* Enter key now saves when editing files
-
-= 2.4.9 =
-* Update notifications now visible for Pro users inside the plugin dashboard
-
-= 2.4.7 =
-* Added gap size setting for gallery spacing customization
-
-= 2.4.6 =
-* Added upload via link feature
-
-= 2.4.2 =
-* Added File Analytics with views and clicks tracking (Pro)
-* Cross-gallery navigation in analytics modal
-
-= 2.3.0 =
-* Added YouTube video support — paste YouTube URLs directly
-* YouTube thumbnails and titles fetched automatically
-
-= 2.2.0 =
-* Added multi-select with Shift+click for bulk operations
-* Added bulk delete functionality
-
-= 2.1.0 =
-* Added section dividers for document organization
-* Added masonry layout option
-
-= 2.0.0 =
-* Complete redesign with modern React-based interface
-* Added lightbox document viewer with zoom and navigation
-* Added multiple thumbnail styles and hover animations
-
-= 1.0.0 =
-* Initial release
-
-== Upgrade Notice ==
-
-= 2.7.2 =
-Smoother Pro updates and small interface fixes.
-
-= 2.7.1 =
-One-click updates straight from the plugin's update notice.
-
-= 2.7.0 =
-Redesigned Galleries toolbar with search, sorting and compact view. Tested with the latest WordPress.
-
-= 2.6.3 =
-Redesigned placeholder settings. Engagement notice for free users. Token Map hover improvements.
-
-= 2.6.2 =
-Lightbox keyboard scrolling fix. Analytics date range filtering and chart aggregation improvements.
-
-= 2.6.1 =
-
-= 2.6.0 =
-New Color Settings with preset themes, interactive visual editor, and transparent background support.
-
-= 2.5.4 =
-Bug fixes for frontend rendering and accent color sync. Improved lightbox onboarding.
-
-= 2.5.0 =
-Redesigned Gradient Zoom style and Accent Color settings.
-
-= 2.4.11 =
-Scroll onboarding for multi-page PDFs. Enter key saves edits.
-
-= 2.4.2 =
-File Analytics now available for Pro users.
-
-= 2.0.0 =
-Major update with new features. Please backup before upgrading.
 
 == Additional Information ==
 
