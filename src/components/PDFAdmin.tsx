@@ -2044,6 +2044,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                     Delete {selectedItems.size} item{selectedItems.size > 1 ? 's' : ''}
                   </Button>
                 )}
+                {!isDemo && (<>
                 <Button 
                   onClick={() => {
                     setIsAddingDocument(true);
@@ -2065,6 +2066,7 @@ const PDFAdmin = ({ galleries, currentGalleryId, onGalleriesChange, onCurrentGal
                   <Separator className="w-4 h-0.5" />
                   Add Divider
                 </Button>
+                </>)}
               </div>
             </div>
           )}
