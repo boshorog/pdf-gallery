@@ -45,67 +45,56 @@ const App = () => {
     const token = new URLSearchParams(window.location.search).get('frameToken') || undefined;
     
     let lastHeight = 0;
-    let isUpdating = false;
-    let lastSentAt = 0;
 
     const measure = () => {
-      // IMPORTANT: Only measure the #root element, NOT document/body.
+      // IMPORTANT: Only measure the app root element, NOT document/body.
       // In an iframe, document.scrollHeight reflects the iframe viewport height
-      // (set by the parent), creating a feedback loop where each height post
-      // makes the iframe taller, which makes scrollHeight bigger, etc.
-      const rootEl = document.getElementById('root');
+      // (set by the parent), creating a feedback loop.
+      const rootEl =
+        document.getElementById('kindpdfg-root') ||
+        document.getElementById('pdf-gallery-root') ||
+        document.getElementById('newsletter-gallery-root') ||
+        document.getElementById('root');
       if (!rootEl) return 0;
-
-      const raw = rootEl.scrollHeight + 24; // small padding to avoid cutting the last row
-      const contentHeight = Math.ceil(raw / 8) * 8; // align to reduce micro-jitter
-      return contentHeight;
+      const rect = rootEl.getBoundingClientRect();
+      const raw = Math.max(rootEl.scrollHeight, rect.height) + 24;
+      return Math.ceil(raw / 8) * 8;
     };
-    
-    const postHeight = () => {
-      if (isUpdating) return;
-      const now = Date.now();
-      const contentHeight = measure();
 
-      if (Math.abs(contentHeight - lastHeight) > 12 && (now - lastSentAt) > 700) {
-        isUpdating = true;
+    // Never drop an update: every change is eventually posted (debounced),
+    // so late-loading content (thumbnails, fonts, async gallery data) is always included.
+    const postHeight = () => {
+      const contentHeight = measure();
+      if (contentHeight > 0 && Math.abs(contentHeight - lastHeight) > 4) {
         lastHeight = contentHeight;
-        lastSentAt = now;
         window.parent?.postMessage({ type: POST_MESSAGE_HEIGHT, height: contentHeight, token }, '*');
-        setTimeout(() => {
-          isUpdating = false;
-        }, 250);
       }
     };
 
-    let rafId = 0;
-    const schedule = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => postHeight());
-    };
-
-    // Debounced height update
     let timeout: number;
     const debouncedSchedule = () => {
       clearTimeout(timeout);
-      timeout = window.setTimeout(schedule, 300);
+      timeout = window.setTimeout(() => requestAnimationFrame(postHeight), 150);
     };
 
-    // Initial and follow-up height calculations to catch async image/lazy loads
-    setTimeout(postHeight, 500);
-    setTimeout(postHeight, 1500);
-    setTimeout(postHeight, 3000);
+    const timers = [300, 1000, 2000, 4000, 8000].map((ms) => window.setTimeout(postHeight, ms));
     const ro = new ResizeObserver(debouncedSchedule);
-    const rootEl = document.getElementById('root');
-    if (rootEl) ro.observe(rootEl);
+    const rootEl = document.getElementById('kindpdfg-root') || document.getElementById('root');
+    if (rootEl) {
+      ro.observe(rootEl);
+      Array.from(rootEl.children).forEach((c) => ro.observe(c));
+    }
+    const mo = new MutationObserver(debouncedSchedule);
+    if (rootEl) mo.observe(rootEl, { childList: true, subtree: true, attributes: true });
 
-    // Fallback listeners
     window.addEventListener('load', postHeight);
     window.addEventListener('resize', debouncedSchedule);
 
     return () => {
       clearTimeout(timeout);
-      cancelAnimationFrame(rafId);
+      timers.forEach(clearTimeout);
       ro.disconnect();
+      mo.disconnect();
       window.removeEventListener('load', postHeight);
       window.removeEventListener('resize', debouncedSchedule);
     };
